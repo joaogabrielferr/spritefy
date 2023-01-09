@@ -1,0 +1,30 @@
+.canvasContainer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.canvasBox{
+    width: 80%;
+    height: 50%;
+    position: absolute;
+    top: 0;
+    left: 200px;
+}
+
+#drawingCanvas{
+    z-index: 9;
+}
+
+#backgroundCanvas{
+    z-index: 0;
+}
+
+
+#canvas{
+     border: 1px solid rgba(36, 145, 179, 0.507); 
+}
+
+#bgcanvas{
+    border: 1px solid rgba(95, 95, 95, 0.507);
+}
