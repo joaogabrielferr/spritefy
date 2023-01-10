@@ -1,4 +1,9 @@
 
+import { fillSpace } from "./PaintBucket.js";
+
+let c; //canvas context
+
+
 function buildPath(pixels,start,end,PIXEL_SIZE){
     //function to fill in the gaps left after a fast pen stroke because aparently mousemove event doesnt fire fast enough when moving the mouse tooo fast
     if(!start || !end)return;
@@ -88,11 +93,13 @@ window.addEventListener("load",()=>{
     let isMousePressed = false;
     let painting = true;
     let erasing = false;
+    let bucket = false;
 
     let penSize = PIXEL_SIZE;
 
     const canvas = document.getElementById("canvas");
-    const c = canvas.getContext("2d");
+    // const c = canvas.getContext("2d");
+     c = canvas.getContext("2d");
     // canvas.width = 1000;
     // canvas.height = 1000;
 
@@ -117,27 +124,28 @@ window.addEventListener("load",()=>{
 
 
     const pixels = [];
-    let pixelID = 0;
+    let pixelID = 1;
     let idxi = 0,idxj = 0;
-    for(let i = 0;i<=DISPLAY_SIZE*PIXEL_SIZE;i+=PIXEL_SIZE)
+    for(let i = 0;i<=DISPLAY_SIZE*PIXEL_SIZE - PIXEL_SIZE;i+=PIXEL_SIZE)
     {
         const row = [];
         // console.log("i:",idxi);
-        for(let j = 0;j<=DISPLAY_SIZE*PIXEL_SIZE;j+=PIXEL_SIZE)
+        for(let j = 0;j<=DISPLAY_SIZE*PIXEL_SIZE - PIXEL_SIZE;j+=PIXEL_SIZE)
         {
             // console.log("j:",idxj);
             let x1 = i;
             let y1 = j;
             let x2 = i + PIXEL_SIZE;
             let y2 = j + PIXEL_SIZE;
+            // console.log(pixelID);
             const pixel = {
                 x1 : x1,
                 y1 : y1,
                 x2 : x2,
                 y2 : y2,
-                r : 0,
-                g : 0,
-                b : 0,
+                r : 300,
+                g : 300,
+                b : 300,
                 a : 0,
                 painted : false,
                 id : pixelID++,
@@ -151,8 +159,8 @@ window.addEventListener("load",()=>{
         idxj = 0;
         pixels.push(row);
     }
-    console.log(pixels);
-     console.log("especific one:",pixels[30][31]);
+    console.log(pixels.length);
+     console.log("especific one:",pixels[33][14]);
 
     c.willReadFrequently = true;
 
@@ -190,7 +198,7 @@ window.addEventListener("load",()=>{
         const y = event.clientY - bounding.top;
         //const pixel = c.getImageData(x, y, 1, 1);
         //const data = pixel.data;
-        if(x > 1280 || x < 0 || y > 1280 || x < 0)return;
+        if(x > PIXEL_SIZE*DISPLAY_SIZE || x < 0 || y > PIXEL_SIZE*DISPLAY_SIZE || y < 0)return;
         //console.log("last pixel:",lastPixel);
         //console.log("current pixel:",x,y);
         //return;
@@ -260,10 +268,15 @@ window.addEventListener("load",()=>{
             }else if(erasing)
             {
                 c.clearRect(pixel.x1,pixel.y1,penSize,penSize);
-                pixel.r = 0;
-                pixel.g = 0;
-                pixel.b = 0;
+                pixel.r = 300;
+                pixel.g = 300;
+                pixel.b = 300;
                 pixel.a = 0;
+            }else if(bucket)
+            {
+                console.log("filling space");
+                color = [177,150,70,1];
+                fillSpace(pixels,pixel,color,[pixel.r,pixel.g,pixel.b,pixel.a],PIXEL_SIZE,DISPLAY_SIZE,penSize,c);
             }
            // console.log(pixels[idxi][idxj]);
         }
@@ -334,12 +347,39 @@ window.addEventListener("load",()=>{
             case 'e':
                 painting = false;
                 erasing = true;
+                bucket = false;
                 break;
             
             case 'p':
                 painting = true;
                 erasing = false;
+                bucket = false;
                 break;
+
+            case 'b':
+                painting = false;
+                erasing = false;
+                bucket = true;
+                break;
+
+            case 'E':
+                painting = false;
+                erasing = true;
+                bucket = false;
+                break;
+
+            case 'P':
+                painting = true;
+                erasing = false;
+                bucket = false;
+                break;
+            
+            case 'B':
+                painting = false;
+                erasing = false;
+                bucket = true;
+                break;
+
 
             case '1':
                 penSize = PIXEL_SIZE;
