@@ -1,6 +1,10 @@
 
 import { fillSpace } from "./PaintBucket.js";
 
+
+//TODO: CREATE A PAINT FUNCTION FOR PEN, ERASER AND PAINT BUCKET AND PUT THEM IN MODULES
+
+
 let c; //canvas context
 
 
@@ -189,9 +193,9 @@ window.addEventListener("load",()=>{
       }
 
     
-    let lastPixel = null;
-
-    const paint = (event,eventtype) => {
+      
+      let lastPixel = null;
+      const paint = (event,eventtype) => {
         if(!isMousePressed)return;
         const bounding = canvas.getBoundingClientRect();
         const x = event.clientX - bounding.left;
@@ -272,6 +276,24 @@ window.addEventListener("load",()=>{
                 pixel.g = 300;
                 pixel.b = 300;
                 pixel.a = 0;
+
+                if(lastPixel !== null && isMousePressed && lastPixel.id !== pixel.id && eventtype == "mousemove")
+                    {
+                    const path = buildPath(pixels,lastPixel,pixel,PIXEL_SIZE);
+                    console.log(path);
+                    for(let p of path)
+                    {
+                        //c.fillStyle = "rgba(" + 177 + ", " + 150 + ", " + 70 + ", " + 1 + ")";
+                        c.clearRect(p.x1,p.y1,penSize,penSize);
+                        p.r = 300;
+                        p.g = 300;
+                        p.b = 300;
+                        p.a = 0;
+                    }
+                }
+
+                lastPixel = pixel;
+
             }else if(bucket)
             {
                 console.log("filling space");
