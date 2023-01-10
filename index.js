@@ -10,7 +10,19 @@ import { buildPath } from "./BuildPath.js";
 let c; //canvas context
 let lastPixel = {
     value: null //last pixel painted in the screen
-}
+};
+
+const colorSelectorElement = document.getElementById("colorSelector");
+
+let selectedColor = {
+    value : colorSelectorElement.value
+};
+
+colorSelectorElement.addEventListener("change",(event)=>{
+    selectedColor.value = event.target.value;
+})
+
+
 const PIXEL_SIZE = 10;
 const DISPLAY_SIZE = 64; 
 
@@ -70,10 +82,7 @@ window.addEventListener("load",()=>{
                 y1 : y1,
                 x2 : x2,
                 y2 : y2,
-                r : 300,
-                g : 300,
-                b : 300,
-                a : 0,
+                color : "#FF000000",
                 painted : false,
                 id : pixelID++,
                 i : idxi,
@@ -149,47 +158,16 @@ window.addEventListener("load",()=>{
 
         if(pixel != null)
         {
-            let color;
+            //let color;
 
-            if(painting)
-            {
-                color = [0, 0, 0, 1];
-                c.fillStyle = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", " + color[3] + ")";
-
-                c.fillRect(pixel.x1,pixel.y1,penSize,penSize);
-                pixel.r = color[0];
-                pixel.g = color[1];
-                pixel.b = color[2];
-                pixel.a = color[3];
-                
-                
-                if(lastPixel.value !== null && isMousePressed && lastPixel.value.id !== pixel.id && eventtype == "mousemove")
-                {
-                    //build path from last pixel to current pixel
-                    const path = buildPath(pixels,lastPixel,pixel,PIXEL_SIZE);
-                    // console.log(path);
-                    for(let p of path)
-                    {
-                        //c.fillStyle = "rgba(" + 177 + ", " + 150 + ", " + 70 + ", " + 1 + ")";
-                        c.fillRect(p.x1,p.y1,penSize,penSize);
-                        p.r = color[0];
-                        p.g = color[1];
-                        p.b = color[2];
-                        p.a = color[3];
-                    }
-                }
-                
-                lastPixel.value= pixel;
-                
-                
-
-            }else if(erasing)
+            if(erasing)
             {
                 c.clearRect(pixel.x1,pixel.y1,penSize,penSize);
-                pixel.r = 300;
-                pixel.g = 300;
-                pixel.b = 300;
-                pixel.a = 0;
+                // pixel.r = 300;
+                // pixel.g = 300;
+                // pixel.b = 300;
+                // pixel.a = 0;
+                pixel.color = "#FF000000";
 
                 if(lastPixel.value !== null && isMousePressed && lastPixel.value.id !== pixel.id && eventtype == "mousemove")
                     {
@@ -209,8 +187,9 @@ window.addEventListener("load",()=>{
             }else if(bucket)
             {
                 console.log("filling space");
-                color = [177,150,70,1];
-                fillSpace(pixels,pixel,color,[pixel.r,pixel.g,pixel.b,pixel.a],PIXEL_SIZE,DISPLAY_SIZE,penSize,c);
+                // color = [177,150,70,1];
+                //color = "#b19646";
+                fillSpace(pixels,pixel,selectedColor,pixel.color,PIXEL_SIZE,DISPLAY_SIZE,penSize,c);
             }
            
         }
@@ -224,7 +203,7 @@ window.addEventListener("load",()=>{
         isMousePressed = true;
 
         if(painting)
-            Pen(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);
+            Pen(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor);
         else paint(event,"mousedown");
         
     });
@@ -236,7 +215,7 @@ window.addEventListener("load",()=>{
 
     document.addEventListener("mousemove",(event)=>{
         if(painting && isMousePressed)
-            Pen(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);
+            Pen(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor);
         else paint(event,"mousemove");
     });
 

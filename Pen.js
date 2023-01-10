@@ -1,6 +1,6 @@
 import { buildPath } from "./BuildPath.js";
 
-export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize) => {
+export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor) => {
     if(!isMousePressed)return;
     const bounding = canvas.getBoundingClientRect();
     const x = event.clientX - bounding.left;
@@ -27,17 +27,17 @@ export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_
 
     if(pixel != null)
     {
-        let color;
+        //let color;
 
         
-            color = [0, 0, 0, 1];
-            c.fillStyle = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", " + color[3] + ")";
+            // color = [0, 0, 0, 1];
+            //color = "#000000";
+            // c.fillStyle = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", " + color[3] + ")";
+            c.fillStyle = selectedColor.value;
 
             c.fillRect(pixel.x1,pixel.y1,penSize,penSize);
-            pixel.r = color[0];
-            pixel.g = color[1];
-            pixel.b = color[2];
-            pixel.a = color[3];
+            
+            pixel.color = selectedColor.value;
 
             if(lastPixel.value !== null && isMousePressed && lastPixel.value.id !== pixel.id && eventtype == "mousemove")
             {
@@ -46,10 +46,8 @@ export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_
                 for(let p of path)
                 {
                     c.fillRect(p.x1,p.y1,penSize,penSize);
-                    p.r = color[0];
-                    p.g = color[1];
-                    p.b = color[2];
-                    p.a = color[3];
+                    
+                    p.color = selectedColor.value;
                 }
             }
 
