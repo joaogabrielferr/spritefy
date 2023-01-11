@@ -1,13 +1,15 @@
 
 import { Pen } from "./Pen.js";
+import {Eraser} from './Eraser.js';
 import { fillSpace } from "./PaintBucket.js";
 import { buildPath } from "./BuildPath.js";
 
 
 //TODO: CREATE A PAINT FUNCTION FOR PEN, ERASER AND PAINT BUCKET AND PUT THEM IN MODULES
 
-
+let canvas;
 let c; //canvas context
+let pixels = [];
 let lastPixel = {
     value: null //last pixel painted in the screen
 };
@@ -36,7 +38,7 @@ let penSize = PIXEL_SIZE;
 
 window.addEventListener("load",()=>{
     
-    const canvas = document.getElementById("canvas");
+     canvas = document.getElementById("canvas");
     // const c = canvas.getContext("2d");
      c = canvas.getContext("2d");
     // canvas.width = 1000;
@@ -62,7 +64,6 @@ window.addEventListener("load",()=>{
     // c.fillRect(0,0,window.innerWidth,window.innerHeight);
 
 
-    const pixels = [];
     let pixelID = 1;
     let idxi = 0,idxj = 0;
     for(let i = 0;i<=DISPLAY_SIZE*PIXEL_SIZE - PIXEL_SIZE;i+=PIXEL_SIZE)
@@ -204,6 +205,8 @@ window.addEventListener("load",()=>{
 
         if(painting)
             Pen(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor);
+        else if(painting)
+            Eraser(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);
         else paint(event,"mousedown");
         
     });
@@ -216,6 +219,8 @@ window.addEventListener("load",()=>{
     document.addEventListener("mousemove",(event)=>{
         if(painting && isMousePressed)
             Pen(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor);
+        else if (erasing && isMousePressed)
+            Eraser(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize) ;   
         else paint(event,"mousemove");
     });
 

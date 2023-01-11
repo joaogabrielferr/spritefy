@@ -38,6 +38,7 @@ export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_
             c.fillRect(pixel.x1,pixel.y1,penSize,penSize);
             
             pixel.color = selectedColor.value;
+            pixel.painted = true;
 
             if(lastPixel.value !== null && isMousePressed && lastPixel.value.id !== pixel.id && eventtype == "mousemove")
             {
@@ -46,8 +47,8 @@ export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_
                 for(let p of path)
                 {
                     c.fillRect(p.x1,p.y1,penSize,penSize);
-                    
                     p.color = selectedColor.value;
+                    p.painted = true;
                 }
             }
 
