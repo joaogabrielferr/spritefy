@@ -40,7 +40,7 @@ export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_
             pixel.color = selectedColor.value;
             pixel.painted = true;
 
-            if(penSize == 20)
+            if(penSize == PIXEL_SIZE*2)
             {
                 const jp1 = pixel.j + 1 <= DISPLAY_SIZE && pixel.j + 1 >= 0;
                 const ip1 = pixel.i + 1 <= DISPLAY_SIZE && pixel.i + 1 >= 0;
