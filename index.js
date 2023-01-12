@@ -5,15 +5,16 @@ import { fillSpace } from "./PaintBucket.js";
 import { buildPath } from "./BuildPath.js";
 
 
-//TODO: CREATE A PAINT FUNCTION FOR PEN, ERASER AND PAINT BUCKET AND PUT THEM IN MODULES
+//TODO: ADD NEIGHBORHOOD PAINTING FOR PEN SIZE NUMBER 3
+//TODO: ADD NEIGHBORHOOD ERASING FOR PEN SIZES NUMBER 2 AND 3
 
 let canvas;
+let bgcanvas;
 let c; //canvas context
 let pixels = [];
 let lastPixel = {
     value: null //last pixel painted in the screen
 };
-
 const colorSelectorElement = document.getElementById("colorSelector");
 
 let selectedColor = {
@@ -33,6 +34,7 @@ let painting = true;
 let erasing = false;
 let bucket = false;
 
+const defaultPenSize = PIXEL_SIZE;
 let penSize = PIXEL_SIZE;
 
 
@@ -48,7 +50,7 @@ window.addEventListener("load",()=>{
     canvas.width = DISPLAY_SIZE*PIXEL_SIZE;
     canvas.height = DISPLAY_SIZE*PIXEL_SIZE;
 
-    const bgcanvas = document.getElementById("bgcanvas");
+    bgcanvas = document.getElementById("bgcanvas");
     const bgc = bgcanvas.getContext("2d");
 
     var background = new Image();
@@ -190,7 +192,7 @@ window.addEventListener("load",()=>{
                 console.log("filling space");
                 // color = [177,150,70,1];
                 //color = "#b19646";
-                fillSpace(pixels,pixel,selectedColor,pixel.color,PIXEL_SIZE,DISPLAY_SIZE,penSize,c);
+                fillSpace(pixels,pixel,selectedColor,pixel.color,PIXEL_SIZE,DISPLAY_SIZE,defaultPenSize,c);
             }
            
         }
@@ -233,6 +235,7 @@ window.addEventListener("load",()=>{
     });
 
     document.addEventListener("keydown",(event)=>{
+        let currentClassName;
         console.log(event.key);
         switch(event.key)
         {
@@ -240,36 +243,59 @@ window.addEventListener("load",()=>{
                 painting = false;
                 erasing = true;
                 bucket = false;
+                currentClassName = canvas.className;
+                canvas.classList.replace(currentClassName,"eraser");
+                bgcanvas.classList.replace(currentClassName,"eraser");
+                currentClassName = canvas.className;
+                
                 break;
             
             case 'p':
                 painting = true;
                 erasing = false;
                 bucket = false;
+                currentClassName = canvas.className;
+                canvas.classList.replace(currentClassName,"pen");
+                bgcanvas.classList.replace(currentClassName,"pen");
+
                 break;
 
             case 'b':
                 painting = false;
                 erasing = false;
                 bucket = true;
+                currentClassName = canvas.className;
+                canvas.classList.replace(currentClassName,"bucket");
+                bgcanvas.classList.replace(currentClassName,"bucket");
+                currentClassName = canvas.className;
                 break;
 
             case 'E':
                 painting = false;
                 erasing = true;
                 bucket = false;
+                currentClassName = canvas.className;
+                canvas.classList.replace(currentClassName,"eraser");
+                bgcanvas.classList.replace(currentClassName,"eraser");
                 break;
 
             case 'P':
                 painting = true;
                 erasing = false;
                 bucket = false;
+                currentClassName = canvas.className;
+                canvas.classList.replace(currentClassName,"pen");
+                bgcanvas.classList.replace(currentClassName,"pen");
                 break;
             
             case 'B':
                 painting = false;
                 erasing = false;
                 bucket = true;
+                currentClassName = canvas.className;
+                canvas.classList.replace(currentClassName,"bucket");
+                bgcanvas.classList.replace(currentClassName,"bucket");
+                currentClassName = canvas.className;
                 break;
 
 

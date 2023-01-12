@@ -28,3 +28,21 @@
 #bgcanvas{
     border: 1px solid rgba(95, 95, 95, 0.507);
 }
+
+.defaultCursor{
+    cursor: default;
+
+}
+
+.pen{
+    cursor : url(./img/pen.svg), auto;
+    color: red;
+}
+
+.eraser{
+    cursor : url(./img/eraser.svg),auto;
+}
+
+.bucket{
+    cursor: url(./img//bucket.svg),auto;
+}

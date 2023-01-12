@@ -40,6 +40,28 @@ export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_
             pixel.color = selectedColor.value;
             pixel.painted = true;
 
+            if(penSize == 20)
+            {
+                const jp1 = pixel.j + 1 <= DISPLAY_SIZE && pixel.j + 1 >= 0;
+                const ip1 = pixel.i + 1 <= DISPLAY_SIZE && pixel.i + 1 >= 0;
+                if(jp1)
+                {
+                    pixels[pixel.i][pixel.j + 1].color = selectedColor.value;
+                    pixels[pixel.i][pixel.j + 1].painted = true;
+                }
+                if(ip1)
+                {
+                    pixels[pixel.i + 1][pixel.j].color = selectedColor.value;
+                    pixels[pixel.i + 1][pixel.j].painted = true;
+                }
+                if(jp1 + ip1)
+                {
+                    pixels[pixel.i + 1][pixel.j + 1].color = selectedColor.value;
+                    pixels[pixel.i + 1][pixel.j + 1].painted = true;
+                }
+                
+            }
+
             if(lastPixel.value !== null && isMousePressed && lastPixel.value.id !== pixel.id && eventtype == "mousemove")
             {
                 //build path from last pixel to current pixel

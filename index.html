@@ -9,27 +9,29 @@
 </head>
 <body>
     <script type="module" src="./index.js"></script>
-    <div class = "">
-        <button id = "button">Download</button>
-        <div class="canvasBox" id = "drawingCanvas">
-            <canvas id = "canvas">
-                Your browser does not support canvas
-            </canvas>
-        </div>
-        <div class="canvasBox" id = "backgroundCanvas">
-            <canvas id = "bgcanvas" width="640" height="640">
-                Your browser does not support canvas
-            </canvas>
-       </div>
-            <div>
-                <h3>p: PEN</h3>
-                <h3>e: ERASER</h3>
-                <h3>b: PAINT BUCKET</h3>
-                <h3>1: STROKE SIZE 1</h3>
-                <h3>2: STROKE SIZE 2</h3>
-                <h3>3: STROKE SIZE 3</h3>
-                <h3>Selected color</h3>
-                <input type="color" id="colorSelector" value="#000000"><br><br>
+    <div>
+        <div class = "">
+            <button id = "button">Download</button>
+            <div class="canvasBox" id = "drawingCanvas">
+                <canvas id = "canvas" class="pen">
+                    Your browser does not support canvas
+                </canvas>
+            </div>
+            <div class="canvasBox" id = "backgroundCanvas">
+                <canvas id = "bgcanvas" width="640" height="640">
+                    Your browser does not support canvas
+                </canvas>
+           </div>
+                <div>
+                    <h3>p: PEN</h3>
+                    <h3>e: ERASER</h3>
+                    <h3>b: PAINT BUCKET</h3>
+                    <h3>1: STROKE SIZE 1</h3>
+                    <h3>2: STROKE SIZE 2</h3>
+                    <h3>3: STROKE SIZE 3</h3>
+                    <h3>Selected color</h3>
+                    <input type="color" id="colorSelector" value="#000000"><br><br>
+                </div>
             </div>
         </div>
     </div>
