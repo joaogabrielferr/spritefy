@@ -28,13 +28,11 @@ export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_
     }
     }
 
-    // const copy0 = JSON.parse(JSON.stringify(pixels[1]));
     //if this pixel is in currentPixels, that means it was already painted in the current stroke (user is moving the mouse after clicking one of its buttons and holding it)
     if(pixel != null && !isPixelAlreadyPaintedInCurrentDraw(pixel,currentPixelsMousePressed))
     {
         if(pixel.id === 18)
         {
-            // const copy = JSON.parse(JSON.stringify(pixels[1]));
         }
         pixel.color = selectedColor.value;
         pixel.painted = true;
@@ -46,7 +44,6 @@ export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_
 
         c.fillRect(pixel.x1,pixel.y1,penSize,penSize);
    
-        // const copy2 = JSON.parse(JSON.stringify(pixels[1]));
         
         draw.push(pixel);
 
@@ -108,10 +105,10 @@ export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_
                 p.color = selectedColor.value;
                 p.painted = true;
                 p.numOfPaints++;
+                currentPixelsMousePressed.value.push(p);
                 draw.push(p);
                 }
             }
-            // const copy3 = JSON.parse(JSON.stringify(pixels[1]));
         }
 
         lastPixel.value = pixel;  
