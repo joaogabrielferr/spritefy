@@ -58,4 +58,37 @@ function fillSpace(pixels,start,selectedColor,startColor,PIXEL_SIZE,DISPLAY_SIZE
 
 }
 
-export {fillSpace};
+export const PaintBucket = (event,isMousePressed,selectedColor,PIXEL_SIZE,DISPLAY_SIZE,pixels,defaultPensize,c) => {
+    if(!isMousePressed)return;
+    const bounding = canvas.getBoundingClientRect();
+    const x = event.clientX - bounding.left;
+    const y = event.clientY - bounding.top;
+
+    if(x > PIXEL_SIZE*DISPLAY_SIZE || x < 0 || y > PIXEL_SIZE*DISPLAY_SIZE || y < 0)return;
+
+    let pixel = null;
+    let flag = false;
+    let idxi,idxj;
+    for(let i = 0;i<pixels.length;i++)
+    {
+        if(flag)break;
+        for(let j = 0;j<pixels[i].length;j++)
+        {
+            if(x >= pixels[i][j].x1 && x <= pixels[i][j].x2 && y >= pixels[i][j].y1 && y <= pixels[i][j].y2)
+            {
+
+                pixel = pixels[i][j];
+                idxi = i;
+                idxj = j;
+                flag = true;
+                break;
+            }
+        }
+    }
+
+    if(pixel != null)
+    {
+        fillSpace(pixels,pixel,selectedColor,pixel.color,PIXEL_SIZE,DISPLAY_SIZE,defaultPensize,c); 
+    }
+
+}

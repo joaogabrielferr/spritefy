@@ -42,6 +42,7 @@ export const Eraser = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPL
             {
                 c.clearRect(p.x1,p.y1,penSize,penSize);
                 pixel.color = "#FF000000";
+                pixel.painted = false;
             }
         }
 

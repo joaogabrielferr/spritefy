@@ -1,12 +1,13 @@
 
 import { Pen } from "./Pen.js";
 import {Eraser} from './Eraser.js';
-import { fillSpace } from "./PaintBucket.js";
+import { PaintBucket } from "./PaintBucket.js";
 import { buildPath } from "./BuildPath.js";
+import { undoStack } from "./img/UndoRedo.js";
+import { undoLastDraw } from "./img/UndoRedo.js";
 
-
-//TODO: ADD NEIGHBORHOOD PAINTING FOR PEN SIZE NUMBER 3
 //TODO: ADD NEIGHBORHOOD ERASING FOR PEN SIZES NUMBER 2 AND 3
+//TODO: DURING ERASING, IF PIXEL IS NOT PAINTED, DO NOT TO CLEAR CLEAR
 
 let canvas;
 let bgcanvas;
@@ -15,6 +16,15 @@ let pixels = [];
 let lastPixel = {
     value: null //last pixel painted in the screen
 };
+
+let currentDraw = {
+    value : [] //current thing being painted in the canvas (the pixels painted using the pen, eraser of bucket)
+}
+
+let currentPixels = {
+    value : [] //pixels painted when mouse is clicked and moved while clicked
+}
+
 const colorSelectorElement = document.getElementById("colorSelector");
 
 let selectedColor = {
@@ -51,10 +61,14 @@ window.addEventListener("load",()=>{
     canvas.height = DISPLAY_SIZE*PIXEL_SIZE;
 
     bgcanvas = document.getElementById("bgcanvas");
+
+    bgcanvas.width = DISPLAY_SIZE*PIXEL_SIZE;
+    bgcanvas.height = DISPLAY_SIZE*PIXEL_SIZE;
+
     const bgc = bgcanvas.getContext("2d");
 
     var background = new Image();
-    background.src = "https://img.freepik.com/premium-vector/fake-transparent-background-16x9_268803-36.jpg?w=2000";
+    background.src = "./img/fakeBackground.PNG";
 
     background.onload = () =>{
         bgc.drawImage(background,0,0);
@@ -71,15 +85,12 @@ window.addEventListener("load",()=>{
     for(let i = 0;i<=DISPLAY_SIZE*PIXEL_SIZE - PIXEL_SIZE;i+=PIXEL_SIZE)
     {
         const row = [];
-        // console.log("i:",idxi);
         for(let j = 0;j<=DISPLAY_SIZE*PIXEL_SIZE - PIXEL_SIZE;j+=PIXEL_SIZE)
         {
-            // console.log("j:",idxj);
             let x1 = i;
             let y1 = j;
             let x2 = i + PIXEL_SIZE;
             let y2 = j + PIXEL_SIZE;
-            // console.log(pixelID);
             const pixel = {
                 x1 : x1,
                 y1 : y1,
@@ -89,7 +100,8 @@ window.addEventListener("load",()=>{
                 painted : false,
                 id : pixelID++,
                 i : idxi,
-                j : idxj
+                j : idxj,
+                numOfPaints : 0
             }
             row.push(pixel);
             idxj++;
@@ -98,7 +110,6 @@ window.addEventListener("load",()=>{
         idxj = 0;
         pixels.push(row);
     }
-    console.log(pixels.length);
      console.log("especific one:",pixels[33][14]);
 
     c.willReadFrequently = true;
@@ -106,8 +117,6 @@ window.addEventListener("load",()=>{
     // let id = c.createImageData(1,1);
     // let d = id.data;
 
-    // console.log("canvas:",canvas);
-    // console.log("context:",c);
 
 
     const botao = document.getElementById("button");
@@ -121,109 +130,34 @@ window.addEventListener("load",()=>{
         downloadLink.click();
     });
 
-    function getRandomInt(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
-      }
-
-    
-      
-      
-
-      const paint = (event,eventtype) => {
-        if(!isMousePressed)return;
-        const bounding = canvas.getBoundingClientRect();
-        const x = event.clientX - bounding.left;
-        const y = event.clientY - bounding.top;
-
-        if(x > PIXEL_SIZE*DISPLAY_SIZE || x < 0 || y > PIXEL_SIZE*DISPLAY_SIZE || y < 0)return;
-
-        let pixel = null;
-        let flag = false;
-        let idxi,idxj;
-        for(let i = 0;i<pixels.length;i++)
-        {
-            if(flag)break;
-            for(let j = 0;j<pixels[i].length;j++)
-            {
-                if(x >= pixels[i][j].x1 && x <= pixels[i][j].x2 && y >= pixels[i][j].y1 && y <= pixels[i][j].y2)
-                {
-
-                    pixel = pixels[i][j];
-                    idxi = i;
-                    idxj = j;
-                    flag = true;
-                    break;
-                }
-            }
-        }
-
-        if(pixel != null)
-        {
-            //let color;
-
-            if(erasing)
-            {
-                c.clearRect(pixel.x1,pixel.y1,penSize,penSize);
-                // pixel.r = 300;
-                // pixel.g = 300;
-                // pixel.b = 300;
-                // pixel.a = 0;
-                pixel.color = "#FF000000";
-
-                if(lastPixel.value !== null && isMousePressed && lastPixel.value.id !== pixel.id && eventtype == "mousemove")
-                    {
-                    const path = buildPath(pixels,lastPixel,pixel,PIXEL_SIZE);
-                    for(let p of path)
-                    {
-                        c.clearRect(p.x1,p.y1,penSize,penSize);
-                        p.r = 300;
-                        p.g = 300;
-                        p.b = 300;
-                        p.a = 0;
-                    }
-                }
-
-                lastPixel.value = pixel;
-
-            }else if(bucket)
-            {
-                console.log("filling space");
-                // color = [177,150,70,1];
-                //color = "#b19646";
-                fillSpace(pixels,pixel,selectedColor,pixel.color,PIXEL_SIZE,DISPLAY_SIZE,defaultPenSize,c);
-            }
-           
-        }
-
-    }
-
-
-
+     
     canvas.addEventListener("mousedown",(event)=>{
-        console.log(event.button);
         isMousePressed = true;
 
         if(painting)
-            Pen(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor);
-        else if(painting)
+            currentDraw.value.push(Pen(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixels));
+        else if(erasing)
             Eraser(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);
-        else paint(event,"mousedown");
+        else if(bucket)
+            PaintBucket(event,isMousePressed,selectedColor,PIXEL_SIZE,DISPLAY_SIZE,pixels,defaultPenSize,c);
         
     });
 
     canvas.addEventListener("mouseup",(event)=>{
         isMousePressed = false;
         lastPixel.value = null;
+        if(currentDraw.value.length > 0)
+            undoStack.push(currentDraw.value);
+        currentDraw.value = [];
+        currentPixels.value = [];
+
     });
 
     document.addEventListener("mousemove",(event)=>{
         if(painting && isMousePressed)
-            Pen(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor);
+            currentDraw.value.push(Pen(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixels));
         else if (erasing && isMousePressed)
-            Eraser(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize) ;   
-        else paint(event,"mousemove");
+            Eraser(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);   
     });
 
     // canvas.addEventListener("mouseenter",(event)=>{
@@ -232,21 +166,25 @@ window.addEventListener("load",()=>{
 
     document.addEventListener("mouseup",(event)=>{
         isMousePressed = false;
+        lastPixel.value = null;
+        if(currentDraw.value.length > 0)
+            undoStack.push(currentDraw.value);
+        currentDraw.value = [];
+        currentPixels.value = [];
     });
 
     document.addEventListener("keydown",(event)=>{
         let currentClassName;
-        console.log(event.key);
         switch(event.key)
         {
             case 'e':
                 painting = false;
                 erasing = true;
                 bucket = false;
-                currentClassName = canvas.className;
-                canvas.classList.replace(currentClassName,"eraser");
-                bgcanvas.classList.replace(currentClassName,"eraser");
-                currentClassName = canvas.className;
+                // currentClassName = canvas.className;
+                // canvas.classList.replace(currentClassName,"eraser");
+                // bgcanvas.classList.replace(currentClassName,"eraser");
+                // currentClassName = canvas.className;
                 
                 break;
             
@@ -254,9 +192,9 @@ window.addEventListener("load",()=>{
                 painting = true;
                 erasing = false;
                 bucket = false;
-                currentClassName = canvas.className;
-                canvas.classList.replace(currentClassName,"pen");
-                bgcanvas.classList.replace(currentClassName,"pen");
+                // currentClassName = canvas.className;
+                // canvas.classList.replace(currentClassName,"pen");
+                // bgcanvas.classList.replace(currentClassName,"pen");
 
                 break;
 
@@ -264,38 +202,43 @@ window.addEventListener("load",()=>{
                 painting = false;
                 erasing = false;
                 bucket = true;
-                currentClassName = canvas.className;
-                canvas.classList.replace(currentClassName,"bucket");
-                bgcanvas.classList.replace(currentClassName,"bucket");
-                currentClassName = canvas.className;
+                // currentClassName = canvas.className;
+                // canvas.classList.replace(currentClassName,"bucket");
+                // bgcanvas.classList.replace(currentClassName,"bucket");
+                // currentClassName = canvas.className;
+                break;
+            
+            case 'z':
+                //console.log(pixels);
+                undoLastDraw(pixels,defaultPenSize,c,PIXEL_SIZE);
                 break;
 
             case 'E':
                 painting = false;
                 erasing = true;
                 bucket = false;
-                currentClassName = canvas.className;
-                canvas.classList.replace(currentClassName,"eraser");
-                bgcanvas.classList.replace(currentClassName,"eraser");
+                // currentClassName = canvas.className;
+                // canvas.classList.replace(currentClassName,"eraser");
+                // bgcanvas.classList.replace(currentClassName,"eraser");
                 break;
 
             case 'P':
                 painting = true;
                 erasing = false;
                 bucket = false;
-                currentClassName = canvas.className;
-                canvas.classList.replace(currentClassName,"pen");
-                bgcanvas.classList.replace(currentClassName,"pen");
+                // currentClassName = canvas.className;
+                // canvas.classList.replace(currentClassName,"pen");
+                // bgcanvas.classList.replace(currentClassName,"pen");
                 break;
             
             case 'B':
                 painting = false;
                 erasing = false;
                 bucket = true;
-                currentClassName = canvas.className;
-                canvas.classList.replace(currentClassName,"bucket");
-                bgcanvas.classList.replace(currentClassName,"bucket");
-                currentClassName = canvas.className;
+                // currentClassName = canvas.className;
+                // canvas.classList.replace(currentClassName,"bucket");
+                // bgcanvas.classList.replace(currentClassName,"bucket");
+                // currentClassName = canvas.className;
                 break;
 
 
