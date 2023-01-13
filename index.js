@@ -37,6 +37,8 @@ colorSelectorElement.addEventListener("change",(event)=>{
     selectedColor.value = event.target.value;
 })
 
+const keyMap = new Map();
+
 
 const PIXEL_SIZE = 10;
 const DISPLAY_SIZE = 64; 
@@ -173,8 +175,8 @@ window.addEventListener("load",()=>{
         currentPixelsMousePressed.value = [];
     });
 
-    document.addEventListener("keydown",(event)=>{
-        let currentClassName;
+
+    const checkKeys = (event) =>{
         switch(event.key)
         {
             case 'e':
@@ -208,9 +210,9 @@ window.addEventListener("load",()=>{
                 // currentClassName = canvas.className;
                 break;
             
-            case 'z':
-                undoLastDraw(pixels,defaultPenSize,c,PIXEL_SIZE);
-                break;
+            // case 'z':
+            //     undoLastDraw(pixels,defaultPenSize,c,PIXEL_SIZE);
+            //     break;
 
             case 'E':
                 painting = false;
@@ -240,9 +242,9 @@ window.addEventListener("load",()=>{
                 // currentClassName = canvas.className;
                 break;
             
-            case 'Z':
-            undoLastDraw(pixels,defaultPenSize,c,PIXEL_SIZE);
-            break;
+            // case 'Z':
+            // undoLastDraw(pixels,defaultPenSize,c,PIXEL_SIZE);
+            // break;
 
 
             case '1':
@@ -260,7 +262,32 @@ window.addEventListener("load",()=>{
             default:
                 break;
          }
+    }
+
+    const checkKeyCombinations = (event) =>{
+        
+        if(keyMap["ControlLeft"] && keyMap["KeyZ"])
+        {
+            undoLastDraw(pixels,defaultPenSize,c,PIXEL_SIZE);
+        }
+
+    }
+
+
+    document.addEventListener("keydown",(event)=>{
+        let currentClassName;
+
+        checkKeys(event);
+
+        keyMap[event.code] = true;
+
+        checkKeyCombinations(event);
     });
+
+    document.addEventListener("keyup",(event)=>{
+        keyMap[event.code] = false;
+    })
+
 
     canvas.oncontextmenu = ()=> {return false};
 
