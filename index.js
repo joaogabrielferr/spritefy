@@ -239,6 +239,10 @@ window.addEventListener("load",()=>{
                 // bgcanvas.classList.replace(currentClassName,"bucket");
                 // currentClassName = canvas.className;
                 break;
+            
+            case 'Z':
+            undoLastDraw(pixels,defaultPenSize,c,PIXEL_SIZE);
+            break;
 
 
             case '1':
