@@ -1,4 +1,4 @@
-import { buildPath } from "./BuildPath.js";
+import { buildPath } from "./Helpers/BuildPath.js";
 
 export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixelsMousePressed) => {
     if(!isMousePressed)return;

@@ -1,13 +1,15 @@
 
-import { Pen } from "./Pen.js";
-import {Eraser} from './Eraser.js';
-import { PaintBucket } from "./PaintBucket.js";
-import { buildPath } from "./BuildPath.js";
-import { undoStack } from "./img/UndoRedo.js";
-import { undoLastDraw } from "./img/UndoRedo.js";
+import { Pen } from "./Functionalities/Pen.js";
+import {Eraser} from './Functionalities/Eraser.js';
+import { PaintBucket } from "./Functionalities/PaintBucket.js";
+import { undoStack } from "./Functionalities/UndoRedo.js";
+import { undoLastDraw } from "./Functionalities/UndoRedo.js";
 
 //TODO: ADD NEIGHBORHOOD ERASING FOR PEN SIZES NUMBER 2 AND 3
-//TODO: DURING ERASING, IF PIXEL IS NOT PAINTED, DO NOT TO CLEAR CLEAR
+//TODO: DURING ERASING, IF PIXEL IS NOT PAINTED, DO NOT TO TRY TO CLEAR
+//TODO: ADD CTRL Z UNDO TO PXEL*2 AND PIXEL*3 PEN SIZES
+//TODO: ADD CTRL Z UNDO TO PAINT BUCKET
+//TODO: ADD TYPESCRIPT
 
 let canvas;
 let bgcanvas;

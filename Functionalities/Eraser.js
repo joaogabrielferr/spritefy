@@ -1,4 +1,4 @@
-import { buildPath } from "./BuildPath.js";
+import { buildPath } from "./Helpers/BuildPath.js";
 
 export const Eraser = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize) => {
     if(!isMousePressed)return;
@@ -30,8 +30,6 @@ export const Eraser = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPL
 
     if(pixel != null)
     {
-        //let color;
-
         c.clearRect(pixel.x1,pixel.y1,penSize,penSize);
         pixel.color = "#FF000000";
 
@@ -45,11 +43,7 @@ export const Eraser = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPL
                 pixel.painted = false;
             }
         }
-
         lastPixel.value = pixel;
-
-        
-       
     }
 
 }
