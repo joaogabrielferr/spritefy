@@ -56,77 +56,13 @@ let penSize = PIXEL_SIZE;
 
 window.addEventListener("load",()=>{
     
-     canvas = document.getElementById("canvas");
-    // const c = canvas.getContext("2d");
-     c = canvas.getContext("2d");
-    // canvas.width = 1000;
-    // canvas.height = 1000;
+     setUpCanvas();
+     setUpPixelMatrix();
+     
 
-
-    canvas.width = DISPLAY_SIZE*PIXEL_SIZE;
-    canvas.height = DISPLAY_SIZE*PIXEL_SIZE;
-
-    bgcanvas = document.getElementById("bgcanvas");
-
-    bgcanvas.width = DISPLAY_SIZE*PIXEL_SIZE;
-    bgcanvas.height = DISPLAY_SIZE*PIXEL_SIZE;
-
-    const bgc = bgcanvas.getContext("2d");
-
-    var background = new Image();
-    background.src = "./img/fakeBackground.PNG";
-
-    background.onload = () =>{
-        bgc.drawImage(background,0,0);
-    };
-
-    // c.clearRect(0, 0, window.innerWidth,window.innerHeight);
-
-    // c.fillStyle = 'rgba(0,0,0,0.5)';
-    // c.fillRect(0,0,window.innerWidth,window.innerHeight);
-
-
-    let pixelID = 1;
-    let idxi = 0,idxj = 0;
-    for(let i = 0;i<=DISPLAY_SIZE*PIXEL_SIZE - PIXEL_SIZE;i+=PIXEL_SIZE)
-    {
-        const row = [];
-        for(let j = 0;j<=DISPLAY_SIZE*PIXEL_SIZE - PIXEL_SIZE;j+=PIXEL_SIZE)
-        {
-            let x1 = i;
-            let y1 = j;
-            let x2 = i + PIXEL_SIZE;
-            let y2 = j + PIXEL_SIZE;
-            const pixel = {
-                x1 : x1,
-                y1 : y1,
-                x2 : x2,
-                y2 : y2,
-                color : "#FF000000",
-                painted : false,
-                id : pixelID++,
-                i : idxi,
-                j : idxj,
-                numOfPaints : 0
-            }
-            row.push(pixel);
-            idxj++;
-        }
-        idxi++;
-        idxj = 0;
-        pixels.push(row);
-    }
-     //console.log("especific one:",pixels[33][14]);
-
-    c.willReadFrequently = true;
-
-    // let id = c.createImageData(1,1);
-    // let d = id.data;
-
-
+     //SETTING UP DOWNLOAD BUTTON
 
     const botao = document.getElementById("button");
-
     botao.addEventListener('click',()=>{
         let downloadLink = document.createElement('a');
         downloadLink.setAttribute('download', 'pixelart(not realy).png');
@@ -136,12 +72,12 @@ window.addEventListener("load",()=>{
         downloadLink.click();
     });
 
-     
+
+    //EVENT LISTENERS
+
     canvas.addEventListener("mousedown",(event)=>{
         isMousePressed = true;
-        // console.log("mouse down");
-        // const copy = JSON.parse(JSON.stringify(pixels[1]));
-        // console.log(copy);
+
         if(painting)
             currentDraw.value.push(Pen(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixelsMousePressed));
         else if(erasing)
@@ -158,9 +94,6 @@ window.addEventListener("load",()=>{
             Eraser(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);   
     });
 
-    // canvas.addEventListener("mouseenter",(event)=>{
-    //     paint(event);
-    // });
 
     document.addEventListener("mouseup",(event)=>{
         isMousePressed = false;
@@ -170,8 +103,7 @@ window.addEventListener("load",()=>{
             undoStack.push(currentDraw.value);
         }
         currentDraw.value = [];
-        // console.log("current pixels mouse pressed:",currentPixelsMousePressed.value);
-        // console.log(pixels);
+
         currentPixelsMousePressed.value = [];
     });
 
@@ -210,9 +142,6 @@ window.addEventListener("load",()=>{
                 // currentClassName = canvas.className;
                 break;
             
-            // case 'z':
-            //     undoLastDraw(pixels,defaultPenSize,c,PIXEL_SIZE);
-            //     break;
 
             case 'E':
                 painting = false;
@@ -241,10 +170,7 @@ window.addEventListener("load",()=>{
                 // bgcanvas.classList.replace(currentClassName,"bucket");
                 // currentClassName = canvas.className;
                 break;
-            
-            // case 'Z':
-            // undoLastDraw(pixels,defaultPenSize,c,PIXEL_SIZE);
-            // break;
+        
 
 
             case '1':
@@ -268,7 +194,7 @@ window.addEventListener("load",()=>{
         
         if(keyMap["ControlLeft"] && keyMap["KeyZ"])
         {
-            undoLastDraw(pixels,defaultPenSize,c,PIXEL_SIZE);
+            undoLastDraw(pixels,defaultPenSize,c);
         }
 
     }
@@ -288,7 +214,68 @@ window.addEventListener("load",()=>{
         keyMap[event.code] = false;
     })
 
-
+    //PREVENT BROWSER FROM OPEN RIGHT MOUSE POP UP MENU ON CANVAS
     canvas.oncontextmenu = ()=> {return false};
 
 });
+
+const setUpCanvas = () =>{
+
+    canvas = document.getElementById("canvas");
+     c = canvas.getContext("2d");
+  
+    canvas.width = DISPLAY_SIZE*PIXEL_SIZE;
+    canvas.height = DISPLAY_SIZE*PIXEL_SIZE;
+
+    bgcanvas = document.getElementById("bgcanvas");
+
+    bgcanvas.width = DISPLAY_SIZE*PIXEL_SIZE;
+    bgcanvas.height = DISPLAY_SIZE*PIXEL_SIZE;
+
+    const bgc = bgcanvas.getContext("2d");
+
+    var background = new Image();
+    background.src = "./img/fakeBackground.PNG";
+
+    background.onload = () =>{
+        bgc.drawImage(background,0,0);
+    };
+
+    c.willReadFrequently = true;
+
+}
+
+const setUpPixelMatrix = () =>{
+
+    let pixelID = 1;
+    let idxi = 0,idxj = 0;
+    for(let i = 0;i<=DISPLAY_SIZE*PIXEL_SIZE - PIXEL_SIZE;i+=PIXEL_SIZE)
+    {
+        const row = [];
+        for(let j = 0;j<=DISPLAY_SIZE*PIXEL_SIZE - PIXEL_SIZE;j+=PIXEL_SIZE)
+        {
+            let x1 = i;
+            let y1 = j;
+            let x2 = i + PIXEL_SIZE;
+            let y2 = j + PIXEL_SIZE;
+            const pixel = {
+                x1 : x1,
+                y1 : y1,
+                x2 : x2,
+                y2 : y2,
+                color : "#FF000000",
+                painted : false,
+                id : pixelID++,
+                i : idxi,
+                j : idxj,
+                numOfPaints : 0
+            }
+            row.push(pixel);
+            idxj++;
+        }
+        idxi++;
+        idxj = 0;
+        pixels.push(row);
+    }
+
+}

@@ -4,10 +4,8 @@ export function buildPath(pixels,start,end,PIXEL_SIZE){
     const path = [];
 
     let curr = start.value;
-    // console.log("BUILDING PATH:");
     while(curr.id != end.id)
     {
-        // console.log("curr:",curr);
         if(curr.id != start.value.id && curr.id != end.id)
             path.push(curr);
         //if same row
@@ -15,12 +13,10 @@ export function buildPath(pixels,start,end,PIXEL_SIZE){
         {
             if(curr.j > end.j)
             {
-                // console.log(pixels[curr.i/PIXEL_SIZE][curr.j/PIXEL_SIZE]);
 
                 curr = pixels[curr.i][(curr.j - 1)];
             }else
             {
-                // console.log(pixels[curr.i][curr.j]);
 
                 curr = pixels[curr.i][(curr.j + 1)];
             }
@@ -31,12 +27,10 @@ export function buildPath(pixels,start,end,PIXEL_SIZE){
         {
             if(curr.i > end.i)
             {
-                // console.log(pixels[curr.i][curr.j]);
 
                 curr = pixels[(curr.i - 1)][curr.j];
             }else
             {
-                // console.log(pixels[curr.i][curr.j]);
                 curr = pixels[(curr.i + 1)][curr.j];
             }
             continue;
@@ -45,28 +39,24 @@ export function buildPath(pixels,start,end,PIXEL_SIZE){
         //going top left
         if(curr.i > end.i && curr.j > end.j)
         {
-            // console.log(pixels[curr.i][curr.j]);
 
             curr = pixels[(curr.i - 1)][(curr.j - 1)];
         }else
         //going bottom left
         if(curr.i < end.i && curr.j > end.j)
         {
-            // console.log(pixels[curr.i][curr.j]);
 
             curr = pixels[(curr.i + 1)][(curr.j - 1)];
         }else 
         //going top right
         if(curr.i > end.i && curr.j < end.j)
         {
-            // console.log(pixels[curr.i][curr.j]);
 
             curr = pixels[(curr.i - 1)][(curr.j + 1)];
         }else
         //going bottom right
         if(curr.i < end.i && curr.j < end.j)
         {
-            // console.log(pixels[curr.i][curr.j]);
 
             curr = pixels[(curr.i + 1)][(curr.j + 1)];
         }

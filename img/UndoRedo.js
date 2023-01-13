@@ -64,16 +64,13 @@ const cleanDraw = (draw) =>{
 
 }
 
-
 export const undoStack = new Stack();
 export const redoStack = new Stack();
 
 
-export const undoLastDraw = (pixels,defaultPenSize,c,PIXEL_SIZE) => {
+export const undoLastDraw = (pixels,defaultPenSize,c) => {
 
     if(undoStack.isEmpty())return;
-
-
 
     const draw = undoStack.top();
     undoStack.pop();
@@ -82,7 +79,6 @@ export const undoLastDraw = (pixels,defaultPenSize,c,PIXEL_SIZE) => {
     for(let pixel of clean)
     {
         const currPixel = pixels[pixel.i][pixel.j];
-        // console.log("current pixel:",currPixel);
             currPixel.numOfPaints--;
             if(currPixel.numOfPaints <= 0){
                 c.clearRect(pixel.x1,pixel.y1,defaultPenSize,defaultPenSize);

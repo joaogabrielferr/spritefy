@@ -132,6 +132,5 @@ const isPixelAlreadyPaintedInCurrentDraw = (pixel,currentPixelsMousePressed) =>{
     }
 
     return false;
-
 }
 

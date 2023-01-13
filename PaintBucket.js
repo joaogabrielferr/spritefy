@@ -1,19 +1,14 @@
 function canVisitNeighbor(neighbor,visited,startColor)
 {
-    // return visited[neighbor.id] === false && neighbor.r == startColor[0] && neighbor.g == startColor[1] && neighbor.b == startColor[2];
     return visited[neighbor.id] === false && neighbor.color === startColor;
 }
 
 function dfs(pixels,u,visited,selectedColor,startColor,penSize,DISPLAY_SIZE,PIXEL_SIZE,c){
 
     visited[u.id] = true;
-    // c.fillStyle = "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", " + color[3] + ")";
     c.fillStyle = selectedColor.value;
     c.fillRect(u.x1,u.y1,penSize,penSize);
-    // u.r = color[0];
-    // u.g = color[1];
-    // u.b = color[2];
-    // u.a = color[3];
+
     u.color = selectedColor.value;
 
     for(let a = -1;a<=1;a++)
