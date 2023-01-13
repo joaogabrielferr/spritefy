@@ -82,13 +82,14 @@ export const undoLastDraw = (pixels,defaultPenSize,c,PIXEL_SIZE) => {
     for(let pixel of clean)
     {
         const currPixel = pixels[pixel.i][pixel.j];
-        console.log("current pixel:",currPixel);
-        currPixel.numOfPaints--;
-        if(currPixel.numOfPaints < 0)currPixel.numOfPaints = 0;
-        if(currPixel.numOfPaints <= 0)
-            c.clearRect(pixel.x1,pixel.y1,defaultPenSize,defaultPenSize);
-            currPixel.color = "#FF000000";
-            currPixel.painted = false;
+        // console.log("current pixel:",currPixel);
+            currPixel.numOfPaints--;
+            if(currPixel.numOfPaints <= 0){
+                c.clearRect(pixel.x1,pixel.y1,defaultPenSize,defaultPenSize);
+                currPixel.color = "#FF000000";
+                currPixel.painted = false;
+            }
+            if(currPixel.numOfPaints < 0)currPixel.numOfPaints = 0;
     }
     
 

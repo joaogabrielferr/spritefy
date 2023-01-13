@@ -1,9 +1,9 @@
 import { buildPath } from "./BuildPath.js";
 
-export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixels) => {
+export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixelsMousePressed) => {
     if(!isMousePressed)return;
 
-    const draw = [];
+    const draw = []; //pixels drawn in the screen here
 
     const bounding = canvas.getBoundingClientRect();
     const x = event.clientX - bounding.left;
@@ -28,96 +28,113 @@ export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_
     }
     }
 
-    //if this pixel is in currentPixels.value, that means it was already painted in the current stroke (user is moving the mouse after clicking one of its buttons and is holding it)
-    if(pixel != null && !isPixelAlreadyPaintedInCurrentUserDrawing(pixel,currentPixels))
+    // const copy0 = JSON.parse(JSON.stringify(pixels[1]));
+    //if this pixel is in currentPixels, that means it was already painted in the current stroke (user is moving the mouse after clicking one of its buttons and holding it)
+    if(pixel != null && !isPixelAlreadyPaintedInCurrentDraw(pixel,currentPixelsMousePressed))
     {
-        //let color;
-        console.log("going to paint ",pixel);
-        console.log("current pixels:",currentPixels);
+        if(pixel.id === 18)
+        {
+            // const copy = JSON.parse(JSON.stringify(pixels[1]));
+        }
+        pixel.color = selectedColor.value;
+        pixel.painted = true;
+        pixel.numOfPaints++;
 
-            currentPixels.value.push(pixel);
-            c.fillStyle = selectedColor.value;
+        currentPixelsMousePressed.value.push(pixel);
+        
+        c.fillStyle = selectedColor.value;
 
-            c.fillRect(pixel.x1,pixel.y1,penSize,penSize);
-            
-            pixel.color = selectedColor.value;
-            pixel.painted = true;
-            pixel.numOfPaints++;
-            
-            draw.push(pixel);
+        c.fillRect(pixel.x1,pixel.y1,penSize,penSize);
+   
+        // const copy2 = JSON.parse(JSON.stringify(pixels[1]));
+        
+        draw.push(pixel);
 
-            //coloring neighbor fake pixels based on pen size
-            if(penSize == PIXEL_SIZE*2)
+        //coloring neighbor fake pixels based on pen size
+        if(penSize == PIXEL_SIZE*2)
+        {
+            const jp1 = pixel.j + 1 <= DISPLAY_SIZE && pixel.j + 1 >= 0;
+            const ip1 = pixel.i + 1 <= DISPLAY_SIZE && pixel.i + 1 >= 0;
+            if(jp1)
             {
-                const jp1 = pixel.j + 1 <= DISPLAY_SIZE && pixel.j + 1 >= 0;
-                const ip1 = pixel.i + 1 <= DISPLAY_SIZE && pixel.i + 1 >= 0;
-                if(jp1)
-                {
-                    pixels[pixel.i][pixel.j + 1].color = selectedColor.value;
-                    pixels[pixel.i][pixel.j + 1].painted = true;
-                    pixels[pixel.i][pixel.j + 1].numOfPaints++;
-                    draw.push(pixels[pixel.i][pixel.j + 1]);
-                }
-                if(ip1)
-                {
-                    pixels[pixel.i + 1][pixel.j].color = selectedColor.value;
-                    pixels[pixel.i + 1][pixel.j].painted = true;
-                    pixels[pixel.i + 1][pixel.j].numOfPaints++;
-                    draw.push(pixels[pixel.i + 1][pixel.j]);
-                }
-                if(jp1 + ip1)
-                {
-                    pixels[pixel.i + 1][pixel.j + 1].color = selectedColor.value;
-                    pixels[pixel.i + 1][pixel.j + 1].painted = true;
-                    pixels[pixel.i + 1][pixel.j + 1].numOfPaints;
-                    draw.push(pixels[pixel.i + 1][pixel.j + 1]);
-                }
-                
+                pixels[pixel.i][pixel.j + 1].color = selectedColor.value;
+                pixels[pixel.i][pixel.j + 1].painted = true;
+                pixels[pixel.i][pixel.j + 1].numOfPaints++;
+                draw.push(pixels[pixel.i][pixel.j + 1]);
             }
-
-            if(penSize == PIXEL_SIZE*3)
+            if(ip1)
             {
-                for(let a = 0;a<=2;a++)
+                pixels[pixel.i + 1][pixel.j].color = selectedColor.value;
+                pixels[pixel.i + 1][pixel.j].painted = true;
+                pixels[pixel.i + 1][pixel.j].numOfPaints++;
+                draw.push(pixels[pixel.i + 1][pixel.j]);
+            }
+            if(jp1 + ip1)
+            {
+                pixels[pixel.i + 1][pixel.j + 1].color = selectedColor.value;
+                pixels[pixel.i + 1][pixel.j + 1].painted = true;
+                pixels[pixel.i + 1][pixel.j + 1].numOfPaints;
+                draw.push(pixels[pixel.i + 1][pixel.j + 1]);
+            }
+            
+        }
+
+        if(penSize == PIXEL_SIZE*3)
+        {
+            for(let a = 0;a<=2;a++)
+            {
+                for(let b = 0;b <= 2;b++)
                 {
-                    for(let b = 0;b <= 2;b++)
+                    if(pixel.i + a <= DISPLAY_SIZE && pixel.i + a >= 0 && pixel.j + b <= DISPLAY_SIZE && pixel.j + b >= 0)
                     {
-                        if(pixel.i + a <= DISPLAY_SIZE && pixel.i + a >= 0 && pixel.j + b <= DISPLAY_SIZE && pixel.j + b >= 0)
-                        {
-                            pixels[pixel.i + a][pixel.j + b].color = selectedColor.value;
-                            pixels[pixel.i + a][pixel.j + b].painted = true;
-                            pixels[pixel.i + a][pixel.j + b].numOfPaints++;
-                            draw.push(pixels[pixel.i + a][pixel.j + b]);
-                        }
+                        pixels[pixel.i + a][pixel.j + b].color = selectedColor.value;
+                        pixels[pixel.i + a][pixel.j + b].painted = true;
+                        pixels[pixel.i + a][pixel.j + b].numOfPaints++;
+                        draw.push(pixels[pixel.i + a][pixel.j + b]);
                     }
                 }
             }
+        }
 
-            if(lastPixel.value !== null && isMousePressed && lastPixel.value.id !== pixel.id && eventtype == "mousemove")
+        if(lastPixel.value !== null && isMousePressed && lastPixel.value.id !== pixel.id && eventtype == "mousemove")
+        {
+            //build path from last pixel to current pixel
+            const path = buildPath(pixels,lastPixel,pixel,PIXEL_SIZE);
+            let msg = "";
+            for(let p of path)
             {
-                //build path from last pixel to current pixel
-                const path = buildPath(pixels,lastPixel,pixel,PIXEL_SIZE);
-                for(let p of path)
-                {
-                    c.fillRect(p.x1,p.y1,penSize,penSize);
-                    p.color = selectedColor.value;
-                    p.painted = true;
-                    p.numOfPaints++;
-                    draw.push(p);
+                if(!isPixelAlreadyPaintedInCurrentDraw(p,currentPixelsMousePressed)){
+                c.fillRect(p.x1,p.y1,penSize,penSize);
+                p.color = selectedColor.value;
+                p.painted = true;
+                p.numOfPaints++;
+                draw.push(p);
                 }
             }
+            // const copy3 = JSON.parse(JSON.stringify(pixels[1]));
+        }
 
-            lastPixel.value = pixel;  
-            return draw;
+        lastPixel.value = pixel;  
+        
+        if(pixel.id == 18)
+        {
+        }
+
+        return draw;
     }
 }
 
-const isPixelAlreadyPaintedInCurrentUserDrawing = (pixel,currentPixels) =>{
-
-    for(let p of currentPixels.value)
+const isPixelAlreadyPaintedInCurrentDraw = (pixel,currentPixelsMousePressed) =>{
+    for(let i = 0;i<currentPixelsMousePressed.value.length;i++)
     {
-        if(p.id == pixel.id)return true;
+        if(!currentPixelsMousePressed.value[i].id)continue;
+        if(currentPixelsMousePressed.value[i].id === pixel.id)
+        {
+            return true;
+        }
     }
 
     return false;
 
-}   
+}
+

@@ -21,9 +21,11 @@ let currentDraw = {
     value : [] //current thing being painted in the canvas (the pixels painted using the pen, eraser of bucket)
 }
 
-let currentPixels = {
-    value : [] //pixels painted when mouse is clicked and moved while clicked
+
+let currentPixelsMousePressed = {
+    value : [] //current pixels painted while the user is moving the mouse with one of its buttons pressed
 }
+
 
 const colorSelectorElement = document.getElementById("colorSelector");
 
@@ -38,6 +40,8 @@ colorSelectorElement.addEventListener("change",(event)=>{
 
 const PIXEL_SIZE = 10;
 const DISPLAY_SIZE = 64; 
+// const PIXEL_SIZE = 10;
+// const DISPLAY_SIZE = 16; 
 
 let isMousePressed = false;
 let painting = true;
@@ -110,7 +114,7 @@ window.addEventListener("load",()=>{
         idxj = 0;
         pixels.push(row);
     }
-     console.log("especific one:",pixels[33][14]);
+     //console.log("especific one:",pixels[33][14]);
 
     c.willReadFrequently = true;
 
@@ -133,9 +137,11 @@ window.addEventListener("load",()=>{
      
     canvas.addEventListener("mousedown",(event)=>{
         isMousePressed = true;
-
+        // console.log("mouse down");
+        // const copy = JSON.parse(JSON.stringify(pixels[1]));
+        // console.log(copy);
         if(painting)
-            currentDraw.value.push(Pen(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixels));
+            currentDraw.value.push(Pen(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixelsMousePressed));
         else if(erasing)
             Eraser(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);
         else if(bucket)
@@ -143,19 +149,9 @@ window.addEventListener("load",()=>{
         
     });
 
-    canvas.addEventListener("mouseup",(event)=>{
-        isMousePressed = false;
-        lastPixel.value = null;
-        if(currentDraw.value.length > 0)
-            undoStack.push(currentDraw.value);
-        currentDraw.value = [];
-        currentPixels.value = [];
-
-    });
-
     document.addEventListener("mousemove",(event)=>{
         if(painting && isMousePressed)
-            currentDraw.value.push(Pen(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixels));
+            currentDraw.value.push(Pen(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixelsMousePressed));
         else if (erasing && isMousePressed)
             Eraser(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);   
     });
@@ -167,10 +163,14 @@ window.addEventListener("load",()=>{
     document.addEventListener("mouseup",(event)=>{
         isMousePressed = false;
         lastPixel.value = null;
-        if(currentDraw.value.length > 0)
+        if(currentDraw.value.length > 0){
+            console.log("aqui");
             undoStack.push(currentDraw.value);
+        }
         currentDraw.value = [];
-        currentPixels.value = [];
+        // console.log("current pixels mouse pressed:",currentPixelsMousePressed.value);
+        // console.log(pixels);
+        currentPixelsMousePressed.value = [];
     });
 
     document.addEventListener("keydown",(event)=>{
@@ -209,7 +209,6 @@ window.addEventListener("load",()=>{
                 break;
             
             case 'z':
-                //console.log(pixels);
                 undoLastDraw(pixels,defaultPenSize,c,PIXEL_SIZE);
                 break;
 

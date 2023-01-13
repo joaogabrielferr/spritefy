@@ -8,7 +8,7 @@ export function buildPath(pixels,start,end,PIXEL_SIZE){
     while(curr.id != end.id)
     {
         // console.log("curr:",curr);
-        if(curr.id != start.value.id)
+        if(curr.id != start.value.id && curr.id != end.id)
             path.push(curr);
         //if same row
         if(curr.i == end.i)
@@ -72,7 +72,10 @@ export function buildPath(pixels,start,end,PIXEL_SIZE){
         }
         
     }
-
+    // if(path.length === 1)
+    // {
+    //     path[0] = {...path[0]};
+    // }
     return path;
 
 }
