@@ -44,7 +44,7 @@ function dfs(pixels,u,visited,selectedColor,startColor,penSize,DISPLAY_SIZE,PIXE
 
 function fillSpace(pixels,start,selectedColor,startColor,PIXEL_SIZE,DISPLAY_SIZE,penSize,c)
 {
-    //fill a closed space with the choosen color at once (that paint bucket functionaly)
+    //fill a closed space with the choosen color at once (that paint bucket functionality)
     //using DFS
     const numPixels = DISPLAY_SIZE*DISPLAY_SIZE + 1;
     const visited = [];

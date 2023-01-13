@@ -2,40 +2,10 @@
 //the pixels drawn until I released the mouse are put in the undo stack
 //if i press ctrl + z, i select the pixels at the top of the undo stack, and remove then from the canvas
 //after that, i put theses pixels in the redo stack
-//if i press ctrz + y, i seletect the pixels at the top of the redo stack, and add then to the cavas
-//after that, i put theses pixels in the undo stack
+//if i press ctrz + y, i select the pixels at the top of the redo stack, and add then to the canvas
+//after that, i put these pixels in the undo stack
 
-class Stack{
-
-    self = [];
-
-    constructor(){}
-
-    push(value)
-    {
-        this.self.push(value);
-    }
-
-    pop()
-    {
-        if(this.self.length > 0)
-        {
-            this.self.pop();
-        }
-    }
-
-    top()
-    {
-        if(this.self.length > 0)
-            return this.self[this.self.length - 1];
-    }
-
-    isEmpty()
-    {
-        return this.self.length == 0 ? true : false;  
-    }
-
-}
+import {Stack} from './Helpers/Stack.js';
 
 const cleanDraw = (draw) =>{
 
