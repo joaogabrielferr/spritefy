@@ -3,58 +3,128 @@ function canVisitNeighbor(neighbor,visited,startColor)
     return visited[neighbor.id] === false && neighbor.color === startColor;
 }
 
-function dfs(pixels,u,visited,selectedColor,startColor,penSize,DISPLAY_SIZE,PIXEL_SIZE,c){
-
+function bfs(pixels,u,visited,selectedColor,startColor,penSize,DISPLAY_SIZE,PIXEL_SIZE,c,draw){
+    
     visited[u.id] = true;
-    c.fillStyle = selectedColor.value;
-    c.fillRect(u.x1,u.y1,penSize,penSize);
+    // c.fillStyle = selectedColor.value;
+    // c.fillRect(u.x1,u.y1,penSize,penSize);
 
-    u.color = selectedColor.value;
+    // u.color = selectedColor.value;
+    // u.colorStack.push(selectedColor.value);
+    // u.numOfPaints++;
 
-    for(let a = -1;a<=1;a++)
+    // draw.push(u);
+
+    const queue = [];
+    queue.push(u);
+
+    while(queue.length > 0)
     {
-        let n;
-        if(a == 0)continue;
-        if(u.j + a >= 0 && u.j + a <= DISPLAY_SIZE - 1)
-        {
-            n = pixels[u.i][u.j + a];
-            if(n){
-                if(canVisitNeighbor(n,visited,startColor))
-                {
-                    dfs(pixels,n,visited,selectedColor,startColor,penSize,DISPLAY_SIZE,PIXEL_SIZE,c);
-                }
-                
-            }
-        }
+        u = queue.shift();
+        c.fillStyle = selectedColor.value;
+        c.fillRect(u.x1,u.y1,penSize,penSize);
 
-        if(u.i + a >= 0 && u.i + a <= DISPLAY_SIZE - 1)
+        u.color = selectedColor.value;
+        u.colorStack.push(selectedColor.value);
+        u.numOfPaints++;
+        draw.push(u);
+
+        for(let a = -1;a<=1;a++)
         {
-            n = pixels[u.i + a][u.j];
-            if(n)
+            let n;
+            if(a == 0)continue;
+            if(u.j + a >= 0 && u.j + a <= DISPLAY_SIZE - 1)
             {
-                if(canVisitNeighbor(n,visited,startColor))
-                {
-                    dfs(pixels,n,visited,selectedColor,startColor,penSize,DISPLAY_SIZE,PIXEL_SIZE,c);
+                n = pixels[u.i][u.j + a];
+                if(n){
+                    if(canVisitNeighbor(n,visited,startColor))
+                    {
+                        visited[n.id] = true;
+                        queue.push(n);
+                    }
+                    
                 }
-
+            }
+    
+            if(u.i + a >= 0 && u.i + a <= DISPLAY_SIZE - 1)
+            {
+                n = pixels[u.i + a][u.j];
+                if(n)
+                {
+                    if(canVisitNeighbor(n,visited,startColor))
+                    {
+                        visited[n.id] = true;
+                        queue.push(n);
+                    }
+    
+                }
             }
         }
+
     }
+
 }
 
-function fillSpace(pixels,start,selectedColor,startColor,PIXEL_SIZE,DISPLAY_SIZE,penSize,c)
+// function dfs(pixels,u,visited,selectedColor,startColor,penSize,DISPLAY_SIZE,PIXEL_SIZE,c,draw){
+
+//     visited[u.id] = true;
+//     c.fillStyle = selectedColor.value;
+//     c.fillRect(u.x1,u.y1,penSize,penSize);
+
+//     u.color = selectedColor.value;
+//     u.colorStack.push(selectedColor.value);
+//     u.numOfPaints++;
+
+//     draw.push(u);
+
+//     for(let a = -1;a<=1;a++)
+//     {
+//         let n;
+//         if(a == 0)continue;
+//         if(u.j + a >= 0 && u.j + a <= DISPLAY_SIZE - 1)
+//         {
+//             n = pixels[u.i][u.j + a];
+//             if(n){
+//                 if(canVisitNeighbor(n,visited,startColor))
+//                 {
+//                     dfs(pixels,n,visited,selectedColor,startColor,penSize,DISPLAY_SIZE,PIXEL_SIZE,c,draw);
+//                 }
+                
+//             }
+//         }
+
+//         if(u.i + a >= 0 && u.i + a <= DISPLAY_SIZE - 1)
+//         {
+//             n = pixels[u.i + a][u.j];
+//             if(n)
+//             {
+//                 if(canVisitNeighbor(n,visited,startColor))
+//                 {
+//                     dfs(pixels,n,visited,selectedColor,startColor,penSize,DISPLAY_SIZE,PIXEL_SIZE,c,draw);
+//                 }
+
+//             }
+//         }
+//     }
+// }
+
+function fillSpace(pixels,start,selectedColor,startColor,PIXEL_SIZE,DISPLAY_SIZE,penSize,c,draw)
 {
     //fill a closed space with the choosen color at once (that paint bucket functionality)
     //using DFS
     const numPixels = DISPLAY_SIZE*DISPLAY_SIZE + 1;
     const visited = [];
     for(let i = 0;i<=numPixels;i++)visited.push(false);
-    dfs(pixels,start,visited,selectedColor,startColor,penSize,DISPLAY_SIZE,PIXEL_SIZE,c);
+    //dfs(pixels,start,visited,selectedColor,startColor,penSize,DISPLAY_SIZE,PIXEL_SIZE,c,draw);
+    bfs(pixels,start,visited,selectedColor,startColor,penSize,DISPLAY_SIZE,PIXEL_SIZE,c,draw);
 
 }
 
 export const PaintBucket = (event,isMousePressed,selectedColor,PIXEL_SIZE,DISPLAY_SIZE,pixels,defaultPensize,c) => {
     if(!isMousePressed)return;
+
+    const draw = [];
+
     const bounding = canvas.getBoundingClientRect();
     const x = event.clientX - bounding.left;
     const y = event.clientY - bounding.top;
@@ -83,7 +153,9 @@ export const PaintBucket = (event,isMousePressed,selectedColor,PIXEL_SIZE,DISPLA
 
     if(pixel != null)
     {
-        fillSpace(pixels,pixel,selectedColor,pixel.color,PIXEL_SIZE,DISPLAY_SIZE,defaultPensize,c); 
+        fillSpace(pixels,pixel,selectedColor,pixel.color,PIXEL_SIZE,DISPLAY_SIZE,defaultPensize,c,draw); 
     }
+
+    return draw;
 
 }

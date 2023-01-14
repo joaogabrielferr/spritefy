@@ -87,7 +87,7 @@ window.addEventListener("load",()=>{
         else if(erasing)
             Eraser(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);
         else if(bucket)
-            PaintBucket(event,isMousePressed,selectedColor,PIXEL_SIZE,DISPLAY_SIZE,pixels,defaultPenSize,c);
+            currentDraw.value.push(PaintBucket(event,isMousePressed,selectedColor,PIXEL_SIZE,DISPLAY_SIZE,pixels,defaultPenSize,c));
         
     });
 
@@ -103,7 +103,6 @@ window.addEventListener("load",()=>{
         isMousePressed = false;
         lastPixel.value = null;
         if(currentDraw.value.length > 0){
-            console.log("aqui");
             undoStack.push(currentDraw.value);
         }
         currentDraw.value = [];
