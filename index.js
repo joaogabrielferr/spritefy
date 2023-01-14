@@ -4,6 +4,7 @@ import {Eraser} from './Functionalities/Eraser.js';
 import { PaintBucket } from "./Functionalities/PaintBucket.js";
 import { undoStack } from "./Functionalities/UndoRedo.js";
 import { undoLastDraw } from "./Functionalities/UndoRedo.js";
+import { Stack } from "./Functionalities/Helpers/Stack.js";
 
 //TODO: ADD A COLOR STACK FOR EACH PIXEL, I.E WHEN DECREASING NUMBEROFPAINTS VARIABLE, IF ITS NOT 0, POP THE TOP COLOR AND PAINT THE PIXEL WITH THE NEXT COLOR IN THE STACK :)
 //TODO: ADD NEIGHBORHOOD ERASING PIXEL*2 AND PIXEL*3 PEN SIZES
@@ -197,6 +198,8 @@ window.addEventListener("load",()=>{
         
         if(keyMap["ControlLeft"] && keyMap["KeyZ"])
         {
+            // const copy = JSON.parse(JSON.stringify(pixels));
+            // console.log(copy);
             undoLastDraw(pixels,defaultPenSize,c);
         }
 
@@ -240,9 +243,9 @@ const setUpCanvas = () =>{
     var background = new Image();
     background.src = "./img/fakeBackground.PNG";
 
-    background.onload = () =>{
-        bgc.drawImage(background,0,0);
-    };
+    // background.onload = () =>{
+    //     bgc.drawImage(background,0,0);
+    // };
 
     c.willReadFrequently = true;
 
@@ -271,8 +274,10 @@ const setUpPixelMatrix = () =>{
                 id : pixelID++,
                 i : idxi,
                 j : idxj,
-                numOfPaints : 0
+                numOfPaints : 0,
+                colorStack : new Stack()
             }
+            pixel.colorStack.push("#FF000000");
             row.push(pixel);
             idxj++;
         }

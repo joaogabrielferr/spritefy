@@ -1,3 +1,8 @@
+body{
+    background-color: rgb(71, 71, 71);
+    color: white;
+}
+
 .canvasContainer{
     display: flex;
     justify-content: center;
@@ -36,7 +41,6 @@
 
 .pen{
     cursor : url(./img/pen2.svg), auto;
-    color: red;
 }
 
 .eraser{

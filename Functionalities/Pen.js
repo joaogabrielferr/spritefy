@@ -37,6 +37,7 @@ export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_
         pixel.color = selectedColor.value;
         pixel.painted = true;
         pixel.numOfPaints++;
+        pixel.colorStack.push(selectedColor.value);
 
         currentPixelsMousePressed.value.push(pixel);
         
@@ -105,6 +106,7 @@ export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_
                 p.color = selectedColor.value;
                 p.painted = true;
                 p.numOfPaints++;
+                p.colorStack.push(selectedColor.value);
                 currentPixelsMousePressed.value.push(p);
                 draw.push(p);
                 }
