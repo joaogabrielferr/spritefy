@@ -6,11 +6,9 @@ import { undoStack } from "./Functionalities/UndoRedo.js";
 import { undoLastDraw } from "./Functionalities/UndoRedo.js";
 import { Stack } from "./Functionalities/Helpers/Stack.js";
 
-//TODO: ADD A COLOR STACK FOR EACH PIXEL, I.E WHEN DECREASING NUMBEROFPAINTS VARIABLE, IF ITS NOT 0, POP THE TOP COLOR AND PAINT THE PIXEL WITH THE NEXT COLOR IN THE STACK :)
 //TODO: ADD NEIGHBORHOOD ERASING PIXEL*2 AND PIXEL*3 PEN SIZES
 //TODO: DURING ERASING, IF PIXEL IS NOT PAINTED, DO NOT TO TRY TO CLEAR
 //TODO: ADD CTRL Z UNDO TO PIXEL*2 AND PIXEL*3 PEN SIZES
-//TODO: ADD CTRL Z UNDO TO PAINT BUCKET
 //TODO: ADD TYPESCRIPT
 
 let canvas;
@@ -27,7 +25,7 @@ let currentDraw = {
 
 
 let currentPixelsMousePressed = {
-    value : [] //current pixels painted while the user is moving the mouse with one of its buttons pressed
+    value : new Map() //current pixels painted while the user is moving the mouse with one of its buttons pressed
 }
 
 
@@ -91,7 +89,7 @@ window.addEventListener("load",()=>{
         
     });
 
-    document.addEventListener("mousemove",(event)=>{
+    canvas.addEventListener("mousemove",(event)=>{
         if(painting && isMousePressed)
             currentDraw.value.push(Pen(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixelsMousePressed));
         else if (erasing && isMousePressed)
@@ -107,7 +105,7 @@ window.addEventListener("load",()=>{
         }
         currentDraw.value = [];
 
-        currentPixelsMousePressed.value = [];
+        currentPixelsMousePressed.value = new Map();
     });
 
 
