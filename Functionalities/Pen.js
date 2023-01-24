@@ -6,8 +6,19 @@ export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_
     const draw = []; //pixels drawn in the screen here
 
     const bounding = canvas.getBoundingClientRect();
-    const x = event.clientX - bounding.left;
-    const y = event.clientY - bounding.top;
+
+    let x,y;
+
+    if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+    {
+        x = event.touches[0].clientX - bounding.left;
+        y = event.touches[0].clientY - bounding.top;
+    }else
+    {
+        x = event.clientX - bounding.left;
+        y = event.clientY - bounding.top;
+    }
+
     if(x > PIXEL_SIZE*DISPLAY_SIZE || x < 0 || y > PIXEL_SIZE*DISPLAY_SIZE || y < 0)return;
     let pixel = null;
     let flag = false;
@@ -57,7 +68,7 @@ export const Pen = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_
             paintPixelsSize3(pixel,pixels,DISPLAY_SIZE,currentPixelsMousePressed,selectedColor,draw);
         }
 
-        if(lastPixel.value !== null && isMousePressed && lastPixel.value.id !== pixel.id && eventtype == "mousemove")
+        if(lastPixel.value !== null && isMousePressed && lastPixel.value.id !== pixel.id && (eventtype == "mousemove" || "touchmove"))
         {
             //build path from last pixel to current pixel
             const path = buildPath(pixels,lastPixel,pixel,PIXEL_SIZE);

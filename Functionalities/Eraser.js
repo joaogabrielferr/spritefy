@@ -3,8 +3,17 @@ import { buildPath } from "./Helpers/BuildPath.js";
 export const Eraser = (event,eventtype,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize) => {
     if(!isMousePressed)return;
     const bounding = canvas.getBoundingClientRect();
-    const x = event.clientX - bounding.left;
-    const y = event.clientY - bounding.top;
+    let x,y;
+
+    if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+    {
+        x = event.touches[0].clientX - bounding.left;
+        y = event.touches[0].clientY - bounding.top;
+    }else
+    {
+        x = event.clientX - bounding.left;
+        y = event.clientY - bounding.top;
+    }
 
     if(x > PIXEL_SIZE*DISPLAY_SIZE || x < 0 || y > PIXEL_SIZE*DISPLAY_SIZE || y < 0)return;
 

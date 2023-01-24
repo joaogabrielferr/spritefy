@@ -77,27 +77,47 @@ window.addEventListener("load",()=>{
 
     //EVENT LISTENERS
 
-    canvas.addEventListener("mousedown",(event)=>{
+    "mousedown touchstart".split(" ").forEach((eventName)=>canvas.addEventListener(eventName,(event)=>{
         isMousePressed = true;
 
         if(painting)
-            currentDraw.value.push(Pen(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixelsMousePressed));
+            currentDraw.value.push(Pen(event,eventName,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixelsMousePressed));
         else if(erasing)
-            Eraser(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);
+            Eraser(event,eventName,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);
         else if(bucket)
             currentDraw.value.push(PaintBucket(event,isMousePressed,selectedColor,PIXEL_SIZE,DISPLAY_SIZE,pixels,defaultPenSize,c));
         
-    });
+    }));
 
-    canvas.addEventListener("mousemove",(event)=>{
+    // canvas.addEventListener("mousedown",(event)=>{
+    //     isMousePressed = true;
+
+    //     if(painting)
+    //         currentDraw.value.push(Pen(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixelsMousePressed));
+    //     else if(erasing)
+    //         Eraser(event,"mousedown",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);
+    //     else if(bucket)
+    //         currentDraw.value.push(PaintBucket(event,isMousePressed,selectedColor,PIXEL_SIZE,DISPLAY_SIZE,pixels,defaultPenSize,c));
+        
+    // });
+
+
+    "mousemove touchmove".split(" ").forEach((eventName)=>canvas.addEventListener(eventName,(event)=>{
         if(painting && isMousePressed)
-            currentDraw.value.push(Pen(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixelsMousePressed));
+            currentDraw.value.push(Pen(event,eventName,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixelsMousePressed));
         else if (erasing && isMousePressed)
-            Eraser(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);   
-    });
+            Eraser(event,eventName,isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);   
+    }));
+    
 
+    // canvas.addEventListener("mousemove",(event)=>{
+    //     if(painting && isMousePressed)
+    //         currentDraw.value.push(Pen(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize,selectedColor,currentPixelsMousePressed));
+    //     else if (erasing && isMousePressed)
+    //         Eraser(event,"mousemove",isMousePressed,lastPixel,PIXEL_SIZE,DISPLAY_SIZE,pixels,c,penSize);   
+    // });
 
-    document.addEventListener("mouseup",(event)=>{
+    "mouseup touchend".split(" ").forEach((eventName)=>document.addEventListener(eventName,(event)=>{
         isMousePressed = false;
         lastPixel.value = null;
         if(currentDraw.value.length > 0){
@@ -106,7 +126,19 @@ window.addEventListener("load",()=>{
         currentDraw.value = [];
 
         currentPixelsMousePressed.value = new Map();
-    });
+    }));
+
+
+    // document.addEventListener("mouseup",(event)=>{
+    //     isMousePressed = false;
+    //     lastPixel.value = null;
+    //     if(currentDraw.value.length > 0){
+    //         undoStack.push(currentDraw.value);
+    //     }
+    //     currentDraw.value = [];
+
+    //     currentPixelsMousePressed.value = new Map();
+    // });
 
 
     const checkKeys = (event) =>{
