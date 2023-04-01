@@ -25,8 +25,6 @@ let currentPixelsMousePressed = {
   value: new Map(), //current pixels painted while the user is moving the mouse with one of its buttons pressed
 };
 
-let currSize;
-
 const colorSelectorElement = document.getElementById("colorSelector");
 
 let selectedColor = {
@@ -42,8 +40,6 @@ const keyMap = new Map();
 const DISPLAY_SIZE = 700; //has to be divisible by 100
 const PIXEL_SIZE = DISPLAY_SIZE / 100;
 const SCALE_FACTOR = 1;
-
-currSize = DISPLAY_SIZE;
 
 let currentScale = SCALE_FACTOR;
 let panX = 0,
@@ -80,7 +76,7 @@ window.addEventListener("load", () => {
     canvas.addEventListener(eventName, (event) => {
       isMousePressed = true;
 
-      if (painting) currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currSize));
+      if (painting) currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, panX, panY));
       else if (erasing) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize);
       else if (bucket) currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx));
     })
@@ -88,7 +84,7 @@ window.addEventListener("load", () => {
 
   "mousemove touchmove".split(" ").forEach((eventName) =>
     canvas.addEventListener(eventName, (event) => {
-      if (painting && isMousePressed) currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currSize));
+      if (painting && isMousePressed) currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, panX, panY));
       else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize);
     })
   );
@@ -199,7 +195,6 @@ window.addEventListener("load", () => {
       draw();
     } else if (e.deltaY > 0 && currentScale > 1) {
       currentScale -= SCALE_FACTOR;
-      console.log(currentScale);
       draw();
     }
   });

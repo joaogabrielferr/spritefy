@@ -1,6 +1,6 @@
 import { buildPath } from "./Helpers/BuildPath.js";
 
-export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, c, penSize, selectedColor, currentPixelsMousePressed, currSize) => {
+export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, c, penSize, selectedColor, currentPixelsMousePressed, currentScale, panX, panY) => {
   if (!isMousePressed) return;
 
   // console.log(currentPixelsMousePressed);
@@ -20,7 +20,10 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
     y = event.clientY - bounding.top;
   }
 
-  if (x > DISPLAY_SIZE || x < 0 || y > DISPLAY_SIZE || y < 0) return;
+  let xs = parseInt((x - panX) / currentScale);
+  let ys = parseInt((y - panY) / currentScale);
+
+  if (xs > DISPLAY_SIZE || xs < 0 || ys > DISPLAY_SIZE || ys < 0) return;
   //   if (x > currSize || x < 0 || y > currSize || y < 0) return;
   let pixel = null;
   let flag = false;
@@ -28,7 +31,7 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
   for (let i = 0; i < pixels.length; i++) {
     if (flag) break;
     for (let j = 0; j < pixels[i].length; j++) {
-      if (x >= pixels[i][j].x1 && x <= pixels[i][j].x2 && y >= pixels[i][j].y1 && y <= pixels[i][j].y2) {
+      if (xs >= pixels[i][j].x1 && xs <= pixels[i][j].x2 && ys >= pixels[i][j].y1 && ys <= pixels[i][j].y2) {
         pixel = pixels[i][j];
         idxi = i;
         idxj = j;
@@ -50,10 +53,8 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
 
     c.fillStyle = selectedColor.value;
 
-    c.fillRect(pixel.x1, pixel.y1, penSize, penSize);
-    // let path1 = new Path2D();
-    // path1.rect(pixel.x1, pixel.y1, penSize, penSize);
-    // c.fill(path1);
+    //c.fillRect(pixel.x1, pixel.y1, penSize, penSize);
+    c.fillRect(pixel.x1 * currentScale + panX, pixel.y1 * currentScale + panY, penSize * currentScale, penSize * currentScale);
 
     draw.push(pixel);
 
@@ -71,7 +72,9 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
       const path = buildPath(pixels, lastPixel, pixel, PIXEL_SIZE);
       for (let p of path) {
         if (!isPixelAlreadyPaintedInCurrentDraw(p, currentPixelsMousePressed)) {
-          c.fillRect(p.x1, p.y1, penSize, penSize);
+          //c.fillRect(p.x1, p.y1, penSize, penSize);
+          c.fillRect(p.x1 * currentScale + panX, p.y1 * currentScale + panY, penSize * currentScale, penSize * currentScale);
+
           p.color = selectedColor.value;
           p.painted = true;
           p.numOfPaints++;
