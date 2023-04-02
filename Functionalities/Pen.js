@@ -1,6 +1,6 @@
 import { buildPath } from "./Helpers/BuildPath.js";
 
-export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, c, penSize, selectedColor, currentPixelsMousePressed, currentScale, panX, panY) => {
+export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, c, penSize, selectedColor, currentPixelsMousePressed, currentScale, panX, panY, matrix) => {
   if (!isMousePressed) return;
 
   // console.log(currentPixelsMousePressed);
@@ -20,8 +20,14 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
     y = event.clientY - bounding.top;
   }
 
+  //transforming mouse coordinates in world coordinates
   let xs = parseInt((x - panX) / currentScale);
   let ys = parseInt((y - panY) / currentScale);
+  // console.log(matrix);
+  // let xs = x * matrix[0] + y * matrix[2] + matrix[4];
+  // let ys = x * matrix[1] + y * matrix[3] + matrix[4];
+
+  console.log(xs, ys);
 
   if (xs > DISPLAY_SIZE || xs < 0 || ys > DISPLAY_SIZE || ys < 0) return;
   //   if (x > currSize || x < 0 || y > currSize || y < 0) return;
@@ -53,8 +59,8 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
 
     c.fillStyle = selectedColor.value;
 
-    //c.fillRect(pixel.x1, pixel.y1, penSize, penSize);
-    c.fillRect(pixel.x1 * currentScale + panX, pixel.y1 * currentScale + panY, penSize * currentScale, penSize * currentScale);
+    c.fillRect(pixel.x1, pixel.y1, penSize, penSize);
+    // c.fillRect(pixel.x1 * currentScale + panX, pixel.y1 * currentScale + panY, penSize * currentScale, penSize * currentScale);
 
     draw.push(pixel);
 
@@ -72,8 +78,8 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
       const path = buildPath(pixels, lastPixel, pixel, PIXEL_SIZE);
       for (let p of path) {
         if (!isPixelAlreadyPaintedInCurrentDraw(p, currentPixelsMousePressed)) {
-          //c.fillRect(p.x1, p.y1, penSize, penSize);
-          c.fillRect(p.x1 * currentScale + panX, p.y1 * currentScale + panY, penSize * currentScale, penSize * currentScale);
+          c.fillRect(p.x1, p.y1, penSize, penSize);
+          // c.fillRect(p.x1 * currentScale + panX, p.y1 * currentScale + panY, penSize * currentScale, penSize * currentScale);
 
           p.color = selectedColor.value;
           p.painted = true;

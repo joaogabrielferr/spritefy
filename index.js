@@ -17,6 +17,8 @@ let lastPixel = {
   value: null, //last pixel painted in the screen
 };
 
+let matrix = [1, 0, 0, 1, 0, 0];
+
 let currentDraw = {
   value: [], //current thing being painted in the canvas (the pixels painted using the pen, eraser of bucket)
 };
@@ -39,11 +41,15 @@ const keyMap = new Map();
 
 const DISPLAY_SIZE = 700; //has to be divisible by 100
 const PIXEL_SIZE = DISPLAY_SIZE / 100;
-const SCALE_FACTOR = 1;
+const SCALE_FACTOR = 1.1;
 
-let currentScale = SCALE_FACTOR;
-let panX = 0,
-  panY = 0;
+let zoomAmount = 0;
+let currentScale = 1;
+let fixedpanX = 0,
+  fixedpanY = 0;
+
+let originX = 0,
+  originY = 0;
 
 let isMousePressed = false;
 let painting = true;
@@ -52,6 +58,13 @@ let bucket = false;
 
 const defaultPenSize = PIXEL_SIZE;
 let penSize = PIXEL_SIZE;
+
+let mousex = 0,
+  mousey = 0,
+  mousexs = 0,
+  mouseys = 0;
+
+let mousehistory = [];
 
 window.addEventListener("load", () => {
   setUpCanvas();
@@ -76,7 +89,7 @@ window.addEventListener("load", () => {
     canvas.addEventListener(eventName, (event) => {
       isMousePressed = true;
 
-      if (painting) currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, panX, panY));
+      if (painting) currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix));
       else if (erasing) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize);
       else if (bucket) currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx));
     })
@@ -84,7 +97,18 @@ window.addEventListener("load", () => {
 
   "mousemove touchmove".split(" ").forEach((eventName) =>
     canvas.addEventListener(eventName, (event) => {
-      if (painting && isMousePressed) currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, panX, panY));
+      const bounding = canvas.getBoundingClientRect();
+      if (eventName === "touchmove") {
+        mousex = event.touches[0].clientX - bounding.left;
+        mousey = event.touches[0].clientY - bounding.top;
+      } else {
+        mousex = event.clientX - bounding.left;
+        mousey = event.clientY - bounding.top;
+      }
+      // mousexs = parseInt((mousex - panX) / currentScale);
+      // mouseys = parseInt((mousey - panY) / currentScale);
+
+      if (painting && isMousePressed) currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix));
       else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize);
     })
   );
@@ -189,12 +213,30 @@ window.addEventListener("load", () => {
   };
 
   canvas.addEventListener("wheel", (e) => {
-    if (e.deltaY < 0 && currentScale < 10) {
-      currentScale += SCALE_FACTOR;
-      console.log(currentScale);
+    if (e.wheelDelta > 0 && zoomAmount < 20) {
+      zoomAmount++;
+      console.log(zoomAmount);
+      currentScale *= SCALE_FACTOR;
+      originX = mousex - (mousex - originX) * 1.1;
+      originY = mousey - (mousey - originY) * 1.1;
+      mousehistory.push({ mousex, mousey });
       draw();
-    } else if (e.deltaY > 0 && currentScale > 1) {
-      currentScale -= SCALE_FACTOR;
+    } else if (zoomAmount > 0) {
+      zoomAmount--;
+      console.log(zoomAmount);
+      currentScale *= 1 / SCALE_FACTOR;
+      if (false) {
+      } else {
+        const m = mousehistory.pop();
+        originX = m.mousex - (m.mousex - originX) * (1 / SCALE_FACTOR);
+        originY = m.mousey - (m.mousey - originY) * (1 / SCALE_FACTOR);
+      }
+
+      if (zoomAmount == 0) {
+        originX = 0;
+        originY = 0;
+      }
+
       draw();
     }
   });
@@ -255,22 +297,26 @@ const draw = () => {
   //repaint canvas using pixel matrix
   //restore context state
 
+  // ctx.save();
+
+  matrix[0] = currentScale;
+  matrix[1] = 0;
+  matrix[2] = 0;
+  matrix[3] = currentScale;
+  matrix[4] = originX;
+  matrix[5] = originY;
+
   ctx.clearRect(0, 0, DISPLAY_SIZE, DISPLAY_SIZE);
-  ctx.save();
-  ctx.translate(panX, panY);
-  ctx.scale(currentScale, currentScale);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+  ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
 
   let a = 0;
 
   //redraw background
   for (let i = 0; i <= DISPLAY_SIZE; i += PIXEL_SIZE) {
     for (let j = 0; j <= DISPLAY_SIZE; j += PIXEL_SIZE) {
-      //if(i < 0 || i > 500 || j < 0 || j > 500)
-      //ctx.fillStyle = "#333";
-      //else
       ctx.fillStyle = a ? "#b5b5b5" : "#777777";
-      // console.log(pixels[i][j].bgColor);
-      //ctx.fillStyle = pixels[i][j].bgColor;
       ctx.fillRect(i, j, PIXEL_SIZE, PIXEL_SIZE);
       a = a ? 0 : 1;
     }
@@ -286,5 +332,7 @@ const draw = () => {
     }
   }
 
-  ctx.restore();
+  //ctx.restore();
+
+  //requestAnimationFrame(draw);
 };
