@@ -12,7 +12,7 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
 
   let x, y;
 
-  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (eventtype === "touchstart" || eventtype === "touchmove")) {
     x = event.touches[0].clientX - bounding.left;
     y = event.touches[0].clientY - bounding.top;
   } else {
@@ -27,7 +27,7 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
   // let xs = x * matrix[0] + y * matrix[2] + matrix[4];
   // let ys = x * matrix[1] + y * matrix[3] + matrix[4];
 
-  console.log(xs, ys);
+  //console.log(xs, ys);
 
   if (xs > DISPLAY_SIZE || xs < 0 || ys > DISPLAY_SIZE || ys < 0) return;
   //   if (x > currSize || x < 0 || y > currSize || y < 0) return;
@@ -37,7 +37,7 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
   for (let i = 0; i < pixels.length; i++) {
     if (flag) break;
     for (let j = 0; j < pixels[i].length; j++) {
-      if (xs >= pixels[i][j].x1 && xs <= pixels[i][j].x2 && ys >= pixels[i][j].y1 && ys <= pixels[i][j].y2) {
+      if (xs >= pixels[i][j].x1 && xs < pixels[i][j].x2 && ys >= pixels[i][j].y1 && ys < pixels[i][j].y2) {
         pixel = pixels[i][j];
         idxi = i;
         idxj = j;
@@ -56,9 +56,9 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
 
     // currentPixelsMousePressed.value.push(pixel);
     currentPixelsMousePressed.value.set(pixel.id, true);
+    //console.log(pixel.x1, pixel.y1, penSize);
 
     c.fillStyle = selectedColor.value;
-
     c.fillRect(pixel.x1, pixel.y1, penSize, penSize);
     // c.fillRect(pixel.x1 * currentScale + panX, pixel.y1 * currentScale + panY, penSize * currentScale, penSize * currentScale);
 
@@ -78,6 +78,7 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
       const path = buildPath(pixels, lastPixel, pixel, PIXEL_SIZE);
       for (let p of path) {
         if (!isPixelAlreadyPaintedInCurrentDraw(p, currentPixelsMousePressed)) {
+          c.fillStyle = selectedColor.value;
           c.fillRect(p.x1, p.y1, penSize, penSize);
           // c.fillRect(p.x1 * currentScale + panX, p.y1 * currentScale + panY, penSize * currentScale, penSize * currentScale);
 

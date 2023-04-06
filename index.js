@@ -39,9 +39,9 @@ colorSelectorElement.addEventListener("change", (event) => {
 
 const keyMap = new Map();
 
-const DISPLAY_SIZE = 700; //has to be divisible by 100
-const PIXEL_SIZE = DISPLAY_SIZE / 100;
-const SCALE_FACTOR = 1.1;
+let DISPLAY_SIZE = 700; //has to be divisible by 100
+let PIXEL_SIZE = DISPLAY_SIZE / 100;
+const SCALE_FACTOR = 2;
 
 let zoomAmount = 0;
 let currentScale = 1;
@@ -88,10 +88,10 @@ window.addEventListener("load", () => {
   "mousedown touchstart".split(" ").forEach((eventName) =>
     canvas.addEventListener(eventName, (event) => {
       isMousePressed = true;
-
       if (painting) currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix));
       else if (erasing) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize);
       else if (bucket) currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx));
+      draw();
     })
   );
 
@@ -107,9 +107,9 @@ window.addEventListener("load", () => {
       }
       // mousexs = parseInt((mousex - panX) / currentScale);
       // mouseys = parseInt((mousey - panY) / currentScale);
-
-      if (painting && isMousePressed) currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix));
-      else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize);
+      if (painting && isMousePressed) {
+        currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix));
+      } else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize);
     })
   );
 
@@ -213,24 +213,19 @@ window.addEventListener("load", () => {
   };
 
   canvas.addEventListener("wheel", (e) => {
-    if (e.wheelDelta > 0 && zoomAmount < 20) {
+    if (e.deltaY < 0 && zoomAmount < 7) {
       zoomAmount++;
-      console.log(zoomAmount);
       currentScale *= SCALE_FACTOR;
-      originX = mousex - (mousex - originX) * 1.1;
-      originY = mousey - (mousey - originY) * 1.1;
+      originX = parseInt(mousex - (mousex - originX) * SCALE_FACTOR);
+      originY = parseInt(mousey - (mousey - originY) * SCALE_FACTOR);
       mousehistory.push({ mousex, mousey });
-      draw();
-    } else if (zoomAmount > 0) {
+      draw(true);
+    } else if (e.deltaY > 0 && zoomAmount > 0) {
       zoomAmount--;
-      console.log(zoomAmount);
       currentScale *= 1 / SCALE_FACTOR;
-      if (false) {
-      } else {
-        const m = mousehistory.pop();
-        originX = m.mousex - (m.mousex - originX) * (1 / SCALE_FACTOR);
-        originY = m.mousey - (m.mousey - originY) * (1 / SCALE_FACTOR);
-      }
+      const m = mousehistory.pop();
+      originX = parseInt(m.mousex - (m.mousex - originX) * (1 / SCALE_FACTOR));
+      originY = parseInt(m.mousey - (m.mousey - originY) * (1 / SCALE_FACTOR));
 
       if (zoomAmount == 0) {
         originX = 0;
