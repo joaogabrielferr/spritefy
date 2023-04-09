@@ -17,6 +17,7 @@ let lastPixel = {
   value: null, //last pixel painted in the screen
 };
 
+//canvas transformation matrix
 let matrix = [1, 0, 0, 1, 0, 0];
 
 let currentDraw = {
@@ -45,9 +46,8 @@ const SCALE_FACTOR = 2;
 
 let zoomAmount = 0;
 let currentScale = 1;
-let fixedpanX = 0,
-  fixedpanY = 0;
 
+//current mouse position on cavas
 let originX = 0,
   originY = 0;
 
@@ -60,9 +60,7 @@ const defaultPenSize = PIXEL_SIZE;
 let penSize = PIXEL_SIZE;
 
 let mousex = 0,
-  mousey = 0,
-  mousexs = 0,
-  mouseys = 0;
+  mousey = 0;
 
 let mousehistory = [];
 
@@ -89,8 +87,8 @@ window.addEventListener("load", () => {
     canvas.addEventListener(eventName, (event) => {
       isMousePressed = true;
       if (painting) currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix));
-      else if (erasing) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize);
-      else if (bucket) currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx));
+      else if (erasing) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, originX, originY, currentScale);
+      else if (bucket) currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx, originX, originY, currentScale));
       draw();
     })
   );
@@ -109,7 +107,7 @@ window.addEventListener("load", () => {
       // mouseys = parseInt((mousey - panY) / currentScale);
       if (painting && isMousePressed) {
         currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix));
-      } else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize);
+      } else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, originX, originY, currentScale);
     })
   );
 
@@ -259,21 +257,22 @@ const setUpPixelMatrix = () => {
       let y1 = j;
       let x2 = i + PIXEL_SIZE;
       let y2 = j + PIXEL_SIZE;
+      let bgColor = a ? "#b5b5b5" : "#777777";
       const pixel = {
         x1: x1,
         y1: y1,
         x2: x2,
         y2: y2,
-        color: "#FF000000",
         painted: false,
         id: pixelID++,
         i: idxi,
         j: idxj,
         numOfPaints: 0,
         colorStack: new Stack(),
-        bgColor: a ? "#b5b5b5" : "#777777",
+        bgColor: bgColor,
+        color: bgColor,
       };
-      pixel.colorStack.push("#FF000000");
+      pixel.colorStack.push(bgColor);
       row.push(pixel);
       idxj++;
       a = a ? 0 : 1;
@@ -285,15 +284,6 @@ const setUpPixelMatrix = () => {
 };
 
 const draw = () => {
-  //save context state
-  //clear canvas
-  //translate
-  //scale
-  //repaint canvas using pixel matrix
-  //restore context state
-
-  // ctx.save();
-
   matrix[0] = currentScale;
   matrix[1] = 0;
   matrix[2] = 0;
@@ -326,8 +316,4 @@ const draw = () => {
       }
     }
   }
-
-  //ctx.restore();
-
-  //requestAnimationFrame(draw);
 };

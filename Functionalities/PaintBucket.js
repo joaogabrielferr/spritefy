@@ -31,7 +31,7 @@ function bfs(pixels, u, visited, selectedColor, startColor, penSize, DISPLAY_SIZ
     for (let a = -1; a <= 1; a++) {
       let n;
       if (a == 0) continue;
-      if (u.j + a >= 0 && u.j + a <= DISPLAY_SIZE - 1) {
+      if (u.j + a >= 0 && u.j + a < 100) {
         n = pixels[u.i][u.j + a];
         if (n) {
           if (canVisitNeighbor(n, visited, startColor)) {
@@ -41,7 +41,7 @@ function bfs(pixels, u, visited, selectedColor, startColor, penSize, DISPLAY_SIZ
         }
       }
 
-      if (u.i + a >= 0 && u.i + a <= DISPLAY_SIZE - 1) {
+      if (u.i + a >= 0 && u.i + a < 100) {
         n = pixels[u.i + a][u.j];
         if (n) {
           if (canVisitNeighbor(n, visited, startColor)) {
@@ -65,23 +65,17 @@ function fillSpace(pixels, start, selectedColor, startColor, PIXEL_SIZE, DISPLAY
   console.log(count);
 }
 
-export const PaintBucket = (
-  event,
-  isMousePressed,
-  selectedColor,
-  PIXEL_SIZE,
-  DISPLAY_SIZE,
-  pixels,
-  defaultPensize,
-  c
-) => {
+export const PaintBucket = (event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPensize, c, panX, panY, currentScale) => {
   if (!isMousePressed) return;
 
   const draw = [];
 
   const bounding = canvas.getBoundingClientRect();
-  const x = event.clientX - bounding.left;
-  const y = event.clientY - bounding.top;
+  let x = event.clientX - bounding.left;
+  let y = event.clientY - bounding.top;
+
+  x = parseInt((x - panX) / currentScale);
+  y = parseInt((y - panY) / currentScale);
 
   if (x > PIXEL_SIZE * DISPLAY_SIZE || x < 0 || y > PIXEL_SIZE * DISPLAY_SIZE || y < 0) return;
 
@@ -91,7 +85,7 @@ export const PaintBucket = (
   for (let i = 0; i < pixels.length; i++) {
     if (flag) break;
     for (let j = 0; j < pixels[i].length; j++) {
-      if (x >= pixels[i][j].x1 && x <= pixels[i][j].x2 && y >= pixels[i][j].y1 && y <= pixels[i][j].y2) {
+      if (x >= pixels[i][j].x1 && x < pixels[i][j].x2 && y >= pixels[i][j].y1 && y < pixels[i][j].y2) {
         pixel = pixels[i][j];
         idxi = i;
         idxj = j;
