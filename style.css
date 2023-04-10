@@ -9,19 +9,15 @@ body {
   flex-direction: column;
   justify-content: space-evenly;
   align-items: center;
-  background-color: white;
+  background-color: rgb(43, 43, 43);
 }
 
-#canvas {
-  border: 1px solid #333;
-}
+/* #canvas {
+  cursor: crosshair;
+} */
 
 #drawingCanvas {
   z-index: 1;
-}
-
-#backgroundCanvas {
-  z-index: 0;
 }
 
 .defaultCursor {

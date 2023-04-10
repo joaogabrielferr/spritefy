@@ -34,13 +34,17 @@ let selectedColor = {
   value: colorSelectorElement.value,
 };
 
+let currentPaintedMousePosition = null;
+let currentXYPaintedPosition = null;
+
 colorSelectorElement.addEventListener("change", (event) => {
   selectedColor.value = event.target.value;
 });
 
 const keyMap = new Map();
-
-let DISPLAY_SIZE = 700; //has to be divisible by 100
+// let screensize = window.innerWidth - (window.innerWidth % 100);
+// let DISPLAY_SIZE = screensize - screensize * 0.6 - ((screensize - screensize * 0.6) % 100); //has to be divisible by 100
+let DISPLAY_SIZE = 800; //has to be divisible by 100
 let PIXEL_SIZE = DISPLAY_SIZE / 100;
 const SCALE_FACTOR = 2;
 
@@ -103,6 +107,9 @@ window.addEventListener("load", () => {
         mousex = event.clientX - bounding.left;
         mousey = event.clientY - bounding.top;
       }
+
+      paintMousePosition();
+
       // mousexs = parseInt((mousex - panX) / currentScale);
       // mouseys = parseInt((mousey - panY) / currentScale);
       if (painting && isMousePressed) {
@@ -257,7 +264,7 @@ const setUpPixelMatrix = () => {
       let y1 = j;
       let x2 = i + PIXEL_SIZE;
       let y2 = j + PIXEL_SIZE;
-      let bgColor = a ? "#b5b5b5" : "#777777";
+      let bgColor = a ? "#696969" : "#858585";
       const pixel = {
         x1: x1,
         y1: y1,
@@ -301,7 +308,7 @@ const draw = () => {
   //redraw background
   for (let i = 0; i <= DISPLAY_SIZE; i += PIXEL_SIZE) {
     for (let j = 0; j <= DISPLAY_SIZE; j += PIXEL_SIZE) {
-      ctx.fillStyle = a ? "#b5b5b5" : "#777777";
+      ctx.fillStyle = a ? "#696969" : "#858585";
       ctx.fillRect(i, j, PIXEL_SIZE, PIXEL_SIZE);
       a = a ? 0 : 1;
     }
@@ -316,4 +323,51 @@ const draw = () => {
       }
     }
   }
+};
+
+const paintMousePosition = () => {
+  //find pixel in pixel matrix
+  //TODO: IF PARSING THE PIXEL MATRIX START TO SLOW DOWN PERFORMANCE, CHANGE IT TO ARRAY AND SORT PIXELS, THEN SEARCH FOR A PIXEL USING BINARY SEARCH
+
+  let xs = parseInt((mousex - originX) / currentScale);
+  let ys = parseInt((mousey - originY) / currentScale);
+
+  if (currentXYPaintedPosition && xs >= currentXYPaintedPosition.x && xs < currentXYPaintedPosition.x + PIXEL_SIZE && ys >= currentXYPaintedPosition.y && ys < currentXYPaintedPosition.y + PIXEL_SIZE) {
+    return;
+  }
+
+  if (xs > DISPLAY_SIZE || xs < 0 || ys > DISPLAY_SIZE || ys < 0) return;
+
+  //   if (x > currSize || x < 0 || y > currSize || y < 0) return;
+  let flag = false;
+  let idxi, idxj;
+  let aux;
+  for (let i = 0; i < pixels.length; i++) {
+    if (flag) break;
+    for (let j = 0; j < pixels[i].length; j++) {
+      if (xs >= pixels[i][j].x1 && xs < pixels[i][j].x2 && ys >= pixels[i][j].y1 && ys < pixels[i][j].y2) {
+        aux = pixels[i][j];
+        idxi = i;
+        idxj = j;
+        flag = true;
+        break;
+      }
+    }
+  }
+
+  //TODO: ADJUST FOR BIGGER PEN SIZES
+  if (currentPaintedMousePosition) {
+    ctx.fillStyle = currentPaintedMousePosition.color;
+    ctx.fillRect(currentPaintedMousePosition.x1, currentPaintedMousePosition.y1, PIXEL_SIZE, PIXEL_SIZE);
+  }
+
+  currentPaintedMousePosition = aux;
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
+  ctx.fillRect(currentPaintedMousePosition.x1, currentPaintedMousePosition.y1, PIXEL_SIZE, PIXEL_SIZE);
+
+  currentXYPaintedPosition = {
+    x: xs,
+    y: ys,
+  };
 };
