@@ -323,21 +323,31 @@ const draw = () => {
       }
     }
   }
+
+  paintMousePosition(true);
 };
 
-const paintMousePosition = () => {
+const paintMousePosition = (force = null) => {
   //find pixel in pixel matrix
   //TODO: IF PARSING THE PIXEL MATRIX START TO SLOW DOWN PERFORMANCE, CHANGE IT TO ARRAY AND SORT PIXELS, THEN SEARCH FOR A PIXEL USING BINARY SEARCH
+
+  if (isMousePressed) return;
 
   let xs = parseInt((mousex - originX) / currentScale);
   let ys = parseInt((mousey - originY) / currentScale);
 
-  if (currentXYPaintedPosition && xs >= currentXYPaintedPosition.x && xs < currentXYPaintedPosition.x + PIXEL_SIZE && ys >= currentXYPaintedPosition.y && ys < currentXYPaintedPosition.y + PIXEL_SIZE) {
+  if (!force && currentXYPaintedPosition && xs >= currentXYPaintedPosition.x && xs < currentXYPaintedPosition.x + PIXEL_SIZE && ys >= currentXYPaintedPosition.y && ys < currentXYPaintedPosition.y + PIXEL_SIZE) {
     return;
   }
 
-  if (xs > DISPLAY_SIZE || xs < 0 || ys > DISPLAY_SIZE || ys < 0) return;
-
+  if (xs > DISPLAY_SIZE || xs < 0 || ys > DISPLAY_SIZE || ys < 0) {
+    if (currentPaintedMousePosition) {
+      ctx.fillStyle = currentPaintedMousePosition.color;
+      ctx.fillRect(currentPaintedMousePosition.x1, currentPaintedMousePosition.y1, PIXEL_SIZE, PIXEL_SIZE);
+    }
+    currentPaintedMousePosition = null;
+    return;
+  }
   //   if (x > currSize || x < 0 || y > currSize || y < 0) return;
   let flag = false;
   let idxi, idxj;
@@ -363,7 +373,7 @@ const paintMousePosition = () => {
 
   currentPaintedMousePosition = aux;
 
-  ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
+  ctx.fillStyle = "rgba(247, 255, 0, 0.41)";
   ctx.fillRect(currentPaintedMousePosition.x1, currentPaintedMousePosition.y1, PIXEL_SIZE, PIXEL_SIZE);
 
   currentXYPaintedPosition = {
