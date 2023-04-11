@@ -1,5 +1,5 @@
 function canVisitNeighbor(neighbor, visited, startColor) {
-  return visited[neighbor.id] === false && neighbor.color === startColor;
+  return visited[neighbor.id] === false && (neighbor.color === startColor || neighbor.color === neighbor.bgColor);
 }
 
 let count = 0;
@@ -14,7 +14,6 @@ function bfs(pixels, u, visited, selectedColor, startColor, penSize, DISPLAY_SIZ
   // u.numOfPaints++;
 
   // draw.push(u);
-
   const queue = [];
   queue.push(u);
   while (queue.length > 0) {
@@ -56,7 +55,7 @@ function bfs(pixels, u, visited, selectedColor, startColor, penSize, DISPLAY_SIZ
 
 function fillSpace(pixels, start, selectedColor, startColor, PIXEL_SIZE, DISPLAY_SIZE, penSize, c, draw) {
   //fill a closed space with the choosen color at once (that paint bucket functionality)
-  //using DFS
+  //using BFS
   const numPixels = DISPLAY_SIZE * DISPLAY_SIZE + 1;
   const visited = [];
   for (let i = 0; i <= numPixels; i++) visited.push(false);

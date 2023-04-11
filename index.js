@@ -332,6 +332,7 @@ const paintMousePosition = (force = null) => {
   //TODO: IF PARSING THE PIXEL MATRIX START TO SLOW DOWN PERFORMANCE, CHANGE IT TO ARRAY AND SORT PIXELS, THEN SEARCH FOR A PIXEL USING BINARY SEARCH
 
   if (isMousePressed) return;
+  // if (!painting && !erasing) return;
 
   let xs = parseInt((mousex - originX) / currentScale);
   let ys = parseInt((mousey - originY) / currentScale);
@@ -341,11 +342,6 @@ const paintMousePosition = (force = null) => {
   }
 
   if (xs > DISPLAY_SIZE || xs < 0 || ys > DISPLAY_SIZE || ys < 0) {
-    if (currentPaintedMousePosition) {
-      ctx.fillStyle = currentPaintedMousePosition.color;
-      ctx.fillRect(currentPaintedMousePosition.x1, currentPaintedMousePosition.y1, PIXEL_SIZE, PIXEL_SIZE);
-    }
-    currentPaintedMousePosition = null;
     return;
   }
   //   if (x > currSize || x < 0 || y > currSize || y < 0) return;
@@ -366,6 +362,7 @@ const paintMousePosition = (force = null) => {
   }
 
   //TODO: ADJUST FOR BIGGER PEN SIZES
+  console.log(currentPaintedMousePosition);
   if (currentPaintedMousePosition) {
     ctx.fillStyle = currentPaintedMousePosition.color;
     ctx.fillRect(currentPaintedMousePosition.x1, currentPaintedMousePosition.y1, PIXEL_SIZE, PIXEL_SIZE);

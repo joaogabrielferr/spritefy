@@ -43,15 +43,16 @@ export const undoLastDraw = (pixels, defaultPenSize, c) => {
       //c.clearRect(pixel.x1,pixel.y1,defaultPenSize,defaultPenSize);
       c.fillStyle = pixels[pixel.i][pixel.j].bgColor;
       c.fillRect(pixel.x1, pixel.y1, defaultPenSize, defaultPenSize);
-      currPixel.color = pixels[pixel.i][pixel.j].bgColo;
+      currPixel.color = pixels[pixel.i][pixel.j].bgColor;
       currPixel.painted = false;
     } else {
-      currPixel.colorStack.pop();
       const previousColor = currPixel.colorStack.top();
+      currPixel.colorStack.pop();
       currPixel.color = previousColor;
       c.fillStyle = previousColor;
       c.fillRect(currPixel.x1, currPixel.y1, defaultPenSize, defaultPenSize);
     }
     if (currPixel.numOfPaints < 0) currPixel.numOfPaints = 0;
+    if (currPixel.numOfPaints === 0) currPixel.colorStack.push(currPixel.bgColor);
   }
 };
