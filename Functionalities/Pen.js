@@ -1,6 +1,6 @@
 import { buildPath } from "./Helpers/BuildPath.js";
 
-export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, c, penSize, selectedColor, currentPixelsMousePressed, currentScale, panX, panY, matrix) => {
+export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, c, penSize, selectedColor, currentPixelsMousePressed, currentScale, panX, panY, matrix, x, y) => {
   if (!isMousePressed) return;
 
   // console.log(currentPixelsMousePressed);
@@ -10,15 +10,13 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
 
   const bounding = canvas.getBoundingClientRect();
 
-  let x, y;
-
-  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (eventtype === "touchstart" || eventtype === "touchmove")) {
-    x = event.touches[0].clientX - bounding.left;
-    y = event.touches[0].clientY - bounding.top;
-  } else {
-    x = event.clientX - bounding.left;
-    y = event.clientY - bounding.top;
-  }
+  // if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (eventtype === "touchstart" || eventtype === "touchmove")) {
+  //   x = event.touches[0].clientX - bounding.left;
+  //   y = event.touches[0].clientY - bounding.top;
+  // } else {
+  //   x = event.clientX - bounding.left;
+  //   y = event.clientY - bounding.top;
+  // }
 
   //transforming mouse coordinates in world coordinates
   let xs = parseInt((x - panX) / currentScale);
@@ -27,7 +25,7 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
   // let xs = x * matrix[0] + y * matrix[2] + matrix[4];
   // let ys = x * matrix[1] + y * matrix[3] + matrix[4];
 
-  //console.log(xs, ys);
+  console.log(x, y, xs, ys);
 
   if (xs > DISPLAY_SIZE || xs < 0 || ys > DISPLAY_SIZE || ys < 0) return;
   //   if (x > currSize || x < 0 || y > currSize || y < 0) return;

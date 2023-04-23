@@ -4,6 +4,7 @@ import { PaintBucket } from "./Functionalities/PaintBucket.js";
 import { undoStack } from "./Functionalities/UndoRedo.js";
 import { undoLastDraw } from "./Functionalities/UndoRedo.js";
 import { Stack } from "./Functionalities/Helpers/Stack.js";
+import AdjustDisplaySize from "./Functionalities/Helpers/adjustDisplaySize.js";
 
 //TODO: ADD NEIGHBORHOOD ERASING PIXEL*2 AND PIXEL*3 PEN SIZES
 //TODO: DURING ERASING, IF PIXEL IS NOT PAINTED, DO NOT TO TRY TO CLEAR
@@ -42,10 +43,13 @@ colorSelectorElement.addEventListener("change", (event) => {
 });
 
 const keyMap = new Map();
-// let screensize = window.innerWidth - (window.innerWidth % 100);
-// let DISPLAY_SIZE = screensize - screensize * 0.6 - ((screensize - screensize * 0.6) % 100); //has to be divisible by 100
-let DISPLAY_SIZE = 800; //has to be divisible by 100
-let PIXEL_SIZE = DISPLAY_SIZE / 100;
+// let DISPLAY_SIZE = screensize - screensize * 0.1 - ((screensize - screensize * 0.1) % 100); //has to be divisible by 100
+// let DISPLAY_SIZE = AdjustDisplaySize(window.innerWidth);
+// let DISPLAY_SIZE = 800; //has to be divisible by 100
+// let PIXEL_SIZE = DISPLAY_SIZE / 100;
+const CANVAS_SIZE = 200;
+let DISPLAY_SIZE = CANVAS_SIZE * 10;
+let PIXEL_SIZE = 10;
 const SCALE_FACTOR = 2;
 
 let zoomAmount = 0;
@@ -90,7 +94,7 @@ window.addEventListener("load", () => {
   "mousedown touchstart".split(" ").forEach((eventName) =>
     canvas.addEventListener(eventName, (event) => {
       isMousePressed = true;
-      if (painting) currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix));
+      if (painting) currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix, mousex, mousey));
       else if (erasing) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, originX, originY, currentScale);
       else if (bucket) currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx, originX, originY, currentScale));
       draw();
@@ -103,9 +107,13 @@ window.addEventListener("load", () => {
       if (eventName === "touchmove") {
         mousex = event.touches[0].clientX - bounding.left;
         mousey = event.touches[0].clientY - bounding.top;
+        mousex = (DISPLAY_SIZE * mousex) / 1000;
+        mousey = (DISPLAY_SIZE * mousey) / 1000;
       } else {
         mousex = event.clientX - bounding.left;
         mousey = event.clientY - bounding.top;
+        mousex = (DISPLAY_SIZE * mousex) / 1000;
+        mousey = (DISPLAY_SIZE * mousey) / 1000;
       }
 
       paintMousePosition();
@@ -113,7 +121,7 @@ window.addEventListener("load", () => {
       // mousexs = parseInt((mousex - panX) / currentScale);
       // mouseys = parseInt((mousey - panY) / currentScale);
       if (painting && isMousePressed) {
-        currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix));
+        currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix, mousex, mousey));
       } else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, originX, originY, currentScale);
     })
   );
@@ -249,6 +257,9 @@ const setUpCanvas = () => {
   canvas.width = DISPLAY_SIZE;
   canvas.height = DISPLAY_SIZE;
 
+  canvas.style.width = "1000px";
+  canvas.style.height = "1000px";
+
   ctx.willReadFrequently = true;
 };
 
@@ -336,6 +347,7 @@ const paintMousePosition = (force = null) => {
 
   let xs = parseInt((mousex - originX) / currentScale);
   let ys = parseInt((mousey - originY) / currentScale);
+  console.log(xs, ys);
 
   if (!force && currentXYPaintedPosition && xs >= currentXYPaintedPosition.x && xs < currentXYPaintedPosition.x + PIXEL_SIZE && ys >= currentXYPaintedPosition.y && ys < currentXYPaintedPosition.y + PIXEL_SIZE) {
     return;
@@ -362,7 +374,7 @@ const paintMousePosition = (force = null) => {
   }
 
   //TODO: ADJUST FOR BIGGER PEN SIZES
-  console.log(currentPaintedMousePosition);
+  // console.log(currentPaintedMousePosition);
   if (currentPaintedMousePosition) {
     ctx.fillStyle = currentPaintedMousePosition.color;
     ctx.fillRect(currentPaintedMousePosition.x1, currentPaintedMousePosition.y1, PIXEL_SIZE, PIXEL_SIZE);
@@ -378,3 +390,14 @@ const paintMousePosition = (force = null) => {
     y: ys,
   };
 };
+
+// window.onresize = () => {
+//   console.log("resizing window");
+//   DISPLAY_SIZE = AdjustDisplaySize(window.innerWidth);
+//   PIXEL_SIZE = DISPLAY_SIZE / 100;
+//   console.log("display size:", DISPLAY_SIZE);
+//   canvas.width = DISPLAY_SIZE;
+//   canvas.height = DISPLAY_SIZE;
+//   updatePixelMatrix();
+//   draw();
+// };
