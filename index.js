@@ -6,6 +6,8 @@ import { undoLastDraw } from "./Functionalities/UndoRedo.js";
 import { Stack } from "./Functionalities/Helpers/Stack.js";
 import AdjustDisplaySize from "./Functionalities/Helpers/adjustDisplaySize.js";
 
+//TODO, WHEN SCALING SUPER SMALL CANVAS (LIKE 10X10(100X100), INCREASE PIXEL SIZE)
+
 //TODO: ADD NEIGHBORHOOD ERASING PIXEL*2 AND PIXEL*3 PEN SIZES
 //TODO: DURING ERASING, IF PIXEL IS NOT PAINTED, DO NOT TO TRY TO CLEAR
 //TODO: ADD CTRL Z UNDO TO PIXEL*2 AND PIXEL*3 PEN SIZES
@@ -47,9 +49,19 @@ const keyMap = new Map();
 // let DISPLAY_SIZE = AdjustDisplaySize(window.innerWidth);
 // let DISPLAY_SIZE = 800; //has to be divisible by 100
 // let PIXEL_SIZE = DISPLAY_SIZE / 100;
-const CANVAS_SIZE = 200;
-let DISPLAY_SIZE = CANVAS_SIZE * 10;
-let PIXEL_SIZE = 10;
+const CANVAS_SIZE = 100;
+
+let DISPLAY_SIZE;
+let PIXEL_SIZE;
+
+if (CANVAS_SIZE < 50) {
+  DISPLAY_SIZE = CANVAS_SIZE * 10 * 10;
+  PIXEL_SIZE = 10 * 10;
+} else {
+  DISPLAY_SIZE = CANVAS_SIZE * 10;
+  PIXEL_SIZE = 10;
+}
+
 const SCALE_FACTOR = 2;
 
 let zoomAmount = 0;
@@ -252,6 +264,7 @@ window.addEventListener("load", () => {
 
 const setUpCanvas = () => {
   canvas = document.getElementById("canvas");
+  canvas.style.backgroundColor = "white";
   ctx = canvas.getContext("2d");
 
   canvas.width = DISPLAY_SIZE;
@@ -275,7 +288,8 @@ const setUpPixelMatrix = () => {
       let y1 = j;
       let x2 = i + PIXEL_SIZE;
       let y2 = j + PIXEL_SIZE;
-      let bgColor = a ? "#696969" : "#858585";
+      // let bgColor = a ? "#696969" : "#858585";
+      let bgColor = "white";
       const pixel = {
         x1: x1,
         y1: y1,
@@ -299,6 +313,7 @@ const setUpPixelMatrix = () => {
     idxj = 0;
     pixels.push(row);
   }
+  console.log(pixels.length, pixels[0].length);
 };
 
 const draw = () => {
@@ -317,13 +332,13 @@ const draw = () => {
   let a = 0;
 
   //redraw background
-  for (let i = 0; i <= DISPLAY_SIZE; i += PIXEL_SIZE) {
-    for (let j = 0; j <= DISPLAY_SIZE; j += PIXEL_SIZE) {
-      ctx.fillStyle = a ? "#696969" : "#858585";
-      ctx.fillRect(i, j, PIXEL_SIZE, PIXEL_SIZE);
-      a = a ? 0 : 1;
-    }
-  }
+  // for (let i = 0; i <= DISPLAY_SIZE; i += PIXEL_SIZE) {
+  //   for (let j = 0; j <= DISPLAY_SIZE; j += PIXEL_SIZE) {
+  //     ctx.fillStyle = a ? "#696969" : "#858585";
+  //     ctx.fillRect(i, j, PIXEL_SIZE, PIXEL_SIZE);
+  //     a = a ? 0 : 1;
+  //   }
+  // }
 
   //redraw pixel matrix
   for (let i = 0; i < pixels.length; i++) {
@@ -347,7 +362,6 @@ const paintMousePosition = (force = null) => {
 
   let xs = parseInt((mousex - originX) / currentScale);
   let ys = parseInt((mousey - originY) / currentScale);
-  console.log(xs, ys);
 
   if (!force && currentXYPaintedPosition && xs >= currentXYPaintedPosition.x && xs < currentXYPaintedPosition.x + PIXEL_SIZE && ys >= currentXYPaintedPosition.y && ys < currentXYPaintedPosition.y + PIXEL_SIZE) {
     return;
