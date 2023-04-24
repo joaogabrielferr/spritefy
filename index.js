@@ -49,7 +49,7 @@ const keyMap = new Map();
 // let DISPLAY_SIZE = AdjustDisplaySize(window.innerWidth);
 // let DISPLAY_SIZE = 800; //has to be divisible by 100
 // let PIXEL_SIZE = DISPLAY_SIZE / 100;
-const CANVAS_SIZE = 100;
+const CANVAS_SIZE = 200;
 
 let DISPLAY_SIZE;
 let PIXEL_SIZE;
@@ -107,8 +107,8 @@ window.addEventListener("load", () => {
     canvas.addEventListener(eventName, (event) => {
       isMousePressed = true;
       if (painting) currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix, mousex, mousey));
-      else if (erasing) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, originX, originY, currentScale);
-      else if (bucket) currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx, originX, originY, currentScale));
+      else if (erasing) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, originX, originY, currentScale, mousex, mousey);
+      else if (bucket) currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx, originX, originY, currentScale, CANVAS_SIZE));
       draw();
     })
   );
@@ -134,7 +134,7 @@ window.addEventListener("load", () => {
       // mouseys = parseInt((mousey - panY) / currentScale);
       if (painting && isMousePressed) {
         currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix, mousex, mousey));
-      } else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, originX, originY, currentScale);
+      } else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, originX, originY, currentScale, mousex, mousey);
     })
   );
 
@@ -396,7 +396,8 @@ const paintMousePosition = (force = null) => {
 
   currentPaintedMousePosition = aux;
 
-  ctx.fillStyle = "rgba(247, 255, 0, 0.41)";
+  // ctx.fillStyle = "rgba(247, 255, 0, 0.41)";
+  ctx.fillStyle = "yellow";
   ctx.fillRect(currentPaintedMousePosition.x1, currentPaintedMousePosition.y1, PIXEL_SIZE, PIXEL_SIZE);
 
   currentXYPaintedPosition = {

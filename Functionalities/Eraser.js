@@ -1,17 +1,16 @@
 import { buildPath } from "./Helpers/BuildPath.js";
 
-export const Eraser = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, c, penSize, panX, panY, currentScale) => {
+export const Eraser = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, c, penSize, panX, panY, currentScale, x, y) => {
   if (!isMousePressed) return;
   const bounding = canvas.getBoundingClientRect();
-  let x, y;
 
-  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (eventtype === "touchstart" || eventtype === "touchmove")) {
-    x = event.touches[0].clientX - bounding.left;
-    y = event.touches[0].clientY - bounding.top;
-  } else {
-    x = event.clientX - bounding.left;
-    y = event.clientY - bounding.top;
-  }
+  // if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (eventtype === "touchstart" || eventtype === "touchmove")) {
+  //   x = event.touches[0].clientX - bounding.left;
+  //   y = event.touches[0].clientY - bounding.top;
+  // } else {
+  //   x = event.clientX - bounding.left;
+  //   y = event.clientY - bounding.top;
+  // }
 
   x = parseInt((x - panX) / currentScale);
   y = parseInt((y - panY) / currentScale);

@@ -4,7 +4,7 @@ function canVisitNeighbor(neighbor, visited, startColor) {
 
 let count = 0;
 
-function bfs(pixels, u, visited, selectedColor, startColor, penSize, DISPLAY_SIZE, PIXEL_SIZE, c, draw) {
+function bfs(pixels, u, visited, selectedColor, startColor, penSize, DISPLAY_SIZE, PIXEL_SIZE, c, draw, CANVAS_SIZE) {
   visited[u.id] = true;
   // c.fillStyle = selectedColor.value;
   // c.fillRect(u.x1,u.y1,penSize,penSize);
@@ -30,7 +30,7 @@ function bfs(pixels, u, visited, selectedColor, startColor, penSize, DISPLAY_SIZ
     for (let a = -1; a <= 1; a++) {
       let n;
       if (a == 0) continue;
-      if (u.j + a >= 0 && u.j + a < 100) {
+      if (u.j + a >= 0 && u.j + a < CANVAS_SIZE) {
         n = pixels[u.i][u.j + a];
         if (n) {
           if (canVisitNeighbor(n, visited, startColor)) {
@@ -40,7 +40,7 @@ function bfs(pixels, u, visited, selectedColor, startColor, penSize, DISPLAY_SIZ
         }
       }
 
-      if (u.i + a >= 0 && u.i + a < 100) {
+      if (u.i + a >= 0 && u.i + a < CANVAS_SIZE) {
         n = pixels[u.i + a][u.j];
         if (n) {
           if (canVisitNeighbor(n, visited, startColor)) {
@@ -53,18 +53,18 @@ function bfs(pixels, u, visited, selectedColor, startColor, penSize, DISPLAY_SIZ
   }
 }
 
-function fillSpace(pixels, start, selectedColor, startColor, PIXEL_SIZE, DISPLAY_SIZE, penSize, c, draw) {
+function fillSpace(pixels, start, selectedColor, startColor, PIXEL_SIZE, DISPLAY_SIZE, penSize, c, draw, CANVAS_SIZE) {
   //fill a closed space with the choosen color at once (that paint bucket functionality)
   //using BFS
   const numPixels = DISPLAY_SIZE * DISPLAY_SIZE + 1;
   const visited = [];
   for (let i = 0; i <= numPixels; i++) visited.push(false);
   //dfs(pixels,start,visited,selectedColor,startColor,penSize,DISPLAY_SIZE,PIXEL_SIZE,c,draw);
-  bfs(pixels, start, visited, selectedColor, startColor, penSize, DISPLAY_SIZE, PIXEL_SIZE, c, draw);
+  bfs(pixels, start, visited, selectedColor, startColor, penSize, DISPLAY_SIZE, PIXEL_SIZE, c, draw, CANVAS_SIZE);
   console.log(count);
 }
 
-export const PaintBucket = (event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPensize, c, panX, panY, currentScale) => {
+export const PaintBucket = (event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPensize, c, panX, panY, currentScale, CANVAS_SIZE) => {
   if (!isMousePressed) return;
 
   const draw = [];
@@ -95,7 +95,7 @@ export const PaintBucket = (event, isMousePressed, selectedColor, PIXEL_SIZE, DI
   }
 
   if (pixel != null) {
-    fillSpace(pixels, pixel, selectedColor, pixel.color, PIXEL_SIZE, DISPLAY_SIZE, defaultPensize, c, draw);
+    fillSpace(pixels, pixel, selectedColor, pixel.color, PIXEL_SIZE, DISPLAY_SIZE, defaultPensize, c, draw, CANVAS_SIZE);
   }
 
   return draw;
