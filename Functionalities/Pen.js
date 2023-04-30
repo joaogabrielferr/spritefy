@@ -8,7 +8,7 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
 
   const draw = []; //pixels drawn in the screen here
 
-  const bounding = canvas.getBoundingClientRect();
+  // const bounding = canvas.getBoundingClientRect();
 
   // if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && (eventtype === "touchstart" || eventtype === "touchmove")) {
   //   x = event.touches[0].clientX - bounding.left;

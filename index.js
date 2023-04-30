@@ -6,13 +6,14 @@ import { undoLastDraw } from "./Functionalities/UndoRedo.js";
 import { Stack } from "./Functionalities/Helpers/Stack.js";
 import AdjustDisplaySize from "./Functionalities/Helpers/adjustDisplaySize.js";
 
-//TODO, WHEN SCALING SUPER SMALL CANVAS (LIKE 10X10(100X100), INCREASE PIXEL SIZE)
+//TODO: TO INCREASE PERFORMANCE, ADD A SECONDARY CANVAS WHERE CURRENT DRAW WILL BE DISPLAYED ON TOP OF MAIN CANVAS, THEN PUT IT ON MAIN CANVAS AND CALL DRAW() ONCE
 
 //TODO: ADD NEIGHBORHOOD ERASING PIXEL*2 AND PIXEL*3 PEN SIZES
 //TODO: DURING ERASING, IF PIXEL IS NOT PAINTED, DO NOT TO TRY TO CLEAR
 //TODO: ADD CTRL Z UNDO TO PIXEL*2 AND PIXEL*3 PEN SIZES
 //TODO: ADD CRTL Z UNDO TO ERASING
 //TODO: ADD TYPESCRIPT
+//TODO: ADJUST CSS_SCALE_FACTOR BASED ON SCREEN SIZE
 
 let canvas;
 let ctx; //canvas context
@@ -32,6 +33,8 @@ let currentPixelsMousePressed = {
   value: new Map(), //current pixels painted while the user is moving the mouse with one of its buttons pressed
 };
 
+const BG_COLOR = "#FAF9F6";
+
 const colorSelectorElement = document.getElementById("colorSelector");
 
 let selectedColor = {
@@ -50,7 +53,7 @@ const keyMap = new Map();
 // let DISPLAY_SIZE = AdjustDisplaySize(window.innerWidth);
 // let DISPLAY_SIZE = 800; //has to be divisible by 100
 // let PIXEL_SIZE = DISPLAY_SIZE / 100;
-const CANVAS_SIZE = 200;
+const CANVAS_SIZE = 500;
 
 let DISPLAY_SIZE;
 let PIXEL_SIZE;
@@ -64,6 +67,10 @@ if (CANVAS_SIZE < 50) {
 }
 
 const SCALE_FACTOR = 2;
+
+const CSS_SCALE_FACTOR = 1000;
+
+let bgDrawingSize = CANVAS_SIZE >= 100 ? 10 : 1;
 
 let zoomAmount = 0;
 let currentScale = 1;
@@ -120,13 +127,13 @@ window.addEventListener("load", () => {
       if (eventName === "touchmove") {
         mousex = event.touches[0].clientX - bounding.left;
         mousey = event.touches[0].clientY - bounding.top;
-        mousex = (DISPLAY_SIZE * mousex) / 1000;
-        mousey = (DISPLAY_SIZE * mousey) / 1000;
+        mousex = (DISPLAY_SIZE * mousex) / CSS_SCALE_FACTOR;
+        mousey = (DISPLAY_SIZE * mousey) / CSS_SCALE_FACTOR;
       } else {
         mousex = event.clientX - bounding.left;
         mousey = event.clientY - bounding.top;
-        mousex = (DISPLAY_SIZE * mousex) / 1000;
-        mousey = (DISPLAY_SIZE * mousey) / 1000;
+        mousex = (DISPLAY_SIZE * mousex) / CSS_SCALE_FACTOR;
+        mousey = (DISPLAY_SIZE * mousey) / CSS_SCALE_FACTOR;
       }
 
       paintMousePosition();
@@ -158,12 +165,17 @@ window.addEventListener("load", () => {
         painting = false;
         erasing = true;
         bucket = false;
+        canvas.className = "";
+        canvas.className = "eraser";
         break;
 
       case "p":
         painting = true;
         erasing = false;
         bucket = false;
+        canvas.className = "";
+        canvas.className = "pen";
+
         break;
 
       case "b":
@@ -265,14 +277,14 @@ window.addEventListener("load", () => {
 
 const setUpCanvas = () => {
   canvas = document.getElementById("canvas");
-  canvas.style.backgroundColor = "white";
+  canvas.style.backgroundColor = BG_COLOR;
   ctx = canvas.getContext("2d");
 
   canvas.width = DISPLAY_SIZE;
   canvas.height = DISPLAY_SIZE;
 
-  canvas.style.width = "1000px";
-  canvas.style.height = "1000px";
+  canvas.style.width = `${CSS_SCALE_FACTOR}px`;
+  canvas.style.height = `${CSS_SCALE_FACTOR}px`;
 
   ctx.willReadFrequently = true;
 };
@@ -290,7 +302,7 @@ const setUpPixelMatrix = () => {
       let x2 = i + PIXEL_SIZE;
       let y2 = j + PIXEL_SIZE;
       // let bgColor = a ? "#696969" : "#858585";
-      let bgColor = "white";
+      let bgColor = BG_COLOR;
       const pixel = {
         x1: x1,
         y1: y1,
@@ -330,16 +342,20 @@ const draw = () => {
 
   ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
 
-  let a = 0;
+  let firstInRow = 1;
+  let a = firstInRow;
 
   //redraw background
-  // for (let i = 0; i <= DISPLAY_SIZE; i += PIXEL_SIZE) {
-  //   for (let j = 0; j <= DISPLAY_SIZE; j += PIXEL_SIZE) {
-  //     ctx.fillStyle = a ? "#696969" : "#858585";
-  //     ctx.fillRect(i, j, PIXEL_SIZE, PIXEL_SIZE);
-  //     a = a ? 0 : 1;
-  //   }
-  // }
+  for (let i = 0; i <= DISPLAY_SIZE; i += PIXEL_SIZE * bgDrawingSize) {
+    if (firstInRow) a = 0;
+    else a = 1;
+    firstInRow = firstInRow ? 0 : 1;
+    for (let j = 0; j <= DISPLAY_SIZE; j += PIXEL_SIZE * bgDrawingSize) {
+      ctx.fillStyle = a ? "#696969" : "#858585";
+      ctx.fillRect(i, j, PIXEL_SIZE * bgDrawingSize, PIXEL_SIZE * bgDrawingSize);
+      a = a ? 0 : 1;
+    }
+  }
 
   //redraw pixel matrix
   for (let i = 0; i < pixels.length; i++) {
@@ -398,7 +414,7 @@ const paintMousePosition = (force = null) => {
   currentPaintedMousePosition = aux;
 
   // ctx.fillStyle = "rgba(247, 255, 0, 0.41)";
-  ctx.fillStyle = "yellow";
+  ctx.fillStyle = selectedColor.value;
   ctx.fillRect(currentPaintedMousePosition.x1, currentPaintedMousePosition.y1, PIXEL_SIZE, PIXEL_SIZE);
 
   currentXYPaintedPosition = {
