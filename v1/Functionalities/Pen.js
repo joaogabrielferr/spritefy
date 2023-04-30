@@ -24,9 +24,10 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
   // console.log(matrix);
   // let xs = x * matrix[0] + y * matrix[2] + matrix[4];
   // let ys = x * matrix[1] + y * matrix[3] + matrix[4];
-
-  if (xs > DISPLAY_SIZE || xs < 0 || ys > DISPLAY_SIZE || ys < 0) return;
-  //   if (x > currSize || x < 0 || y > currSize || y < 0) return;
+  if (xs > DISPLAY_SIZE || xs < 0 || ys > DISPLAY_SIZE || ys < 0)
+  {
+    return;
+  }
   let pixel = null;
   let flag = false;
   let idxi, idxj;

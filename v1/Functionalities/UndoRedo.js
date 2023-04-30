@@ -42,7 +42,8 @@ export const undoLastDraw = (pixels, defaultPenSize, c) => {
     if (currPixel.numOfPaints <= 0) {
       //c.clearRect(pixel.x1,pixel.y1,defaultPenSize,defaultPenSize);
       c.fillStyle = pixels[pixel.i][pixel.j].bgColor;
-      c.fillRect(pixel.x1, pixel.y1, defaultPenSize, defaultPenSize);
+      // c.fillRect(pixel.x1, pixel.y1, defaultPenSize, defaultPenSize);
+      c.clearRect(pixel.x1, pixel.y1, defaultPenSize, defaultPenSize);
       currPixel.color = pixels[pixel.i][pixel.j].bgColor;
       currPixel.painted = false;
     } else {

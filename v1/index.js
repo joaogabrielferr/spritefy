@@ -16,7 +16,9 @@ import AdjustDisplaySize from "./Functionalities/Helpers/adjustDisplaySize.js";
 //TODO: ADJUST CSS_SCALE_FACTOR BASED ON SCREEN SIZE
 
 let canvas;
+let bgCanvas;
 let ctx; //canvas context
+let BGctx //background canvas context
 let pixels = [];
 let lastPixel = {
   value: null, //last pixel painted in the screen
@@ -38,22 +40,23 @@ const BG_COLOR = "#FAF9F6";
 const colorSelectorElement = document.getElementById("colorSelector");
 
 let selectedColor = {
-  value: colorSelectorElement.value,
+  // value: colorSelectorElement.value,
+  value: "black",
 };
 
 let currentPaintedMousePosition = null;
 let currentXYPaintedPosition = null;
 
-colorSelectorElement.addEventListener("change", (event) => {
-  selectedColor.value = event.target.value;
-});
+// colorSelectorElement.addEventListener("change", (event) => {
+//   selectedColor.value = event.target.value;
+// });
 
 const keyMap = new Map();
 // let DISPLAY_SIZE = screensize - screensize * 0.1 - ((screensize - screensize * 0.1) % 100); //has to be divisible by 100
 // let DISPLAY_SIZE = AdjustDisplaySize(window.innerWidth);
 // let DISPLAY_SIZE = 800; //has to be divisible by 100
 // let PIXEL_SIZE = DISPLAY_SIZE / 100;
-const CANVAS_SIZE = 500;
+const CANVAS_SIZE = 200;
 
 let DISPLAY_SIZE;
 let PIXEL_SIZE;
@@ -68,7 +71,7 @@ if (CANVAS_SIZE < 50) {
 
 const SCALE_FACTOR = 2;
 
-const CSS_SCALE_FACTOR = 1000;
+const CSS_SCALE_FACTOR = 800;
 
 let bgDrawingSize = CANVAS_SIZE >= 100 ? 10 : 1;
 
@@ -99,15 +102,15 @@ window.addEventListener("load", () => {
 
   //SETTING UP DOWNLOAD BUTTON
 
-  const botao = document.getElementById("button");
-  botao.addEventListener("click", () => {
-    let downloadLink = document.createElement("a");
-    downloadLink.setAttribute("download", "pixelart(not realy).png");
-    let dataURL = canvas.toDataURL("image/png");
-    let url = dataURL.replace(/^data:image\/png/, "data:application/octet-stream");
-    downloadLink.setAttribute("href", url);
-    downloadLink.click();
-  });
+  // const botao = document.getElementById("button");
+  // botao.addEventListener("click", () => {
+  //   let downloadLink = document.createElement("a");
+  //   downloadLink.setAttribute("download", "pixelart(not realy).png");
+  //   let dataURL = canvas.toDataURL("image/png");
+  //   let url = dataURL.replace(/^data:image\/png/, "data:application/octet-stream");
+  //   downloadLink.setAttribute("href", url);
+  //   downloadLink.click();
+  // });
 
   //EVENT LISTENERS
 
@@ -122,7 +125,7 @@ window.addEventListener("load", () => {
   );
 
   "mousemove touchmove".split(" ").forEach((eventName) =>
-    canvas.addEventListener(eventName, (event) => {
+    document.addEventListener(eventName, (event) => {
       const bounding = canvas.getBoundingClientRect();
       if (eventName === "touchmove") {
         mousex = event.touches[0].clientX - bounding.left;
@@ -277,14 +280,22 @@ window.addEventListener("load", () => {
 
 const setUpCanvas = () => {
   canvas = document.getElementById("canvas");
-  canvas.style.backgroundColor = BG_COLOR;
+  bgCanvas = document.getElementById("BGcanvas");
+  
+  //canvas.style.backgroundColor = "red";
+  bgCanvas.style.backgroundColor = "#252629";
   ctx = canvas.getContext("2d");
+  BGctx = bgCanvas.getContext("2d");
 
   canvas.width = DISPLAY_SIZE;
   canvas.height = DISPLAY_SIZE;
+  bgCanvas.width = DISPLAY_SIZE;
+  bgCanvas.height = DISPLAY_SIZE;
 
   canvas.style.width = `${CSS_SCALE_FACTOR}px`;
   canvas.style.height = `${CSS_SCALE_FACTOR}px`;
+  bgCanvas.style.width = `${CSS_SCALE_FACTOR}px`;
+  bgCanvas.style.height = `${CSS_SCALE_FACTOR}px`;
 
   ctx.willReadFrequently = true;
 };
@@ -302,7 +313,7 @@ const setUpPixelMatrix = () => {
       let x2 = i + PIXEL_SIZE;
       let y2 = j + PIXEL_SIZE;
       // let bgColor = a ? "#696969" : "#858585";
-      let bgColor = BG_COLOR;
+      let bgColor = null;
       const pixel = {
         x1: x1,
         y1: y1,
@@ -338,9 +349,12 @@ const draw = () => {
   matrix[5] = originY;
 
   ctx.clearRect(0, 0, DISPLAY_SIZE, DISPLAY_SIZE);
+  BGctx.clearRect(0, 0, DISPLAY_SIZE, DISPLAY_SIZE);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
+  BGctx.setTransform(1, 0, 0, 1, 0, 0);
 
   ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+  BGctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
 
   let firstInRow = 1;
   let a = firstInRow;
@@ -351,8 +365,8 @@ const draw = () => {
     else a = 1;
     firstInRow = firstInRow ? 0 : 1;
     for (let j = 0; j <= DISPLAY_SIZE; j += PIXEL_SIZE * bgDrawingSize) {
-      ctx.fillStyle = a ? "#696969" : "#858585";
-      ctx.fillRect(i, j, PIXEL_SIZE * bgDrawingSize, PIXEL_SIZE * bgDrawingSize);
+      BGctx.fillStyle = a ? "#696969" : "#858585";
+      BGctx.fillRect(i, j, PIXEL_SIZE * bgDrawingSize, PIXEL_SIZE * bgDrawingSize);
       a = a ? 0 : 1;
     }
   }
@@ -367,60 +381,66 @@ const draw = () => {
     }
   }
 
-  paintMousePosition(true);
+  //paintMousePosition(true);
 };
 
 const paintMousePosition = (force = null) => {
-  //find pixel in pixel matrix
+  
+  //TODO: this is horrible, better make it again from skratch
   //TODO: IF PARSING THE PIXEL MATRIX START TO SLOW DOWN PERFORMANCE, CHANGE IT TO ARRAY AND SORT PIXELS, THEN SEARCH FOR A PIXEL USING BINARY SEARCH
 
-  if (isMousePressed) return;
-  // if (!painting && !erasing) return;
+  // if (isMousePressed) return;
+  // // if (!painting && !erasing) return;
 
-  let xs = parseInt((mousex - originX) / currentScale);
-  let ys = parseInt((mousey - originY) / currentScale);
+  // let xs = parseInt((mousex - originX) / currentScale);
+  // let ys = parseInt((mousey - originY) / currentScale);
 
-  if (!force && currentXYPaintedPosition && xs >= currentXYPaintedPosition.x && xs < currentXYPaintedPosition.x + PIXEL_SIZE && ys >= currentXYPaintedPosition.y && ys < currentXYPaintedPosition.y + PIXEL_SIZE) {
-    return;
-  }
+  // if (!force && currentXYPaintedPosition && xs >= currentXYPaintedPosition.x && xs < currentXYPaintedPosition.x + PIXEL_SIZE && ys >= currentXYPaintedPosition.y && ys < currentXYPaintedPosition.y + PIXEL_SIZE) {
+  //   return;
+  // }
 
-  if (xs > DISPLAY_SIZE || xs < 0 || ys > DISPLAY_SIZE || ys < 0) {
-    return;
-  }
-  //   if (x > currSize || x < 0 || y > currSize || y < 0) return;
-  let flag = false;
-  let idxi, idxj;
-  let aux;
-  for (let i = 0; i < pixels.length; i++) {
-    if (flag) break;
-    for (let j = 0; j < pixels[i].length; j++) {
-      if (xs >= pixels[i][j].x1 && xs < pixels[i][j].x2 && ys >= pixels[i][j].y1 && ys < pixels[i][j].y2) {
-        aux = pixels[i][j];
-        idxi = i;
-        idxj = j;
-        flag = true;
-        break;
-      }
-    }
-  }
+  // if (xs > DISPLAY_SIZE || xs < 0 || ys > DISPLAY_SIZE || ys < 0) {
+  //   return;
+  // }
+  // //   if (x > currSize || x < 0 || y > currSize || y < 0) return;
+  // let flag = false;
+  // let idxi, idxj;
+  // let aux;
+  // for (let i = 0; i < pixels.length; i++) {
+  //   if (flag) break;
+  //   for (let j = 0; j < pixels[i].length; j++) {
+  //     if (xs >= pixels[i][j].x1 && xs < pixels[i][j].x2 && ys >= pixels[i][j].y1 && ys < pixels[i][j].y2) {
+  //       aux = pixels[i][j];
+  //       idxi = i;
+  //       idxj = j;
+  //       flag = true;
+  //       break;
+  //     }
+  //   }
+  // }
 
-  //TODO: ADJUST FOR BIGGER PEN SIZES
-  // console.log(currentPaintedMousePosition);
-  if (currentPaintedMousePosition) {
-    ctx.fillStyle = currentPaintedMousePosition.color;
-    ctx.fillRect(currentPaintedMousePosition.x1, currentPaintedMousePosition.y1, PIXEL_SIZE, PIXEL_SIZE);
-  }
+  // //TODO: ADJUST FOR BIGGER PEN SIZES
+  // // console.log(currentPaintedMousePosition);
+  // if (currentPaintedMousePosition) {
+  //   if(aux.numOfPaints > 0){
+  //     ctx.fillStyle = currentPaintedMousePosition.color;
+  //     ctx.fillRect(currentPaintedMousePosition.x1, currentPaintedMousePosition.y1, PIXEL_SIZE, PIXEL_SIZE);
+  //   }else
+  //   {
+  //     ctx.clearRect(currentPaintedMousePosition.x1, currentPaintedMousePosition.y1, PIXEL_SIZE, PIXEL_SIZE);
+  //   }
+  // }
 
-  currentPaintedMousePosition = aux;
+  // currentPaintedMousePosition = aux;
 
-  // ctx.fillStyle = "rgba(247, 255, 0, 0.41)";
-  ctx.fillStyle = selectedColor.value;
-  ctx.fillRect(currentPaintedMousePosition.x1, currentPaintedMousePosition.y1, PIXEL_SIZE, PIXEL_SIZE);
+  // // ctx.fillStyle = "rgba(247, 255, 0, 0.41)";
+  // ctx.fillStyle = selectedColor.value;
+  // ctx.fillRect(currentPaintedMousePosition.x1, currentPaintedMousePosition.y1, PIXEL_SIZE, PIXEL_SIZE);
 
-  currentXYPaintedPosition = {
-    x: xs,
-    y: ys,
-  };
+  // currentXYPaintedPosition = {
+  //   x: xs,
+  //   y: ys,
+  // };
 };
 
 // window.onresize = () => {
