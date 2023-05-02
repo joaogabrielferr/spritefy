@@ -1,7 +1,12 @@
 import { useEffect, useRef } from 'react';
 import './editor.css';
-import { CANVAS_SIZE } from './constants';
-import { CSS_CANVAS_SIZE } from './constants';
+import { 
+CANVAS_SIZE,
+CSS_CANVAS_SIZE,
+SCALE_FACTOR,
+MAX_ZOOM_AMOUNT
+}
+ from './constants';
 import Mouse from './Scene/Mouse';
 import Scene from './Scene/Scene';
 import { Pencil } from './Tools/Pencil';
@@ -42,23 +47,49 @@ export default function Editor() : JSX.Element{
     const bgCanvasRef = useRef<HTMLCanvasElement>(null);
 
 
-
     useEffect(()=>{
 
         setUpCanvas();
         addEventListeners();
+        //TODO: save current drawing to local storage after every operation. Retrieve drawing here and put it in the pixel matrix before calling draw()
         draw();
 
 
         function addEventListeners(){
 
+            //TODO: add pinch detection to zoom on mobile
+            canvas.addEventListener("wheel", (e) => {
+                if (e.deltaY < 0 && scene.zoomAmount < MAX_ZOOM_AMOUNT ) {
+                    scene.zoomAmount++;
+                    currentScale *= SCALE_FACTOR;
+                    //calculate new origin from wich the canvas will scale from
+                    mouse.originX = Math.floor(mouse.x - (mouse.x - mouse.originX) * SCALE_FACTOR);
+                    mouse.originY = Math.floor(mouse.y - (mouse.y - mouse.originY) * SCALE_FACTOR);
+                    mouse.history.push({ x: mouse.x, y : mouse.y });
+                } else if (e.deltaY > 0 && scene.zoomAmount > 0) {
+                    scene.zoomAmount--;
+                    currentScale *= 1 / SCALE_FACTOR;
+                    const m = mouse.history.pop();
+                    mouse.originX = Math.floor(m!.x - (m!.x - mouse.originX) * (1 / SCALE_FACTOR));
+                    mouse.originY = Math.floor(m!.y - (m!.y - mouse.originY) * (1 / SCALE_FACTOR));
+            
+                    if (scene.zoomAmount == 0) {
+                    mouse.originX = 0;
+                    mouse.originY = 0;
+                    }
+                }
+                //scale and draw pixel matrix
+                draw();
+                });
+
             "mousedown touchstart".split(" ").forEach((eventName) =>
             canvas.addEventListener(eventName, () => {
                 mouse.isPressed = true;
+                //TODO: Decouple mouse listeners from these function calls, functions can be called a super high number of times depending on device config and mouse type i guess
                 if (scene.selectedTool === 'pencil'){
-                    const d = Pencil(eventName, scene, mouse,pixel_size, display_size,ctx, penSize, currentScale);
-                    if(d.length > 0)scene.currentDraw = d;
-                    draw();
+                    scene.currentDraw.push(Pencil(eventName, scene, mouse,pixel_size, display_size,ctx, penSize, currentScale));
+                    //no need to call for draw in event listeners, when something like fillRect is called the canvas updates automatically
+                    //draw("mousedown");
                 }else if (scene.selectedTool === 'eraser')
                 {
                     // Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, originX, originY, currentScale, mousex, mousey);
@@ -91,8 +122,7 @@ export default function Editor() : JSX.Element{
                 // mousexs = parseInt((mousex - panX) / currentScale);
                 // mouseys = parseInt((mousey - panY) / currentScale);
                 if (scene.selectedTool === 'pencil' && mouse.isPressed) {
-                    const d = Pencil(eventName, scene, mouse,pixel_size, display_size,ctx, penSize, currentScale);
-                    if(d.length > 0)scene.currentDraw = d;
+                    scene.currentDraw.push(Pencil(eventName, scene, mouse,pixel_size, display_size,ctx, penSize, currentScale));
                 }
                     // currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix, mousex, mousey));
                 // } else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, originX, originY, currentScale, mousex, mousey);
@@ -111,7 +141,7 @@ export default function Editor() : JSX.Element{
                 scene.currentPixelsMousePressed = new Map();
                 })
             );
-    
+                
         }
 
 
@@ -132,9 +162,6 @@ export default function Editor() : JSX.Element{
         canvas.style.height = `${CSS_CANVAS_SIZE}px`;
         bgCanvas.style.width = `${CSS_CANVAS_SIZE}px`;
         bgCanvas.style.height = `${CSS_CANVAS_SIZE}px`;
-
-        //addEventListeners();
-
 
     }
 

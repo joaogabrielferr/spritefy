@@ -9,11 +9,13 @@ export default class Scene{
 
     selectedColor : string;
 
-    currentDraw : Pixel[];
+    currentDraw : Pixel[][];
     
     lastPixel : Pixel | null; //last pixel painted in the screen
     
     currentPixelsMousePressed : Map<number,boolean>; //current pixels painted while the user is moving the mouse with one of its buttons pressed (<pixel id, true>)
+
+    zoomAmount : number;
 
     constructor(display_size : number,pixel_size : number){
         this.pixels = [];
@@ -22,6 +24,7 @@ export default class Scene{
         this.selectedColor = "black";
         this.lastPixel = null;
         this.currentPixelsMousePressed = new Map();
+        this.zoomAmount = 0;
         this.initilializePixelMatrix(display_size,pixel_size);
     }
 

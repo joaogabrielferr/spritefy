@@ -7,6 +7,8 @@ export default class Mouse{
     isPressed : boolean;
     zoomed : boolean;
 
+    history : {x : number,y : number}[];
+
     constructor(){
         this.x = 0;
         this.y = 0;
@@ -14,12 +16,13 @@ export default class Mouse{
         this.originY = 0;
         this.isPressed = false;
         this.zoomed = false;
+        this.history = [];
     }
 
     toWorldCoordinates(currentScale : number)
     {
         let xs = Math.floor((this.x - this.originX) / currentScale);
-        let ys = Math.floor((this.y - this.originX) / currentScale);
+        let ys = Math.floor((this.y - this.originY) / currentScale);
         return [xs,ys];
     }
 

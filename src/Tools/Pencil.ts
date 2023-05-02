@@ -18,6 +18,7 @@ export function Pencil(eventName : string,scene : Scene,mouse : Mouse,pixel_size
       }
 
       //find pixel based on mouse position
+      
       let pixel : Pixel | null = null;
       let flag = false;
     //   let idxi, idxj;

@@ -19,8 +19,9 @@ export const Pen = (event, eventtype, isMousePressed, lastPixel, PIXEL_SIZE, DIS
   // }
 
   //transforming mouse coordinates in world coordinates
-  let xs = parseInt((x - panX) / currentScale);
-  let ys = parseInt((y - panY) / currentScale);
+  let xs = Math.floor((x - panX) / currentScale);
+  let ys = Math.floor((y - panY) / currentScale);
+  console.log("world:",xs,ys);
   // console.log(matrix);
   // let xs = x * matrix[0] + y * matrix[2] + matrix[4];
   // let ys = x * matrix[1] + y * matrix[3] + matrix[4];

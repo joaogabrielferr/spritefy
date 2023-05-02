@@ -257,16 +257,17 @@ window.addEventListener("load", () => {
     if (e.deltaY < 0 && zoomAmount < 7) {
       zoomAmount++;
       currentScale *= SCALE_FACTOR;
-      originX = parseInt(mousex - (mousex - originX) * SCALE_FACTOR);
-      originY = parseInt(mousey - (mousey - originY) * SCALE_FACTOR);
+      originX = Math.floor(mousex - (mousex - originX) * SCALE_FACTOR);
+      originY = Math.floor(mousey - (mousey - originY) * SCALE_FACTOR);
+      console.log("origin:",originX,originY);
       mousehistory.push({ mousex, mousey });
       draw(true);
     } else if (e.deltaY > 0 && zoomAmount > 0) {
       zoomAmount--;
       currentScale *= 1 / SCALE_FACTOR;
       const m = mousehistory.pop();
-      originX = parseInt(m.mousex - (m.mousex - originX) * (1 / SCALE_FACTOR));
-      originY = parseInt(m.mousey - (m.mousey - originY) * (1 / SCALE_FACTOR));
+      originX = Math.floor(m.mousex - (m.mousex - originX) * (1 / SCALE_FACTOR));
+      originY = Math.floor(m.mousey - (m.mousey - originY) * (1 / SCALE_FACTOR));
 
       if (zoomAmount == 0) {
         originX = 0;
