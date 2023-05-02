@@ -1,0 +1,25 @@
+body{
+    margin: 0;
+    padding: 0;
+    background-color: #252629;
+}
+
+.editor{
+  width: 99vw;
+  height: 90vh;
+  margin-top: 10vh;
+  background-color: #252629;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+#canvas{
+    z-index: 1;
+  }
+  
+  #canvas,#BGCanvas {
+    position: absolute;
+    top: 0;
+    left: 50;
+  }

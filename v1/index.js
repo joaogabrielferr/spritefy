@@ -56,7 +56,7 @@ const keyMap = new Map();
 // let DISPLAY_SIZE = AdjustDisplaySize(window.innerWidth);
 // let DISPLAY_SIZE = 800; //has to be divisible by 100
 // let PIXEL_SIZE = DISPLAY_SIZE / 100;
-const CANVAS_SIZE = 200;
+const CANVAS_SIZE = 100;
 
 let DISPLAY_SIZE;
 let PIXEL_SIZE;
