@@ -11,5 +11,7 @@ export type Pixel = {
     j : number;
     numOfPaints : number;
     colorStack : Stack<string>;
-    color : string | null;
+    bgColor : string;
+    color : string;
+
 }

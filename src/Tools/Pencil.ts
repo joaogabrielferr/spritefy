@@ -18,22 +18,7 @@ export function Pencil(eventName : string,scene : Scene,mouse : Mouse,pixel_size
       }
 
       //find pixel based on mouse position
-      
-      let pixel : Pixel | null = null;
-      let flag = false;
-    //   let idxi, idxj;
-      for (let i = 0; i < scene.pixels.length; i++) {
-        if (flag) break;
-        for (let j = 0; j < scene.pixels[i].length; j++) {
-          if (xs >= scene.pixels[i][j].x1 && xs < scene.pixels[i][j].x2 && ys >= scene.pixels[i][j].y1 && ys < scene.pixels[i][j].y2) {
-            pixel = scene.pixels[i][j];
-            // idxi = i;
-            // idxj = j;
-            flag = true;
-            break;
-          }
-        }
-      }
+      const pixel : Pixel | null = scene.findPixel(xs,ys);
 
     
     //if this pixel is in currentPixelsMousePressed, that means it was already painted in the current stroke, no need to paint it twice
@@ -50,30 +35,19 @@ export function Pencil(eventName : string,scene : Scene,mouse : Mouse,pixel_size
 
         draw.push(pixel);
 
-        //coloring neighbor pixels based on pen size
-        // if (penSize == PIXEL_SIZE * 2) {
-        // paintPixelSize2(pixel, pixels, DISPLAY_SIZE, currentPixelsMousePressed, selectedColor, draw);
-        // }
-
-        // if (penSize == PIXEL_SIZE * 3) {
-        // paintPixelsSize3(pixel, pixels, DISPLAY_SIZE, currentPixelsMousePressed, selectedColor, draw);
-        // }
-
         if (scene.lastPixel !== null && mouse.isPressed && scene.lastPixel.id !== pixel.id && (eventName == "mousemove" || "touchmove")) {
         
             //build path from last pixel to current pixel
-            const path = buildPath(scene, scene.lastPixel, pixel);
+            const path = buildPath(scene.pixels, scene.lastPixel, pixel);
             for (let p of path) {
                 if (!isPixelAlreadyPaintedInCurrentDraw(p, scene)) {
                 ctx.fillStyle = scene.selectedColor;
                 ctx.fillRect(p.x1, p.y1, penSize, penSize);
-                // c.fillRect(p.x1 * currentScale + panX, p.y1 * currentScale + panY, penSize * currentScale, penSize * currentScale);
 
                 p.color = scene.selectedColor;
                 p.painted = true;
                 p.numOfPaints++;
                 p.colorStack.push(scene.selectedColor);
-                // currentPixelsMousePressed.value.push(p);
                 scene.currentPixelsMousePressed.set(p.id, true);
                 draw.push(p);
                 // if (penSize == PIXEL_SIZE * 2) {

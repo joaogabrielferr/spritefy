@@ -1,7 +1,6 @@
 import { Pixel } from "../types/Types";
-import Scene from "./Scene";
 
-export function buildPath(scene : Scene,start : Pixel,end : Pixel) : Pixel[]{
+export function buildPath(pixels : Pixel[][],start : Pixel,end : Pixel) : Pixel[]{
     //function to fill in the gaps left after a fast pen stroke because aparently mousemove event doesnt fire fast enough when moving the mouse tooo fast
     if(!start || !end)return [];
     const path : Pixel[] = [];
@@ -17,11 +16,11 @@ export function buildPath(scene : Scene,start : Pixel,end : Pixel) : Pixel[]{
             if(curr.j > end.j)
             {
 
-                curr = scene.pixels[curr.i][(curr.j - 1)];
+                curr = pixels[curr.i][(curr.j - 1)];
             }else
             {
 
-                curr = scene.pixels[curr.i][(curr.j + 1)];
+                curr = pixels[curr.i][(curr.j + 1)];
             }
             continue;
         }
@@ -31,10 +30,10 @@ export function buildPath(scene : Scene,start : Pixel,end : Pixel) : Pixel[]{
             if(curr.i > end.i)
             {
 
-                curr = scene.pixels[(curr.i - 1)][curr.j];
+                curr = pixels[(curr.i - 1)][curr.j];
             }else
             {
-                curr = scene.pixels[(curr.i + 1)][curr.j];
+                curr = pixels[(curr.i + 1)][curr.j];
             }
             continue;
         }
@@ -43,25 +42,25 @@ export function buildPath(scene : Scene,start : Pixel,end : Pixel) : Pixel[]{
         if(curr.i > end.i && curr.j > end.j)
         {
 
-            curr = scene.pixels[(curr.i - 1)][(curr.j - 1)];
+            curr = pixels[(curr.i - 1)][(curr.j - 1)];
         }else
         //going bottom left
         if(curr.i < end.i && curr.j > end.j)
         {
 
-            curr = scene.pixels[(curr.i + 1)][(curr.j - 1)];
+            curr = pixels[(curr.i + 1)][(curr.j - 1)];
         }else 
         //going top right
         if(curr.i > end.i && curr.j < end.j)
         {
 
-            curr = scene.pixels[(curr.i - 1)][(curr.j + 1)];
+            curr = pixels[(curr.i - 1)][(curr.j + 1)];
         }else
         //going bottom right
         if(curr.i < end.i && curr.j < end.j)
         {
 
-            curr = scene.pixels[(curr.i + 1)][(curr.j + 1)];
+            curr = pixels[(curr.i + 1)][(curr.j + 1)];
         }
         
     }
