@@ -15,23 +15,25 @@ export const Eraser = (eventName : string, mouse : Mouse, scene : Scene, pixel_s
   if (x > pixel_size * display_size || x < 0 || y > pixel_size * display_size || y < 0) return;
 
    //find pixel based on mouse position
-   const pixel : Pixel | null = scene.findPixel(x,y);
+   const pixel : Pixel | null = scene.findPixel(x,y,pixel_size);
 
   if (pixel != null) {
     ctx.fillStyle = pixel.bgColor;
     ctx.fillRect(pixel.x1, pixel.y1, penSize, penSize);
-    pixel.color = pixel.bgColor;
-    pixel.painted = false;
-    pixel.numOfPaints = 0;
+    pixel.colorStack.clear();
+    // pixel.color = pixel.bgColor;
+    // pixel.painted = false;
+    // pixel.numOfPaints = 0;
 
     if (scene.lastPixel !== null && mouse.isPressed && scene.lastPixel.id !== pixel.id && (eventName === "mousemove" || eventName === "touchmove")) {
       const path = buildPath(scene.pixels, scene.lastPixel, pixel);
       for (let p of path) {
-        ctx.fillStyle = pixel.bgColor;
-        ctx.fillRect(pixel.x1, pixel.y1, penSize, penSize);
-        p.color = p.bgColor;
-        p.painted = false;
-        p.numOfPaints = 0;
+        ctx.fillStyle = p.bgColor;
+        ctx.fillRect(p.x1, p.y1, penSize, penSize);
+        p.colorStack.clear();
+        // p.color = p.bgColor;
+        // p.painted = false;
+        // p.numOfPaints = 0;
       }
     }
     scene.lastPixel = pixel;

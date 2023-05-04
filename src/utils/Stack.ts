@@ -19,7 +19,7 @@ export class Stack<T>{
         }
     }
 
-    top()
+    top() : T | undefined
     {
         if(this.self.length > 0)
             return this.self[this.self.length - 1];
@@ -29,5 +29,10 @@ export class Stack<T>{
     {
         return this.self.length == 0 ? true : false;  
     }
+
+    clear(){
+        this.self = [];
+    }
+
 
 }
