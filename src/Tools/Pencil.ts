@@ -23,10 +23,10 @@ export function Pencil(eventName : string,scene : Scene,mouse : Mouse,pixel_size
       if (pixel != null && !isPixelAlreadyPaintedInCurrentDraw(pixel, scene)) {
           
         // pixel.color = scene.selectedColor;
-        if(pixel.colorStack.top() !== scene.selectedColor)
-        {
+        // if(pixel.colorStack.top() !== scene.selectedColor)
+        // {
             pixel.colorStack.push(scene.selectedColor);
-        }
+        // }
         // pixel.painted = true;
         // pixel.numOfPaints++;
         // pixel.colorStack.push(scene.selectedColor);
@@ -46,10 +46,10 @@ export function Pencil(eventName : string,scene : Scene,mouse : Mouse,pixel_size
                 if (!isPixelAlreadyPaintedInCurrentDraw(p, scene)) {
                 ctx.fillStyle = scene.selectedColor;
                 ctx.fillRect(p.x1, p.y1, penSize, penSize);
-                if(p.colorStack.top() !== scene.selectedColor)
-                {
+                // if(p.colorStack.top() !== scene.selectedColor)
+                // {
                     p.colorStack.push(scene.selectedColor);
-                }
+                // }
                 // p.painted = true;
                 // p.numOfPaints++;
                 // p.colorStack.push(scene.selectedColor);

@@ -1,11 +1,14 @@
 import { BG_COLORS } from "../constants";
 import { Pixel } from "../types/Types";
 import { Stack } from "../utils/Stack";
+import {KeyboardEvent } from 'react';
+
 
 export default class Scene{
 
     pixels : Pixel[][]; //pixel matrix, all operations are done in this matrix and then translated to canvas
 
+    //TODO: Take selectedTool and selectedColor out of here and make then available as global states
     selectedTool : 'pencil' | 'eraser' | 'paintBucket';
 
     selectedColor : string;
