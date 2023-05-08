@@ -1,4 +1,4 @@
-import {KeyboardEvent, MouseEvent, TouchEvent, WheelEvent, useEffect, useRef } from 'react';
+import {WheelEvent, useEffect, useRef } from 'react';
 import './editor.css';
 import { 
 CANVAS_SIZE,
@@ -14,7 +14,7 @@ import { Pencil } from './Tools/Pencil';
 import { Eraser } from './Tools/Eraser';
 
 
-//i guess none  of this variables declared outside component need to be a state for except penSize
+//i guess none  of this variables declared outside component need to be a state except penSize
 //TODO: set CANVAS_SIZE and pen size as state and globally available with context
 //////////////////////////////////////////////////////////
 let canvas : HTMLCanvasElement,bgCanvas : HTMLCanvasElement;
@@ -39,7 +39,7 @@ let currentScale = 1;
 let penSize : number;
 //////////////////////////////////////////////////////////
 
-export default function Editor({counter,onSetCounter} : {counter : number,onSetCounter : ()=>void}) : JSX.Element{
+export default function Editor({counter} : {counter : number}) : JSX.Element{
     
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const bgCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -54,7 +54,7 @@ export default function Editor({counter,onSetCounter} : {counter : number,onSetC
     
 
     useEffect(()=>{
-        console.log("aqui");
+        console.log(window.innerHeight);
         setUpVariables();
         //TODO: i need to save current drawing on browser
         //problem: for big drawing sizes like 500x500 its impractical to save it on local storage, and even on indexedDB
@@ -64,6 +64,24 @@ export default function Editor({counter,onSetCounter} : {counter : number,onSetC
         draw();
 
 
+        document.addEventListener('keydown',handleOptionKeyPressed);
+        document.addEventListener('mouseup',handleMouseUp);
+        document.addEventListener('touchend',handleMouseUp);
+        document.addEventListener('touchstart',handleFirstTouch);
+        document.addEventListener('touchmove',handleTouchMove);
+        document.addEventListener('mousemove',handleMouseMove);
+        document.addEventListener('mousedown',handleFirstClick);
+        
+        return ()=>{
+            document.removeEventListener('keydown',handleOptionKeyPressed);
+            document.removeEventListener('mouseup',handleMouseUp);
+            document.removeEventListener('touchend',handleMouseUp);
+            document.removeEventListener('touchstart',handleFirstTouch);
+            document.removeEventListener('touchmove',handleTouchMove);
+            document.removeEventListener('mousemove',handleMouseMove);
+            document.removeEventListener('mousedown',handleFirstClick);
+        }
+
         
     },[]);
 
@@ -71,29 +89,13 @@ export default function Editor({counter,onSetCounter} : {counter : number,onSetC
 
 
     useEffect(()=>{
-        console.log("current scene:",scene.current);
-        console.log("current mouse:",mouse);
+        // console.log("current scene:",scene.current);
+        // console.log("current mouse:",mouse);
         //draw();
     },[counter]);
     
 
-    function setUpCanvas(){
-        canvas = canvasRef.current!;
-        bgCanvas = bgCanvasRef.current!;
-        ctx.current = canvas.getContext("2d")!;
-        BGctx.current = canvas.getContext("2d")!;
-        canvas.width = display_size;
-        canvas.height = display_size;
-        bgCanvas.width = display_size;
-        bgCanvas.height = display_size;
-
-        canvas.style.width = `${CSS_CANVAS_SIZE}px`;
-        canvas.style.height = `${CSS_CANVAS_SIZE}px`;
-        bgCanvas.style.width = `${CSS_CANVAS_SIZE}px`;
-        bgCanvas.style.height = `${CSS_CANVAS_SIZE}px`;
-
-    }
-
+    
     function draw(){
         matrix[0] = currentScale;
         matrix[1] = 0;
@@ -124,8 +126,8 @@ export default function Editor({counter,onSetCounter} : {counter : number,onSetC
                 a = a ? 0 : 1;
             }
         }
-    
-    
+        
+        
         //draw pixel matrix
         for (let i = 0; i < scene.current.pixels.length; i++) {
             for (let j = 0; j < scene.current.pixels[i].length; j++) {
@@ -139,6 +141,22 @@ export default function Editor({counter,onSetCounter} : {counter : number,onSetC
     
     }
 
+    function setUpCanvas(){
+        canvas = canvasRef.current!;
+        bgCanvas = bgCanvasRef.current!;
+        ctx.current = canvas.getContext("2d")!;
+        BGctx.current = canvas.getContext("2d")!;
+        canvas.width = display_size;
+        canvas.height = display_size;
+        bgCanvas.width = display_size;
+        bgCanvas.height = display_size;
+
+        canvas.style.width = `${CSS_CANVAS_SIZE}px`;
+        canvas.style.height = `${CSS_CANVAS_SIZE}px`;
+        bgCanvas.style.width = `${CSS_CANVAS_SIZE}px`;
+        bgCanvas.style.height = `${CSS_CANVAS_SIZE}px`;
+
+    }
     
     
     function setUpVariables(){
@@ -153,7 +171,7 @@ export default function Editor({counter,onSetCounter} : {counter : number,onSetC
             //also, maybe set max display size possible on mobile to be the width of the screen
             //or simply allow user to move the canvas
         }
-        console.log("DPR:",window.devicePixelRatio);
+        // console.log("DPR:",window.devicePixelRatio);
         display_size*=window.devicePixelRatio;
         pixel_size*=window.devicePixelRatio;
         bgTileSize = CANVAS_SIZE >= 100 ? 10 : 1;
@@ -271,7 +289,8 @@ export default function Editor({counter,onSetCounter} : {counter : number,onSetC
         
     }
     
-    function handleMouseUp(){
+    function handleMouseUp(e : TouchEvent | MouseEvent){
+        e.preventDefault();
         mouse.isPressed = false;
         scene.current.lastPixel = null;
         if (scene.current.currentDraw.length > 0) {
@@ -286,51 +305,16 @@ export default function Editor({counter,onSetCounter} : {counter : number,onSetC
     function handleOptionKeyPressed(event : KeyboardEvent){
         scene.current.checkKeys(event);
         keyMap.set(event.code,true);
-        console.log("key pressed");
         // checkKeyCombinations(event);
     }
-    
-    // function addEventListeners(){
-    //     //canvas.addEventListener("wheel",handleZoom);
-    //     // "mousedown touchstart".split(" ").forEach((eventName) =>{
-    //     //     canvas.addEventListener(eventName,handleFirstClick(eventName));
-    //     // })
-    //     canvas.addEventListener('mousemove',handleMouseMove);
-    //     canvas.addEventListener('touchmove',handleTouchMove);
-    //     "mouseup touchend".split(" ").forEach((eventName) =>
-    //         document.addEventListener(eventName,handleMouseUp)
-    //     );
-    //     document.addEventListener("keydown", handleOptionKeyPressed);
-    // }
-    
-    // function removeEventListeners(){
-    //     //canvas.removeEventListener("wheel",handleZoom);
-    //     // "mousedown touchstart".split(" ").forEach((eventName) =>{
-    //     //     canvas.removeEventListener(eventName,handleFirstClick(eventName));
-    //     // })
-    //     canvas.removeEventListener('mousemove',handleMouseMove);
-    //     canvas.removeEventListener('touchmove',handleTouchMove);
-    //     "mouseup touchend".split(" ").forEach((eventName) =>
-    //         document.removeEventListener(eventName,handleMouseUp)
-    //     );
-    //     document.removeEventListener("keydown", handleOptionKeyPressed);
-    // }
 
 
-    //TODO: try to add directly here and see ifs theres an impact, if there isnt, Brazil
 
     return <div className = "editor">
-        <button onClick={onSetCounter} style={{width:'100px',height:'50px',zIndex:'10',position:'absolute',left:'50'}}>{counter}</button>
+        {/* <button onClick={onSetCounter} style={{width:'100px',height:'50px',zIndex:'10',position:'absolute',left:'50'}}>{counter}</button> */}
         <canvas
         id="canvas" ref = {canvasRef}
         onWheel={handleZoom}
-        onMouseDown={()=>handleFirstClick('mousestart')}
-        onTouchStart={()=>handleFirstClick('mousestart')}
-        onMouseMove={handleMouseMove}
-        onTouchMove={handleTouchMove}
-        onMouseUp={handleMouseUp}
-        onTouchEnd={handleMouseUp}
-        onKeyDown={handleOptionKeyPressed}
         > Your browser does not support canvas </canvas>
         <canvas id="BGcanvas" ref = {bgCanvasRef}> Your browser does not support canvas </canvas>
     </div>

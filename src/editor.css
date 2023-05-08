@@ -1,14 +1,15 @@
 body{
     margin: 0;
     padding: 0;
-    background-color: #252629;
+    background-color: #ffffff;
+    overflow-y: hidden;
 }
 
 .editor{
   width: 99vw;
   height: 90vh;
-  margin-top: 10vh;
-  background-color: #252629;
+  margin-top: 100px;
+  /* background-color: #252629; */
   position: relative;
   display: flex;
   justify-content: center;
