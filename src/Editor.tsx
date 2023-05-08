@@ -188,33 +188,41 @@ export default function Editor({counter,onSetCounter} : {counter : number,onSetC
         draw();
     }
     
-    // function handleFirstClick(eventName : string){
-    //     //closure hehe
-    //     return function(){
-    //         mouse.isPressed = true;
-    //         if (scene.current.selectedTool === 'pencil'){
-    //             scene.current.currentDraw.push(Pencil(eventName, scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale));
-    //             //no need to call for draw in event listeners, when something like fillRect is called the canvas updates automatically
-    //             //draw("mousedown");
-    //         }else if (scene.current.selectedTool === 'eraser')
-    //         {
-    //             Eraser(eventName, mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
-    //         }else if (scene.current.selectedTool === 'paintBucket')
-    //         {
-    //             //currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx, originX, originY, currentScale, CANVAS_SIZE));
-    //         }
-    //     }
-    // }
 
-        function handleFirstClick(eventName : string){
+        function handleFirstClick(){
             mouse.isPressed = true;
             if (scene.current.selectedTool === 'pencil'){
-                scene.current.currentDraw.push(Pencil(eventName, scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale));
+                scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale));
                 //no need to call for draw in event listeners, when something like fillRect is called the canvas updates automatically
                 //draw("mousedown");
             }else if (scene.current.selectedTool === 'eraser')
             {
-                Eraser(eventName, mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
+                Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
+            }else if (scene.current.selectedTool === 'paintBucket')
+            {
+                //currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx, originX, originY, currentScale, CANVAS_SIZE));
+            }
+        }
+        function handleFirstTouch(e : TouchEvent){
+            //for mobile, first get the touched position (for desktop the position is updated in mousemove listener, this is not possible in mobile if first touched didnt happened yet), 
+            //update mouse variabels, then call pencil
+
+            const bounding = canvas.getBoundingClientRect();
+            mouse.x = e.touches[0].clientX - bounding.left;
+            mouse.y = e.touches[0].clientY - bounding.top;
+            mouse.x = (display_size * mouse.x) / CSS_CANVAS_SIZE; //rule of three to adjust mouse position based on css size of canvas
+            mouse.y = (display_size * mouse.y) / CSS_CANVAS_SIZE;
+            console.log("AQUI",mouse.toWorldCoordinates(currentScale));
+
+            mouse.isPressed = true;
+            if (scene.current.selectedTool === 'pencil'){
+                console.log("calling pencil funcion from handle first touch");
+                scene.current.currentDraw.push(Pencil('touchstart', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale));
+                //no need to call for draw in event listeners, when something like fillRect is called the canvas updates automatically
+                //draw("mousedown");
+            }else if (scene.current.selectedTool === 'eraser')
+            {
+                Eraser('touchstart', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
             }else if (scene.current.selectedTool === 'paintBucket')
             {
                 //currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx, originX, originY, currentScale, CANVAS_SIZE));
