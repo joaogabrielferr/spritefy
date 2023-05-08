@@ -309,7 +309,6 @@ export default function Editor({counter} : {counter : number}) : JSX.Element{
     }
 
 
-
     return <div className = "editor">
         {/* <button onClick={onSetCounter} style={{width:'100px',height:'50px',zIndex:'10',position:'absolute',left:'50'}}>{counter}</button> */}
         <canvas
