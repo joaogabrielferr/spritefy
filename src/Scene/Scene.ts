@@ -1,5 +1,5 @@
 import { BG_COLORS } from "../constants";
-import { Pixel } from "../types/Types";
+import { Pixel } from "../types";
 import { Stack } from "../utils/Stack";
 
 
@@ -10,8 +10,6 @@ export default class Scene{
     //TODO: Take selectedTool and selectedColor out of here and make then available as global states
     selectedTool : 'pencil' | 'eraser' | 'paintBucket';
 
-    selectedColor : string;
-
     currentDraw : Pixel[][];
     
     lastPixel : Pixel | null; //last pixel painted in the screen
@@ -20,15 +18,17 @@ export default class Scene{
 
     zoomAmount : number;
 
+    keyMap : Map<string,boolean>;
+
 
     constructor(){
         this.pixels = [];
         this.currentDraw = [];
         this.selectedTool = 'pencil';
-        this.selectedColor = "black";
         this.lastPixel = null;
         this.currentPixelsMousePressed = new Map();
         this.zoomAmount = 0;
+        this.keyMap = new Map();
     }
 
     initilializePixelMatrix(display_size : number,pixel_size : number, bgTileSize : number){
@@ -128,14 +128,14 @@ export default class Scene{
         if(['p','P','1'].indexOf(event.key) > -1)
         {
             this.selectedTool = 'pencil';
-            console.log("selected pencil");
         }else if(['e','E','2'].indexOf(event.key) > -1)
         {
             this.selectedTool = 'eraser';
-            console.log("selected eraser");
         }
 
+
     }
+
 
 
 

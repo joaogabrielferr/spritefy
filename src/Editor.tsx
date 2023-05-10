@@ -12,7 +12,13 @@ import Mouse from './Scene/Mouse';
 import Scene from './Scene/Scene';
 import { Pencil } from './Tools/Pencil';
 import { Eraser } from './Tools/Eraser';
+import { undoLastDraw, undoStack } from './Tools/UndoRedo';
 
+
+interface IEditor{
+    counter? : number;
+    selectedColor : string;
+}
 
 //i guess none  of this variables declared outside component need to be a state except penSize
 //TODO: set CANVAS_SIZE and pen size as state and globally available with context
@@ -39,7 +45,7 @@ let currentScale = 1;
 let penSize : number;
 //////////////////////////////////////////////////////////
 
-export default function Editor({counter} : {counter : number}) : JSX.Element{
+export default function Editor(props : IEditor) : JSX.Element{
     
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const bgCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -47,14 +53,13 @@ export default function Editor({counter} : {counter : number}) : JSX.Element{
     const ctx = useRef<CanvasRenderingContext2D | null>(null);
     const BGctx = useRef<CanvasRenderingContext2D | null>(null);
     
-    
+
     //i need to persist scene between re renders but i also dont want to trigger a re render every time i change it, i guess this works
     //this may be better than declaring it as a global variable
     const scene = useRef<Scene>(new Scene());
     
 
     useEffect(()=>{
-        console.log(window.innerHeight);
         setUpVariables();
         //TODO: i need to save current drawing on browser
         //problem: for big drawing sizes like 500x500 its impractical to save it on local storage, and even on indexedDB
@@ -62,38 +67,118 @@ export default function Editor({counter} : {counter : number}) : JSX.Element{
         setUpCanvas();
         scene.current.initilializePixelMatrix(display_size,pixel_size,bgTileSize);
         draw();
+        
+    },[]);
+
+    useEffect(()=>{
+
+        function handleFirstClick(){
+            mouse.isPressed = true;
+            if (scene.current.selectedTool === 'pencil'){
+                console.log("before calling pencil:",props.selectedColor);
+                scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,props.selectedColor));
+                //no need to call for draw in event listeners, when something like fillRect is called the canvas updates automatically
+                //draw("mousedown");
+            }else if (scene.current.selectedTool === 'eraser')
+            {
+                Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
+            }else if (scene.current.selectedTool === 'paintBucket')
+            {
+                //currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx, originX, originY, currentScale, CANVAS_SIZE));
+            }
+        }
+        function handleFirstTouch(e : TouchEvent){
+            //for mobile, first get the touched position (for desktop the position is updated in mousemove listener, this is not possible in mobile if first touched didnt happened yet), 
+            //update mouse variabels, then call pencil
+
+            const bounding = canvas.getBoundingClientRect();
+            mouse.x = e.touches[0].clientX - bounding.left;
+            mouse.y = e.touches[0].clientY - bounding.top;
+            mouse.x = (display_size * mouse.x) / CSS_CANVAS_SIZE; //rule of three to adjust mouse position based on css size of canvas
+            mouse.y = (display_size * mouse.y) / CSS_CANVAS_SIZE;
+
+            mouse.isPressed = true;
+            if (scene.current.selectedTool === 'pencil'){
+                scene.current.currentDraw.push(Pencil('touchstart', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,props.selectedColor));
+                //no need to call for draw in event listeners, when something like fillRect is called the canvas updates automatically
+                //draw("mousedown");
+            }else if (scene.current.selectedTool === 'eraser')
+            {
+                Eraser('touchstart', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
+            }else if (scene.current.selectedTool === 'paintBucket')
+            {
+                //currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx, originX, originY, currentScale, CANVAS_SIZE));
+            }
+        }
+
+    
+    function handleMouseMove(event : MouseEvent ){
+        
+        if(!canvas)return;
+        //TODO: maybe decouple mouse listeners from these function calls, functions can be called a super high number of times depending on device config and mouse type i guess
+        const bounding = canvas.getBoundingClientRect();
+        mouse.x = event.clientX - bounding.left;
+        mouse.y = event.clientY - bounding.top;
+        mouse.x = (display_size * mouse.x) / CSS_CANVAS_SIZE;
+        mouse.y = (display_size * mouse.y) / CSS_CANVAS_SIZE;
+        if (scene.current.selectedTool === 'pencil' && mouse.isPressed) {
+            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,props.selectedColor));
+        }else if(scene.current.selectedTool === 'eraser' && mouse.isPressed)
+        {
+            Eraser("mousemove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
+        }
+            // currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx.current!, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix, mousex, mousey));
+        // } else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx.current!, penSize, originX, originY, currentScale, mousex, mousey);
+    
+    } 
+    
+    function handleTouchMove(event : TouchEvent){
+        const bounding = canvas.getBoundingClientRect();
+        mouse.x = event.touches[0].clientX - bounding.left;
+        mouse.y = event.touches[0].clientY - bounding.top;
+        mouse.x = (display_size * mouse.x) / CSS_CANVAS_SIZE; //rule of three to adjust mouse position based on css size of canvas
+        mouse.y = (display_size * mouse.y) / CSS_CANVAS_SIZE;
+        
+    
+        if (scene.current.selectedTool === 'pencil' && mouse.isPressed) {
+            scene.current.currentDraw.push(Pencil("touchmove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,props.selectedColor));
+        }else if(scene.current.selectedTool === 'eraser' && mouse.isPressed)
+        {
+            Eraser("touchmove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
+        }
+            // currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix, mousex, mousey));
+        // } else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, originX, originY, currentScale, mousex, mousey);
+    
+        
+    }
+
+    function handleOptionKeyPressed(event : KeyboardEvent){
+        scene.current.checkKeys(event);
+        checkKeyCombinations(event);
+    }
 
 
         document.addEventListener('keydown',handleOptionKeyPressed);
         document.addEventListener('mouseup',handleMouseUp);
         document.addEventListener('touchend',handleMouseUp);
-        document.addEventListener('touchstart',handleFirstTouch);
-        document.addEventListener('touchmove',handleTouchMove);
-        document.addEventListener('mousemove',handleMouseMove);
-        document.addEventListener('mousedown',handleFirstClick);
+        canvas.addEventListener('mousedown',handleFirstClick);
+        canvas.addEventListener('touchstart',handleFirstTouch);
+        canvas.addEventListener('touchmove',handleTouchMove);
+        canvas.addEventListener('mousemove',handleMouseMove);
         
         return ()=>{
             document.removeEventListener('keydown',handleOptionKeyPressed);
             document.removeEventListener('mouseup',handleMouseUp);
             document.removeEventListener('touchend',handleMouseUp);
-            document.removeEventListener('touchstart',handleFirstTouch);
-            document.removeEventListener('touchmove',handleTouchMove);
-            document.removeEventListener('mousemove',handleMouseMove);
-            document.removeEventListener('mousedown',handleFirstClick);
+            canvas.removeEventListener('mousedown',handleFirstClick);
+            canvas.removeEventListener('touchstart',handleFirstTouch);
+            canvas.removeEventListener('touchmove',handleTouchMove);
+            canvas.removeEventListener('mousemove',handleMouseMove);
         }
 
-        
-    },[]);
 
+    },[props.selectedColor]);
 
-
-
-    useEffect(()=>{
-        // console.log("current scene:",scene.current);
-        // console.log("current mouse:",mouse);
-        //draw();
-    },[counter]);
-    
 
     
     function draw(){
@@ -171,7 +256,6 @@ export default function Editor({counter} : {counter : number}) : JSX.Element{
             //also, maybe set max display size possible on mobile to be the width of the screen
             //or simply allow user to move the canvas
         }
-        // console.log("DPR:",window.devicePixelRatio);
         display_size*=window.devicePixelRatio;
         pixel_size*=window.devicePixelRatio;
         bgTileSize = CANVAS_SIZE >= 100 ? 10 : 1;
@@ -184,7 +268,7 @@ export default function Editor({counter} : {counter : number}) : JSX.Element{
         if (e.deltaY < 0 && scene.current.zoomAmount < MAX_ZOOM_AMOUNT ) {
             scene.current.zoomAmount++;
             currentScale *= SCALE_FACTOR;
-            //calculate new origin from wich the canvas will scale from
+            //calculate new origin from which the canvas will scale from
             mouse.originX = Math.floor(mouse.x - (mouse.x - mouse.originX) * SCALE_FACTOR);
             mouse.originY = Math.floor(mouse.y - (mouse.y - mouse.originY) * SCALE_FACTOR);
             mouse.history.push({ x: mouse.x, y : mouse.y });
@@ -207,94 +291,14 @@ export default function Editor({counter} : {counter : number}) : JSX.Element{
     }
     
 
-        function handleFirstClick(){
-            mouse.isPressed = true;
-            if (scene.current.selectedTool === 'pencil'){
-                scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale));
-                //no need to call for draw in event listeners, when something like fillRect is called the canvas updates automatically
-                //draw("mousedown");
-            }else if (scene.current.selectedTool === 'eraser')
-            {
-                Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
-            }else if (scene.current.selectedTool === 'paintBucket')
-            {
-                //currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx, originX, originY, currentScale, CANVAS_SIZE));
-            }
-        }
-        function handleFirstTouch(e : TouchEvent){
-            //for mobile, first get the touched position (for desktop the position is updated in mousemove listener, this is not possible in mobile if first touched didnt happened yet), 
-            //update mouse variabels, then call pencil
-
-            const bounding = canvas.getBoundingClientRect();
-            mouse.x = e.touches[0].clientX - bounding.left;
-            mouse.y = e.touches[0].clientY - bounding.top;
-            mouse.x = (display_size * mouse.x) / CSS_CANVAS_SIZE; //rule of three to adjust mouse position based on css size of canvas
-            mouse.y = (display_size * mouse.y) / CSS_CANVAS_SIZE;
-            console.log("AQUI",mouse.toWorldCoordinates(currentScale));
-
-            mouse.isPressed = true;
-            if (scene.current.selectedTool === 'pencil'){
-                console.log("calling pencil funcion from handle first touch");
-                scene.current.currentDraw.push(Pencil('touchstart', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale));
-                //no need to call for draw in event listeners, when something like fillRect is called the canvas updates automatically
-                //draw("mousedown");
-            }else if (scene.current.selectedTool === 'eraser')
-            {
-                Eraser('touchstart', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
-            }else if (scene.current.selectedTool === 'paintBucket')
-            {
-                //currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx, originX, originY, currentScale, CANVAS_SIZE));
-            }
-        }
-
-    
-    function handleMouseMove(event : MouseEvent ){
         
-        if(!canvas)return;
-        //TODO: Decouple mouse listeners from these function calls, functions can be called a super high number of times depending on device config and mouse type i guess
-        const bounding = canvas.getBoundingClientRect();
-        mouse.x = event.clientX - bounding.left;
-        mouse.y = event.clientY - bounding.top;
-        mouse.x = (display_size * mouse.x) / CSS_CANVAS_SIZE;
-        mouse.y = (display_size * mouse.y) / CSS_CANVAS_SIZE;
-        // console.log("here",mouse.isPressed);
-        if (scene.current.selectedTool === 'pencil' && mouse.isPressed) {
-            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale));
-        }else if(scene.current.selectedTool === 'eraser' && mouse.isPressed)
-        {
-            Eraser("mousemove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
-        }
-            // currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx.current!, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix, mousex, mousey));
-        // } else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx.current!, penSize, originX, originY, currentScale, mousex, mousey);
-    
-    } 
-    
-    function handleTouchMove(event : TouchEvent){
-        const bounding = canvas.getBoundingClientRect();
-        mouse.x = event.touches[0].clientX - bounding.left;
-        mouse.y = event.touches[0].clientY - bounding.top;
-        mouse.x = (display_size * mouse.x) / CSS_CANVAS_SIZE; //rule of three to adjust mouse position based on css size of canvas
-        mouse.y = (display_size * mouse.y) / CSS_CANVAS_SIZE;
-        
-    
-        if (scene.current.selectedTool === 'pencil' && mouse.isPressed) {
-            scene.current.currentDraw.push(Pencil("touchmove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale));
-        }else if(scene.current.selectedTool === 'eraser' && mouse.isPressed)
-        {
-            Eraser("touchmove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
-        }
-            // currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix, mousex, mousey));
-        // } else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx, penSize, originX, originY, currentScale, mousex, mousey);
-    
-        
-    }
     
     function handleMouseUp(e : TouchEvent | MouseEvent){
         e.preventDefault();
         mouse.isPressed = false;
         scene.current.lastPixel = null;
         if (scene.current.currentDraw.length > 0) {
-            // undoStack.push(currentDraw.value);
+            undoStack.push(scene.current.currentDraw);
         }
     
         scene.current.currentDraw = [];
@@ -302,15 +306,17 @@ export default function Editor({counter} : {counter : number}) : JSX.Element{
         scene.current.currentPixelsMousePressed = new Map();
     }
     
-    function handleOptionKeyPressed(event : KeyboardEvent){
-        scene.current.checkKeys(event);
-        keyMap.set(event.code,true);
-        // checkKeyCombinations(event);
+    function checkKeyCombinations(event : KeyboardEvent)
+    {
+        if(event.ctrlKey && event.code === 'KeyZ')
+        {
+            undoLastDraw(scene.current,penSize,ctx.current!);
+        }
     }
 
 
+
     return <div className = "editor">
-        {/* <button onClick={onSetCounter} style={{width:'100px',height:'50px',zIndex:'10',position:'absolute',left:'50'}}>{counter}</button> */}
         <canvas
         id="canvas" ref = {canvasRef}
         onWheel={handleZoom}

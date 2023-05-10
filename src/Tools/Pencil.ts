@@ -1,9 +1,18 @@
 import Mouse from "../Scene/Mouse";
 import Scene from "../Scene/Scene";
 import { buildPath } from "../Scene/buildPath";
-import { Pixel } from "../types/Types";
+import { Pixel} from "../types";
 
-export function Pencil(eventName : string,scene : Scene,mouse : Mouse,pixel_size : number,display_size : number,ctx: CanvasRenderingContext2D,penSize : number,currentScale : number) : Pixel[]{
+export function 
+Pencil(eventName : string,
+        scene : Scene,
+        mouse : Mouse,
+        pixel_size : number,
+        display_size : number,
+        ctx: CanvasRenderingContext2D,
+        penSize : number,
+        currentScale : number,
+        selectedColor : string) : Pixel[]{
 
     if(!mouse.isPressed)return [];
 
@@ -22,18 +31,17 @@ export function Pencil(eventName : string,scene : Scene,mouse : Mouse,pixel_size
       //if this pixel is in currentPixelsMousePressed, that means it was already painted in the current stroke, no need to paint it twice
       if (pixel != null && !isPixelAlreadyPaintedInCurrentDraw(pixel, scene)) {
           
-        // pixel.color = scene.selectedColor;
-        // if(pixel.colorStack.top() !== scene.selectedColor)
+        // pixel.color = selectedColor;
+        // if(pixel.colorStack.top() !== selectedColor)
         // {
-            pixel.colorStack.push(scene.selectedColor);
+            pixel.colorStack.push(selectedColor);
         // }
         // pixel.painted = true;
         // pixel.numOfPaints++;
-        // pixel.colorStack.push(scene.selectedColor);
+        // pixel.colorStack.push(selectedColor);
 
         scene.currentPixelsMousePressed.set(pixel.id, true);
-
-        ctx.fillStyle = scene.selectedColor;
+        ctx.fillStyle = selectedColor;
         ctx.fillRect(pixel.x1, pixel.y1, penSize, penSize);
 
         draw.push(pixel);
@@ -44,15 +52,15 @@ export function Pencil(eventName : string,scene : Scene,mouse : Mouse,pixel_size
             const path = buildPath(scene.pixels, scene.lastPixel, pixel);
             for (let p of path) {
                 if (!isPixelAlreadyPaintedInCurrentDraw(p, scene)) {
-                ctx.fillStyle = scene.selectedColor;
+                ctx.fillStyle = selectedColor;
                 ctx.fillRect(p.x1, p.y1, penSize, penSize);
-                // if(p.colorStack.top() !== scene.selectedColor)
+                // if(p.colorStack.top() !== selectedColor)
                 // {
-                    p.colorStack.push(scene.selectedColor);
+                    p.colorStack.push(selectedColor);
                 // }
                 // p.painted = true;
                 // p.numOfPaints++;
-                // p.colorStack.push(scene.selectedColor);
+                // p.colorStack.push(selectedColor);
                 scene.currentPixelsMousePressed.set(p.id, true);
                 draw.push(p);
                 // if (penSize == PIXEL_SIZE * 2) {

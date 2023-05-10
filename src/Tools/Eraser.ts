@@ -1,7 +1,7 @@
 import Mouse from "../Scene/Mouse.js";
 import Scene from "../Scene/Scene.js";
 import { buildPath } from "../Scene/buildPath.js";
-import { Pixel } from "../types/Types.js";
+import { Pixel } from "../types/index.js";
 
 export const Eraser = (eventName : string, mouse : Mouse, scene : Scene, pixel_size : number, display_size : number, ctx : CanvasRenderingContext2D, penSize : number,currentScale : number) => {
   if (!mouse.isPressed) return;

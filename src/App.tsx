@@ -1,15 +1,39 @@
-import { useState } from "react";
+import {useState } from "react";
 import Editor from "./Editor"
+import {ColorResult, SketchPicker } from 'react-color'
+import './colorPicker.css';
+import './global.css';
+
+
+
 
 function App() {
-  
+
   //add contexts, etc
-  const [counter,setCounter] = useState(0);
+  const [counter,] = useState(0);
+  const [selectedColor,setSelectedColor] = useState("black");
+
+  function handleChangeSelectedColor(color : ColorResult){
+    setSelectedColor(color.hex);
+  }
+
 
   return (
-    <>
-      <Editor counter = {counter} onSetCounter = {()=>setCounter((prev)=>prev+1)}></Editor>    
-    </>
+    <main className = "wrapper">
+      <div className = "tool">
+        <h1>navbar</h1>
+      </div>
+      <Editor counter = {counter} selectedColor = {selectedColor}></Editor>    
+      <div className="colorPicker">
+        {/* <h3>color palette</h3>
+        <div className="colorPickerGrid">
+          {
+            colors.map((c)=> <button value = {c} style = {{width:'100%',height:'50px',backgroundColor:c}} key = {c} onClick={()=>handleChangeSelectedColor(c)}></button>)
+          }
+        </div> */}
+        <SketchPicker color = {selectedColor} onChangeComplete={handleChangeSelectedColor}></SketchPicker>
+      </div>
+    </main>
   )
 }
 

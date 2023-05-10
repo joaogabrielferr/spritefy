@@ -1,0 +1,16 @@
+.colorPicker{
+    width: 15%;
+    height: 500px;
+    background-color: #555;
+}
+
+.colorPickerGrid{
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto auto;
+    row-gap: 0;
+}
+
+button{
+    border-style: none;
+}
