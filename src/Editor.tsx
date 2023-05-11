@@ -260,9 +260,27 @@ export default function Editor(props : IEditor) : JSX.Element{
         }
         display_size*=window.devicePixelRatio;
         pixel_size*=window.devicePixelRatio;
-        bgTileSize = CANVAS_SIZE >= 100 ? 10 : 8;
+        
+
+        //TODO: allow user to toggle the option to have a bg tile for every pixel (bgTileSize === 1)
+        const factors = [];
+        for(let i = 1;i<=CANVAS_SIZE;i++)
+        {
+            if(CANVAS_SIZE%i === 0)factors.push(i);
+        }
+        
+        const mid = Math.floor(factors.length/2);
+
+        bgTileSize = factors[mid];
+
+        //if CANVAS_SIZE is a prime number
+        if(bgTileSize === CANVAS_SIZE)
+        bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
+
+        // bgTileSize = CANVAS_SIZE >= 100 ? 10 : 8;
         // bgTileSize = 10;
         
+
         penSize = pixel_size;
     }
 
