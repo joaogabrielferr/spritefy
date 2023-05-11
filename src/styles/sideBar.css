@@ -1,10 +1,10 @@
 .sideBar{
     width: 15%;
-    height: 500px;
     background-color: #333;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
     border-radius: 5px;
 }
 

@@ -4,6 +4,8 @@ import {ColorResult, SketchPicker } from 'react-color'
 import './styles/sideBar.css';
 import './styles/index.css';
 import { CSS_CANVAS_SIZE } from "./utils/constants";
+import { Toolbar } from "./components/Toolbar";
+import { PencilSVG } from "./icons/PencilSVG";
 
 
 type toolsType = 'pencil' | 'eraser' | 'paintBucket';
@@ -26,9 +28,17 @@ function App() {
       </header>
       <section className = "MainSection">
       <div className = "editorWrapper">
-          <div className="sideBar"></div>
+          <div className="sideBar" style = {{height:CSS_CANVAS_SIZE + 50}}>
+
+          </div>
           <Editor selectedColor = {selectedColor}></Editor>    
-          <div className="sideBar">
+          <div className="sideBar" style = {{height:CSS_CANVAS_SIZE + 50}}>
+            <div>
+              <button onClick={()=>setSelectedTool('pencil')}><PencilSVG/></button>
+              <button onClick={()=>setSelectedTool('eraser')}></button>
+              <button onClick={()=>setSelectedTool('paintBucket')}></button>
+
+            </div>
             <SketchPicker color = {selectedColor} onChangeComplete={handleChangeSelectedColor}></SketchPicker>
           </div>
         </div>

@@ -338,7 +338,7 @@ export default function Editor(props : IEditor) : JSX.Element{
 
 
 
-    return <div className = "editor" style = {{height:CSS_CANVAS_SIZE,backgroundColor:'#111'}}>
+    return <div className = "editor" style = {{height:CSS_CANVAS_SIZE + 50}}>
         <canvas
         id="canvas" ref = {canvasRef}
         onWheel={handleZoom}
