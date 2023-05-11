@@ -1,4 +1,4 @@
-import { BG_COLORS } from "../constants";
+import { BG_COLORS } from "../utils/constants";
 import { Pixel } from "../types";
 import { Stack } from "../utils/Stack";
 
@@ -131,6 +131,9 @@ export default class Scene{
         }else if(['e','E','2'].indexOf(event.key) > -1)
         {
             this.selectedTool = 'eraser';
+        }else if(['b','B','3'].indexOf(event.key) > -1)
+        {
+            this.selectedTool = 'paintBucket';
         }
 
 

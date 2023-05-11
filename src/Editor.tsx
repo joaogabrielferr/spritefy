@@ -7,12 +7,13 @@ SCALE_FACTOR,
 MAX_ZOOM_AMOUNT,
 BG_COLORS
 }
- from './constants';
+ from './utils/constants';
 import Mouse from './Scene/Mouse';
 import Scene from './Scene/Scene';
 import { Pencil } from './Tools/Pencil';
 import { Eraser } from './Tools/Eraser';
 import { undoLastDraw, undoStack } from './Tools/UndoRedo';
+import { PaintBucket } from './Tools/PaintBucket';
 
 
 interface IEditor{
@@ -72,6 +73,7 @@ export default function Editor(props : IEditor) : JSX.Element{
 
     useEffect(()=>{
 
+        //these event listeners call function that use states
         function handleFirstClick(){
             mouse.isPressed = true;
             if (scene.current.selectedTool === 'pencil'){
@@ -84,7 +86,7 @@ export default function Editor(props : IEditor) : JSX.Element{
                 Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
             }else if (scene.current.selectedTool === 'paintBucket')
             {
-                //currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx, originX, originY, currentScale, CANVAS_SIZE));
+                scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,currentScale,penSize,CANVAS_SIZE,props.selectedColor));
             }
         }
         function handleFirstTouch(e : TouchEvent){
@@ -107,7 +109,7 @@ export default function Editor(props : IEditor) : JSX.Element{
                 Eraser('touchstart', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
             }else if (scene.current.selectedTool === 'paintBucket')
             {
-                //currentDraw.value.push(PaintBucket(event, isMousePressed, selectedColor, PIXEL_SIZE, DISPLAY_SIZE, pixels, defaultPenSize, ctx, originX, originY, currentScale, CANVAS_SIZE));
+                scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,currentScale,penSize,CANVAS_SIZE,props.selectedColor));
             }
         }
 
@@ -245,7 +247,8 @@ export default function Editor(props : IEditor) : JSX.Element{
     
     
     function setUpVariables(){
-        //TODO: right now if i dont do this, canvas with sizes less than 50x50 look blurry
+        //TODO: Refactor this shitty logic
+        //canvas with sizes less than 50x50 look blurry without this
         if (CANVAS_SIZE < 50) {
             display_size = CANVAS_SIZE * 10 * 10;
             pixel_size = 10 * 10;

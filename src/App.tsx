@@ -20,9 +20,6 @@ function App() {
 
   return (
     <main className = "wrapper">
-      <div className = "tool">
-        <h1>navbar</h1>
-      </div>
       <Editor counter = {counter} selectedColor = {selectedColor}></Editor>    
       <div className="colorPicker">
         {/* <h3>color palette</h3>
