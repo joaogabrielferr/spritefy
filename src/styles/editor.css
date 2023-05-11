@@ -1,9 +1,3 @@
-body{
-    margin: 0;
-    padding: 0;
-    background-color: #ffffff;
-    overflow-y: hidden;
-}
 
 .editor{
   /* width: 99vw;
@@ -14,12 +8,10 @@ body{
   display: flex;
   justify-content: center; */
   width: 100%;
-  height: 100%;
-  background-color: black;
+  /* background-color: black; */
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 50px;
 }
 
 #canvas{
@@ -28,6 +20,7 @@ body{
   
   #canvas,#BGCanvas {
     position: absolute;
-    top: 10;
-    left: 50;
+    top: 20;
+    left: 90;
+    /* margin-left: 300px; */
   }

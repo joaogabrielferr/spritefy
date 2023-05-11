@@ -1,5 +1,5 @@
 import {WheelEvent, useEffect, useRef } from 'react';
-import './editor.css';
+import './styles/editor.css';
 import { 
 CANVAS_SIZE,
 CSS_CANVAS_SIZE,
@@ -17,7 +17,6 @@ import { PaintBucket } from './Tools/PaintBucket';
 
 
 interface IEditor{
-    counter? : number;
     selectedColor : string;
 }
 
@@ -73,7 +72,7 @@ export default function Editor(props : IEditor) : JSX.Element{
 
     useEffect(()=>{
 
-        //these event listeners call function that use states
+        //these event listeners have callback functions that use states
         function handleFirstClick(){
             mouse.isPressed = true;
             if (scene.current.selectedTool === 'pencil'){
@@ -261,7 +260,9 @@ export default function Editor(props : IEditor) : JSX.Element{
         }
         display_size*=window.devicePixelRatio;
         pixel_size*=window.devicePixelRatio;
-        bgTileSize = CANVAS_SIZE >= 100 ? 10 : 1;
+        bgTileSize = CANVAS_SIZE >= 100 ? 10 : 8;
+        // bgTileSize = 10;
+        
         penSize = pixel_size;
     }
 
@@ -319,7 +320,7 @@ export default function Editor(props : IEditor) : JSX.Element{
 
 
 
-    return <div className = "editor">
+    return <div className = "editor" style = {{height:CSS_CANVAS_SIZE,backgroundColor:'#111'}}>
         <canvas
         id="canvas" ref = {canvasRef}
         onWheel={handleZoom}

@@ -1,17 +1,19 @@
 import {useState } from "react";
 import Editor from "./Editor"
 import {ColorResult, SketchPicker } from 'react-color'
-import './colorPicker.css';
-import './global.css';
+import './styles/sideBar.css';
+import './styles/index.css';
+import { CSS_CANVAS_SIZE } from "./utils/constants";
 
 
+type toolsType = 'pencil' | 'eraser' | 'paintBucket';
 
 
 function App() {
 
   //add contexts, etc
-  const [counter,] = useState(0);
   const [selectedColor,setSelectedColor] = useState("black");
+  const [selectedTool,setSelectedTool] = useState<toolsType>('pencil');
 
   function handleChangeSelectedColor(color : ColorResult){
     setSelectedColor(color.hex);
@@ -19,17 +21,18 @@ function App() {
 
 
   return (
-    <main className = "wrapper">
-      <Editor counter = {counter} selectedColor = {selectedColor}></Editor>    
-      <div className="colorPicker">
-        {/* <h3>color palette</h3>
-        <div className="colorPickerGrid">
-          {
-            colors.map((c)=> <button value = {c} style = {{width:'100%',height:'50px',backgroundColor:c}} key = {c} onClick={()=>handleChangeSelectedColor(c)}></button>)
-          }
-        </div> */}
-        <SketchPicker color = {selectedColor} onChangeComplete={handleChangeSelectedColor}></SketchPicker>
-      </div>
+    <main>
+      <header className="header">
+      </header>
+      <section className = "MainSection">
+      <div className = "editorWrapper">
+          <div className="sideBar"></div>
+          <Editor selectedColor = {selectedColor}></Editor>    
+          <div className="sideBar">
+            <SketchPicker color = {selectedColor} onChangeComplete={handleChangeSelectedColor}></SketchPicker>
+          </div>
+        </div>
+      </section>
     </main>
   )
 }
