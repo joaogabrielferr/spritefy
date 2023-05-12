@@ -7,9 +7,6 @@ export default class Scene{
 
     pixels : Pixel[][]; //pixel matrix, all operations are recorded in this matrix
 
-    //TODO: Take selectedTool and selectedColor out of here and make then available as global states
-    selectedTool : 'pencil' | 'eraser' | 'paintBucket';
-
     currentDraw : Pixel[][];
     
     lastPixel : Pixel | null; //last pixel painted in the screen
@@ -24,7 +21,6 @@ export default class Scene{
     constructor(){
         this.pixels = [];
         this.currentDraw = [];
-        this.selectedTool = 'pencil';
         this.lastPixel = null;
         this.currentPixelsMousePressed = new Map();
         this.zoomAmount = 0;
@@ -123,21 +119,6 @@ export default class Scene{
         return pixel;
     }
 
-    checkKeys(event : KeyboardEvent){
-
-        if(['p','P','1'].indexOf(event.key) > -1)
-        {
-            this.selectedTool = 'pencil';
-        }else if(['e','E','2'].indexOf(event.key) > -1)
-        {
-            this.selectedTool = 'eraser';
-        }else if(['b','B','3'].indexOf(event.key) > -1)
-        {
-            this.selectedTool = 'paintBucket';
-        }
-
-
-    }
 
 
 

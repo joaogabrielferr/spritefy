@@ -1,4 +1,4 @@
-import {WheelEvent, useEffect, useRef } from 'react';
+import {Dispatch, SetStateAction, WheelEvent, useEffect, useRef } from 'react';
 import './styles/editor.css';
 import { 
 CANVAS_SIZE,
@@ -14,11 +14,13 @@ import { Pencil } from './Tools/Pencil';
 import { Eraser } from './Tools/Eraser';
 import { undoLastDraw, undoStack } from './Tools/UndoRedo';
 import { PaintBucket } from './Tools/PaintBucket';
+import { Dropper } from './Tools/Dropper';
 
 
 interface IEditor{
     selectedColor : string;
     selectedTool : string;
+    onSetSelectedColor : Dispatch<SetStateAction<string>>
 }
 
 //i guess none  of this variables declared outside component need to be a state except penSize
@@ -87,6 +89,10 @@ export default function Editor(props : IEditor) : JSX.Element{
             }else if (props.selectedTool === 'paintBucket')
             {
                 scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,currentScale,penSize,CANVAS_SIZE,props.selectedColor));
+            }else if(props.selectedTool === 'dropper')
+            {
+                const color : string | undefined | null = Dropper(scene.current,mouse,currentScale,pixel_size);
+                if(color)props.onSetSelectedColor(color);
             }
         }
         function handleFirstTouch(e : TouchEvent){
@@ -155,8 +161,24 @@ export default function Editor(props : IEditor) : JSX.Element{
     }
 
     function handleOptionKeyPressed(event : KeyboardEvent){
-        scene.current.checkKeys(event);
+        checkKeys(event);
         checkKeyCombinations(event);
+    }
+
+    function checkKeys(event : KeyboardEvent){
+
+        if(['p','P','1'].indexOf(event.key) > -1)
+        {
+            // props.selectedTool = 'pencil';
+        }else if(['e','E','2'].indexOf(event.key) > -1)
+        {
+            // props.selectedTool = 'eraser';
+        }else if(['b','B','3'].indexOf(event.key) > -1)
+        {
+            // props.selectedTool = 'paintBucket';
+        }
+
+
     }
 
 

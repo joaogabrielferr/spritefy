@@ -4,13 +4,13 @@ import {ColorResult, SketchPicker } from 'react-color'
 import './styles/sideBar.css';
 import './styles/index.css';
 import { CSS_CANVAS_SIZE } from "./utils/constants";
-import { PencilSVG } from "./icons/PencilSVG";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPencil } from '@fortawesome/free-solid-svg-icons'
+import { faEyedropper, faPencil } from '@fortawesome/free-solid-svg-icons'
 import { faEraser } from "@fortawesome/free-solid-svg-icons";
 import { faFill } from "@fortawesome/free-solid-svg-icons";
+import { faEyeDropper } from "@fortawesome/free-solid-svg-icons";
 
-type toolsType = 'pencil' | 'eraser' | 'paintBucket';
+type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper';
 
 
 function App() {
@@ -37,10 +37,11 @@ function App() {
               <button className = "toolButton" style = {{backgroundColor: selectedTool === 'pencil' ? '#634cb8' : '#dddddd' }}  onClick={()=>setSelectedTool('pencil')}><FontAwesomeIcon size={"2x"} icon={faPencil} /></button>
               <button className = "toolButton" style = {{backgroundColor: selectedTool === 'eraser' ? '#634cb8' : '#dddddd' }}  onClick={()=>setSelectedTool('eraser')}><FontAwesomeIcon size={"2x"} icon={faEraser} /></button>
               <button className = "toolButton" style = {{backgroundColor: selectedTool === 'paintBucket' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('paintBucket')}><FontAwesomeIcon size={"2x"} icon={faFill} /></button>
+              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'dropper' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('dropper')}><FontAwesomeIcon size={"2x"} icon={faEyedropper} /></button>
             </div>
           </div>
           </div>
-          <Editor selectedColor = {selectedColor} selectedTool = {selectedTool}></Editor>    
+          <Editor selectedColor = {selectedColor} selectedTool = {selectedTool} onSetSelectedColor = {setSelectedColor}></Editor>    
           <div className="sideBar" style = {{height:CSS_CANVAS_SIZE}}>
             <SketchPicker color = {selectedColor} onChangeComplete={handleChangeSelectedColor}></SketchPicker>
           </div>
