@@ -4,9 +4,11 @@ import {ColorResult, SketchPicker } from 'react-color'
 import './styles/sideBar.css';
 import './styles/index.css';
 import { CSS_CANVAS_SIZE } from "./utils/constants";
-import { Toolbar } from "./components/Toolbar";
 import { PencilSVG } from "./icons/PencilSVG";
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPencil } from '@fortawesome/free-solid-svg-icons'
+import { faEraser } from "@fortawesome/free-solid-svg-icons";
+import { faFill } from "@fortawesome/free-solid-svg-icons";
 
 type toolsType = 'pencil' | 'eraser' | 'paintBucket';
 
@@ -28,17 +30,18 @@ function App() {
       </header>
       <section className = "MainSection">
       <div className = "editorWrapper">
-          <div className="sideBar" style = {{height:CSS_CANVAS_SIZE + 50}}>
+          <div className="sideBar" style = {{height:CSS_CANVAS_SIZE}}>
+          <div className = "toolbar">
+            <div className = "toolbarButtons">
 
-          </div>
-          <Editor selectedColor = {selectedColor}></Editor>    
-          <div className="sideBar" style = {{height:CSS_CANVAS_SIZE + 50}}>
-            <div>
-              <button onClick={()=>setSelectedTool('pencil')}><PencilSVG/></button>
-              <button onClick={()=>setSelectedTool('eraser')}></button>
-              <button onClick={()=>setSelectedTool('paintBucket')}></button>
-
+              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'pencil' ? '#634cb8' : '#dddddd' }}  onClick={()=>setSelectedTool('pencil')}><FontAwesomeIcon size={"2x"} icon={faPencil} /></button>
+              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'eraser' ? '#634cb8' : '#dddddd' }}  onClick={()=>setSelectedTool('eraser')}><FontAwesomeIcon size={"2x"} icon={faEraser} /></button>
+              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'paintBucket' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('paintBucket')}><FontAwesomeIcon size={"2x"} icon={faFill} /></button>
             </div>
+          </div>
+          </div>
+          <Editor selectedColor = {selectedColor} selectedTool = {selectedTool}></Editor>    
+          <div className="sideBar" style = {{height:CSS_CANVAS_SIZE}}>
             <SketchPicker color = {selectedColor} onChangeComplete={handleChangeSelectedColor}></SketchPicker>
           </div>
         </div>

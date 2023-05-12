@@ -18,6 +18,7 @@ import { PaintBucket } from './Tools/PaintBucket';
 
 interface IEditor{
     selectedColor : string;
+    selectedTool : string;
 }
 
 //i guess none  of this variables declared outside component need to be a state except penSize
@@ -75,15 +76,15 @@ export default function Editor(props : IEditor) : JSX.Element{
         //these event listeners have callback functions that use states
         function handleFirstClick(){
             mouse.isPressed = true;
-            if (scene.current.selectedTool === 'pencil'){
+            if (props.selectedTool === 'pencil'){
                 console.log("before calling pencil:",props.selectedColor);
                 scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,props.selectedColor));
                 //no need to call for draw in event listeners, when something like fillRect is called the canvas updates automatically
                 //draw("mousedown");
-            }else if (scene.current.selectedTool === 'eraser')
+            }else if (props.selectedTool === 'eraser')
             {
                 Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
-            }else if (scene.current.selectedTool === 'paintBucket')
+            }else if (props.selectedTool === 'paintBucket')
             {
                 scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,currentScale,penSize,CANVAS_SIZE,props.selectedColor));
             }
@@ -99,14 +100,14 @@ export default function Editor(props : IEditor) : JSX.Element{
             mouse.y = (display_size * mouse.y) / CSS_CANVAS_SIZE;
 
             mouse.isPressed = true;
-            if (scene.current.selectedTool === 'pencil'){
+            if (props.selectedTool === 'pencil'){
                 scene.current.currentDraw.push(Pencil('touchstart', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,props.selectedColor));
                 //no need to call for draw in event listeners, when something like fillRect is called the canvas updates automatically
                 //draw("mousedown");
-            }else if (scene.current.selectedTool === 'eraser')
+            }else if (props.selectedTool === 'eraser')
             {
                 Eraser('touchstart', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
-            }else if (scene.current.selectedTool === 'paintBucket')
+            }else if (props.selectedTool === 'paintBucket')
             {
                 scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,currentScale,penSize,CANVAS_SIZE,props.selectedColor));
             }
@@ -122,9 +123,9 @@ export default function Editor(props : IEditor) : JSX.Element{
         mouse.y = event.clientY - bounding.top;
         mouse.x = (display_size * mouse.x) / CSS_CANVAS_SIZE;
         mouse.y = (display_size * mouse.y) / CSS_CANVAS_SIZE;
-        if (scene.current.selectedTool === 'pencil' && mouse.isPressed) {
+        if (props.selectedTool === 'pencil' && mouse.isPressed) {
             scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,props.selectedColor));
-        }else if(scene.current.selectedTool === 'eraser' && mouse.isPressed)
+        }else if(props.selectedTool === 'eraser' && mouse.isPressed)
         {
             Eraser("mousemove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
         }
@@ -141,9 +142,9 @@ export default function Editor(props : IEditor) : JSX.Element{
         mouse.y = (display_size * mouse.y) / CSS_CANVAS_SIZE;
         
     
-        if (scene.current.selectedTool === 'pencil' && mouse.isPressed) {
+        if (props.selectedTool === 'pencil' && mouse.isPressed) {
             scene.current.currentDraw.push(Pencil("touchmove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,props.selectedColor));
-        }else if(scene.current.selectedTool === 'eraser' && mouse.isPressed)
+        }else if(props.selectedTool === 'eraser' && mouse.isPressed)
         {
             Eraser("touchmove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
         }
@@ -178,7 +179,7 @@ export default function Editor(props : IEditor) : JSX.Element{
         }
 
 
-    },[props.selectedColor]);
+    },[props.selectedColor,props.selectedTool]);
 
 
     
@@ -338,7 +339,7 @@ export default function Editor(props : IEditor) : JSX.Element{
 
 
 
-    return <div className = "editor" style = {{height:CSS_CANVAS_SIZE + 50}}>
+    return <div className = "editor" style = {{height:CSS_CANVAS_SIZE}}>
         <canvas
         id="canvas" ref = {canvasRef}
         onWheel={handleZoom}

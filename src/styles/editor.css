@@ -8,7 +8,7 @@
   display: flex;
   justify-content: center; */
   width: 100%;
-  background-color: #c9c9c9;
+  background-color: #49494b;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -16,7 +16,6 @@
 
 #canvas{
     z-index: 1;
-    border: 1px solid #111;
   }
   
   #canvas,#BGCanvas {
