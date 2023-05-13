@@ -2,7 +2,6 @@ import {Dispatch, SetStateAction, WheelEvent, useEffect, useRef } from 'react';
 import './styles/editor.css';
 import { 
 CANVAS_SIZE,
-CSS_CANVAS_SIZE,
 SCALE_FACTOR,
 MAX_ZOOM_AMOUNT,
 BG_COLORS
@@ -20,7 +19,8 @@ import { Dropper } from './Tools/Dropper';
 interface IEditor{
     selectedColor : string;
     selectedTool : string;
-    onSetSelectedColor : Dispatch<SetStateAction<string>>
+    onSelectedColor : Dispatch<SetStateAction<string>>;
+    cssCanvasSize : number;
 }
 
 //i guess none  of this variables declared outside component need to be a state except penSize
@@ -41,14 +41,14 @@ let display_size : number;
 let bgTileSize : number;
 
 
-const keyMap = new Map<string,boolean>();
+//const keyMap = new Map<string,boolean>();
 
 let currentScale = 1;
 // const defaultPenSize = pixel_size;
 let penSize : number;
 //////////////////////////////////////////////////////////
 
-export default function Editor(props : IEditor) : JSX.Element{
+export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCanvasSize} : IEditor) : JSX.Element{
     
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const bgCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -67,32 +67,48 @@ export default function Editor(props : IEditor) : JSX.Element{
         //TODO: i need to save current drawing on browser
         //problem: for big drawing sizes like 500x500 its impractical to save it on local storage, and even on indexedDB
         //possible solution: save canvas as png, store it on indexedDB, then after page load, get the image and parse it using some library and store info on scene.current.pixels(lol)
-        setUpCanvas();
+        
+        //setting up canvas
+        canvas = canvasRef.current!;
+        bgCanvas = bgCanvasRef.current!;
+        ctx.current = canvas.getContext("2d")!;
+        BGctx.current = canvas.getContext("2d")!;
+        canvas.width = display_size;
+        canvas.height = display_size;
+        bgCanvas.width = display_size;
+        bgCanvas.height = display_size;
+
+        canvas.style.width = `${cssCanvasSize}px`;
+        canvas.style.height = `${cssCanvasSize}px`;
+        bgCanvas.style.width = `${cssCanvasSize}px`;
+        bgCanvas.style.height = `${cssCanvasSize}px`;
+
+
         scene.current.initilializePixelMatrix(display_size,pixel_size,bgTileSize);
         draw();
         
-    },[]);
+    },[cssCanvasSize]);
 
     useEffect(()=>{
 
         //these event listeners have callback functions that use states
         function handleFirstClick(){
             mouse.isPressed = true;
-            if (props.selectedTool === 'pencil'){
-                console.log("before calling pencil:",props.selectedColor);
-                scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,props.selectedColor));
+            if (selectedTool === 'pencil'){
+                console.log("before calling pencil:",selectedColor);
+                scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,selectedColor));
                 //no need to call for draw in event listeners, when something like fillRect is called the canvas updates automatically
                 //draw("mousedown");
-            }else if (props.selectedTool === 'eraser')
+            }else if (selectedTool === 'eraser')
             {
                 Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
-            }else if (props.selectedTool === 'paintBucket')
+            }else if (selectedTool === 'paintBucket')
             {
-                scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,currentScale,penSize,CANVAS_SIZE,props.selectedColor));
-            }else if(props.selectedTool === 'dropper')
+                scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,currentScale,penSize,CANVAS_SIZE,selectedColor));
+            }else if(selectedTool === 'dropper')
             {
                 const color : string | undefined | null = Dropper(scene.current,mouse,currentScale,pixel_size);
-                if(color)props.onSetSelectedColor(color);
+                if(color)onSelectedColor(color);
             }
         }
         function handleFirstTouch(e : TouchEvent){
@@ -102,20 +118,20 @@ export default function Editor(props : IEditor) : JSX.Element{
             const bounding = canvas.getBoundingClientRect();
             mouse.x = e.touches[0].clientX - bounding.left;
             mouse.y = e.touches[0].clientY - bounding.top;
-            mouse.x = (display_size * mouse.x) / CSS_CANVAS_SIZE; //rule of three to adjust mouse position based on css size of canvas
-            mouse.y = (display_size * mouse.y) / CSS_CANVAS_SIZE;
+            mouse.x = (display_size * mouse.x) / cssCanvasSize; //rule of three to adjust mouse position based on css size of canvas
+            mouse.y = (display_size * mouse.y) / cssCanvasSize;
 
             mouse.isPressed = true;
-            if (props.selectedTool === 'pencil'){
-                scene.current.currentDraw.push(Pencil('touchstart', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,props.selectedColor));
+            if (selectedTool === 'pencil'){
+                scene.current.currentDraw.push(Pencil('touchstart', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,selectedColor));
                 //no need to call for draw in event listeners, when something like fillRect is called the canvas updates automatically
                 //draw("mousedown");
-            }else if (props.selectedTool === 'eraser')
+            }else if (selectedTool === 'eraser')
             {
                 Eraser('touchstart', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
-            }else if (props.selectedTool === 'paintBucket')
+            }else if (selectedTool === 'paintBucket')
             {
-                scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,currentScale,penSize,CANVAS_SIZE,props.selectedColor));
+                scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,currentScale,penSize,CANVAS_SIZE,selectedColor));
             }
         }
 
@@ -127,11 +143,11 @@ export default function Editor(props : IEditor) : JSX.Element{
         const bounding = canvas.getBoundingClientRect();
         mouse.x = event.clientX - bounding.left;
         mouse.y = event.clientY - bounding.top;
-        mouse.x = (display_size * mouse.x) / CSS_CANVAS_SIZE;
-        mouse.y = (display_size * mouse.y) / CSS_CANVAS_SIZE;
-        if (props.selectedTool === 'pencil' && mouse.isPressed) {
-            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,props.selectedColor));
-        }else if(props.selectedTool === 'eraser' && mouse.isPressed)
+        mouse.x = (display_size * mouse.x) / cssCanvasSize;
+        mouse.y = (display_size * mouse.y) / cssCanvasSize;
+        if (selectedTool === 'pencil' && mouse.isPressed) {
+            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,selectedColor));
+        }else if(selectedTool === 'eraser' && mouse.isPressed)
         {
             Eraser("mousemove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
         }
@@ -144,13 +160,13 @@ export default function Editor(props : IEditor) : JSX.Element{
         const bounding = canvas.getBoundingClientRect();
         mouse.x = event.touches[0].clientX - bounding.left;
         mouse.y = event.touches[0].clientY - bounding.top;
-        mouse.x = (display_size * mouse.x) / CSS_CANVAS_SIZE; //rule of three to adjust mouse position based on css size of canvas
-        mouse.y = (display_size * mouse.y) / CSS_CANVAS_SIZE;
+        mouse.x = (display_size * mouse.x) / cssCanvasSize; //rule of three to adjust mouse position based on css size of canvas
+        mouse.y = (display_size * mouse.y) / cssCanvasSize;
         
     
-        if (props.selectedTool === 'pencil' && mouse.isPressed) {
-            scene.current.currentDraw.push(Pencil("touchmove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,props.selectedColor));
-        }else if(props.selectedTool === 'eraser' && mouse.isPressed)
+        if (selectedTool === 'pencil' && mouse.isPressed) {
+            scene.current.currentDraw.push(Pencil("touchmove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,selectedColor));
+        }else if(selectedTool === 'eraser' && mouse.isPressed)
         {
             Eraser("touchmove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
         }
@@ -169,13 +185,13 @@ export default function Editor(props : IEditor) : JSX.Element{
 
         if(['p','P','1'].indexOf(event.key) > -1)
         {
-            // props.selectedTool = 'pencil';
+            // selectedTool = 'pencil';
         }else if(['e','E','2'].indexOf(event.key) > -1)
         {
-            // props.selectedTool = 'eraser';
+            // selectedTool = 'eraser';
         }else if(['b','B','3'].indexOf(event.key) > -1)
         {
-            // props.selectedTool = 'paintBucket';
+            // selectedTool = 'paintBucket';
         }
 
 
@@ -201,7 +217,9 @@ export default function Editor(props : IEditor) : JSX.Element{
         }
 
 
-    },[props.selectedColor,props.selectedTool]);
+    },[selectedColor,selectedTool,onSelectedColor,cssCanvasSize]);
+
+
 
 
     
@@ -250,22 +268,22 @@ export default function Editor(props : IEditor) : JSX.Element{
     
     }
 
-    function setUpCanvas(){
-        canvas = canvasRef.current!;
-        bgCanvas = bgCanvasRef.current!;
-        ctx.current = canvas.getContext("2d")!;
-        BGctx.current = canvas.getContext("2d")!;
-        canvas.width = display_size;
-        canvas.height = display_size;
-        bgCanvas.width = display_size;
-        bgCanvas.height = display_size;
+    // function setUpCanvas(){
+    //     canvas = canvasRef.current!;
+    //     bgCanvas = bgCanvasRef.current!;
+    //     ctx.current = canvas.getContext("2d")!;
+    //     BGctx.current = canvas.getContext("2d")!;
+    //     canvas.width = display_size;
+    //     canvas.height = display_size;
+    //     bgCanvas.width = display_size;
+    //     bgCanvas.height = display_size;
 
-        canvas.style.width = `${CSS_CANVAS_SIZE}px`;
-        canvas.style.height = `${CSS_CANVAS_SIZE}px`;
-        bgCanvas.style.width = `${CSS_CANVAS_SIZE}px`;
-        bgCanvas.style.height = `${CSS_CANVAS_SIZE}px`;
+    //     canvas.style.width = `${cssCanvasSize}px`;
+    //     canvas.style.height = `${cssCanvasSize}px`;
+    //     bgCanvas.style.width = `${cssCanvasSize}px`;
+    //     bgCanvas.style.height = `${cssCanvasSize}px`;
 
-    }
+    // }
     
     
     function setUpVariables(){
@@ -318,6 +336,7 @@ export default function Editor(props : IEditor) : JSX.Element{
             mouse.originY = Math.floor(mouse.y - (mouse.y - mouse.originY) * SCALE_FACTOR);
             mouse.history.push({ x: mouse.x, y : mouse.y });
         } else if (e.deltaY > 0 && scene.current.zoomAmount > 0) {
+            //TODO: maybe allow use to zoom out of canvas by adjusting cssCanvasSize value (like decrease cssCanvasSize up to 30% of its original size)
             scene.current.zoomAmount--;
             currentScale *= 1 / SCALE_FACTOR;
             const m = mouse.history.pop();
@@ -361,7 +380,7 @@ export default function Editor(props : IEditor) : JSX.Element{
 
 
 
-    return <div className = "editor" style = {{height:CSS_CANVAS_SIZE}}>
+    return <div className = "editor" style = {{height:cssCanvasSize}}>
         <canvas
         id="canvas" ref = {canvasRef}
         onWheel={handleZoom}

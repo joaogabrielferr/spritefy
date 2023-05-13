@@ -1,14 +1,12 @@
-import {useState } from "react";
+import {useEffect, useState } from "react";
 import Editor from "./Editor"
-import {ColorResult, SketchPicker } from 'react-color'
 import './styles/sideBar.css';
 import './styles/index.css';
-import { CSS_CANVAS_SIZE } from "./utils/constants";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEyedropper, faPencil } from '@fortawesome/free-solid-svg-icons'
 import { faEraser } from "@fortawesome/free-solid-svg-icons";
 import { faFill } from "@fortawesome/free-solid-svg-icons";
-import { faEyeDropper } from "@fortawesome/free-solid-svg-icons";
+import {ColorResult, SketchPicker} from 'react-color';
 
 type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper';
 
@@ -16,8 +14,19 @@ type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper';
 function App() {
 
   //add contexts, etc
-  const [selectedColor,setSelectedColor] = useState("black");
+  const [selectedColor,setSelectedColor] = useState("#000000");
   const [selectedTool,setSelectedTool] = useState<toolsType>('pencil');
+  const [cssCanvasSize,setCssCanvasSize] = useState<number>(600);
+
+  useEffect(()=>{
+
+    //innerHeight of screen - 50px of header - some offset
+    console.log("setting canvas size with:",window.innerHeight - 80);
+    setCssCanvasSize(window.innerHeight - 50 - 30)
+
+
+  },[]);
+
 
   function handleChangeSelectedColor(color : ColorResult){
     setSelectedColor(color.hex);
@@ -27,11 +36,13 @@ function App() {
   return (
     <main>
       <header className="header">
+        
       </header>
       <section className = "MainSection">
       <div className = "editorWrapper">
-          <div className="sideBar" style = {{height:CSS_CANVAS_SIZE}}>
+          <div className="sideBar" style = {{height:cssCanvasSize,width:'10%'}}>
           <div className = "toolbar">
+            TOOLS
             <div className = "toolbarButtons">
 
               <button className = "toolButton" style = {{backgroundColor: selectedTool === 'pencil' ? '#634cb8' : '#dddddd' }}  onClick={()=>setSelectedTool('pencil')}><FontAwesomeIcon size={"2x"} icon={faPencil} /></button>
@@ -41,9 +52,11 @@ function App() {
             </div>
           </div>
           </div>
-          <Editor selectedColor = {selectedColor} selectedTool = {selectedTool} onSetSelectedColor = {setSelectedColor}></Editor>    
-          <div className="sideBar" style = {{height:CSS_CANVAS_SIZE}}>
-            <SketchPicker color = {selectedColor} onChangeComplete={handleChangeSelectedColor}></SketchPicker>
+          <Editor selectedColor = {selectedColor} selectedTool = {selectedTool} cssCanvasSize = {cssCanvasSize} onSelectedColor = {setSelectedColor}></Editor>    
+          <div className="sideBar" style = {{height:cssCanvasSize}}>
+            <div className = "colorPickerWrapper">
+              <SketchPicker color={selectedColor} onChangeComplete={handleChangeSelectedColor} width="150px"></SketchPicker>
+            </div>
           </div>
         </div>
       </section>

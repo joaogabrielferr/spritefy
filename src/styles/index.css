@@ -1,12 +1,12 @@
 body{
     margin: 0;
     padding: 0;
-    background-color: #3a3838;
-    /* overflow-y: hidden; */
+    background-color: #000000;
+    overflow-y: hidden;
 }
 
 .MainSection{
-    width: 97%;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -25,6 +25,10 @@ body{
 .header{
     width: 100%;
     height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
 }
 
 .navbar{
@@ -34,11 +38,13 @@ body{
 
 .toolbar{
     height: 100%;
-    width: 100%;
+    width: 80%;
     display: flex;
-    /* flex-direction: column; */
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 0 auto;
+    color: white;
 }
 
 .toolButton{
@@ -50,13 +56,15 @@ body{
 }
 
 .toolButton:hover{
-    background-color: rgb(190, 188, 188);
+    background-color: rgb(88, 93, 99);
 
 }
 
 .toolbarButtons{
     width: 100%;
-    /* background-color: red; */
-    display: grid;
-    grid-template-columns: auto auto auto;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 5px;
 }
