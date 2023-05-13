@@ -1,6 +1,6 @@
-import Mouse from "../Scene/Mouse";
-import Scene from "../Scene/Scene";
-import { buildPath } from "../Scene/buildPath";
+import Mouse from "../scene/Mouse";
+import Scene from "../scene/Scene";
+import { buildPath } from "../scene/buildPath";
 import { Pixel} from "../types";
 
 export function 

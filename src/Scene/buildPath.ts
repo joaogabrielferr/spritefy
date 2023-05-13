@@ -1,7 +1,7 @@
 import { Pixel } from "../types";
 
 export function buildPath(pixels : Pixel[][],start : Pixel,end : Pixel) : Pixel[]{
-    //TODO: Refactor this, the gaps are filled in a "unnatural" way, it should like like a stroke made by a person
+    //TODO: Refactor this, the gaps are filled in a "unnatural" way, it should loke like a stroke made by a person
     //function to fill in the gaps left after a fast pen stroke because aparently mousemove event doesnt fire fast enough when moving the mouse tooo fast
     if(!start || !end)return [];
     const path : Pixel[] = [];

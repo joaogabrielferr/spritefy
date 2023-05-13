@@ -7,7 +7,7 @@ export default class Scene{
 
     pixels : Pixel[][]; //pixel matrix, all operations are recorded in this matrix
 
-    currentDraw : Pixel[][];
+    currentDraw : Pixel[][]; //current draw being made while mouse is pressed
     
     lastPixel : Pixel | null; //last pixel painted in the screen
     

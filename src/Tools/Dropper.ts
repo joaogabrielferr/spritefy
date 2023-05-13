@@ -1,5 +1,5 @@
-import Mouse from "../Scene/Mouse";
-import Scene from "../Scene/Scene";
+import Mouse from "../scene/Mouse";
+import Scene from "../scene/Scene";
 import { Pixel } from "../types";
 
 //return the color of a pixel

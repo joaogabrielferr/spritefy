@@ -7,8 +7,8 @@ MAX_ZOOM_AMOUNT,
 BG_COLORS
 }
  from './utils/constants';
-import Mouse from './Scene/Mouse';
-import Scene from './Scene/Scene';
+import Mouse from './scene/Mouse';
+import Scene from './scene/Scene';
 import { Pencil } from './Tools/Pencil';
 import { Eraser } from './Tools/Eraser';
 import { undoLastDraw, undoStack } from './Tools/UndoRedo';

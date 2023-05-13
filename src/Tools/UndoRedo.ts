@@ -5,7 +5,7 @@
 //if i press ctrz + y, i select the pixels at the top of the redo stack, and add then to the canvas
 //after that, i put these pixels in the undo stack
 
-import Scene from "../Scene/Scene";
+import Scene from "../scene/Scene";
 import { Pixel } from "../types";
 import { Stack } from "../utils/Stack";
 

@@ -36,7 +36,7 @@ function App() {
   return (
     <main>
       <header className="header">
-        
+        <div><h1>VIEWWIT</h1></div>
       </header>
       <section className = "MainSection">
       <div className = "editorWrapper">
