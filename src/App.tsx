@@ -8,7 +8,7 @@ import { faEraser } from "@fortawesome/free-solid-svg-icons";
 import { faFill } from "@fortawesome/free-solid-svg-icons";
 import {ColorResult, SketchPicker} from 'react-color';
 
-type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper';
+type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper' | 'line';
 
 
 function App() {
@@ -49,6 +49,7 @@ function App() {
               <button className = "toolButton" style = {{backgroundColor: selectedTool === 'eraser' ? '#634cb8' : '#dddddd' }}  onClick={()=>setSelectedTool('eraser')}><FontAwesomeIcon size={"2x"} icon={faEraser} /></button>
               <button className = "toolButton" style = {{backgroundColor: selectedTool === 'paintBucket' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('paintBucket')}><FontAwesomeIcon size={"2x"} icon={faFill} /></button>
               <button className = "toolButton" style = {{backgroundColor: selectedTool === 'dropper' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('dropper')}><FontAwesomeIcon size={"2x"} icon={faEyedropper} /></button>
+              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'line' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('line')}><FontAwesomeIcon size={"2x"} icon={faEyedropper} /></button>
             </div>
           </div>
           </div>

@@ -14,7 +14,7 @@ import { Stack } from "../utils/Stack";
 
 
 //removes duplicated pixels
-const cleanDraw = (draw : Pixel[][]) => {
+export const cleanDraw = (draw : Pixel[][]) => {
   const clean = [];
 
   const map = new Map<number,boolean>();

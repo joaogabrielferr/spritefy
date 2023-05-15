@@ -1,6 +1,6 @@
 .sideBar{
     width: 15%;
-    background-color: #333;
+    /* background-color: #333; */
     display: flex;
     justify-content: flex-start;
     align-items: center;

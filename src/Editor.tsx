@@ -11,9 +11,12 @@ import Mouse from './scene/Mouse';
 import Scene from './scene/Scene';
 import { Pencil } from './Tools/Pencil';
 import { Eraser } from './Tools/Eraser';
-import { undoLastDraw, undoStack } from './Tools/UndoRedo';
+import { cleanDraw, undoLastDraw, undoStack } from './Tools/UndoRedo';
 import { PaintBucket } from './Tools/PaintBucket';
 import { Dropper } from './Tools/Dropper';
+import { Line } from './Tools/Line';
+import { Pixel } from './types';
+import { removeDraw } from './Tools/helpers/removeDraw';
 
 
 interface IEditor{
@@ -46,6 +49,9 @@ let bgTileSize : number;
 let currentScale = 1;
 // const defaultPenSize = pixel_size;
 let penSize : number;
+
+let LineFirstPixel : Pixel | null = null;
+
 //////////////////////////////////////////////////////////
 
 export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCanvasSize} : IEditor) : JSX.Element{
@@ -55,6 +61,8 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
 
     const ctx = useRef<CanvasRenderingContext2D | null>(null);
     const BGctx = useRef<CanvasRenderingContext2D | null>(null);
+
+    const firstInit = useRef(false);
     
 
     //i need to persist scene between re renders but i also dont want to trigger a re render every time i change it, i guess this works
@@ -78,27 +86,29 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         bgCanvas.width = display_size;
         bgCanvas.height = display_size;
 
+        ctx.current.scale(window.devicePixelRatio,window.devicePixelRatio);
+
+
         canvas.style.width = `${cssCanvasSize}px`;
         canvas.style.height = `${cssCanvasSize}px`;
         bgCanvas.style.width = `${cssCanvasSize}px`;
         bgCanvas.style.height = `${cssCanvasSize}px`;
 
-
-        scene.current.initilializePixelMatrix(display_size,pixel_size,bgTileSize);
-        draw();
+        if(!firstInit.current)
+        {
+            scene.current.initilializePixelMatrix(display_size,pixel_size,bgTileSize);
+            firstInit.current = true;
+        }draw();
         
     },[cssCanvasSize]);
 
     useEffect(()=>{
 
-        //these event listeners have callback functions that use states
         function handleFirstClick(){
             mouse.isPressed = true;
             if (selectedTool === 'pencil'){
-                console.log("before calling pencil:",selectedColor);
                 scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,selectedColor));
-                //no need to call for draw in event listeners, when something like fillRect is called the canvas updates automatically
-                //draw("mousedown");
+
             }else if (selectedTool === 'eraser')
             {
                 Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
@@ -109,6 +119,14 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
             {
                 const color : string | undefined | null = Dropper(scene.current,mouse,currentScale,pixel_size);
                 if(color)onSelectedColor(color);
+            }else if(selectedTool === 'line')
+            {
+                const [x,y] = mouse.toWorldCoordinates(currentScale);
+                LineFirstPixel = scene.current.findPixel(x,y,pixel_size);
+                //paint first pixel with Pencil function, the call Line on mouse move
+                //scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,selectedColor));
+
+
             }
         }
         function handleFirstTouch(e : TouchEvent){
@@ -133,6 +151,12 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
             {
                 scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,currentScale,penSize,CANVAS_SIZE,selectedColor));
             }
+            // else if(selectedTool === 'line')
+            // {
+            //     //paint first pixel with Pencil function, the call Line on mouse move
+            //     scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize, currentScale,selectedColor));
+
+            // }
         }
 
     
@@ -150,6 +174,17 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         }else if(selectedTool === 'eraser' && mouse.isPressed)
         {
             Eraser("mousemove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize, currentScale);
+        }else if(selectedTool === 'line' && mouse.isPressed)
+        {
+            // const start : Pixel = scene.current.currentDraw[0][0];
+            // // console.log("start:",start);
+            // //clean current Draw
+            removeDraw(ctx.current!,cleanDraw(scene.current.currentDraw),pixel_size);
+            // scene.current.currentDraw = [[start]];
+            scene.current.currentDraw.push(Line(scene.current,ctx.current!,mouse,pixel_size,LineFirstPixel!,currentScale,selectedColor,pixel_size));
+
+
+            
         }
             // currentDraw.value.push(Pen(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx.current!, penSize, selectedColor, currentPixelsMousePressed, currentScale, originX, originY, matrix, mousex, mousey));
         // } else if (erasing && isMousePressed) Eraser(event, eventName, isMousePressed, lastPixel, PIXEL_SIZE, DISPLAY_SIZE, pixels, ctx.current!, penSize, originX, originY, currentScale, mousex, mousey);
@@ -268,39 +303,24 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
     
     }
 
-    // function setUpCanvas(){
-    //     canvas = canvasRef.current!;
-    //     bgCanvas = bgCanvasRef.current!;
-    //     ctx.current = canvas.getContext("2d")!;
-    //     BGctx.current = canvas.getContext("2d")!;
-    //     canvas.width = display_size;
-    //     canvas.height = display_size;
-    //     bgCanvas.width = display_size;
-    //     bgCanvas.height = display_size;
-
-    //     canvas.style.width = `${cssCanvasSize}px`;
-    //     canvas.style.height = `${cssCanvasSize}px`;
-    //     bgCanvas.style.width = `${cssCanvasSize}px`;
-    //     bgCanvas.style.height = `${cssCanvasSize}px`;
-
-    // }
-    
-    
+        
     function setUpVariables(){
-        //TODO: Refactor this shitty logic
+        //TODO: Refactor this logic lol
         //canvas with sizes less than 50x50 look blurry without this
-        if (CANVAS_SIZE < 50) {
-            display_size = CANVAS_SIZE * 10 * 10;
-            pixel_size = 10 * 10;
-          } else {
-            display_size = CANVAS_SIZE * 10;
-            pixel_size = 10;
-            //TODO: On small devices, pixel size should be 1
-            //also, maybe set max display size possible on mobile to be the width of the screen
-            //or simply allow user to move the canvas
-        }
+        // if (CANVAS_SIZE < 50) {
+        //     display_size = CANVAS_SIZE * 10 * 10;
+        //     pixel_size = 10 * 10;
+        //   } else {
+        //     display_size = CANVAS_SIZE * 10;
+        //     pixel_size = 10;
+        //     //TODO: On small devices, pixel size should be 1
+        //     //also, maybe set max display size possible on mobile to be the width of the screen
+        //     //or simply allow user to move the canvas
+        // }
+        pixel_size = 1;
+        display_size = CANVAS_SIZE;
         display_size*=window.devicePixelRatio;
-        pixel_size*=window.devicePixelRatio;
+        // pixel_size*=window.devicePixelRatio;
         
 
         //TODO: allow user to toggle the option to have a bg tile for every pixel (bgTileSize === 1)
@@ -317,9 +337,6 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         //if CANVAS_SIZE is a prime number
         if(bgTileSize === CANVAS_SIZE)
         bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
-
-        // bgTileSize = CANVAS_SIZE >= 100 ? 10 : 8;
-        // bgTileSize = 10;
         
 
         penSize = pixel_size;

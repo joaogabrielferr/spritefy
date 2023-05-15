@@ -29,6 +29,7 @@ export default class Scene{
 
     initilializePixelMatrix(display_size : number,pixel_size : number, bgTileSize : number){
         
+        this.pixels = [];
 
         //TODO: i need to save current drawing on browser
         //problem: for big drawing sizes like 500x500 its impractical to save it on local storage, and even on indexedDB
@@ -40,10 +41,13 @@ export default class Scene{
 
         let currentBgColor = BG_COLORS[0];
 
+        // console.log("display size:",display_size,"pixel size:",pixel_size);
+
         let pixelID = 1;
         let idxi = 0,
             idxj = 0;
         let a = 0;
+        let counter = 0;
         for (let i = 0; i < display_size; i += pixel_size) {
             const row : Pixel[] = [];
             if(columnCounter%bgTileSize === 0)
@@ -52,6 +56,7 @@ export default class Scene{
             }
             columnCounter++;
             for (let j = 0; j < display_size; j += pixel_size) {
+                counter++;
                 let x1 = i;
                 let y1 = j;
                 // let x2 = i + pixel_size;
@@ -79,6 +84,9 @@ export default class Scene{
             this.pixels.push(row);
         }
 
+        console.log(this.pixels);
+        // console.log("iter:",counter);
+
         
         // const pixelsStorage = [];
         // for (let i = 0; i < this.pixels.length; i++) {
@@ -92,35 +100,75 @@ export default class Scene{
         // }
 
 
-        // console.info(new Blob([JSON.stringify(this.pixels)]).size);
-        // console.info(new Blob([JSON.stringify(pixelsStorage)]).size);
+        // // console.info(new Blob([JSON.stringify(this.pixels)]).size);
+        // // console.info(new Blob([JSON.stringify(pixelsStorage)]).size);
 
     }
 
     //find pixel based on mouse position - xs and ys are already transformed to world coordinates
-    //TODO:maybe refactor this to something more performatic than O(n^2), probably change to pixel array and use binary search, but only if it starts to affect performance
     findPixel(xs : number,ys : number,pixel_size : number) : Pixel | null{
         let pixel : Pixel | null = null;
         let flag = false;
       //   let idxi, idxj;
-        for (let i = 0; i < this.pixels.length; i++) {
-          if (flag) break;
-          for (let j = 0; j < this.pixels[i].length; j++) {
-            if (xs >= this.pixels[i][j].x1 && xs < this.pixels[i][j].x1 + pixel_size && ys >= this.pixels[i][j].y1 && ys < this.pixels[i][j].y1 + pixel_size) {
-              pixel = this.pixels[i][j];
-              // idxi = i;
-              // idxj = j;
-              flag = true;
-              break;
-            }
-          }
+
+    //   console.log("x:",xs,"y:",ys);
+
+      //first find row, then binary search the pixel in the row 
+      const i = Math.floor(xs/pixel_size);
+
+    //   console.log("linha:",i);
+
+    //   console.log(this.pixels);
+
+      let start = 0,end = this.pixels[i].length;
+      let mid = 0;
+
+      while(start <= end)
+      {
+        // console.log(start,end);
+        mid = Math.floor((start + end)/2);
+        // console.log("current:",this.pixels[i][mid]);
+        if(ys >= this.pixels[i][mid].y1 && ys < this.pixels[i][mid].y1 + pixel_size)
+        {
+            pixel = this.pixels[i][mid];
+            break;
         }
 
-        return pixel;
+        if(ys < this.pixels[i][mid].y1)end = mid - 1;
+        else if(ys >= this.pixels[i][mid].y1 + pixel_size)start = mid + 1;
+
+      }
+
+      return pixel;
+
+
+
+
+    //   for(let j = 0;j<this.pixels[i].length;j++)
+    //   {
+    //     if (xs >= this.pixels[i][j].x1 && xs < this.pixels[i][j].x1 + pixel_size && ys >= this.pixels[i][j].y1 && ys < this.pixels[i][j].y1 + pixel_size) {
+    //         pixel = this.pixels[i][j];
+    //         break;
+    //     }
+    //   }
+
+    //   return pixel;
+
+    //   return this.pixels[i][low];
+        //this O(n^2) search was making the pen stroke sloooow
+        // for (let i = 0; i < this.pixels.length; i++) {
+        //   if (flag) break;
+        //   for (let j = 0; j < this.pixels[i].length; j++) {
+        //     if (xs >= this.pixels[i][j].x1 && xs < this.pixels[i][j].x1 + pixel_size && ys >= this.pixels[i][j].y1 && ys < this.pixels[i][j].y1 + pixel_size) {
+        //       pixel = this.pixels[i][j];
+        //       // idxi = i;
+        //       // idxj = j;
+        //       flag = true;
+        //       break;
+        //     }
+        //   }
+        // }
+
+        // return pixel;
     }
-
-
-
-
-
 }
