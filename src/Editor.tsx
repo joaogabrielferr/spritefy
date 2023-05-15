@@ -56,10 +56,11 @@ let LineFirstPixel : Pixel | null = null;
 
 export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCanvasSize} : IEditor) : JSX.Element{
     
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const bgCanvasRef = useRef<HTMLCanvasElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null); //main canvas where pixels are put in
+    const bgCanvasRef = useRef<HTMLCanvasElement>(null); //canvas for rendering the background tiles
+    const topCanvas = useRef<HTMLCanvasElement>(null)
 
-    const ctx = useRef<CanvasRenderingContext2D | null>(null);
+    const ctx = useRef<CanvasRenderingContext2D | null>(null); //
     const BGctx = useRef<CanvasRenderingContext2D | null>(null);
 
     const firstInit = useRef(false);
@@ -402,7 +403,8 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         id="canvas" ref = {canvasRef}
         onWheel={handleZoom}
         > Your browser does not support canvas </canvas>
-        <canvas id="BGcanvas" ref = {bgCanvasRef}> Your browser does not support canvas </canvas>
+        <canvas id="BGcanvas" ref = {bgCanvasRef}></canvas>
+        <canvas id = "TopCanvas" ref = {topCanvas}></canvas>
     </div>
 
 

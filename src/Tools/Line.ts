@@ -19,7 +19,7 @@ export function Line(scene : Scene,ctx : CanvasRenderingContext2D ,mouse : Mouse
 
     // draw.push(start);
 
-    const path = buildPath(scene,scene.pixels,start,end,pixel_size);
+    const path = buildPath(scene,start,end,pixel_size);
 
     for(let pixel of path)
     {

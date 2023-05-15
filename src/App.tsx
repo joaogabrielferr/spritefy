@@ -2,11 +2,12 @@ import {useEffect, useState } from "react";
 import Editor from "./Editor"
 import './styles/sideBar.css';
 import './styles/index.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faEyedropper, faPencil } from '@fortawesome/free-solid-svg-icons'
-import { faEraser } from "@fortawesome/free-solid-svg-icons";
-import { faFill } from "@fortawesome/free-solid-svg-icons";
 import {ColorResult, SketchPicker} from 'react-color';
+import { Pencil } from "./svg/Pencil";
+import { Eraser } from "./svg/Eraser";
+import { PaintBucket } from "./svg/PaintBucket";
+import { Dropper } from "./svg/Dropper";
+import { Line } from "./svg/Line";
 
 type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper' | 'line';
 
@@ -45,11 +46,26 @@ function App() {
             TOOLS
             <div className = "toolbarButtons">
 
-              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'pencil' ? '#634cb8' : '#dddddd' }}  onClick={()=>setSelectedTool('pencil')}><FontAwesomeIcon size={"2x"} icon={faPencil} /></button>
-              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'eraser' ? '#634cb8' : '#dddddd' }}  onClick={()=>setSelectedTool('eraser')}><FontAwesomeIcon size={"2x"} icon={faEraser} /></button>
-              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'paintBucket' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('paintBucket')}><FontAwesomeIcon size={"2x"} icon={faFill} /></button>
-              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'dropper' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('dropper')}><FontAwesomeIcon size={"2x"} icon={faEyedropper} /></button>
-              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'line' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('line')}><FontAwesomeIcon size={"2x"} icon={faEyedropper} /></button>
+              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'pencil' ? '#634cb8' : '#dddddd' }}  onClick={()=>setSelectedTool('pencil')}>
+                {/* <FontAwesomeIcon size={"2x"} icon={faPencil} /> */}
+                <Pencil/>
+                </button>
+              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'eraser' ? '#634cb8' : '#dddddd' }}  onClick={()=>setSelectedTool('eraser')}>
+                {/* <FontAwesomeIcon size={"2x"} icon={faEraser} /> */}
+                <Eraser/>
+                </button>
+              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'paintBucket' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('paintBucket')}>
+                {/* <FontAwesomeIcon size={"2x"} icon={faFill} /> */}
+                <PaintBucket/>
+                </button>
+              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'dropper' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('dropper')}>
+                {/* <FontAwesomeIcon size={"2x"} icon={faEyedropper} /> */}
+                <Dropper/>
+                </button>
+              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'line' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('line')}>
+                {/* <FontAwesomeIcon size={"2x"} icon={faEyedropper} /> */}
+                <Line/>
+                </button>
             </div>
           </div>
           </div>

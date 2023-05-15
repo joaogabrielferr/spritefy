@@ -1,25 +1,14 @@
 import { Pixel } from "../types";
 import Scene from "./Scene";
 
-export function buildPath(scene : Scene, pixels : Pixel[][],start : Pixel,end : Pixel,pixel_size : number) : Pixel[]{
+export function buildPath(scene : Scene,start : Pixel,end : Pixel,pixel_size : number) : Pixel[]{
     if(!start || !end)return [];
-    let path : Pixel[] = [];
 
-    
+
+    //algorithm for finding the necessary points to create a close approximation of a straight line between two points
+    //used in Line tool and in Pencil Tool(mousemove event handler doenst fire fast enough when moving the mouse to fast, this algo is used to close the gaps)
     return bresenhamsAlgorithm(start,end,scene,pixel_size);
     
-    //necessary for the version of bresenhams that kind works
-    // const dx = Math.abs(end.x1 - start.x1);
-    // const dy = Math.abs(end.y1 - start.y1);
-    // if(dx > dy)
-    // {
-    //     path = bresenhamsAlgorithm(start.x1,start.y1,end.x1,end.y1,dx,dy,false,scene,pixel_size,end.x1,end.y1);
-    // }else
-    // {
-    //     path = bresenhamsAlgorithm(start.y1,start.x1,end.y1,end.x1,dy,dx,true,scene,pixel_size,end.x1,end.y1);
-    // }
-
-    // return path;
 
 
 }
@@ -67,77 +56,5 @@ function bresenhamsAlgorithm(start : Pixel,end : Pixel,
         }
 
         return path;
-
-
-        //this is the version that kinda works
-        // let pk = 2*dy - dx;
-        // for(let i = 0;i<=dx;i++)
-        // {
-        //     if(x1 >= endx1 && x1 < endx1 + pixel_size && y1 >= endy1 && y1 < endy1 + pixel_size)
-        //     {
-        //         console.log("chegou no ultimo pixel");
-        //         break;
-        //     }
-        //     x1 < x2 ? x1+=pixel_size : x1-=pixel_size;
-        //     if(pk < 0)
-        //     {
-        //         if(!decide)
-        //         {
-        //             const pixel = scene.findPixel(x1,y1,pixel_size);
-        //             if(!pixel)return path;
-                    
-        //             if(!m.get(pixel.id))
-        //             {
-        //                 path.push(pixel);
-        //                 // console.log(pixel);
-        //                 m.set(pixel.id,true);
-        //             }
-        //         }else
-        //         {
-        //             const pixel = scene.findPixel(y1,x1,pixel_size);
-        //             if(!pixel)return path;
-
-        //             if(!m.get(pixel.id))
-        //             {
-        //                 path.push(pixel);
-        //                 // console.log(pixel);
-
-        //                 m.set(pixel.id,true);
-        //             }
-        //         }
-        //         pk = pk + 2 * dy; 
-        //     }else
-        //     {
-        //         y1 < y2 ? y1+=pixel_size : y1-=pixel_size;
-        //         if(!decide)
-        //         {
-        //             const pixel = scene.findPixel(x1,y1,pixel_size);
-        //             if(!pixel)return path;
-
-        //             if(!m.get(pixel.id))
-        //             {
-        //                 path.push(pixel);
-        //                 // console.log(pixel);
-
-        //                 m.set(pixel.id,true);
-        //             }
-        //         }else
-        //         {
-        //             const pixel = scene.findPixel(y1,x1,pixel_size);
-        //             if(!pixel)return path;
-
-        //             if(!m.get(pixel.id))
-        //             {
-        //                 path.push(pixel);
-        //                 // // console.log(pixel);
-
-        //                 m.set(pixel.id,true);
-        //             }
-        //         }
-        //         pk = pk + 2*dy - 2*dx;
-        //     }
-        // }
-        // // // console.log(path);
-        // return path;
 
     }

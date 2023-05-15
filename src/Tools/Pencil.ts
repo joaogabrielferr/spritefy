@@ -49,7 +49,7 @@ Pencil(eventName : string,
         if (scene.lastPixel !== null && mouse.isPressed && scene.lastPixel.id !== pixel.id && (eventName == "mousemove" || "touchmove")) {
         
             //build path from last pixel to current pixel
-            const path = buildPath(scene,scene.pixels, scene.lastPixel, pixel,pixel_size);
+            const path = buildPath(scene, scene.lastPixel, pixel,pixel_size);
             for (let p of path) {
                 if (!isPixelAlreadyPaintedInCurrentDraw(p, scene)) {
                 ctx.fillStyle = selectedColor;
