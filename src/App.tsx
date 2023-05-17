@@ -11,26 +11,62 @@ import { Line } from "./svg/Line";
 
 type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper' | 'line';
 
+type ToolButton= {tool : toolsType, svg : JSX.Element};
+
+const ToolButtons = [
+  {tool:'pencil',svg: <Pencil/>},
+  {tool:'eraser',svg: <Eraser/>},
+  {tool:'paintBucket',svg: <PaintBucket/>},
+  {tool:'dropper',svg: <Dropper/>},
+  {tool:'line',svg: <Line/>},
+] as ToolButton[];
+
 
 function App() {
 
   //add contexts, etc
   const [selectedColor,setSelectedColor] = useState("#000000");
   const [selectedTool,setSelectedTool] = useState<toolsType>('pencil');
-  const [cssCanvasSize,setCssCanvasSize] = useState<number>(600);
+  const [cssCanvasSize,setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize
+
+  const [isMobile,setIsMobile] = useState<boolean>(window.innerWidth <=768);
+
+  function handleWindowResize(){
+    setIsMobile(window.innerWidth <= 768);
+  }
 
   useEffect(()=>{
 
     //innerHeight of screen - 50px of header - some offset
-    console.log("setting canvas size with:",window.innerHeight - 80);
-    setCssCanvasSize(window.innerHeight - 50 - 30)
+    // console.log("setting canvas size with:",window.innerHeight - 80);
 
+    //TODO: if on mobile, set this state to be equal to screen width
+
+      setCssCanvasSize(window.innerHeight - 50 - 30)
+      //setCssCanvasSize(600)
+
+      window.addEventListener('resize',handleWindowResize)
+
+      return function(){
+        window.removeEventListener('resize',handleWindowResize);
+      }
 
   },[]);
 
 
   function handleChangeSelectedColor(color : ColorResult){
     setSelectedColor(color.hex);
+  }
+
+  function createButton(button : ToolButton) : JSX.Element{
+    const desktopHandler = {onClick: ()=>setSelectedTool(button.tool)};
+    const mobileHandler = {onPointerEnter: ()=>setSelectedTool(button.tool)};
+    
+    let buttonProps = {className : 'toolButton', key: button.tool};
+    if(isMobile)buttonProps = {...buttonProps,...mobileHandler};
+    else buttonProps = {...buttonProps,...desktopHandler};
+    return <button {...buttonProps} >{button.svg}</button>
+
   }
 
 
@@ -41,40 +77,27 @@ function App() {
       </header>
       <section className = "MainSection">
       <div className = "editorWrapper">
-          <div className="sideBar" style = {{height:cssCanvasSize,width:'10%'}}>
+          {<div className="sideBar" style = {{height:cssCanvasSize,width:'10%'}}>
           <div className = "toolbar">
-            TOOLS
+            TOOLS 
+            {/* TODO: Make wrapper component for the sidebar and componetns for toolbar and colorpickerwrapper */}
             <div className = "toolbarButtons">
 
-              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'pencil' ? '#634cb8' : '#dddddd' }}  onClick={()=>setSelectedTool('pencil')}>
-                {/* <FontAwesomeIcon size={"2x"} icon={faPencil} /> */}
-                <Pencil/>
-                </button>
-              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'eraser' ? '#634cb8' : '#dddddd' }}  onClick={()=>setSelectedTool('eraser')}>
-                {/* <FontAwesomeIcon size={"2x"} icon={faEraser} /> */}
-                <Eraser/>
-                </button>
-              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'paintBucket' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('paintBucket')}>
-                {/* <FontAwesomeIcon size={"2x"} icon={faFill} /> */}
-                <PaintBucket/>
-                </button>
-              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'dropper' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('dropper')}>
-                {/* <FontAwesomeIcon size={"2x"} icon={faEyedropper} /> */}
-                <Dropper/>
-                </button>
-              <button className = "toolButton" style = {{backgroundColor: selectedTool === 'line' ? '#634cb8' : '#dddddd' }} onClick={()=>setSelectedTool('line')}>
-                {/* <FontAwesomeIcon size={"2x"} icon={faEyedropper} /> */}
-                <Line/>
-                </button>
+                  {
+                    ToolButtons.map((button : ToolButton)=>createButton(button))
+                  }
+              
+
             </div>
+            <p id = "coordinates">{"[0x0]"}</p>
           </div>
-          </div>
+          </div>}
           <Editor selectedColor = {selectedColor} selectedTool = {selectedTool} cssCanvasSize = {cssCanvasSize} onSelectedColor = {setSelectedColor}></Editor>    
-          <div className="sideBar" style = {{height:cssCanvasSize}}>
-            <div className = "colorPickerWrapper">
-              <SketchPicker color={selectedColor} onChangeComplete={handleChangeSelectedColor} width="150px"></SketchPicker>
-            </div>
-          </div>
+          // <div className="sideBar" style = {{height:cssCanvasSize}}>
+          //   <div className = "colorPickerWrapper">
+          //     <SketchPicker color={selectedColor} onChangeComplete={handleChangeSelectedColor} width="150px"></SketchPicker>
+          //   </div>
+          // </div>
         </div>
       </section>
     </main>

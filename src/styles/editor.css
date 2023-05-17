@@ -12,6 +12,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  position:relative;
+  overflow: hidden;
 }
 
 #canvas{
@@ -19,9 +21,20 @@
   }
   
   #canvas,#BGCanvas {
-    position: absolute;
-    top: 20;
-    left: 90;
+    position: absolute; /* Position the canvas relative to the outer div */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    /* display: flex;
+    justify-content: center;
+    align-items: center; */
     /* margin-left: 300px; */
-    image-rendering: pixelated;
+    image-rendering: optimizeSpeed; /* Older browsers */
+    image-rendering: -moz-crisp-edges; /* Firefox */
+    image-rendering: -o-crisp-edges; /* Opera */
+    image-rendering: -webkit-optimize-contrast; /* Webkit (Safari) */
+    image-rendering: optimize-contrast; /* CSS3 Proposed */
+    -ms-interpolation-mode: nearest-neighbor; /* IE8+ */
+    image-rendering: pixelated; /* CSS4 (Chrome 41+) and FireFox 49+ */
   }

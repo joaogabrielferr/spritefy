@@ -6,7 +6,9 @@ import { Pixel } from "../types/index.js";
 export const Eraser = (eventName : string, mouse : Mouse, scene : Scene, pixel_size : number, display_size : number, ctx : CanvasRenderingContext2D, penSize : number,currentScale : number) => {
   if (!mouse.isPressed) return;
   
-  const [x,y] = mouse.toWorldCoordinates(currentScale);
+  // const [x,y] = mouse.toWorldCoordinates(currentScale);
+  const x = mouse.x;
+  const y = mouse.y
 
 
   if (x > pixel_size * display_size || x < 0 || y > pixel_size * display_size || y < 0) return;
@@ -21,7 +23,7 @@ export const Eraser = (eventName : string, mouse : Mouse, scene : Scene, pixel_s
 
 
     if (scene.lastPixel !== null && mouse.isPressed && scene.lastPixel.id !== pixel.id && (eventName === "mousemove" || eventName === "touchmove")) {
-      const path = buildPath(scene.pixels, scene.lastPixel, pixel);
+      const path = buildPath(scene,scene.lastPixel,pixel , pixel_size);
       for (let p of path) {
         ctx.fillStyle = p.bgColor;
         ctx.fillRect(p.x1, p.y1, penSize, penSize);

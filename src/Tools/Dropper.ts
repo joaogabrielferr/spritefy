@@ -5,7 +5,9 @@ import { Pixel } from "../types";
 //return the color of a pixel
 export function Dropper(scene : Scene,mouse : Mouse,currentScale : number,pixel_size : number){
 
-    const [x,y] = mouse.toWorldCoordinates(currentScale);
+    //const [x,y] = mouse.toWorldCoordinates(currentScale);
+    const x = mouse.x;
+    const y = mouse.y;
 
     let pixel : Pixel | null = scene.findPixel(x,y,pixel_size);
 

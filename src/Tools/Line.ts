@@ -7,7 +7,9 @@ export function Line(scene : Scene,ctx : CanvasRenderingContext2D ,mouse : Mouse
 {
     const draw : Pixel[] = [];
 
-    const [x,y] = mouse.toWorldCoordinates(currentScale);
+    //const [x,y] = mouse.toWorldCoordinates(currentScale);
+    const x = mouse.x;
+    const y = mouse.y;
 
     const end : Pixel | null = scene.findPixel(x,y,pixel_size);
 

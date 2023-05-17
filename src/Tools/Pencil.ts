@@ -19,14 +19,18 @@ Pencil(eventName : string,
     const draw : Pixel[] = []; //pixels changed in this function are stored here
 
       //transforming mouse coordinates in world coordinates
-      const [xs,ys] = mouse.toWorldCoordinates(currentScale);
+      //const [xs,ys] = mouse.toWorldCoordinates(currentScale);
       
+      const xs = mouse.x;
+      const ys = mouse.y;
+
       if (xs > display_size || xs < 0 || ys > display_size || ys < 0)
       {
         return [];
       }
       //find pixel based on mouse position
       const pixel : Pixel | null = scene.findPixel(xs,ys,pixel_size);
+    //   console.log(pixel);
 
       //if this pixel is in currentPixelsMousePressed, that means it was already painted in the current stroke, no need to paint it twice
       if (pixel != null && !isPixelAlreadyPaintedInCurrentDraw(pixel, scene)) {

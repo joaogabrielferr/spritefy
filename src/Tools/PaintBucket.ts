@@ -17,14 +17,15 @@ export function PaintBucket(scene : Scene,
   
     const draw : Pixel[] = [];
   
-    const [x,y] = mouse.toWorldCoordinates(currentScale);
+    // const [x,y] = mouse.toWorldCoordinates(currentScale);
+    const x = mouse.x;
+    const y = mouse.y;
   
     if (x > pixel_size * display_size || x < 0 || y > pixel_size * display_size || y < 0) return [];
   
     let pixel : Pixel | null = scene.findPixel(x,y,pixel_size);
   
     if (pixel != null) {
-      //fillSpace(scene.pixels, pixel, selectedColor, pixel.colorStack.top() || pixel.bgColor, pixel_size, display_size, penSize, ctx, draw, CANVAS_SIZE);
       const numPixels = display_size * display_size + 1;
       const visited : boolean[] = [];
       for (let i = 0; i <= numPixels; i++) visited.push(false);

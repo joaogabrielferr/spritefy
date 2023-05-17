@@ -6,11 +6,12 @@ body{
 }
 
 .MainSection{
-    width: 100%;
+    width: 70%;
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 0 auto;
+    overflow: hidden;
 
 }
 
@@ -19,7 +20,6 @@ body{
     justify-content: space-between;
     align-items: flex-start;
     width: 100%;
-    /* background-color: yellow; */
 }
 
 .header{

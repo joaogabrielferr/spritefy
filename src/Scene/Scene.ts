@@ -5,7 +5,7 @@ import { Stack } from "../utils/Stack";
 
 export default class Scene{
 
-    pixels : Pixel[][]; //pixel matrix, all operations are recorded in this matrix
+    pixels : Pixel[][]; //all operations are recorded in this matrix and used in repaintings
 
     currentDraw : Pixel[][]; //current draw being made while mouse is pressed
     
@@ -108,26 +108,16 @@ export default class Scene{
     //find pixel based on mouse position - xs and ys are already transformed to world coordinates
     findPixel(xs : number,ys : number,pixel_size : number) : Pixel | null{
         let pixel : Pixel | null = null;
-        let flag = false;
-      //   let idxi, idxj;
-
-    //   console.log("x:",xs,"y:",ys);
 
       //first find row, then binary search the pixel in the row 
       const i = Math.floor(xs/pixel_size);
-
-    //   console.log("linha:",i);
-
-    //   console.log(this.pixels);
 
       let start = 0,end = this.pixels[i].length;
       let mid = 0;
 
       while(start <= end)
       {
-        // console.log(start,end);
         mid = Math.floor((start + end)/2);
-        // console.log("current:",this.pixels[i][mid]);
         if(ys >= this.pixels[i][mid].y1 && ys < this.pixels[i][mid].y1 + pixel_size)
         {
             pixel = this.pixels[i][mid];
