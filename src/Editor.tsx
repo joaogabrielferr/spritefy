@@ -64,6 +64,8 @@ let LineFirstPixel : Pixel | null = null;
 
 let coordinatesElement : HTMLParagraphElement;
 
+let lastPixel : Pixel | null = null;
+
 //////////////////////////////////////////////////////////
 
 export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCanvasSize} : IEditor) : JSX.Element{
@@ -265,6 +267,14 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
     function handleMouseMove(event : MouseEvent ){
 
         if(!canvas)return;
+
+        // if(mouse.isPressed && lastPixel)
+        // {
+        //     console.log("removing last pixel");
+        //     removeDraw(topCtx.current!,[lastPixel],pixel_size);
+        //     lastPixel = null;
+        // }
+
         //TODO: maybe decouple mouse listeners from these function calls, functions can be called a super high number of times depending on device config and mouse type i guess
         const bounding = canvas.getBoundingClientRect();
         mouse.x = event.clientX - bounding.left;
@@ -294,6 +304,29 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
             scene.current.currentDrawTopCanvas = [];
             scene.current.currentDrawTopCanvas.push(Line(scene.current,topCtx.current!,mouse,pixel_size,LineFirstPixel!,selectedColor,pixel_size));
         }
+
+        //paint pixel in top canvas relative to mouse position
+
+        if(!lastPixel || (lastPixel && !(mouse.x >= lastPixel.x1 && mouse.x < lastPixel.x1 + pixel_size && mouse.y >=lastPixel.y1 && mouse.y < lastPixel.y1 + pixel_size)))
+        {
+            const newPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
+            if(newPixel)
+            {
+                topCtx.current!.fillStyle = "purple";
+                topCtx.current!.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
+                
+                if(lastPixel)
+                {
+                    removeDraw(topCtx.current!,[lastPixel],pixel_size);
+                }
+
+                lastPixel = newPixel;
+
+            }
+        }
+
+
+
      
     } 
     
