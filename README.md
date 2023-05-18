@@ -1,4 +1,5 @@
-# pixel-art-editor
-Simulating pixel art in a canvas element with javascript
+# Viewwit -  pixel-art-editor
+very cool web-based pixel art editor
 
-![super mario](https://github.com/joaogabrielferr/pixel-art-editor/assets/59519370/d47ff947-6aac-4a5d-a84c-b700a69df908)
+
+![lets gooooo](https://github.com/joaogabrielferr/pixel-art-editor/assets/59519370/203d1a1d-8b98-40aa-ac8e-58c1831d4a37)
