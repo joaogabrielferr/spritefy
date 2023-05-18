@@ -1,6 +1,6 @@
 import Mouse from "../scene/Mouse";
 import Scene from "../scene/Scene";
-import { buildPath } from "../scene/buildPath";
+import { buildPath } from "../scene/BuildPath";
 import { Pixel } from "../types";
 
 export function Line(scene : Scene,ctx : CanvasRenderingContext2D ,mouse : Mouse, pixel_size : number,start : Pixel,selectedColor: string,penSize : number)

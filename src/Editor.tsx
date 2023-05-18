@@ -10,12 +10,15 @@ import Mouse from './scene/Mouse';
 import Scene from './scene/Scene';
 import { Pencil } from './Tools/Pencil';
 import { Eraser } from './Tools/Eraser';
-import { cleanDraw, undoLastDraw, undoStack } from './Tools/UndoRedo';
+import {undoLastDraw, undoStack } from './Tools/UndoRedo';
 import { PaintBucket } from './Tools/PaintBucket';
 import { Dropper } from './Tools/Dropper';
 import { Line } from './Tools/Line';
 import { Pixel } from './types';
-import { removeDraw } from './Tools/helpers/removeDraw';
+import { removeDraw } from './Tools/helpers/RemoveDraw';
+import { cleanDraw } from './Tools/helpers/CleanDraw';
+import { translateDrawToMainCanvas } from './Tools/helpers/TranslateDrawToMainCanvas';
+
 
 
 interface IEditor{
@@ -288,6 +291,7 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         {
             //remove draw from the top canvas
             removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
+            scene.current.currentDrawTopCanvas = [];
             scene.current.currentDrawTopCanvas.push(Line(scene.current,topCtx.current!,mouse,pixel_size,LineFirstPixel!,selectedColor,pixel_size));
         }
      
@@ -480,13 +484,19 @@ function handleTouchMove(event : TouchEvent){
         mouse.isPressed = false;
         scene.current.lastPixel = null;
         if (scene.current.currentDraw.length > 0) {
+            //TODO:add erased pixels to undoStack as well
             undoStack.push(scene.current.currentDraw);
         }
 
         if(scene.current.currentDrawTopCanvas.length > 0)
         {
             //translate draw made on top canvas to main canvas
-            //TODO
+            //paint all pixels on main canvas
+            //add these pixels to undoStack
+            const clean : Pixel[] = cleanDraw(scene.current.currentDrawTopCanvas);
+            translateDrawToMainCanvas(clean,ctx.current!,pixel_size,selectedColor);
+            undoStack.push(scene.current.currentDrawTopCanvas);
+            
         }
     
         scene.current.currentDraw = [];
