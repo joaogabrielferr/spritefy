@@ -3,7 +3,7 @@ import Scene from "../scene/Scene";
 import { Pixel } from "../types";
 
 //return the color of a pixel
-export function Dropper(scene : Scene,mouse : Mouse,currentScale : number,pixel_size : number){
+export function Dropper(scene : Scene,mouse : Mouse,pixel_size : number){
 
     //const [x,y] = mouse.toWorldCoordinates(currentScale);
     const x = mouse.x;

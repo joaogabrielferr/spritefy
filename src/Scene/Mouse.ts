@@ -19,12 +19,13 @@ export default class Mouse{
         this.history = [];
     }
 
-    toWorldCoordinates(currentScale : number)
-    {
-        let xs = Math.floor((this.x - this.originX) / currentScale);
-        let ys = Math.floor((this.y - this.originY) / currentScale);
-        return [xs,ys];
-    }
+
+    // toWorldCoordinates(currentScale : number)
+    // {
+    //     let xs = Math.floor((this.x - this.originX) / currentScale);
+    //     let ys = Math.floor((this.y - this.originY) / currentScale);
+    //     return [xs,ys];
+    // }
 
 
 }

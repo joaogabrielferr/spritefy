@@ -8,28 +8,23 @@
   display: flex;
   justify-content: center; */
   width: 100%;
-  background-color: #49494b;
+  background-color: #474747;
+  /* background-color: #681abd; */
   display: flex;
   justify-content: center;
   align-items: center;
   position:relative;
   overflow: hidden;
+  z-index: 1;
 }
 
-#canvas{
-    z-index: 1;
-  }
   
-  #canvas,#BGCanvas {
+  #canvas,#BGCanvas,#topCanvas{
     position: absolute; /* Position the canvas relative to the outer div */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 
-    /* display: flex;
-    justify-content: center;
-    align-items: center; */
-    /* margin-left: 300px; */
     image-rendering: optimizeSpeed; /* Older browsers */
     image-rendering: -moz-crisp-edges; /* Firefox */
     image-rendering: -o-crisp-edges; /* Opera */
@@ -38,3 +33,12 @@
     -ms-interpolation-mode: nearest-neighbor; /* IE8+ */
     image-rendering: pixelated; /* CSS4 (Chrome 41+) and FireFox 49+ */
   }
+
+  #canvas{
+    z-index: 2;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
+  }
+
+#topCanvas{
+  z-index: 3;
+}

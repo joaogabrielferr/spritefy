@@ -3,10 +3,11 @@ body{
     padding: 0;
     background-color: #000000;
     overflow-y: hidden;
+    font-family: 'Roboto', sans-serif;
 }
 
 .MainSection{
-    width: 70%;
+    width: 90%;
     display: flex;
     justify-content: center;
     align-items: center;

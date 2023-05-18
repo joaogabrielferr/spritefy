@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+
+#old vanilla js version
 v1
 
 # Editor directories and files

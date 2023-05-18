@@ -5,11 +5,13 @@ import { Stack } from "../utils/Stack";
 
 export default class Scene{
 
-    pixels : Pixel[][]; //all operations are recorded in this matrix and used in repaintings
+    pixels : Pixel[][]; //all operations are recorded in this matrix
 
-    currentDraw : Pixel[][]; //current draw being made while mouse is pressed
+    currentDraw : Pixel[][]; //current draw in main canvas while mouse is pressed
+
+    currentDrawTopCanvas : Pixel[][]; //current draw in top canvas while mouse is pressed;
     
-    lastPixel : Pixel | null; //last pixel painted in the screen
+    lastPixel : Pixel | null; //last pixel painted in the canvas
     
     currentPixelsMousePressed : Map<number,boolean>; //current pixels painted while the user is moving the mouse with one of its buttons pressed (<pixel id, true>)
 
@@ -21,6 +23,7 @@ export default class Scene{
     constructor(){
         this.pixels = [];
         this.currentDraw = [];
+        this.currentDrawTopCanvas = [];
         this.lastPixel = null;
         this.currentPixelsMousePressed = new Map();
         this.zoomAmount = 0;
@@ -84,7 +87,6 @@ export default class Scene{
             this.pixels.push(row);
         }
 
-        console.log(this.pixels);
         // console.log("iter:",counter);
 
         
@@ -109,7 +111,8 @@ export default class Scene{
     findPixel(xs : number,ys : number,pixel_size : number) : Pixel | null{
         let pixel : Pixel | null = null;
 
-      //first find row, then binary search the pixel in the row 
+      //first find row, then binary search the pixel in that row 
+
       const i = Math.floor(xs/pixel_size);
 
       let start = 0,end = this.pixels[i].length;
@@ -132,20 +135,8 @@ export default class Scene{
       return pixel;
 
 
-
-
-    //   for(let j = 0;j<this.pixels[i].length;j++)
-    //   {
-    //     if (xs >= this.pixels[i][j].x1 && xs < this.pixels[i][j].x1 + pixel_size && ys >= this.pixels[i][j].y1 && ys < this.pixels[i][j].y1 + pixel_size) {
-    //         pixel = this.pixels[i][j];
-    //         break;
-    //     }
-    //   }
-
-    //   return pixel;
-
-    //   return this.pixels[i][low];
         //this O(n^2) search was making the pen stroke sloooow
+        
         // for (let i = 0; i < this.pixels.length; i++) {
         //   if (flag) break;
         //   for (let j = 0; j < this.pixels[i].length; j++) {

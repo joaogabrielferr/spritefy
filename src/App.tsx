@@ -60,20 +60,24 @@ function App() {
 
   function createButton(button : ToolButton) : JSX.Element{
     const desktopHandler = {onClick: ()=>setSelectedTool(button.tool)};
-    const mobileHandler = {onPointerEnter: ()=>setSelectedTool(button.tool)};
+    // const mobileHandler = {onPointerEnter: ()=>setSelectedTool(button.tool)};
     
     let buttonProps = {className : 'toolButton', key: button.tool};
-    if(isMobile)buttonProps = {...buttonProps,...mobileHandler};
+    if(isMobile)buttonProps = {...buttonProps};
     else buttonProps = {...buttonProps,...desktopHandler};
-    return <button {...buttonProps} >{button.svg}</button>
+    return <button {...buttonProps} style={{backgroundColor:selectedTool === button.tool ? "#634cb8" : "#dddddd"}} >{button.svg}</button>
 
   }
+
+  useEffect(function(){
+    console.log("selected tool now:",selectedTool);
+  },[selectedTool]);
 
 
   return (
     <main>
       <header className="header">
-        <div><h1>VIEWWIT</h1></div>
+        <div><h1 style = {{fontWeight:'bold',fontStyle:'italic'}}>VIEWWIT</h1></div>
       </header>
       <section className = "MainSection">
       <div className = "editorWrapper">

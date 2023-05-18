@@ -8,7 +8,6 @@ export function PaintBucket(scene : Scene,
     pixel_size : number,
     display_size : number,
      ctx : CanvasRenderingContext2D,
-      currentScale : number,
       penSize : number,
       CANVAS_SIZE : number,
       selectedColor : string){

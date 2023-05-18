@@ -6,7 +6,7 @@ export function buildPath(scene : Scene,start : Pixel,end : Pixel,pixel_size : n
 
 
     //algorithm for finding the necessary points to create a close approximation of a straight line between two points
-    //used in Line tool and in Pencil tool(mousemove event handler doenst fire fast enough when moving the mouse to fast, this algo is used to close the gaps)
+    //used in Line tool, also used to close gaps in Pencil tool and eraser tool(mousemove event handler doenst fire fast enough when moving the mouse to fast, leaving some gaps)
     return bresenhamsAlgorithm(start,end,scene,pixel_size);
     
 

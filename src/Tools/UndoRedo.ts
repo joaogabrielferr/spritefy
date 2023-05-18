@@ -1,4 +1,3 @@
-//two stacks, one for the undo e the other for the redo
 //the pixels drawn until I released the mouse are put in the undo stack
 //if i press ctrl + z, i select the pixels at the top of the undo stack, and remove then from the canvas
 //after that, i put theses pixels in the redo stack
