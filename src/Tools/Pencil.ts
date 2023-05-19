@@ -33,7 +33,7 @@ Pencil(eventName : string,
 
       //find pixel based on mouse position
       const pixel : Pixel | null = scene.findPixel(xs,ys,pixel_size);
-    //   console.log(pixel);
+      console.log(pixel);
 
       //if this pixel is in currentPixelsMousePressed, that means it was already painted in the current pen stroke, no need to paint it twice
       if (pixel != null && !isPixelAlreadyPaintedInCurrentDraw(pixel, scene)) {

@@ -1,13 +1,6 @@
 
 .editor{
-  /* width: 99vw;
-  height: 90vh;
-  margin-top: 200px;
-  background-color: #252629;
-  position: relative;
-  display: flex;
-  justify-content: center; */
-  width: 100%;
+  /* width: 100%; */
   background-color: #474747;
   /* background-color: #681abd; */
   display: flex;
@@ -16,6 +9,7 @@
   position:relative;
   overflow: hidden;
   z-index: 1;
+  /* top:50; */
 }
 
   
@@ -25,7 +19,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
 
-    cursor:none;
+    /* cursor:none; */
 
     image-rendering: optimizeSpeed; /* Older browsers */
     image-rendering: -moz-crisp-edges; /* Firefox */

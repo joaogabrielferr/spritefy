@@ -87,6 +87,8 @@ export default class Scene{
             this.pixels.push(row);
         }
 
+        console.log(this.pixels);
+
         // console.log("iter:",counter);
 
         
@@ -114,6 +116,8 @@ export default class Scene{
       //first find row, then binary search the pixel in that row 
 
       const i = Math.floor(xs/pixel_size);
+        
+      if(!this.pixels)return null;
 
       let start = 0,end = this.pixels[i].length;
       let mid = 0;

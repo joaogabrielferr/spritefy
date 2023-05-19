@@ -26,6 +26,7 @@ interface IEditor{
     selectedTool : string;
     onSelectedColor : Dispatch<SetStateAction<string>>;
     cssCanvasSize : number;
+    isMobile : boolean
 }
 
 //TODO: Add background canvas and change logic of erasing, etc (dont forget to scale bgCanvas with the other ones)
@@ -68,7 +69,7 @@ let lastPixel : Pixel | null = null;
 
 //////////////////////////////////////////////////////////
 
-export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCanvasSize} : IEditor) : JSX.Element{
+export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCanvasSize,isMobile} : IEditor) : JSX.Element{
     
     const canvasRef = useRef<HTMLCanvasElement>(null); //main canvas
     //const bgCanvasRef = useRef<HTMLCanvasElement>(null); //canvas for rendering the background tiles
@@ -88,6 +89,9 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
     
 
     useEffect(()=>{
+
+        const originalSize = display_size;
+
         setUpVariables();
         //TODO: i need to save current drawing on browser
         //problem: for big drawing sizes like 500x500 its impractical to save it on local storage, and even on indexedDB
@@ -101,6 +105,7 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         ctx.current = canvas.getContext("2d")!;
         //BGctx.current = canvas.getContext("2d")!;
         topCtx.current = topCanvas.getContext("2d")!;
+
         canvas.width = display_size;
         canvas.height = display_size;
         //bgCanvas.width = display_size;
@@ -108,17 +113,25 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         topCanvas.width = display_size;
         topCanvas.height = display_size;
 
-        ctx.current.scale(window.devicePixelRatio,window.devicePixelRatio);
-        topCtx.current.scale(window.devicePixelRatio,window.devicePixelRatio);
-        //BGctx.current.scale(window.devicePixelRatio,window.devicePixelRatio);
         
+        if(isMobile)
+        {
+            canvas.style.width = `${cssCanvasSize}px`;
+            canvas.style.height = `${cssCanvasSize}px`;
+           // bgCanvas.style.width = `${cssCanvasSize}px`;
+            //bgCanvas.style.height = `${cssCanvasSize}px`;
+            topCanvas.style.width = `${cssCanvasSize}px`;
+            topCanvas.style.height = `${cssCanvasSize}px`;
+        }else
+        {
+            canvas.style.width = `${cssCanvasSize - 50}px`;
+            canvas.style.height = `${cssCanvasSize - 50}px`;
+           // bgCanvas.style.width = `${cssCanvasSize - 50}px`;
+            //bgCanvas.style.height = `${cssCanvasSize - 50}px`;
+            topCanvas.style.width = `${cssCanvasSize - 50}px`;
+            topCanvas.style.height = `${cssCanvasSize - 50}px`;
+        }
 
-        canvas.style.width = `${cssCanvasSize - 50}px`;
-        canvas.style.height = `${cssCanvasSize - 50}px`;
-       // bgCanvas.style.width = `${cssCanvasSize - 50}px`;
-        //bgCanvas.style.height = `${cssCanvasSize - 50}px`;
-        topCanvas.style.width = `${cssCanvasSize - 50}px`;
-        topCanvas.style.height = `${cssCanvasSize - 50}px`;
 
         if(!firstInit.current)
         {
@@ -130,14 +143,16 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
 
         coordinatesElement = document.getElementById('coordinates') as HTMLParagraphElement;
 
-    },[cssCanvasSize]);
+    },[cssCanvasSize,isMobile]);
     // },[]);
 
     function setUpVariables(){
 
-        pixel_size = 1*window.devicePixelRatio;
+
+        pixel_size = 1;
         display_size = CANVAS_SIZE;
-        display_size*=window.devicePixelRatio;
+
+        console.log(display_size,pixel_size);
         
         //TODO: allow user to toggle the option to have a bg tile for every pixel (bgTileSize === 1)
         const factors = [];
@@ -289,9 +304,13 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
         mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
 
-        coordinatesElement.innerHTML = `[${Math.floor(mouse.x) + 1}x${Math.floor(mouse.y) + 1}]`;
 
-        // console.log(mouse.x,mouse.y);
+
+
+
+        if(coordinatesElement)
+            coordinatesElement.innerHTML = `[${Math.floor(mouse.x) + 1}x${Math.floor(mouse.y) + 1}]`;
+
         if (selectedTool === 'pencil' && mouse.isPressed) {
             scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
         }else if(selectedTool === 'eraser' && mouse.isPressed)
@@ -307,21 +326,23 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
 
         //paint pixel in top canvas relative to mouse position
 
-        if(!lastPixel || (lastPixel && !(mouse.x >= lastPixel.x1 && mouse.x < lastPixel.x1 + pixel_size && mouse.y >=lastPixel.y1 && mouse.y < lastPixel.y1 + pixel_size)))
-        {
-            const newPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
-            if(newPixel)
+        if(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size){
+            if(!lastPixel || (lastPixel && !(mouse.x >= lastPixel.x1 && mouse.x < lastPixel.x1 + pixel_size && mouse.y >=lastPixel.y1 && mouse.y < lastPixel.y1 + pixel_size)))
             {
-                topCtx.current!.fillStyle = "purple";
-                topCtx.current!.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
-                
-                if(lastPixel)
+                const newPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
+                if(newPixel)
                 {
-                    removeDraw(topCtx.current!,[lastPixel],pixel_size);
+                    topCtx.current!.fillStyle = "purple";
+                    topCtx.current!.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
+                    
+                    if(lastPixel)
+                    {
+                        removeDraw(topCtx.current!,[lastPixel],pixel_size);
+                    }
+
+                    lastPixel = newPixel;
+
                 }
-
-                lastPixel = newPixel;
-
             }
         }
 
@@ -352,6 +373,9 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
 
         mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
         mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas 
+
+       
+        console.log(mouse.x,mouse.y);
 
         mouse.isPressed = true;
         if (selectedTool === 'pencil'){
@@ -391,7 +415,10 @@ function handleTouchMove(event : TouchEvent){
     mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
     mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
 
-    coordinatesElement.innerHTML = `[${Math.floor(mouse.x) + 1}x${Math.floor(mouse.y) + 1}]`;
+
+
+    if(coordinatesElement)
+        coordinatesElement.innerHTML = `[${Math.floor(mouse.x) + 1}x${Math.floor(mouse.y) + 1}]`;
 
     if (selectedTool === 'pencil' && mouse.isPressed) {
         scene.current.currentDraw.push(Pencil("touchmove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
@@ -401,7 +428,8 @@ function handleTouchMove(event : TouchEvent){
     }else if(selectedTool === 'line' && mouse.isPressed)
     {
         removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
-        scene.current.currentDraw.push(Line(scene.current,topCtx.current!,mouse,pixel_size,LineFirstPixel!,selectedColor,pixel_size));  
+        scene.current.currentDrawTopCanvas = [];
+        scene.current.currentDrawTopCanvas.push(Line(scene.current,topCtx.current!,mouse,pixel_size,LineFirstPixel!,selectedColor,pixel_size));
     }
 
 }
@@ -413,6 +441,7 @@ function handleTouchMove(event : TouchEvent){
         //e.preventDefault();
 
         const rect = outerDiv.getBoundingClientRect();
+
         // Update the mouse position relative to the outer div
         const mouseX = e.clientX - rect.left; 
         const mouseY = e.clientY - rect.top;
@@ -423,13 +452,23 @@ function handleTouchMove(event : TouchEvent){
         if (delta < 0 && scene.current.zoomAmount < MAX_ZOOM_AMOUNT) {
             // Zoom in
             scene.current.zoomAmount++;
+            
+            //dx and dy determines the translation of the canvas based on the mouse position during zooming
+            //subtracting outerDiv.offsetWidth / 2 from mouse.x determines the offset of the mouse position from the center of the outer div.
+            //the resulting value is then multiplied by the scaleFactor to ensure the correct translation 
+            //based on the current scale factor.
+
+            console.log("mouse.x:",mouseX);
+            console.log("offset:",outerDiv.offsetWidth/2);
+
             const dx = (mouseX - outerDiv.offsetWidth / 2) * scaleFactor;
             const dy = (mouseY - outerDiv.offsetHeight / 2) * scaleFactor;
       
             currentScale += scaleFactor;
             currentScale = Math.max(currentScale, 0.15); // Set a minimum scale value
       
-            const scaleChangeFactor = currentScale / (currentScale - scaleFactor);
+            const scaleChangeFactor = currentScale / (currentScale - scaleFactor); //calculate current scale factor
+            console.log("new scale factor:",scaleChangeFactor);
       
             canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
             canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
@@ -439,6 +478,7 @@ function handleTouchMove(event : TouchEvent){
             topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
             topCanvas.style.left = `${topCanvas.offsetLeft - dx}px`;
             topCanvas.style.top = `${topCanvas.offsetTop - dy}px`;
+
 
             // Store the mouse position in the history
             mouse.history.push({ x: mouseX, y: mouseY });
@@ -457,6 +497,8 @@ function handleTouchMove(event : TouchEvent){
         currentScale = Math.max(currentScale, 0.1); // Set a minimum scale value
 
         const scaleChangeFactor = currentScale / (currentScale + scaleFactor);
+        console.log("new scale factor:",scaleChangeFactor);
+
 
         canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
         canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
@@ -466,6 +508,7 @@ function handleTouchMove(event : TouchEvent){
         topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
         topCanvas.style.left = `${topCanvas.offsetLeft + dx}px`;
         topCanvas.style.top = `${topCanvas.offsetTop + dy}px`;
+
       }
     }
     
@@ -547,9 +590,9 @@ function handleTouchMove(event : TouchEvent){
         }
     }
 
+    
 
-
-    return <div className = "editor" style = {{height:cssCanvasSize}} ref = {outerDivRef} onWheel={handleZoom}>
+    return <div className = "editor" style = {!isMobile ? {height:cssCanvasSize, width:'100%'} : {width:'100%',height:cssCanvasSize}} ref = {outerDivRef} onWheel={handleZoom}>
             <canvas id = "topCanvas"
                 ref = {topCanvasRef}
                 onMouseDown={handleFirstClick}

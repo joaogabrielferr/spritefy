@@ -29,20 +29,21 @@ function App() {
   const [selectedTool,setSelectedTool] = useState<toolsType>('pencil');
   const [cssCanvasSize,setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize
 
-  const [isMobile,setIsMobile] = useState<boolean>(window.innerWidth <=768);
+  //here mobile is simply any device that has a screen height greater than screen width
+  const [isMobile,setIsMobile] = useState<boolean>(window.innerWidth < window.innerHeight); //TODO:this may be two simple, search for a better way to detect a mobile device
 
   function handleWindowResize(){
-    setIsMobile(window.innerWidth <= 768);
+    setIsMobile(window.innerWidth < window.innerHeight);
   }
 
   useEffect(()=>{
 
     //innerHeight of screen - 50px of header - some offset
-    // console.log("setting canvas size with:",window.innerHeight - 80);
 
-    //TODO: if on mobile, set this state to be equal to screen width
-
-      setCssCanvasSize(window.innerHeight - 50 - 30)
+    //if on mobile, set this state to be equal to screen width
+    console.log(window.innerWidth);
+      if(isMobile)setCssCanvasSize(window.innerWidth);
+      else setCssCanvasSize(window.innerHeight - 50 - 30)
       //setCssCanvasSize(600)
 
       window.addEventListener('resize',handleWindowResize)
@@ -51,7 +52,7 @@ function App() {
         window.removeEventListener('resize',handleWindowResize);
       }
 
-  },[]);
+  },[isMobile]);
 
 
   function handleChangeSelectedColor(color : ColorResult){
@@ -69,22 +70,19 @@ function App() {
 
   }
 
-  useEffect(function(){
-    console.log("selected tool now:",selectedTool);
-  },[selectedTool]);
 
+  //TODO: Make wrapper component for the sidebar and componetns for toolbar,colorpickerwrapper and header
 
   return (
     <main>
       <header className="header">
-        <div><h1 style = {{fontWeight:'bold',fontStyle:'italic'}}>VIEWWIT</h1></div>
+        <div><h1 style = {{fontWeight:'bold',letterSpacing:'3px'}}>VIEWWIT</h1></div>
       </header>
       <section className = "MainSection">
       <div className = "editorWrapper">
-          {<div className="sideBar" style = {{height:cssCanvasSize,width:'10%'}}>
+          {!isMobile && <div className="sideBar" style = {{height:cssCanvasSize,width:'10%'}}>
           <div className = "toolbar">
             TOOLS 
-            {/* TODO: Make wrapper component for the sidebar and componetns for toolbar and colorpickerwrapper */}
             <div className = "toolbarButtons">
 
                   {
@@ -96,12 +94,18 @@ function App() {
             <p id = "coordinates">{"[0x0]"}</p>
           </div>
           </div>}
-          <Editor selectedColor = {selectedColor} selectedTool = {selectedTool} cssCanvasSize = {cssCanvasSize} onSelectedColor = {setSelectedColor}></Editor>    
-          // <div className="sideBar" style = {{height:cssCanvasSize}}>
-          //   <div className = "colorPickerWrapper">
-          //     <SketchPicker color={selectedColor} onChangeComplete={handleChangeSelectedColor} width="150px"></SketchPicker>
-          //   </div>
-          // </div>
+          <Editor 
+            selectedColor = {selectedColor} 
+            selectedTool = {selectedTool} 
+            cssCanvasSize = {cssCanvasSize} 
+            onSelectedColor = {setSelectedColor}
+            isMobile = {isMobile}
+          ></Editor>    
+           {!isMobile && <div className="sideBar" style = {{height:cssCanvasSize}}>
+             <div className = "colorPickerWrapper">
+               <SketchPicker color={selectedColor} onChangeComplete={handleChangeSelectedColor} width="150px"></SketchPicker>
+             </div>
+           </div>}
         </div>
       </section>
     </main>

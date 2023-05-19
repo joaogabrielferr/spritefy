@@ -7,7 +7,7 @@ body{
 }
 
 .MainSection{
-    width: 90%;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -72,3 +72,4 @@ body{
     align-items: center;
     row-gap: 5px;
 }
+
