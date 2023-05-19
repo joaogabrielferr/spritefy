@@ -87,7 +87,6 @@ export default class Scene{
             this.pixels.push(row);
         }
 
-        console.log(this.pixels);
 
         // console.log("iter:",counter);
 

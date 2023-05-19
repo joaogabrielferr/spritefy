@@ -1,6 +1,6 @@
 import Mouse from "../scene/Mouse";
 import Scene from "../scene/Scene";
-import { buildPath } from "../scene/BuildPath";
+import { bresenhamsAlgorithm} from "../scene/BuildPath";
 import { Pixel} from "../types";
 
 export function 
@@ -33,7 +33,6 @@ Pencil(eventName : string,
 
       //find pixel based on mouse position
       const pixel : Pixel | null = scene.findPixel(xs,ys,pixel_size);
-      console.log(pixel);
 
       //if this pixel is in currentPixelsMousePressed, that means it was already painted in the current pen stroke, no need to paint it twice
       if (pixel != null && !isPixelAlreadyPaintedInCurrentDraw(pixel, scene)) {
@@ -49,7 +48,7 @@ Pencil(eventName : string,
         if (scene.lastPixel !== null && mouse.isPressed && scene.lastPixel.id !== pixel.id && (eventName == "mousemove" || "touchmove")) {
         
             //build path from last pixel to current pixel
-            const path = buildPath(scene, scene.lastPixel, pixel,pixel_size);
+            const path = bresenhamsAlgorithm(scene, scene.lastPixel, pixel,pixel_size);
             for (let p of path) {
                 if (!isPixelAlreadyPaintedInCurrentDraw(p, scene)) {
                 ctx.fillStyle = selectedColor;

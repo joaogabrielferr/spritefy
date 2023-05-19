@@ -1,6 +1,6 @@
 import Mouse from "../scene/Mouse.js";
 import Scene from "../scene/Scene.js";
-import { buildPath } from "../scene/BuildPath.js";
+import { bresenhamsAlgorithm } from "../scene/BuildPath.js";
 import { Pixel } from "../types/index.js";
 
 export const Eraser = (eventName : string, mouse : Mouse, scene : Scene, pixel_size : number, display_size : number, ctx : CanvasRenderingContext2D, penSize : number) => {
@@ -23,7 +23,7 @@ export const Eraser = (eventName : string, mouse : Mouse, scene : Scene, pixel_s
 
     //if there are gaps between the points, fill them with bresenham's algorithm (see scene/buildPath.ts)
     if (scene.lastPixel !== null && mouse.isPressed && scene.lastPixel.id !== pixel.id && (eventName === "mousemove" || eventName === "touchmove")) {
-      const path = buildPath(scene,scene.lastPixel,pixel , pixel_size);
+      const path = bresenhamsAlgorithm(scene,scene.lastPixel,pixel , pixel_size);
       for (let p of path) {
         ctx.fillStyle = p.bgColor;
         ctx.fillRect(p.x1, p.y1, penSize, penSize);

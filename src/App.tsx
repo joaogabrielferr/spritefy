@@ -8,8 +8,9 @@ import { Eraser } from "./svg/Eraser";
 import { PaintBucket } from "./svg/PaintBucket";
 import { Dropper } from "./svg/Dropper";
 import { Line } from "./svg/Line";
+import { Square } from "./svg/Square";
 
-type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper' | 'line';
+type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper' | 'line' | 'square';
 
 type ToolButton= {tool : toolsType, svg : JSX.Element};
 
@@ -19,6 +20,7 @@ const ToolButtons = [
   {tool:'paintBucket',svg: <PaintBucket/>},
   {tool:'dropper',svg: <Dropper/>},
   {tool:'line',svg: <Line/>},
+  {tool: 'square',svg : <Square/>}
 ] as ToolButton[];
 
 

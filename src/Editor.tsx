@@ -18,6 +18,7 @@ import { Pixel } from './types';
 import { removeDraw } from './Tools/helpers/RemoveDraw';
 import { cleanDraw } from './Tools/helpers/CleanDraw';
 import { translateDrawToMainCanvas } from './Tools/helpers/TranslateDrawToMainCanvas';
+import { Square } from './Tools/Square';
 
 
 
@@ -37,6 +38,8 @@ interface IEditor{
 //TODO: Improve style (try to make it definitive)
 //TODO: Set the important variables as states (pen size, canvas size, etc)
 //TODO: Add button to reset all canvas positions (back to the center of outer div)
+/*TODO: Add different pen Sizes (probably allow user to set pixel_size, then search for all pixels within the painted area,
+        also use a different variable since pixel_size is used to initialize pixel matrix and other stuff)*/
 
 //TODO: set CANVAS_SIZE and pen size as state and globally available with context
 //////////////////////////////////////////////////////////
@@ -61,7 +64,7 @@ let currentScale = 1;
 // const defaultPenSize = pixel_size;
 let penSize : number;
 
-let LineFirstPixel : Pixel | null = null;
+let LineFirstPixel : Pixel | null = null; //start pixel for drawing a line or a square
 
 let coordinatesElement : HTMLParagraphElement;
 
@@ -89,8 +92,6 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
     
 
     useEffect(()=>{
-
-        const originalSize = display_size;
 
         setUpVariables();
         //TODO: i need to save current drawing on browser
@@ -152,7 +153,6 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         pixel_size = 1;
         display_size = CANVAS_SIZE;
 
-        console.log(display_size,pixel_size);
         
         //TODO: allow user to toggle the option to have a bg tile for every pixel (bgTileSize === 1)
         const factors = [];
@@ -272,23 +272,16 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         {
             const color : string | undefined | null = Dropper(scene.current,mouse,pixel_size);
             if(color)onSelectedColor(color);
-        }else if(selectedTool === 'line')
+        }else if(selectedTool === 'line' || selectedTool === 'square')
         {
-            //const [x,y] = mouse.toWorldCoordinates(currentScale);
             LineFirstPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
+            console.log(LineFirstPixel);
         }
     }
 
     function handleMouseMove(event : MouseEvent ){
 
         if(!canvas)return;
-
-        // if(mouse.isPressed && lastPixel)
-        // {
-        //     console.log("removing last pixel");
-        //     removeDraw(topCtx.current!,[lastPixel],pixel_size);
-        //     lastPixel = null;
-        // }
 
         //TODO: maybe decouple mouse listeners from these function calls, functions can be called a super high number of times depending on device config and mouse type i guess
         const bounding = canvas.getBoundingClientRect();
@@ -305,9 +298,6 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
 
 
-
-
-
         if(coordinatesElement)
             coordinatesElement.innerHTML = `[${Math.floor(mouse.x) + 1}x${Math.floor(mouse.y) + 1}]`;
 
@@ -322,6 +312,12 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
             removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
             scene.current.currentDrawTopCanvas = [];
             scene.current.currentDrawTopCanvas.push(Line(scene.current,topCtx.current!,mouse,pixel_size,LineFirstPixel!,selectedColor,pixel_size));
+        }else if(selectedTool === 'square' && mouse.isPressed)
+        {
+            //remove draw from the top canvas
+            removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
+            scene.current.currentDrawTopCanvas = [];
+            scene.current.currentDrawTopCanvas.push(Square(scene.current,topCtx.current!,mouse,pixel_size,LineFirstPixel!,selectedColor,pixel_size));
         }
 
         //paint pixel in top canvas relative to mouse position
@@ -374,8 +370,6 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
         mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas 
 
-       
-        console.log(mouse.x,mouse.y);
 
         mouse.isPressed = true;
         if (selectedTool === 'pencil'){
@@ -388,10 +382,11 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         }else if (selectedTool === 'paintBucket')
         {
             scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,penSize,CANVAS_SIZE,selectedColor));
-        }else if(selectedTool === 'line')
+        }else if(selectedTool === 'line' || selectedTool === 'square')
         {
             LineFirstPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
         }
+
     }
 
 
@@ -430,12 +425,19 @@ function handleTouchMove(event : TouchEvent){
         removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
         scene.current.currentDrawTopCanvas = [];
         scene.current.currentDrawTopCanvas.push(Line(scene.current,topCtx.current!,mouse,pixel_size,LineFirstPixel!,selectedColor,pixel_size));
+    }else if(selectedTool === 'square' && mouse.isPressed)
+    {
+        //remove draw from the top canvas
+        removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
+        scene.current.currentDrawTopCanvas = [];
+        scene.current.currentDrawTopCanvas.push(Square(scene.current,topCtx.current!,mouse,pixel_size,LineFirstPixel!,selectedColor,pixel_size));
     }
 
 }
     
 
     function handleZoom(e : WheelEvent){
+        
         if(!outerDiv)return;
         
         //e.preventDefault();
@@ -458,8 +460,8 @@ function handleTouchMove(event : TouchEvent){
             //the resulting value is then multiplied by the scaleFactor to ensure the correct translation 
             //based on the current scale factor.
 
-            console.log("mouse.x:",mouseX);
-            console.log("offset:",outerDiv.offsetWidth/2);
+            // console.log("mouse.x:",mouseX);
+            // console.log("offset:",outerDiv.offsetWidth/2);
 
             const dx = (mouseX - outerDiv.offsetWidth / 2) * scaleFactor;
             const dy = (mouseY - outerDiv.offsetHeight / 2) * scaleFactor;
@@ -468,7 +470,6 @@ function handleTouchMove(event : TouchEvent){
             currentScale = Math.max(currentScale, 0.15); // Set a minimum scale value
       
             const scaleChangeFactor = currentScale / (currentScale - scaleFactor); //calculate current scale factor
-            console.log("new scale factor:",scaleChangeFactor);
       
             canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
             canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
@@ -485,7 +486,6 @@ function handleTouchMove(event : TouchEvent){
 
     }else if (delta > 0 && scene.current.zoomAmount > 0) {
       // Zoom out
-    //   scaleFactor = 0.15;
         scene.current.zoomAmount--;
       if (mouse.history.length > 0) {
         const lastMousePos = mouse.history.pop()!;
@@ -564,17 +564,16 @@ function handleTouchMove(event : TouchEvent){
             undoStack.push(scene.current.currentDraw);
         }
 
+        //here the draws made with Line or Square tool are put in main canvas
         if(scene.current.currentDrawTopCanvas.length > 0)
         {
-            //translate draw made on top canvas to main canvas
-            //paint all pixels on main canvas
-            //add these pixels to undoStack
             const clean : Pixel[] = cleanDraw(scene.current.currentDrawTopCanvas);
+            console.log(clean);
             translateDrawToMainCanvas(clean,ctx.current!,pixel_size,selectedColor);
             undoStack.push(scene.current.currentDrawTopCanvas);
             
         }
-    
+        
         scene.current.currentDraw = [];
         removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
         scene.current.currentDrawTopCanvas = [];
