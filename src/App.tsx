@@ -1,4 +1,4 @@
-import {useEffect, useState } from "react";
+import {SetStateAction, useEffect, useState } from "react";
 import Editor from "./Editor"
 import './styles/sideBar.css';
 import './styles/index.css';
@@ -9,10 +9,10 @@ import { PaintBucket } from "./svg/PaintBucket";
 import { Dropper } from "./svg/Dropper";
 import { Line } from "./svg/Line";
 import { Square } from "./svg/Square";
+import { Sidebar } from "./components/Sidebar";
+import { toolsType,ToolButton } from "./types";
+import { Toolbar } from "./components/Toolbar";
 
-type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper' | 'line' | 'square';
-
-type ToolButton= {tool : toolsType, svg : JSX.Element};
 
 const ToolButtons = [
   {tool:'pencil',svg: <Pencil/>},
@@ -22,6 +22,17 @@ const ToolButtons = [
   {tool:'line',svg: <Line/>},
   {tool: 'square',svg : <Square/>}
 ] as ToolButton[];
+
+//TODO: Add background canvas and change logic of erasing, etc (dont forget to scale bgCanvas with the other ones)
+//TODO: Add erasing to ctrl z logic
+//TODO: Add circle tool
+//TODO: Improve style (try to make it definitive)
+//TODO: Set the important variables as states (pen size, canvas size, etc, also update canvas size on window resize)
+//TODO: Add button to reset all canvas positions (back to the center of outer div)
+/*TODO: Add different pen Sizes (probably allow user to set pixel_size, then search for all pixels within the painted area,
+        also use a different variable since pixel_size is used to initialize pixel matrix and other stuff)*/
+
+//TODO: set CANVAS_SIZE and pen size as state and globally available with context
 
 
 function App() {
@@ -61,17 +72,6 @@ function App() {
     setSelectedColor(color.hex);
   }
 
-  function createButton(button : ToolButton) : JSX.Element{
-    const desktopHandler = {onClick: ()=>setSelectedTool(button.tool)};
-    // const mobileHandler = {onPointerEnter: ()=>setSelectedTool(button.tool)};
-    
-    let buttonProps = {className : 'toolButton', key: button.tool};
-    if(isMobile)buttonProps = {...buttonProps};
-    else buttonProps = {...buttonProps,...desktopHandler};
-    return <button {...buttonProps} style={{backgroundColor:selectedTool === button.tool ? "#634cb8" : "#dddddd"}} >{button.svg}</button>
-
-  }
-
 
   //TODO: Make wrapper component for the sidebar and componetns for toolbar,colorpickerwrapper and header
 
@@ -80,22 +80,12 @@ function App() {
       <header className="header">
         <div><h1 style = {{fontWeight:'bold',letterSpacing:'3px'}}>VIEWWIT</h1></div>
       </header>
-      <section className = "MainSection">
+      <section className = "mainSection">
       <div className = "editorWrapper">
-          {!isMobile && <div className="sideBar" style = {{height:cssCanvasSize,width:'10%'}}>
-          <div className = "toolbar">
-            TOOLS 
-            <div className = "toolbarButtons">
-
-                  {
-                    ToolButtons.map((button : ToolButton)=>createButton(button))
-                  }
-              
-
-            </div>
-            <p id = "coordinates">{"[0x0]"}</p>
-          </div>
-          </div>}
+          {!isMobile && 
+          <Sidebar width={'10%'} height={cssCanvasSize}>
+              <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedColor} isMobile={isMobile}/>
+          </Sidebar>}
           <Editor 
             selectedColor = {selectedColor} 
             selectedTool = {selectedTool} 

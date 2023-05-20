@@ -9,9 +9,10 @@ export type Pixel = {
     id : number;
     i : number;
     j : number;
-    // numOfPaints : number;
     colorStack : Stack<string>;
     bgColor : string;
-    // color : string;
-
 }
+
+export type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper' | 'line' | 'square';
+
+export type ToolButton= {tool : toolsType, svg : JSX.Element};

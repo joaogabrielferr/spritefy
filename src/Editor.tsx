@@ -3,7 +3,8 @@ import './styles/editor.css';
 import { 
 CANVAS_SIZE,
 MAX_ZOOM_AMOUNT,
-BG_COLORS
+BG_COLORS,
+SCALE_FACTOR
 }
  from './utils/constants';
 import Mouse from './scene/Mouse';
@@ -31,12 +32,10 @@ interface IEditor{
 }
 
 //TODO: Add background canvas and change logic of erasing, etc (dont forget to scale bgCanvas with the other ones)
-//TODO: Paint pixel that sits on where mouse pointer is and update on mouse move so user now precisely which pixel they're painting
 //TODO: Add erasing to ctrl z logic
-//TODO: Add square tool
 //TODO: Add circle tool
 //TODO: Improve style (try to make it definitive)
-//TODO: Set the important variables as states (pen size, canvas size, etc)
+//TODO: Set the important variables as states (pen size, canvas size, etc, also update canvas size on window resize)
 //TODO: Add button to reset all canvas positions (back to the center of outer div)
 /*TODO: Add different pen Sizes (probably allow user to set pixel_size, then search for all pixels within the painted area,
         also use a different variable since pixel_size is used to initialize pixel matrix and other stuff)*/
@@ -143,6 +142,7 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         //originalSize = cssCanvasSize - 50;
 
         coordinatesElement = document.getElementById('coordinates') as HTMLParagraphElement;
+        
 
     },[cssCanvasSize,isMobile]);
     // },[]);
@@ -448,7 +448,6 @@ function handleTouchMove(event : TouchEvent){
         const mouseX = e.clientX - rect.left; 
         const mouseY = e.clientY - rect.top;
 
-        let scaleFactor = 0.15;
         const delta = Math.sign(e.deltaY);
     
         if (delta < 0 && scene.current.zoomAmount < MAX_ZOOM_AMOUNT) {
@@ -457,19 +456,19 @@ function handleTouchMove(event : TouchEvent){
             
             //dx and dy determines the translation of the canvas based on the mouse position during zooming
             //subtracting outerDiv.offsetWidth / 2 from mouse.x determines the offset of the mouse position from the center of the outer div.
-            //the resulting value is then multiplied by the scaleFactor to ensure the correct translation 
+            //the resulting value is then multiplied by the SCALE_FACTOR to ensure the correct translation 
             //based on the current scale factor.
 
             // console.log("mouse.x:",mouseX);
             // console.log("offset:",outerDiv.offsetWidth/2);
 
-            const dx = (mouseX - outerDiv.offsetWidth / 2) * scaleFactor;
-            const dy = (mouseY - outerDiv.offsetHeight / 2) * scaleFactor;
+            const dx = (mouseX - outerDiv.offsetWidth / 2) * SCALE_FACTOR;
+            const dy = (mouseY - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
       
-            currentScale += scaleFactor;
+            currentScale += SCALE_FACTOR;
             currentScale = Math.max(currentScale, 0.15); // Set a minimum scale value
       
-            const scaleChangeFactor = currentScale / (currentScale - scaleFactor); //calculate current scale factor
+            const scaleChangeFactor = currentScale / (currentScale - SCALE_FACTOR); //calculate current scale factor
       
             canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
             canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
@@ -490,13 +489,13 @@ function handleTouchMove(event : TouchEvent){
       if (mouse.history.length > 0) {
         const lastMousePos = mouse.history.pop()!;
 
-        const dx = (lastMousePos.x - outerDiv.offsetWidth / 2) * scaleFactor;
-        const dy = (lastMousePos.y - outerDiv.offsetHeight / 2) * scaleFactor;
+        const dx = (lastMousePos.x - outerDiv.offsetWidth / 2) * SCALE_FACTOR;
+        const dy = (lastMousePos.y - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
 
-        currentScale -= scaleFactor;
+        currentScale -= SCALE_FACTOR;
         currentScale = Math.max(currentScale, 0.1); // Set a minimum scale value
 
-        const scaleChangeFactor = currentScale / (currentScale + scaleFactor);
+        const scaleChangeFactor = currentScale / (currentScale + SCALE_FACTOR);
         console.log("new scale factor:",scaleChangeFactor);
 
 
