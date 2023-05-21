@@ -1,5 +1,7 @@
 export function Square(){
-    return <svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shapeRendering="geometricPrecision" textRendering="geometricPrecision"><line x1="0.028075" y1="-12.353044" x2="-0.028075" y2="12.353044" transform="translate(3.418238 16)" fill="none" stroke="#000104" strokeWidth="3"/><line x1="-0.028075" y1="-11.398784" x2="-0.028075" y2="12.353044" transform="translate(28.602149 16)" fill="none" stroke="#000104" strokeWidth="3"/><line x1="11.541236" y1="-12.353044" x2="-16.567226" y2="-12.353044" transform="translate(18.512995 16.95426)" fill="none" stroke="#000104" strokeWidth="3"/><line x1="11.541236" y1="-12.353044" x2="-16.567226" y2="-12.353044" transform="translate(18.512995 39.207662)" fill="none" stroke="#000104" strokeWidth="3"/></svg>
-
+    return <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-square" width="30" height="30" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+    <path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"></path>
+ </svg>
 }
 
