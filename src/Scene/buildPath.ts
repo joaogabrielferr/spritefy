@@ -55,22 +55,12 @@ export function bresenhamsAlgorithm(scene : Scene,start : Pixel,end : Pixel,pixe
         
         const path : Pixel[] = [];
 
-        function findAndPush(a : number,b : number)
-        {
-            const pixel = scene.findPixel(a,b,pixel_size)
-                if(pixel)
-                {
-                    path.push(pixel);
-                }
-        }
-
-
         if(start.x1 <= end.x1)
         {
             for(let i = start.x1;i<=end.x1;i+=pixel_size)
             {
-                findAndPush(i,start.y1);
-                findAndPush(i,end.y1);
+                findAndPush(i,start.y1,scene,pixel_size,path);
+                findAndPush(i,end.y1,scene,pixel_size,path);
             }
         }
 
@@ -78,8 +68,8 @@ export function bresenhamsAlgorithm(scene : Scene,start : Pixel,end : Pixel,pixe
         {
             for(let i = end.x1;i<=start.x1;i+=pixel_size)
             {
-                findAndPush(i,start.y1);
-                findAndPush(i,end.y1);
+                findAndPush(i,start.y1,scene,pixel_size,path);
+                findAndPush(i,end.y1,scene,pixel_size,path);
             } 
         }
 
@@ -87,8 +77,8 @@ export function bresenhamsAlgorithm(scene : Scene,start : Pixel,end : Pixel,pixe
         {
             for(let i = start.y1;i<=end.y1;i+=pixel_size)
             {
-                findAndPush(start.x1,i);
-                findAndPush(end.x1,i);
+                findAndPush(start.x1,i,scene,pixel_size,path);
+                findAndPush(end.x1,i,scene,pixel_size,path);
             }
         }
 
@@ -96,12 +86,63 @@ export function bresenhamsAlgorithm(scene : Scene,start : Pixel,end : Pixel,pixe
         {
             for(let i = end.y1;i<=start.y1;i+=pixel_size)
             {
-                findAndPush(start.x1,i);
-                findAndPush(end.x1,i);
+                findAndPush(start.x1,i,scene,pixel_size,path);
+                findAndPush(end.x1,i,scene,pixel_size,path);
             } 
         }
 
 
         return path;
 
+    }
+
+    export function completeCircle(midPoint : Pixel,radius : number,scene : Scene,pixel_size : number){
+
+        const path : Pixel[] = [];
+        function drawCircle(xc : number,yc : number,x : number,y : number)
+        {
+            findAndPush(xc + x,yc + y,scene,pixel_size,path);
+            findAndPush(xc - x,yc + y,scene,pixel_size,path);
+            findAndPush(xc + x,yc - y,scene,pixel_size,path);
+            findAndPush(xc - x,yc - y,scene,pixel_size,path);
+            findAndPush(xc + y,yc + x,scene,pixel_size,path);
+            findAndPush(xc - y,yc + x,scene,pixel_size,path);
+            findAndPush(xc + y,yc - x,scene,pixel_size,path);
+            findAndPush(xc - y,yc - x,scene,pixel_size,path);
+        }
+        
+        let xc = midPoint.x1;
+        let yc = midPoint.y1;
+
+        let x = 0;
+        let y = radius;
+
+        let d = 3 - 2*radius;
+
+        drawCircle(xc,yc,x,y);
+
+        while(y >= x)
+        {
+            x++;
+            if (d > 0)
+            {
+                y--;
+                d = d + 4 * (x - y) + 10;
+            }
+            else d = d + 4 * x + 6;
+            drawCircle(xc, yc, x, y);
+        }
+
+        return path;
+        
+    }
+
+
+    function findAndPush(a : number,b : number,scene : Scene,pixel_size : number,path : Pixel[])
+    {
+        const pixel = scene.findPixel(a,b,pixel_size)
+            if(pixel)
+            {
+                path.push(pixel);
+            }
     }

@@ -11,18 +11,57 @@ interface ToolbarProps{
 }
 
 
+
 export function Toolbar({toolButtons,setSelectedTool,isMobile,selectedTool} : ToolbarProps){
 
-    function createButton(button : ToolButton) : JSX.Element{
-        console.log("RUNNING CREATE BUTTON");
-        // const desktopHandler = {onClick: ()=>setSelectedTool(button.tool)};
-        // const mobileHandler = {onPointerEnter: ()=>setSelectedTool(button.tool)};
-        let buttonProps = {className : 'toolButton', key: button.tool};
-        if(isMobile)buttonProps = {...buttonProps};
-        else buttonProps = {...buttonProps};
-        return <button {...buttonProps} style={{backgroundColor:selectedTool === button.tool ? "#634cb8" : "#dddddd"}} >{button.svg}</button>
     
-      }
+    
+    useEffect(()=>{
+        
+        
+        function checkKeys(event : KeyboardEvent){
+        
+            if(['p','P','1'].indexOf(event.key) > -1)
+            {
+                setSelectedTool('pencil');
+                selectedTool
+            }else if(['e','E','2'].indexOf(event.key) > -1)
+            {
+                setSelectedTool('eraser');
+            }else if(['b','B','3'].indexOf(event.key) > -1)
+            {
+                setSelectedTool('paintBucket');
+            }else if(['d','D','4'].indexOf(event.key) > -1)
+            {
+                setSelectedTool('dropper');
+            }else if(['l','L','5'].indexOf(event.key) > -1)
+            {
+                setSelectedTool('line');
+            }else if(['s','S','6'].indexOf(event.key) > -1)
+            {
+                setSelectedTool('square');
+            }
+        }
+
+        document.addEventListener('keydown',checkKeys);
+
+        return function(){
+            document.removeEventListener('keydown',checkKeys);
+        }
+
+    },[selectedTool, setSelectedTool])
+
+    
+    // function createButton(button : ToolButton) : JSX.Element{
+    //     console.log("RUNNING CREATE BUTTON");
+    //     // const desktopHandler = {onClick: ()=>setSelectedTool(button.tool)};
+    //     // const mobileHandler = {onPointerEnter: ()=>setSelectedTool(button.tool)};
+    //     let buttonProps = {className : 'toolButton', key: button.tool};
+    //     if(isMobile)buttonProps = {...buttonProps};
+    //     else buttonProps = {...buttonProps};
+    //     return <button {...buttonProps} style={{backgroundColor:selectedTool === button.tool ? "#634cb8" : "#dddddd"}} >{button.svg}</button>
+    
+    //   }
 
 
     return <div className = "toolbar">
@@ -41,7 +80,7 @@ export function Toolbar({toolButtons,setSelectedTool,isMobile,selectedTool} : To
                 
 
             </div>
-            <p id = "coordinates">{"[0x0]"}</p>
+            <p id = "coordinates">{"[X:0,Y:0]"}</p>
             </div>
 
 }

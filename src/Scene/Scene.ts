@@ -15,6 +15,12 @@ export default class Scene{
     
     currentPixelsMousePressed : Map<number,boolean>; //current pixels painted while the user is moving the mouse with one of its buttons pressed (<pixel id, true>)
 
+    previousPixelWhileMovingMouse : Pixel | null;
+
+    lineFirstPixel : Pixel | null; //start pixel for drawing a line, square or circle
+
+    circleRadius : number;
+
     zoomAmount : number;
 
     keyMap : Map<string,boolean>;
@@ -26,8 +32,12 @@ export default class Scene{
         this.currentDrawTopCanvas = [];
         this.lastPixel = null;
         this.currentPixelsMousePressed = new Map();
+        this.previousPixelWhileMovingMouse = null;
         this.zoomAmount = 0;
+        this.lineFirstPixel = null;
+        this.circleRadius = 1;
         this.keyMap = new Map();
+        
     }
 
     initilializePixelMatrix(display_size : number,pixel_size : number, bgTileSize : number){
@@ -45,7 +55,6 @@ export default class Scene{
         let currentBgColor = BG_COLORS[0];
 
         // console.log("display size:",display_size,"pixel size:",pixel_size);
-
         let pixelID = 1;
         let idxi = 0,
             idxj = 0;
@@ -88,7 +97,6 @@ export default class Scene{
         }
 
 
-        // console.log("iter:",counter);
 
         
         // const pixelsStorage = [];
@@ -103,8 +111,8 @@ export default class Scene{
         // }
 
 
-        // // console.info(new Blob([JSON.stringify(this.pixels)]).size);
-        // // console.info(new Blob([JSON.stringify(pixelsStorage)]).size);
+        // console.info(new Blob([JSON.stringify(this.pixels)]).size);
+        // console.info(new Blob([JSON.stringify(pixelsStorage)]).size);
 
     }
 
@@ -116,7 +124,7 @@ export default class Scene{
 
       const i = Math.floor(xs/pixel_size);
         
-      if(!this.pixels)return null;
+      if(!this.pixels || !this.pixels[i])return null;
 
       let start = 0,end = this.pixels[i].length;
       let mid = 0;
@@ -124,6 +132,7 @@ export default class Scene{
       while(start <= end)
       {
         mid = Math.floor((start + end)/2);
+        if(!this.pixels[i][mid])break;
         if(ys >= this.pixels[i][mid].y1 && ys < this.pixels[i][mid].y1 + pixel_size)
         {
             pixel = this.pixels[i][mid];

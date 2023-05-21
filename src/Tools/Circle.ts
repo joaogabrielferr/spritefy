@@ -1,18 +1,14 @@
-import { completeSquare } from "../scene/BuildPath";
+import { completeCircle } from "../scene/BuildPath";
 import Mouse from "../scene/Mouse";
 import Scene from "../scene/Scene";
 import { Pixel } from "../types";
 
-
 //ctx is the context of top canvas, drawing is made first on top canvas and after mouse up event the draw is translated to main canvas, since the draw change dinamically
-export function Square(scene : Scene,ctx : CanvasRenderingContext2D ,mouse : Mouse, pixel_size : number,start : Pixel,selectedColor: string,penSize : number){
+export function Circle(scene : Scene,ctx : CanvasRenderingContext2D, pixel_size : number,midPoint : Pixel,selectedColor: string,penSize : number){
 
     const draw : Pixel[] = [];
 
-    const end : Pixel | null = scene.findPixel(mouse.x,mouse.y,pixel_size);
-    if(!end)return draw;
-
-    const path : Pixel[] = completeSquare(scene,start,end,pixel_size);
+    const path : Pixel[] = completeCircle(midPoint,scene.circleRadius,scene,pixel_size);
 
     const map = new Map<number,boolean>();
 
@@ -29,8 +25,4 @@ export function Square(scene : Scene,ctx : CanvasRenderingContext2D ,mouse : Mou
     }
 
     return draw;
-
-
-
-
 }

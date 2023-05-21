@@ -7,6 +7,8 @@ export default class Mouse{
     isPressed : boolean;
     zoomed : boolean;
 
+    mouseMoveLastPos : {x : number,y : number} | null;
+
     history : {x : number,y : number}[];
 
     constructor(){
@@ -17,6 +19,7 @@ export default class Mouse{
         this.isPressed = false;
         this.zoomed = false;
         this.history = [];
+        this.mouseMoveLastPos = null;
     }
 
 

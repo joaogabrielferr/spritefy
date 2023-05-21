@@ -13,6 +13,6 @@ export type Pixel = {
     bgColor : string;
 }
 
-export type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper' | 'line' | 'square';
+export type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper' | 'line' | 'square' | 'circle';
 
 export type ToolButton= {tool : toolsType, svg : JSX.Element};
