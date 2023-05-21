@@ -101,6 +101,7 @@ function App() {
     <main>
       <header className="header">
         <div><h1 style = {{fontWeight:'bold',letterSpacing:'3px'}}>VIEWWIT</h1></div>
+        <div><h3>New drawing</h3></div>
         <button ref = {downloadButton} style = {{width:'10%',height:'85%'}}>DOWNLOAD DRAWING</button>
       </header>
       <section className = "mainSection">

@@ -58,6 +58,8 @@ let penSize : number;
 
 let coordinatesElement : HTMLParagraphElement;
 
+let originalCanvasWidth : number;
+
 
 //////////////////////////////////////////////////////////
 
@@ -102,7 +104,6 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         //bgCanvas.height = display_size;        
         topCanvas.width = display_size;
         topCanvas.height = display_size;
-
         
         if(isMobile)
         {
@@ -112,6 +113,7 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
             //bgCanvas.style.height = `${cssCanvasSize}px`;
             topCanvas.style.width = `${cssCanvasSize}px`;
             topCanvas.style.height = `${cssCanvasSize}px`;
+            originalCanvasWidth = cssCanvasSize;
         }else
         {
             canvas.style.width = `${cssCanvasSize - 50}px`;
@@ -120,6 +122,8 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
             //bgCanvas.style.height = `${cssCanvasSize - 50}px`;
             topCanvas.style.width = `${cssCanvasSize - 50}px`;
             topCanvas.style.height = `${cssCanvasSize - 50}px`;
+            originalCanvasWidth = cssCanvasSize - 50;
+
         }
 
 
@@ -484,63 +488,87 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
     
         if (delta < 0 && scene.current.zoomAmount < MAX_ZOOM_AMOUNT) {
             // Zoom in
-            scene.current.zoomAmount++;
-            
-            //dx and dy determines the translation of the canvas based on the mouse position during zooming
-            //subtracting outerDiv.offsetWidth / 2 from mouse.x determines the offset of the mouse position from the center of the outer div.
-            //the resulting value is then multiplied by the SCALE_FACTOR to ensure the correct translation 
-            //based on the current scale factor.
 
-            // console.log("mouse.x:",mouseX);
-            // console.log("offset:",outerDiv.offsetWidth/2);
+            if(parseFloat(canvas.style.width) < originalCanvasWidth)
+            {
+                currentScale += SCALE_FACTOR;
+                const newSize = Math.min(parseFloat(canvas.style.width) + 100,originalCanvasWidth);
+                canvas.style.width = `${newSize}px`;
+                canvas.style.height = `${newSize}px`;
+                topCanvas.style.width = `${newSize}px`;
+                topCanvas.style.height = `${newSize}px`;
+            }else if(scene.current.zoomAmount < MAX_ZOOM_AMOUNT){
 
-            const dx = (mouseX - outerDiv.offsetWidth / 2) * SCALE_FACTOR;
-            const dy = (mouseY - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
-      
-            currentScale += SCALE_FACTOR;
-            currentScale = Math.max(currentScale, 0.15); // Set a minimum scale value
-      
-            const scaleChangeFactor = currentScale / (currentScale - SCALE_FACTOR); //calculate current scale factor
-      
-            canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
-            canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
-            canvas.style.left = `${canvas.offsetLeft - dx}px`;
-            canvas.style.top = `${canvas.offsetTop - dy}px`;
-            topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
-            topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
-            topCanvas.style.left = `${topCanvas.offsetLeft - dx}px`;
-            topCanvas.style.top = `${topCanvas.offsetTop - dy}px`;
+                scene.current.zoomAmount++;
+                
+                //dx and dy determines the translation of the canvas based on the mouse position during zooming
+                //subtracting outerDiv.offsetWidth / 2 from mouse.x determines the offset of the mouse position from the center of the outer div.
+                //the resulting value is then multiplied by the SCALE_FACTOR to ensure the correct translation 
+                //based on the current scale factor.
+
+                // console.log("mouse.x:",mouseX);
+                // console.log("offset:",outerDiv.offsetWidth/2);
+
+                const dx = (mouseX - outerDiv.offsetWidth / 2) * SCALE_FACTOR;
+                const dy = (mouseY - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
+        
+                currentScale += SCALE_FACTOR;
+                currentScale = Math.max(currentScale, 0.15); // Set a minimum scale value
+        
+                const scaleChangeFactor = currentScale / (currentScale - SCALE_FACTOR); //calculate current scale factor
+        
+                canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
+                canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
+                canvas.style.left = `${canvas.offsetLeft - dx}px`;
+                canvas.style.top = `${canvas.offsetTop - dy}px`;
+                topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
+                topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
+                topCanvas.style.left = `${topCanvas.offsetLeft - dx}px`;
+                topCanvas.style.top = `${topCanvas.offsetTop - dy}px`;
 
 
-            // Store the mouse position in the history
-            mouse.history.push({ x: mouseX, y: mouseY });
+                // Store the mouse position in the history
+                mouse.history.push({ x: mouseX, y: mouseY });
+        }
 
-    }else if (delta > 0 && scene.current.zoomAmount > 0) {
+    }else if (delta > 0) {
       // Zoom out
-        scene.current.zoomAmount--;
-      if (mouse.history.length > 0) {
-        const lastMousePos = mouse.history.pop()!;
 
-        const dx = (lastMousePos.x - outerDiv.offsetWidth / 2) * SCALE_FACTOR;
-        const dy = (lastMousePos.y - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
+        if(scene.current.zoomAmount > 0){
 
-        currentScale -= SCALE_FACTOR;
-        currentScale = Math.max(currentScale, 0.1); // Set a minimum scale value
+            scene.current.zoomAmount--;
+            if (mouse.history.length > 0) {
+                const lastMousePos = mouse.history.pop()!;
 
-        const scaleChangeFactor = currentScale / (currentScale + SCALE_FACTOR);
-        console.log("new scale factor:",scaleChangeFactor);
+                const dx = (lastMousePos.x - outerDiv.offsetWidth / 2) * SCALE_FACTOR;
+                const dy = (lastMousePos.y - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
+
+                currentScale -= SCALE_FACTOR;
+                currentScale = Math.max(currentScale, 0.1); // Set a minimum scale value
+
+                const scaleChangeFactor = currentScale / (currentScale + SCALE_FACTOR);
 
 
-        canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
-        canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
-        canvas.style.left = `${canvas.offsetLeft + dx}px`;
-        canvas.style.top = `${canvas.offsetTop + dy}px`;
-        topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
-        topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
-        topCanvas.style.left = `${topCanvas.offsetLeft + dx}px`;
-        topCanvas.style.top = `${topCanvas.offsetTop + dy}px`;
+                canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
+                canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
+                canvas.style.left = `${canvas.offsetLeft + dx}px`;
+                canvas.style.top = `${canvas.offsetTop + dy}px`;
+                topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
+                topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
+                topCanvas.style.left = `${topCanvas.offsetLeft + dx}px`;
+                topCanvas.style.top = `${topCanvas.offsetTop + dy}px`;
 
-      }
+            }   
+        }else if(parseFloat(canvas.style.width) > display_size)
+        {
+            const newSize = Math.max(parseFloat(canvas.style.width) - 100,display_size);
+            canvas.style.width = `${newSize}px`;
+            canvas.style.height = `${newSize}px`;
+            topCanvas.style.width = `${newSize}px`;
+            topCanvas.style.height = `${newSize}px`;
+            currentScale -= SCALE_FACTOR;
+        }
+
     }
     
 
