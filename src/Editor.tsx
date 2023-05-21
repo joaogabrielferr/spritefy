@@ -1,4 +1,4 @@
-import {Dispatch, SetStateAction, useEffect, useRef,WheelEvent,MouseEvent,TouchEvent } from 'react';
+import {Dispatch, SetStateAction, useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,PointerEvent } from 'react';
 import './styles/editor.css';
 import { 
 CANVAS_SIZE,
@@ -258,7 +258,32 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
     
     }
 
-    function handleFirstClick(){
+    function handleFirstClick(e : PointerEvent){
+
+        if(e.pointerType === 'touch' || e.pointerType === 'pen')
+        {
+            if(e.cancelable)
+        {
+            e.preventDefault();
+        }
+
+            const bounding = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - bounding.left;
+            mouse.y = e.clientY - bounding.top;
+
+            const canvasWidth = parseFloat(canvas.style.width); 
+            const canvasHeight = parseFloat(canvas.style.height);
+
+            const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
+            const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
+
+            mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
+            mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas 
+
+        }
+
+
+
         mouse.isPressed = true;
         if (selectedTool === 'pencil'){
             scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
@@ -279,7 +304,7 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         }
     }
 
-    function handleMouseMove(event : MouseEvent ){
+    function handleMouseMove(event : PointerEvent ){
 
         if(!canvas)return;
 
@@ -322,26 +347,30 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
 
         //paint pixel in top canvas relative to mouse position
 
-        if(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size){
-            if(!lastPixel || (lastPixel && !(mouse.x >= lastPixel.x1 && mouse.x < lastPixel.x1 + pixel_size && mouse.y >=lastPixel.y1 && mouse.y < lastPixel.y1 + pixel_size)))
-            {
-                const newPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
-                if(newPixel)
+        if(event.pointerType === 'mouse')
+        {
+
+            if(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size){
+                if(!lastPixel || (lastPixel && !(mouse.x >= lastPixel.x1 && mouse.x < lastPixel.x1 + pixel_size && mouse.y >=lastPixel.y1 && mouse.y < lastPixel.y1 + pixel_size)))
                 {
-                    topCtx.current!.fillStyle = "purple";
-                    topCtx.current!.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
-                    
-                    if(lastPixel)
+                    const newPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
+                    if(newPixel)
                     {
-                        removeDraw(topCtx.current!,[lastPixel],pixel_size);
+                        topCtx.current!.fillStyle = "purple";
+                        topCtx.current!.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
+                        
+                        if(lastPixel)
+                        {
+                            removeDraw(topCtx.current!,[lastPixel],pixel_size);
+                        }
+
+                        lastPixel = newPixel;
+
                     }
-
-                    lastPixel = newPixel;
-
                 }
             }
-        }
 
+    }
 
 
      
@@ -593,12 +622,9 @@ function handleTouchMove(event : TouchEvent){
     return <div className = "editor" style = {!isMobile ? {height:cssCanvasSize, width:'100%'} : {width:'100%',height:cssCanvasSize}} ref = {outerDivRef} onWheel={handleZoom}>
             <canvas id = "topCanvas"
                 ref = {topCanvasRef}
-                onMouseDown={handleFirstClick}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleFinishDraw}
-                onTouchStart={handleFirstTouch}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleFinishDraw}
+                onPointerDown={handleFirstClick}
+                onPointerMove={handleMouseMove}
+                onPointerUp={handleFinishDraw}
             ></canvas>
             <canvas id="canvas" ref = {canvasRef}> Your browser does not support canvas </canvas>
             {/* <canvas id="BGcanvas" ref = {bgCanvasRef}></canvas> */}

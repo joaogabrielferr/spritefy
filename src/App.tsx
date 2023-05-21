@@ -84,7 +84,7 @@ function App() {
       <div className = "editorWrapper">
           {!isMobile && 
           <Sidebar width={'10%'} height={cssCanvasSize}>
-              <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedColor} isMobile={isMobile}/>
+              <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool} isMobile={isMobile}/>
           </Sidebar>}
           <Editor 
             selectedColor = {selectedColor} 

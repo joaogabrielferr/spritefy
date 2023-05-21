@@ -1,12 +1,12 @@
-import React from "react";
-import { ToolButton } from "../types";
+import React, { useEffect } from "react";
+import { ToolButton, toolsType } from "../types";
 import '../styles/toolbar.css';
 
 
 interface ToolbarProps{
     toolButtons : ToolButton[],
     selectedTool : string,
-    setSelectedTool : React.Dispatch<React.SetStateAction<string>>,
+    setSelectedTool : React.Dispatch<React.SetStateAction<toolsType>>,
     isMobile : boolean
 }
 
@@ -14,11 +14,12 @@ interface ToolbarProps{
 export function Toolbar({toolButtons,setSelectedTool,isMobile,selectedTool} : ToolbarProps){
 
     function createButton(button : ToolButton) : JSX.Element{
-        const desktopHandler = {onClick: ()=>setSelectedTool(button.tool)};
+        console.log("RUNNING CREATE BUTTON");
+        // const desktopHandler = {onClick: ()=>setSelectedTool(button.tool)};
         // const mobileHandler = {onPointerEnter: ()=>setSelectedTool(button.tool)};
         let buttonProps = {className : 'toolButton', key: button.tool};
         if(isMobile)buttonProps = {...buttonProps};
-        else buttonProps = {...buttonProps,...desktopHandler};
+        else buttonProps = {...buttonProps};
         return <button {...buttonProps} style={{backgroundColor:selectedTool === button.tool ? "#634cb8" : "#dddddd"}} >{button.svg}</button>
     
       }
@@ -29,7 +30,13 @@ export function Toolbar({toolButtons,setSelectedTool,isMobile,selectedTool} : To
             <div className = "toolbarButtons">
 
                     {
-                    toolButtons.map((button : ToolButton)=>createButton(button))
+                    toolButtons.map((button : ToolButton)=>{
+                        return <button className = "toolButton"
+                        style={{backgroundColor:selectedTool === button.tool ? "#634cb8" : "#dddddd"}}
+                        onClick={()=>setSelectedTool(button.tool)}
+                        key = {button.tool}     
+                        >{button.svg}</button>
+                    })
                     }
                 
 
