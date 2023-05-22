@@ -50,7 +50,6 @@ export function bresenhamsAlgorithm(scene : Scene,start : Pixel,end : Pixel,pixe
     }
 
     //given a start and a end pixel, find all necessary pixels to draw a square box
-    //used for square box tool
     export function completeSquare(scene : Scene,start : Pixel,end : Pixel,pixel_size : number){
         
         const path : Pixel[] = [];
@@ -96,6 +95,8 @@ export function bresenhamsAlgorithm(scene : Scene,start : Pixel,end : Pixel,pixe
 
     }
 
+    //function to find all necessary points to draw a circle given a middle point and a radius
+    //bresenham's circle drawing algorithm
     export function completeCircle(midPoint : Pixel,radius : number,scene : Scene,pixel_size : number){
 
         const path : Pixel[] = [];

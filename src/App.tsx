@@ -25,9 +25,7 @@ const ToolButtons = [
   {tool: 'circle',svg : <Circle/>},
 ] as ToolButton[];
 
-//TODO: Add background canvas and change logic of erasing, etc (dont forget to scale bgCanvas with the other ones)
-//TODO: Add erasing to ctrl z logic
-//TODO: Add circle tool
+
 //TODO: Improve style (try to make it definitive)
 //TODO: Set the important variables as states (pen size, canvas size, etc, also update canvas size on window resize)
 //TODO: Add button to reset all canvas positions (back to the center of outer div)
@@ -102,7 +100,7 @@ function App() {
       <header className="header">
         <div><h1 style = {{fontWeight:'bold',letterSpacing:'3px'}}>VIEWWIT</h1></div>
         <div><h3>New drawing</h3></div>
-        <button ref = {downloadButton} style = {{width:'10%',height:'85%'}}>DOWNLOAD DRAWING</button>
+        <button ref = {downloadButton} className = "downloadButton">DOWNLOAD DRAWING</button>
       </header>
       <section className = "mainSection">
       <div className = "editorWrapper">
@@ -119,7 +117,7 @@ function App() {
           ></Editor>    
            {!isMobile && <div className="sideBar" style = {{height:cssCanvasSize}}>
              <div className = "colorPickerWrapper">
-               <SketchPicker color={selectedColor} onChangeComplete={handleChangeSelectedColor} width="150px"></SketchPicker>
+               <SketchPicker color={selectedColor} onChangeComplete={handleChangeSelectedColor} width="150px" disableAlpha = {true} ></SketchPicker>
              </div>
            </div>}
         </div>

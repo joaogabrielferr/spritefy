@@ -264,7 +264,7 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
             scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
         }else if (selectedTool === 'eraser')
         {
-            Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize);
+            scene.current.currentDraw.push(Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
         }else if (selectedTool === 'paintBucket')
         {
             scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,penSize,CANVAS_SIZE,selectedColor));
@@ -303,7 +303,7 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
             scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
         }else if(selectedTool === 'eraser' && mouse.isPressed)
         {
-            Eraser("mousemove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize);
+            scene.current.currentDraw.push(Eraser("mousemove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
         }else if(selectedTool === 'line' && mouse.isPressed)
         {
             //remove draw from the top canvas
@@ -620,7 +620,16 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         scene.current.lastPixel = null;
         if (scene.current.currentDraw.length > 0) {
             //TODO:add erased pixels to undoStack as well
-            undoStack.push(scene.current.currentDraw);
+            let empty = true;
+            for(let a of scene.current.currentDraw)
+            {
+                if(a.length > 0)
+                {
+                    empty = false;
+                    break;
+                }
+            }
+            if(!empty)undoStack.push(scene.current.currentDraw);
         }
 
         //here the draws made with Line or Square tool are put in main canvas

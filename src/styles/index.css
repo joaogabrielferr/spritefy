@@ -39,3 +39,21 @@ body{
     height: 500px;
 }
 
+.colorPickerWrapper{
+    width: 90%;
+}
+
+.downloadButton{
+    width:10%;
+    height: 85%;
+    border-style: none;
+    font-family: 'Roboto', sans-serif;
+    color: white;
+    background-color: #634cb8;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.downloadButton:hover{
+    background-color: #4829b8;
+}

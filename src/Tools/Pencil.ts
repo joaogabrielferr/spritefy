@@ -37,6 +37,7 @@ Pencil(eventName : string,
       //if this pixel is in currentPixelsMousePressed, that means it was already painted in the current pen stroke, no need to paint it twice
       if (pixel != null && !isPixelAlreadyPaintedInCurrentDraw(pixel, scene)) {
           
+        
             pixel.colorStack.push(selectedColor);
             scene.currentPixelsMousePressed.set(pixel.id, true);
             ctx.fillStyle = selectedColor;
@@ -74,6 +75,6 @@ Pencil(eventName : string,
     
 }
 
-const isPixelAlreadyPaintedInCurrentDraw = (pixel : Pixel,scene : Scene) => {
+function isPixelAlreadyPaintedInCurrentDraw(pixel : Pixel,scene : Scene){
     return scene.currentPixelsMousePressed.get(pixel.id);
-  };
+}

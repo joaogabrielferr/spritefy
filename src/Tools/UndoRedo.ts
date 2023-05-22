@@ -22,18 +22,7 @@ export const undoLastDraw = (scene : Scene, penSize : number, ctx : CanvasRender
 
   for (let pixel of clean) {
     const currPixel = scene.pixels[pixel.i][pixel.j];
-    //currPixel.numOfPaints--;
-    // if (currPixel.numOfPaints <= 0) {
-    //     if(currPixel.colorStack.isEmpty()){
-    //   //ctx.clearRect(pixel.x1,pixel.y1,penSize,penSize);
-    //   ctx.fillStyle = scene.pixels[pixel.i][pixel.j].bgColor;
-    //   // ctx.fillRect(pixel.x1, pixel.y1, penSize, penSize);
-    //   ctx.clearRect(pixel.x1, pixel.y1, penSize, penSize);
-    // //   currPixel.color = scene.pixels[pixel.i][pixel.j].bgColor;
-    // //   currPixel.painted = false;
-    // } else {
-    // const copy = JSON.stringify(currPixel.colorStack);
-    // console.log(copy);
+
     currPixel.colorStack.pop();
     const previousColor = currPixel.colorStack.top();
     //   currPixel.color = previousColor;
