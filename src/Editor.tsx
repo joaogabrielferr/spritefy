@@ -235,6 +235,7 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
 
     function handleFirstClick(e : PointerEvent){
 
+        console.log(e.pointerType);
         if(e.pointerType === 'touch' || e.pointerType === 'pen')
         {
             if(e.cancelable)
@@ -282,6 +283,7 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
 
         if(!canvas)return;
 
+
         //TODO: maybe decouple mouse listeners from tool function calls, functions can be called a super high number of times depending on device config and mouse type i guess
         const bounding = canvas.getBoundingClientRect();
         mouse.x = event.clientX - bounding.left;
@@ -295,6 +297,8 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
 
         mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
         mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
+
+        if(mouse.isPressed)console.log(mouse.x,mouse.y);
 
         if(coordinatesElement)
             coordinatesElement.innerHTML = `[X:${Math.floor(mouse.x) + 1},Y:${Math.floor(mouse.y) + 1}]`;

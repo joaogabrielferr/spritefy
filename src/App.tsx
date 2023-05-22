@@ -99,7 +99,7 @@ function App() {
     <main>
       <header className="header">
         <div><h1 style = {{fontWeight:'bold',letterSpacing:'3px'}}>VIEWWIT</h1></div>
-        <div><h3>New drawing</h3></div>
+        {!isMobile && <div><h3>New drawing</h3></div>}
         <button ref = {downloadButton} className = "downloadButton">DOWNLOAD DRAWING</button>
       </header>
       <section className = "mainSection">
@@ -116,9 +116,11 @@ function App() {
             isMobile = {isMobile}
           ></Editor>    
            {!isMobile && <div className="sideBar" style = {{height:cssCanvasSize}}>
-             <div className = "colorPickerWrapper">
-               <SketchPicker color={selectedColor} onChangeComplete={handleChangeSelectedColor} width="150px" disableAlpha = {true} ></SketchPicker>
-             </div>
+              <Sidebar width={'75%'} height={cssCanvasSize}>
+                <div className = "colorPickerWrapper">
+                  <SketchPicker color={selectedColor} onChangeComplete={handleChangeSelectedColor} width="auto" disableAlpha = {true} ></SketchPicker>
+                </div>
+              </Sidebar>
            </div>}
         </div>
       </section>
