@@ -31,3 +31,17 @@
     align-items: center;
     row-gap: 5px;
 }
+
+@media screen and (max-width:768px) {
+    .toolbar{
+        flex-direction: row;
+        height: 50%;
+        width: 100%;
+    }
+
+    .toolbarButtons{
+        display: grid;
+        grid-template-columns: auto auto auto auto;
+        column-gap: 10px;
+    }
+}

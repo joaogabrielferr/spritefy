@@ -299,9 +299,10 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
 
         if(mouse.isPressed)console.log(mouse.x,mouse.y);
-
-        if(coordinatesElement)
+        if(coordinatesElement && mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size)
+        {
             coordinatesElement.innerHTML = `[X:${Math.floor(mouse.x) + 1},Y:${Math.floor(mouse.y) + 1}]`;
+        }
 
         if (selectedTool === 'pencil' && mouse.isPressed) {
             scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));

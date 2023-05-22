@@ -2,7 +2,7 @@ import {useEffect, useRef, useState } from "react";
 import Editor from "./Editor"
 import './styles/sideBar.css';
 import './styles/index.css';
-import {ColorResult, SketchPicker} from 'react-color';
+import {ColorResult, HuePicker, SketchPicker} from 'react-color';
 import { Pencil } from "./svg/Pencil";
 import { Eraser } from "./svg/Eraser";
 import { PaintBucket } from "./svg/PaintBucket";
@@ -106,7 +106,7 @@ function App() {
       <div className = "editorWrapper">
           {!isMobile && 
           <Sidebar width={'10%'} height={cssCanvasSize}>
-              <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool} isMobile={isMobile}/>
+              <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool}/>
           </Sidebar>}
           <Editor 
             selectedColor = {selectedColor} 
@@ -122,6 +122,13 @@ function App() {
                 </div>
               </Sidebar>
            </div>}
+        </div>
+        <div>
+        {isMobile && <div style={{width:'350px', height:'300px',marginTop:'18px'}}>
+            <HuePicker width="auto" color={selectedColor} onChangeComplete={handleChangeSelectedColor}></HuePicker>
+            <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool}></Toolbar>
+        </div>}
+        
         </div>
       </section>
     </main>

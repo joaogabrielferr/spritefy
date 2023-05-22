@@ -7,12 +7,11 @@ interface ToolbarProps{
     toolButtons : ToolButton[],
     selectedTool : string,
     setSelectedTool : React.Dispatch<React.SetStateAction<toolsType>>,
-    isMobile : boolean
 }
 
 
 
-export function Toolbar({toolButtons,setSelectedTool,isMobile,selectedTool} : ToolbarProps){
+export function Toolbar({toolButtons,setSelectedTool,selectedTool} : ToolbarProps){
 
     
     
