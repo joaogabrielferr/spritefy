@@ -13,6 +13,9 @@ import { Sidebar } from "./components/Sidebar";
 import { toolsType,ToolButton } from "./types";
 import { Toolbar } from "./components/Toolbar";
 import { Circle } from "./svg/Circle";
+import { Palettes } from "./components/Palettes";
+import { selectedColorContext } from "./contexts/selectedColorContext";
+import { selectedToolContext } from "./contexts/selectedToolContext";
 
 
 const ToolButtons = [
@@ -38,7 +41,6 @@ const ToolButtons = [
 
 function App() {
 
-  //add contexts, etc
   const [selectedColor,setSelectedColor] = useState("#000000");
   const [selectedTool,setSelectedTool] = useState<toolsType>('pencil');
   const [cssCanvasSize,setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize
@@ -91,47 +93,45 @@ function App() {
   }
 
 
-  //TODO: Make wrapper component for the sidebar and componetns for toolbar,colorpickerwrapper and header
-
-  //TODO: Refactor the styling its terrible
-
   return (
-    <main>
-      <header className="header">
-        <div><h1 style = {{fontWeight:'bold',letterSpacing:'3px'}}>VIEWWIT</h1></div>
-        {!isMobile && <div><h3>New drawing</h3></div>}
-        <button ref = {downloadButton} className = "downloadButton">DOWNLOAD DRAWING</button>
-      </header>
-      <section className = "mainSection">
-      <div className = "editorWrapper">
-          {!isMobile && 
-          <Sidebar width={'10%'} height={cssCanvasSize}>
-              <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool}/>
-          </Sidebar>}
-          <Editor 
-            selectedColor = {selectedColor} 
-            selectedTool = {selectedTool} 
-            cssCanvasSize = {cssCanvasSize} 
-            onSelectedColor = {setSelectedColor}
-            isMobile = {isMobile}
-          ></Editor>    
-           {!isMobile && <div className="sideBar" style = {{height:cssCanvasSize}}>
-              <Sidebar width={'75%'} height={cssCanvasSize}>
-                <div className = "colorPickerWrapper">
-                  <SketchPicker color={selectedColor} onChangeComplete={handleChangeSelectedColor} width="auto" disableAlpha = {true} ></SketchPicker>
-                </div>
-              </Sidebar>
-           </div>}
-        </div>
-        <div>
-        {isMobile && <div style={{width:'350px', height:'300px',marginTop:'18px'}}>
-            <HuePicker width="auto" color={selectedColor} onChangeComplete={handleChangeSelectedColor}></HuePicker>
-            <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool}></Toolbar>
-        </div>}
-        
-        </div>
-      </section>
-    </main>
+    <selectedColorContext.Provider value = {{selectedColor,setSelectedColor}}>
+      <selectedToolContext.Provider value = {{selectedTool,setSelectedTool}}>
+        <main>
+          <header className="header">
+            <div className="innerHeader">
+              <div><h1 style = {{fontWeight:'bold',letterSpacing:'3px'}}>VIEWWIT</h1></div>
+              {!isMobile && <div><h3>New drawing</h3></div>}
+              <button ref = {downloadButton} className = "downloadButton">DOWNLOAD DRAWING</button>
+            </div>
+          </header>
+          <section className = "mainSection">
+          <div className = "editorWrapper">
+              {!isMobile && 
+              <Sidebar width={'10%'} height={cssCanvasSize}>
+                  <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool}/>
+              </Sidebar>}
+              <Editor 
+                cssCanvasSize = {cssCanvasSize} 
+                isMobile = {isMobile}
+              ></Editor>    
+              {!isMobile && <div className="sideBar" style = {{height:cssCanvasSize}}>
+                  <Sidebar width={'90%'} height={cssCanvasSize}>
+                      <SketchPicker presetColors={[]} color={selectedColor} onChangeComplete={handleChangeSelectedColor} width="auto" disableAlpha = {true} ></SketchPicker>
+                      <Palettes></Palettes>
+                  </Sidebar>
+              </div>}
+            </div>
+            <div>
+            {isMobile && <div style={{width:'350px', height:'300px',marginTop:'18px'}}>
+                <HuePicker width="auto" color={selectedColor} onChangeComplete={handleChangeSelectedColor}></HuePicker>
+                <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool}></Toolbar>
+            </div>}
+            
+            </div>
+          </section>
+        </main>
+      </selectedToolContext.Provider>
+    </selectedColorContext.Provider>
   )
 }
 

@@ -1,0 +1,21 @@
+.palettes{
+    width: 100%;
+    height: 200px;
+    background-color: rgb(54, 54, 54);
+    margin-top: 10px;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+}
+.palette{
+    width: 95%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.palette>button{
+    cursor: pointer;
+}

@@ -1,4 +1,4 @@
-import {Dispatch, SetStateAction, useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,PointerEvent } from 'react';
+import {Dispatch, SetStateAction, useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,PointerEvent, useContext } from 'react';
 import './styles/editor.css';
 import { 
 CANVAS_SIZE,
@@ -22,13 +22,12 @@ import { cleanDraw } from './Tools/helpers/CleanDraw';
 import { translateDrawToMainCanvas } from './Tools/helpers/TranslateDrawToMainCanvas';
 import { Square } from './Tools/Square';
 import { Circle } from './Tools/Circle';
+import { selectedColorContext } from './contexts/selectedColorContext';
+import { selectedToolContext } from './contexts/selectedToolContext';
 
 
 
 interface IEditor{
-    selectedColor : string;
-    selectedTool : string;
-    onSelectedColor : Dispatch<SetStateAction<string>>;
     cssCanvasSize : number;
     isMobile : boolean
 }
@@ -63,15 +62,17 @@ let originalCanvasWidth : number;
 
 //////////////////////////////////////////////////////////
 
-export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCanvasSize,isMobile} : IEditor) : JSX.Element{
+export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element{
     
+
+    const {selectedColor,setSelectedColor} = useContext(selectedColorContext);
+    const {selectedTool} = useContext(selectedToolContext);
+
     const canvasRef = useRef<HTMLCanvasElement>(null); //main canvas
-    //const bgCanvasRef = useRef<HTMLCanvasElement>(null); //canvas for rendering the background tiles
     const topCanvasRef = useRef<HTMLCanvasElement>(null); //top canvas for temporary draws (like in line tool, square tool, circle tool, etc)
     const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvas
 
     const ctx = useRef<CanvasRenderingContext2D | null>(null);
-    //const BGctx = useRef<CanvasRenderingContext2D | null>(null);
     const topCtx = useRef<CanvasRenderingContext2D | null>(null);
 
     const firstInit = useRef(false); //for development
@@ -91,17 +92,15 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         
         //setting up canvas
         canvas = canvasRef.current!;
-        //bgCanvas = bgCanvasRef.current!;
         topCanvas = topCanvasRef.current!;
         outerDiv = outerDivRef.current!;
+
         ctx.current = canvas.getContext("2d")!;
-        //BGctx.current = canvas.getContext("2d")!;
         topCtx.current = topCanvas.getContext("2d")!;
 
         canvas.width = display_size;
         canvas.height = display_size;
-        //bgCanvas.width = display_size;
-        //bgCanvas.height = display_size;        
+      
         topCanvas.width = display_size;
         topCanvas.height = display_size;
         
@@ -109,8 +108,7 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         {
             canvas.style.width = `${cssCanvasSize}px`;
             canvas.style.height = `${cssCanvasSize}px`;
-           // bgCanvas.style.width = `${cssCanvasSize}px`;
-            //bgCanvas.style.height = `${cssCanvasSize}px`;
+
             topCanvas.style.width = `${cssCanvasSize}px`;
             topCanvas.style.height = `${cssCanvasSize}px`;
             originalCanvasWidth = cssCanvasSize;
@@ -118,8 +116,7 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         {
             canvas.style.width = `${cssCanvasSize - 50}px`;
             canvas.style.height = `${cssCanvasSize - 50}px`;
-           // bgCanvas.style.width = `${cssCanvasSize - 50}px`;
-            //bgCanvas.style.height = `${cssCanvasSize - 50}px`;
+
             topCanvas.style.width = `${cssCanvasSize - 50}px`;
             topCanvas.style.height = `${cssCanvasSize - 50}px`;
             originalCanvasWidth = cssCanvasSize - 50;
@@ -272,7 +269,7 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
         }else if(selectedTool === 'dropper')
         {
             const color : string | undefined | null = Dropper(scene.current,mouse,pixel_size);
-            if(color)onSelectedColor(color);
+            if(color)setSelectedColor(color);
         }else if(selectedTool === 'line' || selectedTool === 'square' || selectedTool === 'circle')
         {
             scene.current.lineFirstPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
@@ -366,7 +363,8 @@ export default function Editor({selectedColor,selectedTool,onSelectedColor,cssCa
                     const newPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
                     if(newPixel)
                     {
-                        topCtx.current!.fillStyle = selectedColor;
+                        // topCtx.current!.fillStyle = selectedColor;
+                        topCtx.current!.fillStyle = 'rgb(196, 193, 206,0.5)';
                         topCtx.current!.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
                         
                         if(scene.current.previousPixelWhileMovingMouse)
