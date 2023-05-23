@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState } from "react";
+import {useContext, useEffect, useRef, useState } from "react";
 import Editor from "./Editor"
 import './styles/sideBar.css';
 import './styles/index.css';
@@ -10,12 +10,13 @@ import { Dropper } from "./svg/Dropper";
 import { Line } from "./svg/Line";
 import { Square } from "./svg/Square";
 import { Sidebar } from "./components/Sidebar";
-import { toolsType,ToolButton } from "./types";
+import { ToolButton } from "./types";
 import { Toolbar } from "./components/Toolbar";
 import { Circle } from "./svg/Circle";
 import { Palettes } from "./components/Palettes";
-import { selectedColorContext } from "./contexts/selectedColorContext";
-import { selectedToolContext } from "./contexts/selectedToolContext";
+import { selectedColorContext } from "./contexts/selectedColor/selectedColorContext";
+import { selectedToolContext } from "./contexts/selectedTool/selectedToolContext";
+
 
 
 const ToolButtons = [
@@ -41,8 +42,9 @@ const ToolButtons = [
 
 function App() {
 
-  const [selectedColor,setSelectedColor] = useState("#000000");
-  const [selectedTool,setSelectedTool] = useState<toolsType>('pencil');
+  const {selectedColor,setSelectedColor} = useContext(selectedColorContext);
+  const {selectedTool,setSelectedTool} = useContext(selectedToolContext);
+
   const [cssCanvasSize,setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize
 
 
@@ -94,8 +96,6 @@ function App() {
 
 
   return (
-    <selectedColorContext.Provider value = {{selectedColor,setSelectedColor}}>
-      <selectedToolContext.Provider value = {{selectedTool,setSelectedTool}}>
         <main>
           <header className="header">
             <div className="innerHeader">
@@ -130,8 +130,6 @@ function App() {
             </div>
           </section>
         </main>
-      </selectedToolContext.Provider>
-    </selectedColorContext.Provider>
   )
 }
 

@@ -1,4 +1,4 @@
-import {Dispatch, SetStateAction, useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,PointerEvent, useContext } from 'react';
+import {useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,PointerEvent, useContext } from 'react';
 import './styles/editor.css';
 import { 
 CANVAS_SIZE,
@@ -22,8 +22,8 @@ import { cleanDraw } from './Tools/helpers/CleanDraw';
 import { translateDrawToMainCanvas } from './Tools/helpers/TranslateDrawToMainCanvas';
 import { Square } from './Tools/Square';
 import { Circle } from './Tools/Circle';
-import { selectedColorContext } from './contexts/selectedColorContext';
-import { selectedToolContext } from './contexts/selectedToolContext';
+import { selectedColorContext } from './contexts/selectedColor/selectedColorContext';
+import { selectedToolContext } from './contexts/selectedTool/selectedToolContext';
 
 
 
@@ -35,20 +35,15 @@ interface IEditor{
 
 //////////////////////////////////////////////////////////
 
-let canvas : HTMLCanvasElement,bgCanvas : HTMLCanvasElement,topCanvas : HTMLCanvasElement;
+let canvas : HTMLCanvasElement,topCanvas : HTMLCanvasElement;
 let outerDiv : HTMLDivElement;
 
 const mouse = new Mouse();
-
-//canvas transformation matrix
-// let matrix = [1, 0, 0, 1, 0, 0];
 
 let pixel_size : number;
 let display_size : number;
 let bgTileSize : number;
 
-
-//const keyMap = new Map<string,boolean>();
 
 let currentScale = 1;
 // const defaultPenSize = pixel_size;
@@ -160,7 +155,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         //if CANVAS_SIZE is a prime number
         if(bgTileSize === CANVAS_SIZE)
-        bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
+            bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
         
 
         penSize = pixel_size;
@@ -232,13 +227,12 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
     function handleFirstClick(e : PointerEvent){
 
-        console.log(e.pointerType);
         if(e.pointerType === 'touch' || e.pointerType === 'pen')
         {
             if(e.cancelable)
-        {
-            e.preventDefault();
-        }
+            {
+                e.preventDefault();
+            }
 
             const bounding = canvas.getBoundingClientRect();
             mouse.x = e.clientX - bounding.left;
@@ -295,7 +289,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
         mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
 
-        if(mouse.isPressed)console.log(mouse.x,mouse.y);
         if(coordinatesElement && mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size)
         {
             coordinatesElement.innerHTML = `[X:${Math.floor(mouse.x) + 1},Y:${Math.floor(mouse.y) + 1}]`;
@@ -325,6 +318,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             scene.current.currentDrawTopCanvas = [];
 
 
+            //increase or decrease circle radius based on mouse movement
             if(mouse.mouseMoveLastPos && scene.current.lineFirstPixel){
                 if(
                     ((mouse.x > scene.current.lineFirstPixel.x1 && mouse.x > mouse.mouseMoveLastPos.x) ||
@@ -387,93 +381,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     } 
     
 
-    // function handleFirstTouch(e : TouchEvent){
-    //     //for mobile, first get the touched position (for desktop the position is updated in mousemove listener, this is not possible in mobile if first touch didnt happened yet), 
-    //     //update mouse values, then call pencil
-
-    //     if(e.cancelable)
-    //     {
-    //         e.preventDefault();
-    //     }
-
-    //     const bounding = canvas.getBoundingClientRect();
-    //     mouse.x = e.touches[0].clientX - bounding.left;
-    //     mouse.y = e.touches[0].clientY - bounding.top;
-
-    //     const canvasWidth = parseFloat(canvas.style.width); 
-    //     const canvasHeight = parseFloat(canvas.style.height);
-
-    //     const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
-    //     const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
-
-    //     mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
-    //     mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas 
-
-
-    //     mouse.isPressed = true;
-    //     if (selectedTool === 'pencil'){
-    //         scene.current.currentDraw.push(Pencil('touchstart', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
-    //         //no need to call for draw in event listeners, when something like fillRect is called the canvas updates automatically
-    //         //draw("mousedown");
-    //     }else if (selectedTool === 'eraser')
-    //     {
-    //         Eraser('touchstart', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize);
-    //     }else if (selectedTool === 'paintBucket')
-    //     {
-    //         scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,penSize,CANVAS_SIZE,selectedColor));
-    //     }else if(selectedTool === 'line' || selectedTool === 'square')
-    //     {
-    //         scene.current.lineFirstPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
-    //     }
-
-    // }
-
-
-
-// function handleTouchMove(event : TouchEvent){
-
-//     //TODO: Merge this function with handleMouseMove and call it something like handleMove, since the only diference is the event passed as arg
-  
-//     if(!canvas)return;
-//     //TODO: maybe decouple mouse listeners from these function calls, functions can be called a super high number of times depending on device config and mouse type i guess
-//     const bounding = canvas.getBoundingClientRect();
-//     mouse.x = event.touches[0].clientX - bounding.left;
-//     mouse.y = event.touches[0].clientY - bounding.top;
-
-//     const canvasWidth = parseFloat(canvas.style.width); 
-//     const canvasHeight = parseFloat(canvas.style.height);
-
-//     const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
-//     const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
-
-//     mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
-//     mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
-
-
-
-//     if(coordinatesElement)
-//         coordinatesElement.innerHTML = `[${Math.floor(mouse.x) + 1}x${Math.floor(mouse.y) + 1}]`;
-
-//     if (selectedTool === 'pencil' && mouse.isPressed) {
-//         scene.current.currentDraw.push(Pencil("touchmove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
-//     }else if(selectedTool === 'eraser' && mouse.isPressed)
-//     {
-//         Eraser("touchmove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize);
-//     }else if(selectedTool === 'line' && mouse.isPressed)
-//     {
-//         removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
-//         scene.current.currentDrawTopCanvas = [];
-//         scene.current.currentDrawTopCanvas.push(Line(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,pixel_size));
-//     }else if(selectedTool === 'square' && mouse.isPressed)
-//     {
-//         //remove draw from the top canvas
-//         removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
-//         scene.current.currentDrawTopCanvas = [];
-//         scene.current.currentDrawTopCanvas.push(Square(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,pixel_size));
-//     }
-
-// }
-    
 
     function handleZoom(e : WheelEvent){
         
@@ -491,7 +398,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     
         if (delta < 0 && scene.current.zoomAmount < MAX_ZOOM_AMOUNT) {
             // Zoom in
-
             if(parseFloat(canvas.style.width) < originalCanvasWidth)
             {
                 currentScale += SCALE_FACTOR;
@@ -506,8 +412,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 
                 //dx and dy determines the translation of the canvas based on the mouse position during zooming
                 //subtracting outerDiv.offsetWidth / 2 from mouse.x determines the offset of the mouse position from the center of the outer div.
-                //the resulting value is then multiplied by the SCALE_FACTOR to ensure the correct translation 
-                //based on the current scale factor.
+                //the resulting value is then multiplied by the SCALE_FACTOR to ensure the correct translation based on the current scale factor.
 
                 // console.log("mouse.x:",mouseX);
                 // console.log("offset:",outerDiv.offsetWidth/2);
@@ -622,7 +527,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         mouse.isPressed = false;
         scene.current.lastPixel = null;
         if (scene.current.currentDraw.length > 0) {
-            //TODO:add erased pixels to undoStack as well
+
             let empty = true;
             for(let a of scene.current.currentDraw)
             {
@@ -635,7 +540,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             if(!empty)undoStack.push(scene.current.currentDraw);
         }
 
-        //here the draws made with Line or Square tool are put in main canvas
+        //here the draws made with Line, Square or circle tool are put in main canvas
         if(scene.current.currentDrawTopCanvas.length > 0)
         {
             const clean : Pixel[] = cleanDraw(scene.current.currentDrawTopCanvas);
@@ -671,9 +576,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 onPointerMove={handlePointerMove}
                 onPointerUp={handleFinishDraw}
             ></canvas>
-            <canvas id="canvas" ref = {canvasRef}> Your browser does not support canvas </canvas>
-            {/* <canvas id="BGcanvas" ref = {bgCanvasRef}></canvas> */}
-            
+            <canvas id="canvas" ref = {canvasRef}> Your browser does not support canvas </canvas>            
           </div>
 
 
