@@ -178,28 +178,10 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     
     function draw(){
 
-        //old way of zooming whitout changing width and height. note to my future self: i moved away from this method because scaling wasnt smooth and
-        //and i coudnt figure out how to make it smoother, plus i figured that most editors out there handle zooming by calculating the new css width, height,
-        //top and left based on mouse position like im doing now, plus it looks better, although the old zooming was 100% precise),
-        // matrix[0] = currentScale;
-        // matrix[1] = 0;
-        // matrix[2] = 0;
-        // matrix[3] = currentScale;
-        // matrix[4] = mouse.originX;
-        // matrix[5] = mouse.originY;
-    
-        // ctx.current!.clearRect(0, 0, display_size, display_size);
-        // BGctx.current!.clearRect(0, 0, display_size, display_size);
-        // ctx.current!.setTransform(1, 0, 0, 1, 0, 0);
-        // BGctx.current!.setTransform(1, 0, 0, 1, 0, 0);
-    
-        // ctx.current!.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
-        // BGctx.current!.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
     
         let firstInRow = 1;
         let a = firstInRow;
     
-        //TODO:draw this background on bgCanvas instead of main canvas
         //draw background
         for (let i = 0; i <= display_size; i += pixel_size * bgTileSize) {
             if (firstInRow) a = 0;
@@ -479,44 +461,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
     }
     
-
-
-
-        //old way of zooming
-        // if (e.deltaY < 0 && scene.current.zoomAmount < MAX_ZOOM_AMOUNT ) {
-        //     if(size > 2000)size+=500;
-        //     else size+=100;
-        //     console.log(scene.current.zoomAmount);
-        //     scene.current.zoomAmount++;
-        //     currentScale *= SCALE_FACTOR;
-        //     //calculate new origin from which the canvas will scale from
-        //     // mouse.originX = Math.floor(mouse.x - (mouse.x - mouse.originX) * SCALE_FACTOR);
-        //     // mouse.originY = Math.floor(mouse.y - (mouse.y - mouse.originY) * SCALE_FACTOR);
-        //     // mouse.history.push({ x: mouse.x, y : mouse.y });
-        // } else if (e.deltaY > 0 && size > CANVAS_SIZE + 100) {
-        //     if(size > 2000)size-=500;
-        //     else size-=100;
-        //     // canvas.style.top = `${Number(canvas.style.top) + 50}px`;
-        //     console.log(canvas.style.top);
-        //     //TODO: maybe allow use to zoom out of canvas by adjusting cssCanvasSize value (like decrease cssCanvasSize up to 30% of its original size)
-        //     scene.current.zoomAmount--;
-        //     currentScale *= 1 / SCALE_FACTOR;
-        //     // const m = mouse.history.pop();
-        //     // mouse.originX = Math.floor(m!.x - (m!.x - mouse.originX) * (1 / SCALE_FACTOR));
-        //     // mouse.originY = Math.floor(m!.y - (m!.y - mouse.originY) * (1 / SCALE_FACTOR));
-    
-        //     // if (scene.current.zoomAmount == 0) {
-        //     // mouse.originX = 0;
-        //     // mouse.originY = 0;
-        //     // }
-        // }
-
-        // canvas.style.width = `${size}px`;
-        // canvas.style.height = `${size}px`;
-
-        // //setZoom(zoom + 1);
-        // //scale and draw pixel matrix
-        // //draw();
     }
     
 
@@ -569,12 +513,16 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
     
 
-    return <div className = "editor" style = {!isMobile ? {height:cssCanvasSize, width:'100%'} : {width:'100%',height:cssCanvasSize}} ref = {outerDivRef} onWheel={handleZoom}>
+    return <div className = "editor" 
+            style = {!isMobile ? {height:cssCanvasSize, width:'100%'} : {width:'100%',height:cssCanvasSize}} 
+            ref = {outerDivRef} 
+            onWheel={handleZoom}
+            onPointerDown={handleFirstClick}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handleFinishDraw}
+            >
             <canvas id = "topCanvas"
                 ref = {topCanvasRef}
-                onPointerDown={handleFirstClick}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handleFinishDraw}
             ></canvas>
             <canvas id="canvas" ref = {canvasRef}> Your browser does not support canvas </canvas>            
           </div>

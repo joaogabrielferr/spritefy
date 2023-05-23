@@ -1,4 +1,4 @@
-import {useContext, useEffect, useRef, useState } from "react";
+import {useContext, useEffect, useState } from "react";
 import Editor from "./Editor"
 import './styles/sideBar.css';
 import './styles/index.css';
@@ -16,6 +16,7 @@ import { Circle } from "./svg/Circle";
 import { Palettes } from "./components/Palettes";
 import { selectedColorContext } from "./contexts/selectedColor/selectedColorContext";
 import { selectedToolContext } from "./contexts/selectedTool/selectedToolContext";
+import { Header } from "./components/Header";
 
 
 
@@ -48,14 +49,12 @@ function App() {
   const [cssCanvasSize,setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize
 
 
-  const downloadButton = useRef<HTMLButtonElement | null>(null);
-
 
   //here mobile is simply any device that has a screen height greater than screen width
-  const [isMobile,setIsMobile] = useState<boolean>(window.innerWidth < window.innerHeight); //TODO:this may be two simple, search for a better way to detect a mobile device
+  const [isMobile,setIsMobile] = useState<boolean>(window.innerWidth < window.innerHeight || window.innerWidth <= 768); //TODO:this may be two simple, search for a better way to detect a mobile device
 
   function handleWindowResize(){
-    setIsMobile(window.innerWidth < window.innerHeight);
+    setIsMobile(window.innerWidth < window.innerHeight || window.innerWidth <= 768);
   }
 
   useEffect(function(){
@@ -75,19 +74,6 @@ function App() {
 
   },[isMobile]);
 
-  useEffect(function(){
-      if(downloadButton.current){
-        downloadButton.current.addEventListener("click", function(){
-        let downloadLink = document.createElement("a");
-        downloadLink.setAttribute("download", "my_draw.png");
-        let dataURL = (document.getElementById('canvas') as HTMLCanvasElement)!.toDataURL("image/png");
-        let url = dataURL.replace(/^data:image\/png/, "data:application/octet-stream");
-        downloadLink.setAttribute("href", url);
-        downloadLink.click();
-        }
-    );
-  }
-},[]);
 
 
   function handleChangeSelectedColor(color : ColorResult){
@@ -97,37 +83,36 @@ function App() {
 
   return (
         <main>
-          <header className="header">
-            <div className="innerHeader">
-              <div><h1 style = {{fontWeight:'bold',letterSpacing:'3px'}}>VIEWWIT</h1></div>
-              {!isMobile && <div><h3>New drawing</h3></div>}
-              <button ref = {downloadButton} className = "downloadButton">DOWNLOAD DRAWING</button>
-            </div>
-          </header>
+          <Header isMobile = {isMobile}/>
           <section className = "mainSection">
-          <div className = "editorWrapper">
-              {!isMobile && 
-              <Sidebar width={'10%'} height={cssCanvasSize}>
-                  <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool}/>
-              </Sidebar>}
-              <Editor 
-                cssCanvasSize = {cssCanvasSize} 
-                isMobile = {isMobile}
-              ></Editor>    
-              {!isMobile && <div className="sideBar" style = {{height:cssCanvasSize}}>
-                  <Sidebar width={'90%'} height={cssCanvasSize}>
-                      <SketchPicker presetColors={[]} color={selectedColor} onChangeComplete={handleChangeSelectedColor} width="auto" disableAlpha = {true} ></SketchPicker>
-                      <Palettes></Palettes>
-                  </Sidebar>
+            <div className = "editorWrapper">
+
+                {!isMobile && 
+                <Sidebar width={'7%'} height={cssCanvasSize}>
+                    <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool}/>
+                </Sidebar>}
+
+                <Editor 
+                  cssCanvasSize = {cssCanvasSize} 
+                  isMobile = {isMobile}
+                ></Editor>    
+
+
+                {!isMobile && <div className="sideBar" style = {{height:cssCanvasSize}}>
+                    <Sidebar width={'90%'} height={cssCanvasSize}>
+                        <SketchPicker presetColors={[]} color={selectedColor} onChangeComplete={handleChangeSelectedColor} width="auto" disableAlpha = {true} ></SketchPicker>
+                        <Palettes></Palettes>
+                    </Sidebar>
+                </div>}
+              </div>
+
+              <div>
+              {isMobile && <div style={{width:'350px', height:'300px',marginTop:'18px'}}>
+                  <HuePicker width="auto" color={selectedColor} onChangeComplete={handleChangeSelectedColor}></HuePicker>
+                  <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool}></Toolbar>
               </div>}
-            </div>
-            <div>
-            {isMobile && <div style={{width:'350px', height:'300px',marginTop:'18px'}}>
-                <HuePicker width="auto" color={selectedColor} onChangeComplete={handleChangeSelectedColor}></HuePicker>
-                <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool}></Toolbar>
-            </div>}
-            
-            </div>
+              
+              </div>
           </section>
         </main>
   )

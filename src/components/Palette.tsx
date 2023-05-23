@@ -1,6 +1,5 @@
 
 import { useContext, useEffect, useState } from 'react';
-import '../styles/palettes.css'
 import { selectedColorContext } from '../contexts/selectedColor/selectedColorContext';
 
 interface PaletteInterface{

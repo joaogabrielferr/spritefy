@@ -6,7 +6,9 @@ export function SelectedToolProvider({children} : {children : React.ReactNode}){
 
     const [selectedTool,setSelectedTool] = useState<toolsType>('pencil');
     
-    return <selectedToolContext.Provider value = {{selectedTool,setSelectedTool}}></selectedToolContext.Provider>
+    return <selectedToolContext.Provider value = {{selectedTool,setSelectedTool}}>
+        {children}
+    </selectedToolContext.Provider>
 
 
 }

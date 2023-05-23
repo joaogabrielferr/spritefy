@@ -1,4 +1,3 @@
-import '../styles/sideBar.css'
 
 
 interface SidebarProps{
