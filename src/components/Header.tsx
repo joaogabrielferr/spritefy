@@ -1,6 +1,7 @@
 import { ChangeEvent, useEffect, useRef } from "react";
 import { Logo } from "../svg/Logo";
 import '../styles/header.css';
+import { Github } from "../svg/Github";
 
 export function Header({isMobile} : {isMobile : boolean}){
 
@@ -34,9 +35,11 @@ export function Header({isMobile} : {isMobile : boolean}){
 
     return <header className="header">
                 <div className="innerHeader">
-                    <div style={{height:'100%'}}>
+                    <div style={{width:'5%',height:'100%',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                         <Logo></Logo>
+                        <a href="https://github.com/joaogabrielferr/pixel-art-editor" target="_blank"><Github></Github></a>
                     </div>
+                    <div style = {{fontWeight:'bold'}}>New drawing*</div>
                     {/* {!isMobile && <input className = "drawingNameInput" ref = {drawingNameInput} type="text" onChange={handleInputChange}/>} */}
                     <button ref = {downloadButton} className = "downloadButton">DOWNLOAD DRAWING</button>
                 </div>

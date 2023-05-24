@@ -276,6 +276,13 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
             coordinatesElement.innerHTML = `[X:${Math.floor(mouse.x) + 1},Y:${Math.floor(mouse.y) + 1}]`;
         }
 
+        // if(!(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size))
+        // {
+        //     //out of canvas
+        //     handleFinishDraw(undefined);
+        //     return;
+        // }
+
         if (selectedTool === 'pencil' && mouse.isPressed) {
             scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
         }else if(selectedTool === 'eraser' && mouse.isPressed)
@@ -343,6 +350,8 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
                         // topCtx.current!.fillStyle = selectedColor;
                         topCtx.current!.fillStyle = 'rgb(196, 193, 206,0.5)';
                         topCtx.current!.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
+
+                        
                         
                         if(scene.current.previousPixelWhileMovingMouse)
                         {
@@ -352,6 +361,12 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
                         scene.current.previousPixelWhileMovingMouse = newPixel;
 
                     }
+                }
+            }else
+            {
+                if(scene.current.previousPixelWhileMovingMouse)
+                {
+                    removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse],pixel_size);
                 }
             }
 
@@ -467,8 +482,9 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
 
         
     
-    function handleFinishDraw(e : TouchEvent | MouseEvent){
-        e.preventDefault();
+    function handleFinishDraw(e : TouchEvent | MouseEvent | undefined){
+        if(e)
+            e.preventDefault();
         mouse.isPressed = false;
         scene.current.lastPixel = null;
         if (scene.current.currentDraw.length > 0) {

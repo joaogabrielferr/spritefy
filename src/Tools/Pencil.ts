@@ -35,15 +35,17 @@ Pencil(eventName : string,
       const pixel : Pixel | null = scene.findPixel(xs,ys,pixel_size);
 
       //if this pixel is in currentPixelsMousePressed, that means it was already painted in the current pen stroke, no need to paint it twice
-      if (pixel != null && !isPixelAlreadyPaintedInCurrentDraw(pixel, scene)) {
+      if (pixel != null) {
           
-        
-            pixel.colorStack.push(selectedColor);
-            scene.currentPixelsMousePressed.set(pixel.id, true);
+            if(!isPixelAlreadyPaintedInCurrentDraw(pixel, scene))
+            {
+                pixel.colorStack.push(selectedColor);
+                scene.currentPixelsMousePressed.set(pixel.id, true);
+                draw.push(pixel);
+            }
             ctx.fillStyle = selectedColor;
             ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
 
-            draw.push(pixel);
             
             if(penSize === 2)
             {
@@ -53,10 +55,11 @@ Pencil(eventName : string,
                     if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
                     {
                         scene.currentPixelsMousePressed.set(n.id, true);
-                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                         n.colorStack.push(selectedColor);
                         draw.push(n);
-                    }
+                    }  
+                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
+                    
                 }
             }else if(penSize === 3)
             {
@@ -66,10 +69,10 @@ Pencil(eventName : string,
                     if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
                     {
                         scene.currentPixelsMousePressed.set(n.id, true);
-                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
-                        n.colorStack.push(selectedColor);
                         draw.push(n);
+                        n.colorStack.push(selectedColor);
                     }
+                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                 }
             }
 
@@ -81,11 +84,13 @@ Pencil(eventName : string,
             const path = bresenhamsAlgorithm(scene, scene.lastPixel, pixel,pixel_size);
             for (let p of path) {
                 if (!isPixelAlreadyPaintedInCurrentDraw(p, scene)) {
+
+                    p.colorStack.push(selectedColor);
+                    scene.currentPixelsMousePressed.set(p.id, true);
+                    draw.push(p);
+                }
                 ctx.fillStyle = selectedColor;
                 ctx.fillRect(p.x1, p.y1, pixel_size, pixel_size);
-                p.colorStack.push(selectedColor);
-                scene.currentPixelsMousePressed.set(p.id, true);
-                draw.push(p);
                 
                 if(penSize === 2)
                 {
@@ -95,10 +100,10 @@ Pencil(eventName : string,
                         if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
                         {
                             scene.currentPixelsMousePressed.set(n.id, true);
-                            ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                             n.colorStack.push(selectedColor);
                             draw.push(n);
                         }
+                            ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                     }
                 }else if(penSize === 3)
                 {
@@ -108,16 +113,16 @@ Pencil(eventName : string,
                         if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
                         {
                             scene.currentPixelsMousePressed.set(n.id, true);
-                            ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                             n.colorStack.push(selectedColor);
                             draw.push(n);
                         }
+                            ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                     }
                 }
 
 
                 
-                }
+                
             }
         }
 

@@ -1,23 +1,24 @@
 
 import { useContext, useEffect, useState } from 'react';
 import { selectedColorContext } from '../contexts/selectedColor/selectedColorContext';
+import { PaletteType } from '../types';
 
 interface PaletteInterface{
-    palette : string[];
+    palette : PaletteType;
 }
 
 export function Palette({palette} : PaletteInterface){
 
     const {setSelectedColor} = useContext(selectedColorContext);
 
-    const uniqueColors = palette.filter((color,index)=>{return palette.indexOf(color) === index;})
+    const uniqueColors = palette.colors.filter((color,index)=>{return palette.colors.indexOf(color) === index;})
 
 
     return <div className = "palette">
 
         
         {
-            uniqueColors.map((color)=><button key = {color} style = {{borderStyle:'none',backgroundColor:color,height:'30px'}} onClick = {()=>setSelectedColor(color)}></button>)
+            uniqueColors.map((color)=><button className = "paletteButton" style = {{backgroundColor:color}} key = {color} onClick = {()=>setSelectedColor(color)}></button>)
         }
 
 
