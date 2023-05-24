@@ -35,3 +35,9 @@ body{
     height: 100%;
 
 }
+
+@media screen and (max-width:768px) {
+    .mainSection{
+        margin-top: 30px;
+    }
+}
