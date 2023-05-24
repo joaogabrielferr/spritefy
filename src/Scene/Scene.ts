@@ -167,13 +167,47 @@ export default class Scene{
 
     findNeighborsSize2(pixel : Pixel)
     {
+        const size = this.pixels[0].length;
+
         const neighbors : Pixel[] = [];
-        if(pixel.i + 1 >= 0 && pixel.i + 1 < this.pixels[0].length)neighbors.push(this.pixels[pixel.i + 1][pixel.j]);
-        if(pixel.j + 1 >= 0 && pixel.j + 1 < this.pixels[0].length)neighbors.push(this.pixels[pixel.i][pixel.j + 1]);
-        if(pixel.i + 1 >= 0 && pixel.i + 1 < this.pixels[0].length && 
-            pixel.j + 1 >= 0 && pixel.j + 1 < this.pixels[0].length)neighbors.push(this.pixels[pixel.i + 1][pixel.j + 1]);
+
+        for(let i = -1;i<=1;i++)
+        {
+            for(let j = -1;j<=1;j++)
+            {
+                if(i == 0 && j == 0)continue;
+                {
+                    if(pixel.i + i >= 0 && pixel.i + i < size && pixel.j + j >= 0 && pixel.j + j < size)
+                        neighbors.push(this.pixels[pixel.i+i][pixel.j+j]);
+                }   
+            }
+        }
 
         return neighbors;
 
     }
+
+    findNeighborsSize3(pixel : Pixel){
+
+        const size = this.pixels[0].length;
+
+        const neighbors : Pixel[] = [];
+
+        for(let i = -2;i<=2;i++)
+        {
+            for(let j = -2;j<=2;j++)
+            {
+                if(i == 0 && j == 0)continue;
+                {
+                    if(pixel.i + i >= 0 && pixel.i + i < size && pixel.j + j >= 0 && pixel.j + j < size)
+                        neighbors.push(this.pixels[pixel.i+i][pixel.j+j]);
+                }   
+            }
+        }
+
+        return neighbors;
+        
+
+    }
+
 }

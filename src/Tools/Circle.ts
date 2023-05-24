@@ -32,6 +32,15 @@ export function Circle(scene : Scene,ctx : CanvasRenderingContext2D, pixel_size 
                     draw.push(n);
                     
                 }
+            }else if(penSize === 3)
+            {
+                const neighbors = scene.findNeighborsSize3(pixel);
+                for(let n of neighbors)
+                {
+                    scene.currentPixelsMousePressed.set(n.id, true);
+                    ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
+                    draw.push(n);
+                }
             }
 
         }

@@ -32,7 +32,19 @@ export function Line(scene : Scene,ctx : CanvasRenderingContext2D ,mouse : Mouse
                     {
                         scene.currentPixelsMousePressed.set(n.id, true);
                         ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
-                        //n.colorStack.push(selectedColor);
+                        //not adding to pixel color stack since this is being painted on top canvas temporarily
+                        draw.push(n);
+                    }
+                }
+            }else if(penSize === 3)
+            {
+                const neighbors = scene.findNeighborsSize3(pixel);
+                for(let n of neighbors)
+                {
+                    if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
+                    {
+                        scene.currentPixelsMousePressed.set(n.id, true);
+                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                         draw.push(n);
                     }
                 }

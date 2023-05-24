@@ -58,7 +58,21 @@ Pencil(eventName : string,
                         draw.push(n);
                     }
                 }
+            }else if(penSize === 3)
+            {
+                const neighbors = scene.findNeighborsSize3(pixel);
+                for(let n of neighbors)
+                {
+                    if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
+                    {
+                        scene.currentPixelsMousePressed.set(n.id, true);
+                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
+                        n.colorStack.push(selectedColor);
+                        draw.push(n);
+                    }
+                }
             }
+
             
         //if there are gaps between the points, fill them with bresenham's algorithm (see scene/buildPath.ts)
         if (scene.lastPixel !== null && mouse.isPressed && scene.lastPixel.id !== pixel.id && (eventName == "mousemove" || "touchmove")) {
@@ -76,6 +90,19 @@ Pencil(eventName : string,
                 if(penSize === 2)
                 {
                     const neighbors = scene.findNeighborsSize2(p);
+                    for(let n of neighbors)
+                    {
+                        if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
+                        {
+                            scene.currentPixelsMousePressed.set(n.id, true);
+                            ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
+                            n.colorStack.push(selectedColor);
+                            draw.push(n);
+                        }
+                    }
+                }else if(penSize === 3)
+                {
+                    const neighbors = scene.findNeighborsSize3(p);
                     for(let n of neighbors)
                     {
                         if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))

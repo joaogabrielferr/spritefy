@@ -84,9 +84,9 @@ export function Toolbar({toolButtons,setSelectedTool,selectedTool,setPenSize,pen
 
             <div><h6>PEN SIZES</h6></div>
             <div className="toolbarPenSizes">
-                <button className = "penSizeButton" style={{backgroundColor: penSize === 1 ? "#634cb8" : "#dddddd",height:'10px',width:'25%'}} onClick={()=>setPenSize(1)}></button>
-                <button className = "penSizeButton" style={{backgroundColor: penSize === 2 ? "#634cb8" : "#dddddd",height:'15px',width:'25%'}} onClick={()=>setPenSize(2)}></button>
-                <button className = "penSizeButton" style={{backgroundColor: penSize === 3 ? "#634cb8" : "#dddddd",height:'20px',width:'25%'}} onClick={()=>setPenSize(3)}></button>
+                <button className = "penSizeButton" style={{backgroundColor: penSize === 1 ? "#634cb8" : "#dddddd",height:'10px',width:'10%'}} onClick={()=>setPenSize(1)}></button>
+                <button className = "penSizeButton" style={{backgroundColor: penSize === 2 ? "#634cb8" : "#dddddd",height:'15px',width:'20%'}} onClick={()=>setPenSize(2)}></button>
+                <button className = "penSizeButton" style={{backgroundColor: penSize === 3 ? "#634cb8" : "#dddddd",height:'20px',width:'20%'}} onClick={()=>setPenSize(3)}></button>
             </div>
 
             <p id = "coordinates">{"[X:0,Y:0]"}</p>
