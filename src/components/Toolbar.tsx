@@ -7,11 +7,13 @@ interface ToolbarProps{
     toolButtons : ToolButton[],
     selectedTool : string,
     setSelectedTool : React.Dispatch<React.SetStateAction<toolsType>>,
+    setPenSize : React.Dispatch<React.SetStateAction<number>>,
+    penSize : number
 }
 
 
 
-export function Toolbar({toolButtons,setSelectedTool,selectedTool} : ToolbarProps){
+export function Toolbar({toolButtons,setSelectedTool,selectedTool,setPenSize,penSize} : ToolbarProps){
 
     
     
@@ -61,10 +63,10 @@ export function Toolbar({toolButtons,setSelectedTool,selectedTool} : ToolbarProp
     //     return <button {...buttonProps} style={{backgroundColor:selectedTool === button.tool ? "#634cb8" : "#dddddd"}} >{button.svg}</button>
     
     //   }
-
+    console.log(penSize);
 
     return <div className = "toolbar">
-            TOOLS 
+            <div><h6>TOOLS</h6></div>
             <div className = "toolbarButtons">
 
                     {
@@ -79,6 +81,14 @@ export function Toolbar({toolButtons,setSelectedTool,selectedTool} : ToolbarProp
                 
 
             </div>
+
+            <div><h6>PEN SIZES</h6></div>
+            <div className="toolbarPenSizes">
+                <button className = "penSizeButton" style={{backgroundColor: penSize === 1 ? "#634cb8" : "#dddddd",height:'10px',width:'25%'}} onClick={()=>setPenSize(1)}></button>
+                <button className = "penSizeButton" style={{backgroundColor: penSize === 2 ? "#634cb8" : "#dddddd",height:'15px',width:'25%'}} onClick={()=>setPenSize(2)}></button>
+                <button className = "penSizeButton" style={{backgroundColor: penSize === 3 ? "#634cb8" : "#dddddd",height:'20px',width:'25%'}} onClick={()=>setPenSize(3)}></button>
+            </div>
+
             <p id = "coordinates">{"[X:0,Y:0]"}</p>
             </div>
 

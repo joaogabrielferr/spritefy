@@ -28,7 +28,7 @@ export function PaintBucket(scene : Scene,
       const numPixels = display_size * display_size + 1;
       const visited : boolean[] = [];
       for (let i = 0; i <= numPixels; i++) visited.push(false);
-      bfs(scene.pixels, pixel, visited, selectedColor, pixel.colorStack.top() || pixel.bgColor, penSize, ctx, draw, CANVAS_SIZE);
+      bfs(scene.pixels, pixel, visited, selectedColor, pixel.colorStack.top() || pixel.bgColor, pixel_size, ctx, draw, CANVAS_SIZE);
 
     }
   
@@ -41,7 +41,7 @@ export function PaintBucket(scene : Scene,
      visited : boolean[],
       selectedColor : string,
        startColor : string,
-        penSize : number,
+        pixel_size : number,
          ctx : CanvasRenderingContext2D, 
           draw : Pixel[],
            CANVAS_SIZE : number) {
@@ -53,7 +53,7 @@ export function PaintBucket(scene : Scene,
     while (queue.length > 0) {
       u = queue.shift()!;
       ctx.fillStyle = selectedColor;
-      ctx.fillRect(u.x1, u.y1, penSize, penSize);
+      ctx.fillRect(u.x1, u.y1, pixel_size, pixel_size);
   
     //   u.color = selectedColor.value;
       u.colorStack.push(selectedColor);

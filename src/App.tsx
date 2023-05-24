@@ -48,6 +48,7 @@ function App() {
 
   const [cssCanvasSize,setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize
 
+  const [penSize,setPenSize] = useState<number>(1);
 
 
   //here mobile is simply any device that has a screen height greater than screen width
@@ -89,12 +90,13 @@ function App() {
 
                 {!isMobile && 
                 <Sidebar width={'7%'} height={cssCanvasSize}>
-                    <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool}/>
+                    <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool} setPenSize = {setPenSize} penSize = {penSize}/>
                 </Sidebar>}
 
                 <Editor 
                   cssCanvasSize = {cssCanvasSize} 
                   isMobile = {isMobile}
+                  penSize = {penSize}
                 ></Editor>    
 
 
@@ -109,7 +111,7 @@ function App() {
               <div>
               {isMobile && <div style={{width:'350px', height:'300px',marginTop:'18px'}}>
                   <HuePicker width="auto" color={selectedColor} onChangeComplete={handleChangeSelectedColor}></HuePicker>
-                  <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool}></Toolbar>
+                  <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool} setPenSize = {setPenSize} penSize = {penSize}></Toolbar>
               </div>}
               
               </div>

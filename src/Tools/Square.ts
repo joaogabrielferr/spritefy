@@ -18,14 +18,28 @@ export function Square(scene : Scene,ctx : CanvasRenderingContext2D ,mouse : Mou
 
     for(let pixel of path)
     {
-        if(!map.get(pixel.id))
-        {
+        // if(!map.get(pixel.id))
+        // {
             map.set(pixel.id,true);
             ctx.fillStyle = selectedColor;
             ctx.fillRect(pixel.x1, pixel.y1, penSize, penSize);
             draw.push(pixel);
 
-        }
+            if(penSize === 2)
+            {
+                const neighbors = scene.findNeighborsSize2(pixel);
+                for(let n of neighbors)
+                {
+                    // if(!map.get(n.id))
+                    // {
+                        map.set(n.id,true);
+                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
+                        draw.push(n);
+                    // }
+                }
+            }
+
+        // }
     }
 
     return draw;

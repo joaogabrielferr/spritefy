@@ -12,7 +12,7 @@ import { cleanDraw } from "./helpers/CleanDraw";
 
 
 
-export const undoLastDraw = (scene : Scene, penSize : number, ctx : CanvasRenderingContext2D) => {
+export const undoLastDraw = (scene : Scene, pixel_size : number, ctx : CanvasRenderingContext2D) => {
   if (undoStack.isEmpty()) return;
 
   const draw = undoStack.top();
@@ -21,20 +21,20 @@ export const undoLastDraw = (scene : Scene, penSize : number, ctx : CanvasRender
   const clean = cleanDraw(draw);
 
   for (let pixel of clean) {
-    const currPixel = scene.pixels[pixel.i][pixel.j];
+    //const currPixel = scene.pixels[pixel.i][pixel.j];
 
-    currPixel.colorStack.pop();
-    const previousColor = currPixel.colorStack.top();
-    //   currPixel.color = previousColor;
+    pixel.colorStack.pop();
+    const previousColor = pixel.colorStack.top();
+    //   pixel.color = previousColor;
       if(previousColor)
       {
           ctx.fillStyle = previousColor;
-          ctx.fillRect(currPixel.x1, currPixel.y1, penSize, penSize);
+          ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
       }
-      if(currPixel.colorStack.isEmpty())
+      if(pixel.colorStack.isEmpty())
       {
-          ctx.fillStyle = currPixel.bgColor;
-          ctx.fillRect(currPixel.x1, currPixel.y1, penSize, penSize);
+          ctx.fillStyle = pixel.bgColor;
+          ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
       }
     // }
   }

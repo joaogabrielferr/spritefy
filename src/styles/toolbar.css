@@ -32,6 +32,19 @@
     row-gap: 5px;
 }
 
+.toolbarPenSizes{
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 30px;
+}
+
+.penSizeButton{
+    border-style: none;
+    cursor: pointer;
+}
+
 @media screen and (max-width:768px) {
     .toolbar{
         flex-direction: row;

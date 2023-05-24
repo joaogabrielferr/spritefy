@@ -29,7 +29,8 @@ import { selectedToolContext } from './contexts/selectedTool/selectedToolContext
 
 interface IEditor{
     cssCanvasSize : number;
-    isMobile : boolean
+    isMobile : boolean,
+    penSize : number;
 }
 
 
@@ -57,7 +58,7 @@ let originalCanvasWidth : number;
 
 //////////////////////////////////////////////////////////
 
-export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element{
+export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX.Element{
     
 
     const {selectedColor,setSelectedColor} = useContext(selectedColorContext);
@@ -133,7 +134,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         
 
     },[cssCanvasSize,isMobile]);
-    // },[]);
 
     function setUpVariables(){
 
@@ -158,7 +158,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
         
 
-        penSize = pixel_size;
+        // penSize = pixel_size;
     }
 
 
@@ -284,15 +284,16 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }else if(selectedTool === 'line' && mouse.isPressed)
         {
             //remove draw from the top canvas
-            removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
+            removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),penSize);
             scene.current.currentDrawTopCanvas = [];
-            scene.current.currentDrawTopCanvas.push(Line(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,pixel_size));
+            scene.current.currentPixelsMousePressed = new Map();
+            scene.current.currentDrawTopCanvas.push(Line(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
         }else if(selectedTool === 'square' && mouse.isPressed)
         {
             //remove draw from the top canvas
             removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
             scene.current.currentDrawTopCanvas = [];
-            scene.current.currentDrawTopCanvas.push(Square(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,pixel_size));
+            scene.current.currentDrawTopCanvas.push(Square(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
         }else if(selectedTool === 'circle' && mouse.isPressed)
         {
             //remove draw from the top canvas
@@ -324,7 +325,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
             }
 
-            scene.current.currentDrawTopCanvas.push(Circle(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel!,selectedColor,pixel_size));
+            scene.current.currentDrawTopCanvas.push(Circle(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
                         
         }
 
@@ -488,7 +489,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         if(scene.current.currentDrawTopCanvas.length > 0)
         {
             const clean : Pixel[] = cleanDraw(scene.current.currentDrawTopCanvas);
-            translateDrawToMainCanvas(clean,ctx.current!,pixel_size,selectedColor);
+            translateDrawToMainCanvas(clean,ctx.current!,pixel_size,selectedColor,penSize,scene.current);
             undoStack.push(scene.current.currentDrawTopCanvas);
             
         }
@@ -507,7 +508,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     {
         if(event.ctrlKey && event.code === 'KeyZ')
         {
-            undoLastDraw(scene.current,penSize,ctx.current!);
+            undoLastDraw(scene.current,pixel_size,ctx.current!);
         }
     }
 

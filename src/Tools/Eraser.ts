@@ -25,6 +25,7 @@ export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_s
     const pixel : Pixel | null = scene.findPixel(xs,ys,pixel_size);
 
     //if this pixel is in currentPixelsMousePressed, that means it was already painted in the current pen stroke, no need to paint it twice
+    //if pixel is empty (not painted) dont do anything
     if (pixel != null && !isPixelAlreadyPaintedInCurrentDraw(pixel, scene) && !empty(pixel)) {
           pixel.colorStack.push(pixel.bgColor);
           scene.currentPixelsMousePressed.set(pixel.id, true);
@@ -32,6 +33,22 @@ export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_s
           ctx.fillRect(pixel.x1, pixel.y1, penSize, penSize);
 
           draw.push(pixel);
+
+          if(penSize === 2)
+            {
+                const neighbors = scene.findNeighborsSize2(pixel);
+                for(let n of neighbors)
+                {
+                    if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
+                    {
+                        scene.currentPixelsMousePressed.set(n.id, true);
+                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
+                        n.colorStack.push(n.bgColor);
+                        draw.push(n);
+                    }
+                }
+            }
+
 
       //if there are gaps between the points, fill them with bresenham's algorithm (see scene/buildPath.ts)
       if (scene.lastPixel !== null && mouse.isPressed && scene.lastPixel.id !== pixel.id && (eventName == "mousemove" || "touchmove")) {
@@ -45,13 +62,23 @@ export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_s
               p.colorStack.push(p.bgColor);
               scene.currentPixelsMousePressed.set(p.id, true);
               draw.push(p);
-              // if (penSize == PIXEL_SIZE * 2) {
-              //     paintPixelSize2(p, pixels, DISPLAY_SIZE, currentPixelsMousePressed, selectedColor, draw);
-              // }
+              
+              if(penSize === 2)
+                {
+                    const neighbors = scene.findNeighborsSize2(p);
+                    for(let n of neighbors)
+                    {
+                        if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
+                        {
+                            scene.currentPixelsMousePressed.set(n.id, true);
+                            ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
+                            n.colorStack.push(n.bgColor);
+                            draw.push(n);
+                        }
+                    }
+                }
 
-              // if (penSize == PIXEL_SIZE * 3) {
-              //     paintPixelsSize3(p, pixels, DISPLAY_SIZE, currentPixelsMousePressed, selectedColor, draw);
-              // }
+
               }
           }
       }

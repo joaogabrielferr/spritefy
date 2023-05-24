@@ -8,7 +8,6 @@ export function Line(scene : Scene,ctx : CanvasRenderingContext2D ,mouse : Mouse
 {
     const draw : Pixel[] = [];
 
-    //const [x,y] = mouse.toWorldCoordinates(currentScale);
     const x = mouse.x;
     const y = mouse.y;
 
@@ -16,14 +15,36 @@ export function Line(scene : Scene,ctx : CanvasRenderingContext2D ,mouse : Mouse
     if(!end)return draw;
 
     const path = bresenhamsAlgorithm(scene,start,end,pixel_size);
-
     for(let pixel of path)
     {
-        ctx.fillStyle = selectedColor;
-        ctx.fillRect(pixel.x1, pixel.y1, penSize, penSize);
-        draw.push(pixel);
+        if(!isPixelAlreadyPaintedInCurrentDraw(pixel, scene))
+        {
+            ctx.fillStyle = selectedColor;
+            ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
+            draw.push(pixel);
+
+            if(penSize === 2)
+            {
+                const neighbors = scene.findNeighborsSize2(pixel);
+                for(let n of neighbors)
+                {
+                    if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
+                    {
+                        scene.currentPixelsMousePressed.set(n.id, true);
+                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
+                        //n.colorStack.push(selectedColor);
+                        draw.push(n);
+                    }
+                }
+            }
+        }
+
     }
 
     return draw;
 
+}
+
+function isPixelAlreadyPaintedInCurrentDraw(pixel : Pixel,scene : Scene){
+    return scene.currentPixelsMousePressed.get(pixel.id);
 }

@@ -164,4 +164,16 @@ export default class Scene{
 
         // return pixel;
     }
+
+    findNeighborsSize2(pixel : Pixel)
+    {
+        const neighbors : Pixel[] = [];
+        if(pixel.i + 1 >= 0 && pixel.i + 1 < this.pixels[0].length)neighbors.push(this.pixels[pixel.i + 1][pixel.j]);
+        if(pixel.j + 1 >= 0 && pixel.j + 1 < this.pixels[0].length)neighbors.push(this.pixels[pixel.i][pixel.j + 1]);
+        if(pixel.i + 1 >= 0 && pixel.i + 1 < this.pixels[0].length && 
+            pixel.j + 1 >= 0 && pixel.j + 1 < this.pixels[0].length)neighbors.push(this.pixels[pixel.i + 1][pixel.j + 1]);
+
+        return neighbors;
+
+    }
 }

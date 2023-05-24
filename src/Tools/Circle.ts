@@ -18,8 +18,21 @@ export function Circle(scene : Scene,ctx : CanvasRenderingContext2D, pixel_size 
         {
             map.set(pixel.id,true);
             ctx.fillStyle = selectedColor;
-            ctx.fillRect(pixel.x1, pixel.y1, penSize, penSize);
+            ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
             draw.push(pixel);
+
+            if(penSize === 2)
+            {
+                const neighbors = scene.findNeighborsSize2(pixel);
+                for(let n of neighbors)
+                {
+                    
+                    scene.currentPixelsMousePressed.set(n.id, true);
+                    ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
+                    draw.push(n);
+                    
+                }
+            }
 
         }
     }
