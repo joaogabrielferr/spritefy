@@ -39,7 +39,7 @@ export function Header({isMobile} : {isMobile : boolean}){
                         <Logo></Logo>
                         <a href="https://github.com/joaogabrielferr/pixel-art-editor" target="_blank"><Github></Github></a>
                     </div>
-                    {!isMobile && <div style = {{fontWeight:'bold'}}>New drawing*</div>}
+                    {!isMobile && <div style = {{fontWeight:'bold'}}>New drawing</div>}
                     {/* {!isMobile && <input className = "drawingNameInput" ref = {drawingNameInput} type="text" onChange={handleInputChange}/>} */}
                     <button ref = {downloadButton} className = "downloadButton">DOWNLOAD DRAWING</button>
                 </div>

@@ -12,7 +12,7 @@
     flex-ite */
     /* display: grid; */
     overflow-y: auto;
-    
+    font-size: 14px;
 }
 
 .palettesTitle{
@@ -49,7 +49,7 @@
 }
 
 .paletteButton:hover{
-    border:2px solid gray;
+    border:2px solid rgb(212, 212, 212);
 }
 
 .palette>button{

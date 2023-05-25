@@ -49,26 +49,35 @@ function App() {
   const {selectedColor,setSelectedColor} = useContext(selectedColorContext);
   const {selectedTool,setSelectedTool} = useContext(selectedToolContext);
 
-  const [cssCanvasSize,setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize
+
+  const [cssCanvasSize,setCssCanvasSize] = useState<number>(window.innerHeight - 50 - 30); //TODO: change the name of this state to something like canvasWrapperSize
 
   const [penSize,setPenSize] = useState<number>(1);
 
 
   //here mobile is simply any device that has a screen height greater than screen width
-  const [isMobile,setIsMobile] = useState<boolean>(window.innerWidth < window.innerHeight || window.innerWidth <= 768); //TODO:this may be two simple, search for a better way to detect a mobile device
+  const [isMobile,setIsMobile] = useState<boolean>(window.innerWidth <= 768); //TODO:this may be two simple, search for a better way to detect a mobile device
 
-  function handleWindowResize(){
-    setIsMobile(window.innerWidth < window.innerHeight || window.innerWidth <= 768);
-  }
 
   useEffect(function(){
-
-    //innerHeight of screen - 50px of header - some offset
-
-    //if on mobile, set this state to be equal to screen width
-      if(isMobile)setCssCanvasSize(window.innerWidth);
-      else setCssCanvasSize(window.innerHeight - 50 - 30)
-      //setCssCanvasSize(600)
+    function handleWindowResize(){
+      // console.log(cssCanvasSize);
+      // console.log("updating size:",window.innerWidth - 200 - 30);
+    
+      setCssCanvasSize((_)=>window.innerHeight - 50 - 30)
+  
+      if(window.innerWidth <= 1000)
+      {
+        setCssCanvasSize((_)=>cssCanvasSize - 200);
+      }
+      
+      if(window.innerWidth <= 768)
+      {
+        setCssCanvasSize((_)=>window.innerWidth);
+      }
+  
+      setIsMobile((_)=>window.innerWidth <= 768);
+    }
 
       window.addEventListener('resize',handleWindowResize)
 
@@ -76,7 +85,7 @@ function App() {
         window.removeEventListener('resize',handleWindowResize);
       }
 
-  },[isMobile]);
+  },[cssCanvasSize]);
 
 
 

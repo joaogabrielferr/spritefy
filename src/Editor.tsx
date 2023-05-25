@@ -47,9 +47,6 @@ let bgTileSize : number;
 
 
 let currentScale = 1;
-// const defaultPenSize = pixel_size;
-let penSize : number;
-
 
 let coordinatesElement : HTMLParagraphElement;
 
@@ -80,7 +77,7 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
     
 
     useEffect(()=>{
-
+        console.log("HELLO");
         setUpVariables();
         //TODO: i need to save current drawing on browser
         //problem: for big drawing sizes like 500x500 its impractical to save it on local storage, and even on indexedDB
@@ -110,12 +107,24 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
             originalCanvasWidth = cssCanvasSize;
         }else
         {
-            canvas.style.width = `${cssCanvasSize - 50}px`;
-            canvas.style.height = `${cssCanvasSize - 50}px`;
-
-            topCanvas.style.width = `${cssCanvasSize - 50}px`;
-            topCanvas.style.height = `${cssCanvasSize - 50}px`;
-            originalCanvasWidth = cssCanvasSize - 50;
+            if(cssCanvasSize <= 700)
+            {
+                canvas.style.width = `${cssCanvasSize - 200}px`;
+                canvas.style.height = `${cssCanvasSize - 200}px`;
+    
+                topCanvas.style.width = `${cssCanvasSize - 200}px`;
+                topCanvas.style.height = `${cssCanvasSize - 200}px`;
+                originalCanvasWidth = cssCanvasSize - 200;
+            }else
+            {
+                canvas.style.width = `${cssCanvasSize - 100}px`;
+                canvas.style.height = `${cssCanvasSize - 100}px`;
+    
+                topCanvas.style.width = `${cssCanvasSize - 100}px`;
+                topCanvas.style.height = `${cssCanvasSize - 100}px`;
+                originalCanvasWidth = cssCanvasSize - 100;
+                
+            }
 
         }
 
@@ -478,6 +487,18 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
     }
     
     }
+
+    function resetCanvasPosition(){
+        console.log("resetando");
+        canvas.style.width = `${originalCanvasWidth}px`;
+        canvas.style.height = `${originalCanvasWidth}px`;
+        canvas.style.left = "50%";
+        canvas.style.top = "50%";
+        topCanvas.style.width = `${originalCanvasWidth}px`;
+        topCanvas.style.height = `${originalCanvasWidth}px`;
+        topCanvas.style.left = "50%";
+        topCanvas.style.top = "50%";
+    }
     
 
         
@@ -530,7 +551,8 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
 
     
 
-    return <div className = "editor" 
+    return <div style = {!isMobile ? {height:cssCanvasSize, width:'100%'} : {width:'100%',height:cssCanvasSize}} >
+        <div className = "editor" 
             style = {!isMobile ? {height:cssCanvasSize, width:'100%'} : {width:'100%',height:cssCanvasSize}} 
             ref = {outerDivRef} 
             onWheel={handleZoom}
@@ -541,8 +563,10 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
             <canvas id = "topCanvas"
                 ref = {topCanvasRef}
             ></canvas>
-            <canvas id="canvas" ref = {canvasRef}> Your browser does not support canvas </canvas>            
+            <canvas id="canvas" ref = {canvasRef}> Your browser does not support canvas </canvas>  
           </div>
+            <button onClick ={resetCanvasPosition}>center</button>          
+        </div>
 
 
 }
