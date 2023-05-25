@@ -26,13 +26,18 @@ export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_s
 
     //if this pixel is in currentPixelsMousePressed, that means it was already painted in the current pen stroke, no need to paint it twice
     //if pixel is empty (not painted) dont do anything
-    if (pixel != null && !isPixelAlreadyPaintedInCurrentDraw(pixel, scene) && !empty(pixel)) {
-          pixel.colorStack.push(pixel.bgColor);
-          scene.currentPixelsMousePressed.set(pixel.id, true);
+    if (pixel != null) {
+
+          if(!isPixelAlreadyPaintedInCurrentDraw(pixel, scene) && !empty(pixel))
+          {
+              pixel.colorStack.push(pixel.bgColor);
+              scene.currentPixelsMousePressed.set(pixel.id, true);
+              draw.push(pixel);
+
+          }
           ctx.fillStyle = pixel.bgColor;
           ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
 
-          draw.push(pixel);
 
           if(penSize === 2)
             {
@@ -42,11 +47,11 @@ export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_s
                     if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
                     {
                         scene.currentPixelsMousePressed.set(n.id, true);
-                        ctx.fillStyle = n.bgColor;
-                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                         n.colorStack.push(n.bgColor);
                         draw.push(n);
                     }
+                        ctx.fillStyle = n.bgColor;
+                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                 }
             }else if(penSize === 3)
             {
@@ -56,11 +61,11 @@ export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_s
                     if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
                     {
                         scene.currentPixelsMousePressed.set(n.id, true);
-                        ctx.fillStyle = n.bgColor;
-                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                         n.colorStack.push(n.bgColor);
                         draw.push(n);
                     }
+                        ctx.fillStyle = n.bgColor;
+                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                 }
             }
 
@@ -72,11 +77,12 @@ export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_s
           const path = bresenhamsAlgorithm(scene, scene.lastPixel, pixel,pixel_size);
           for (let p of path) {
               if (!isPixelAlreadyPaintedInCurrentDraw(p, scene)) {
+                  p.colorStack.push(p.bgColor);
+                  scene.currentPixelsMousePressed.set(p.id, true);
+                  draw.push(p);
+              }
               ctx.fillStyle = p.bgColor;
               ctx.fillRect(p.x1, p.y1, pixel_size, pixel_size);
-              p.colorStack.push(p.bgColor);
-              scene.currentPixelsMousePressed.set(p.id, true);
-              draw.push(p);
               
               if(penSize === 2)
                 {
@@ -86,11 +92,11 @@ export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_s
                         if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
                         {
                             scene.currentPixelsMousePressed.set(n.id, true);
-                            ctx.fillStyle = n.bgColor;
-                            ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                             n.colorStack.push(n.bgColor);
                             draw.push(n);
                         }
+                            ctx.fillStyle = n.bgColor;
+                            ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                     }
                 }else if(penSize === 3)
                 {
@@ -100,16 +106,16 @@ export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_s
                         if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
                         {
                             scene.currentPixelsMousePressed.set(n.id, true);
-                            ctx.fillStyle = n.bgColor;
-                            ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                             n.colorStack.push(n.bgColor);
                             draw.push(n);
                         }
+                            ctx.fillStyle = n.bgColor;
+                            ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
                     }
                 }
 
 
-              }
+              
           }
       }
 
