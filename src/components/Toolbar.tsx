@@ -38,9 +38,12 @@ export function Toolbar({toolButtons,setSelectedTool,selectedTool,setPenSize,pen
             }else if(['l','L','5'].indexOf(event.key) > -1)
             {
                 setSelectedTool('line');
-            }else if(['s','S','6'].indexOf(event.key) > -1)
+            }else if(['r','R','6'].indexOf(event.key) > -1)
             {
                 setSelectedTool('square');
+            }else if(['c','C','7'].indexOf(event.key) > -1)
+            {
+                setSelectedTool('circle');
             }
         }
 
@@ -74,7 +77,9 @@ export function Toolbar({toolButtons,setSelectedTool,selectedTool,setPenSize,pen
                         return <button className = "toolButton"
                         style={{backgroundColor:selectedTool === button.tool ? "#634cb8" : "#dddddd"}}
                         onClick={()=>setSelectedTool(button.tool)}
-                        key = {button.tool}     
+                        key = {button.tool} 
+                        data-tooltip-id="my-tooltip"
+                        data-tooltip-content={button.tooltip}    
                         >{button.svg}</button>
                     })
                     }
@@ -83,7 +88,7 @@ export function Toolbar({toolButtons,setSelectedTool,selectedTool,setPenSize,pen
             </div>
 
             <div><h6>PEN SIZES</h6></div>
-            <div className="toolbarPenSizes">
+            <div className="toolbarPenSizes" data-tooltip-id="my-tooltip" data-tooltip-content={"Pen sizes(1 to 3)"} >
                 <button className = "penSizeButton" style={{backgroundColor: penSize === 1 ? "#634cb8" : "#dddddd",height:'10px',width:'10%'}} onClick={()=>setPenSize(1)}></button>
                 <button className = "penSizeButton" style={{backgroundColor: penSize === 2 ? "#634cb8" : "#dddddd",height:'15px',width:'20%'}} onClick={()=>setPenSize(2)}></button>
                 <button className = "penSizeButton" style={{backgroundColor: penSize === 3 ? "#634cb8" : "#dddddd",height:'20px',width:'20%'}} onClick={()=>setPenSize(3)}></button>

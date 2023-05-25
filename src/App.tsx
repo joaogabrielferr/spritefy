@@ -2,7 +2,7 @@ import {useContext, useEffect, useState } from "react";
 import Editor from "./Editor"
 import './styles/sideBar.css';
 import './styles/index.css';
-import {ColorResult, HuePicker, SketchPicker} from 'react-color';
+import {ColorResult, CustomPicker, HuePicker, SketchPicker} from 'react-color';
 import { Pencil } from "./svg/Pencil";
 import { Eraser } from "./svg/Eraser";
 import { PaintBucket } from "./svg/PaintBucket";
@@ -17,26 +17,29 @@ import { Palettes } from "./components/Palettes";
 import { selectedColorContext } from "./contexts/selectedColor/selectedColorContext";
 import { selectedToolContext } from "./contexts/selectedTool/selectedToolContext";
 import { Header } from "./components/Header";
+import { Tooltip } from 'react-tooltip';
+import {
+  EditableInput,
+  Hue,
+  Saturation
+} from "react-color/lib/components/common";
+import CustomColorPicker from "./components/ColorPicker";
 
 
 
 const ToolButtons = [
-  {tool:'pencil',svg: <Pencil/>},
-  {tool:'eraser',svg: <Eraser/>},
-  {tool:'paintBucket',svg: <PaintBucket/>},
-  {tool:'dropper',svg: <Dropper/>},
-  {tool:'line',svg: <Line/>},
-  {tool: 'square',svg : <Square/>},
-  {tool: 'circle',svg : <Circle/>},
+  {tool:'pencil',svg: <Pencil/>,tooltip:'Pen tool(P or 1)'},
+  {tool:'eraser',svg: <Eraser/>,tooltip:'Eraser tool(E or 2)'},
+  {tool:'paintBucket',svg: <PaintBucket/>,tooltip: 'Paint bucket(B or 3)'},
+  {tool:'dropper',svg: <Dropper/>,tooltip:'Color picker(D or 4)'},
+  {tool:'line',svg: <Line/>,tooltip:'Pencil stroke line(L or 5)'},
+  {tool: 'square',svg : <Square/>,tooltip:'Rectangle tool(R or 6)'},
+  {tool: 'circle',svg : <Circle/>,tooltip:'Circle tool(C or 7)'},
 ] as ToolButton[];
 
 
-//TODO: Improve style (try to make it definitive)
 //TODO: Set the important variables as states (pen size, canvas size, etc, also update canvas size on window resize)
 //TODO: Add button to reset all canvas positions (back to the center of outer div)
-/*TODO: Add different pen Sizes (probably allow user to set pixel_size, then search for all pixels within the painted area,
-        also use a different variable since pixel_size is used to initialize pixel matrix and other stuff)*/
-
 //TODO: set CANVAS_SIZE and pen size as state and globally available with context
 //TODO: Add license page to add licenses of libs used (tabler-icon)
 
@@ -81,6 +84,8 @@ function App() {
     setSelectedColor(color.hex);
   }
 
+  const ColorPicker = CustomPicker(CustomColorPicker);
+
 
   return (
         <main>
@@ -102,7 +107,7 @@ function App() {
 
                 {!isMobile && <div className="sideBar" style = {{height:cssCanvasSize}}>
                     <Sidebar width={'90%'} height={cssCanvasSize}>
-                        <SketchPicker presetColors={[]} color={selectedColor} onChangeComplete={handleChangeSelectedColor} width="auto" disableAlpha = {true} ></SketchPicker>
+                        <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
                         <Palettes></Palettes>
                     </Sidebar>
                 </div>}
@@ -116,6 +121,7 @@ function App() {
               
               </div>
           </section>
+          <Tooltip id="my-tooltip" place="right" style={{zIndex:9999,backgroundColor:'#383838'}}/>
         </main>
   )
 }
