@@ -21,6 +21,7 @@
     transform: translate(-50%, -50%);
 
     /* cursor:crosshair; */
+    /* cursor: url('../svg/pencil.svg'),auto; */
 
     image-rendering: optimizeSpeed; /* Older browsers */
     image-rendering: -moz-crisp-edges; /* Firefox */

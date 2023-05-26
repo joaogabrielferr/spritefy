@@ -15,7 +15,7 @@ export type Pixel = {
 
 export type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper' | 'line' | 'square' | 'circle';
 
-export type ToolButton= {tool : toolsType, svg : JSX.Element,tooltip:string};
+export type ToolButton= {tool : toolsType, svg : JSX.Element,tooltip:string,tooltipDataHtml? : string[]};
 
 export type PaletteType = {name : string,colors: string[],id : number};
 
