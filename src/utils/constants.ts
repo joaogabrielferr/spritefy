@@ -4,4 +4,5 @@ export const SCALE_FACTOR = 0.15;
 export const MAX_ZOOM_AMOUNT = 40;
 export const CIRCLE_RADIUS_INCREASE_FACTOR = 0.3;
 export const BG_COLORS = ['#696969','#858585'];
+export const RESET_CANVAS_POSITION = 'reset-canvas-position';
 // export const BG_COLORS = ['#757575','#5e5e5e'];

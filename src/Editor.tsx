@@ -5,7 +5,8 @@ CANVAS_SIZE,
 MAX_ZOOM_AMOUNT,
 BG_COLORS,
 SCALE_FACTOR,
-CIRCLE_RADIUS_INCREASE_FACTOR
+CIRCLE_RADIUS_INCREASE_FACTOR,
+RESET_CANVAS_POSITION
 }
  from './utils/constants';
 import Mouse from './scene/Mouse';
@@ -24,6 +25,7 @@ import { Square } from './Tools/Square';
 import { Circle } from './Tools/Circle';
 import { selectedColorContext } from './contexts/selectedColor/selectedColorContext';
 import { selectedToolContext } from './contexts/selectedTool/selectedToolContext';
+import { EventBus } from './EventBus';
 
 
 
@@ -74,10 +76,9 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
     //i need to persist scene between re renders but i also dont want to trigger a re render every time i change it, i guess this works
     //this may be better than declaring it as a global variable
     const scene = useRef<Scene>(new Scene());
-    
+
 
     useEffect(()=>{
-        console.log("HELLO");
         setUpVariables();
         //TODO: i need to save current drawing on browser
         //problem: for big drawing sizes like 500x500 its impractical to save it on local storage, and even on indexedDB
@@ -173,9 +174,11 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
 
     useEffect(()=>{
 
+        const subscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION,resetCanvasPosition);
         document.addEventListener('keydown',checkKeyCombinations);
         
         return ()=>{
+            subscription.unsubscribe();
             document.removeEventListener('keydown',checkKeyCombinations);
         }
 
@@ -351,22 +354,44 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
         {
 
             if(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size){
-                if(!scene.current.previousPixelWhileMovingMouse || (scene.current.previousPixelWhileMovingMouse && !(mouse.x >= scene.current.previousPixelWhileMovingMouse.x1 && mouse.x < scene.current.previousPixelWhileMovingMouse.x1 + pixel_size && mouse.y >=scene.current.previousPixelWhileMovingMouse.y1 && mouse.y < scene.current.previousPixelWhileMovingMouse.y1 + pixel_size)))
+                if(!scene.current.previousPixelWhileMovingMouse || 
+                    (scene.current.previousPixelWhileMovingMouse && 
+                        !(mouse.x >= scene.current.previousPixelWhileMovingMouse.x1 &&
+                             mouse.x < scene.current.previousPixelWhileMovingMouse.x1 + penSize &&
+                              mouse.y >=scene.current.previousPixelWhileMovingMouse.y1 &&
+                               mouse.y < scene.current.previousPixelWhileMovingMouse.y1 + penSize)))
                 {
                     const newPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
                     if(newPixel)
                     {
+                    
+                        if(scene.current.previousPixelWhileMovingMouse)
+                        {
+                            removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse,...scene.current.previousNeighborsWhileMovingMouse],pixel_size);
+                        }
                         // topCtx.current!.fillStyle = selectedColor;
                         topCtx.current!.fillStyle = 'rgb(196, 193, 206,0.5)';
                         topCtx.current!.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
 
-                        
-                        
-                        if(scene.current.previousPixelWhileMovingMouse)
+                        let neighbors : Pixel[] = [];
+
+                        if(penSize === 2)
                         {
-                            removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse],pixel_size);
+                            neighbors = scene.current.findNeighborsSize2(newPixel);
+                        }else if(penSize === 3)
+                        {
+                            neighbors = scene.current.findNeighborsSize3(newPixel);
                         }
 
+                        for(let n of neighbors)
+                        {
+                            topCtx.current!.fillStyle = 'rgb(196, 193, 206,0.5)';
+                            topCtx.current!.fillRect(n.x1,n.y1,pixel_size,pixel_size);                                            
+                        }
+                        
+                        scene.current.previousNeighborsWhileMovingMouse = neighbors;
+                        
+                
                         scene.current.previousPixelWhileMovingMouse = newPixel;
 
                     }
@@ -375,7 +400,7 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
             {
                 if(scene.current.previousPixelWhileMovingMouse)
                 {
-                    removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse],pixel_size);
+                    removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse,...scene.current.previousNeighborsWhileMovingMouse],pixel_size);
                 }
             }
 
@@ -500,6 +525,8 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
         topCanvas.style.height = `${originalCanvasWidth}px`;
         topCanvas.style.left = "50%";
         topCanvas.style.top = "50%";
+        currentScale = 1;
+        scene.current.zoomAmount = 0;
     }
     
 

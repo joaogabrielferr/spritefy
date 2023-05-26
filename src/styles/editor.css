@@ -20,7 +20,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
 
-    cursor:crosshair;
+    /* cursor:crosshair; */
 
     image-rendering: optimizeSpeed; /* Older browsers */
     image-rendering: -moz-crisp-edges; /* Firefox */

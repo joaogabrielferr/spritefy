@@ -2,7 +2,7 @@ import {useContext, useEffect, useState } from "react";
 import Editor from "./Editor"
 import './styles/sideBar.css';
 import './styles/index.css';
-import {ColorResult, CustomPicker, HuePicker, SketchPicker} from 'react-color';
+import {ColorResult, CustomPicker, HuePicker} from 'react-color';
 import { Pencil } from "./svg/Pencil";
 import { Eraser } from "./svg/Eraser";
 import { PaintBucket } from "./svg/PaintBucket";
@@ -18,12 +18,9 @@ import { selectedColorContext } from "./contexts/selectedColor/selectedColorCont
 import { selectedToolContext } from "./contexts/selectedTool/selectedToolContext";
 import { Header } from "./components/Header";
 import { Tooltip } from 'react-tooltip';
-import {
-  EditableInput,
-  Hue,
-  Saturation
-} from "react-color/lib/components/common";
 import CustomColorPicker from "./components/ColorPicker";
+import { EventBus } from "./EventBus";
+import { RESET_CANVAS_POSITION } from "./utils/constants";
 
 
 
@@ -56,6 +53,12 @@ function App() {
 
   //here mobile is simply any device that has a screen height greater than screen width
   const [isMobile,setIsMobile] = useState<boolean>(window.innerWidth <= 768); //TODO:this may be two simple, search for a better way to detect a mobile device
+
+
+  function handleResetCanvasPosition(){
+      EventBus.getInstance().publish(RESET_CANVAS_POSITION);
+  }
+
 
   function handleWindowResize(){
     
@@ -103,7 +106,7 @@ function App() {
             <div className = "editorWrapper">
 
                 {!isMobile && 
-                <Sidebar width={'7%'} height={cssCanvasSize}>
+                <Sidebar width={'6%'} height={cssCanvasSize}>
                     <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool} setPenSize = {setPenSize} penSize = {penSize}/>
                 </Sidebar>}
 
@@ -131,6 +134,7 @@ function App() {
               </div>
           </section>
           <Tooltip id="my-tooltip" place="right" style={{zIndex:9999,backgroundColor:'#383838'}}/>
+          <div><button onClick = {handleResetCanvasPosition}>center canvas</button></div>
         </main>
   )
 }

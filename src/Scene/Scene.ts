@@ -17,6 +17,8 @@ export default class Scene{
 
     previousPixelWhileMovingMouse : Pixel | null;
 
+    previousNeighborsWhileMovingMouse : Pixel[];
+
     lineFirstPixel : Pixel | null; //start pixel for drawing a line, square or circle
 
     circleRadius : number;
@@ -33,6 +35,7 @@ export default class Scene{
         this.lastPixel = null;
         this.currentPixelsMousePressed = new Map();
         this.previousPixelWhileMovingMouse = null;
+        this.previousNeighborsWhileMovingMouse = [];
         this.zoomAmount = 0;
         this.lineFirstPixel = null;
         this.circleRadius = 1;
@@ -54,7 +57,6 @@ export default class Scene{
 
         let currentBgColor = BG_COLORS[0];
 
-        // console.log("display size:",display_size,"pixel size:",pixel_size);
         let pixelID = 1;
         let idxi = 0,
             idxj = 0;
@@ -71,8 +73,6 @@ export default class Scene{
                 counter++;
                 let x1 = i;
                 let y1 = j;
-                // let x2 = i + pixel_size;
-                // let y2 = j + pixel_size;
                 const pixel = {
                     bgColor : currentBgColor,
                     x1: x1,
@@ -96,23 +96,6 @@ export default class Scene{
             this.pixels.push(row);
         }
 
-
-
-        
-        // const pixelsStorage = [];
-        // for (let i = 0; i < this.pixels.length; i++) {
-        //     const row = [];
-        //     for (let j = 0; j < this.pixels[i].length; j++) {
-
-        //         row.push({x1:this.pixels[i][j].x1,y1:this.pixels[i][j].y1,color : this.pixels[i][j].colorStack.top() || "black"});
-
-        //     }
-        //     pixelsStorage.push(row);
-        // }
-
-
-        // console.info(new Blob([JSON.stringify(this.pixels)]).size);
-        // console.info(new Blob([JSON.stringify(pixelsStorage)]).size);
 
     }
 
