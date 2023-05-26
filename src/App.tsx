@@ -34,7 +34,8 @@ const ToolButtons = [
   {tool: 'circle',svg : <Circle/>,tooltip:'Circle tool(C or 7)'},
 ] as ToolButton[];
 
-
+//TODO: fix undo redo (if i put a new draw on undo, redo should be cleaned) i.e 1,2,3,4,5 on undo, 5 and 4 added to redo, if i add 6 to undo, redo should be cleaned, but 4 and 5 can be added back to undo
+//TODO: Detect pinch for zooming in mobile
 //TODO: Changas Canvas Size on window resize (for the canvas size wrapper, only change its size on mobile)
 //TODO: Add button to reset all canvas positions (back to the center of outer div)
 //TODO: set CANVAS_SIZE and pen size as state and globally available with context
@@ -64,6 +65,8 @@ function App() {
     
 
     setCssCanvasSize(window.innerHeight - 50 - 30)
+
+    EventBus.getInstance().publish(RESET_CANVAS_POSITION);
     
     if(window.innerWidth <= 768)
     {
@@ -106,7 +109,7 @@ function App() {
             <div className = "editorWrapper">
 
                 {!isMobile && 
-                <Sidebar width={'6%'} height={cssCanvasSize}>
+                <Sidebar width={'80px'} height={cssCanvasSize}>
                     <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool} setPenSize = {setPenSize} penSize = {penSize}/>
                 </Sidebar>}
 
@@ -117,24 +120,31 @@ function App() {
                 ></Editor>    
 
 
-                {!isMobile && <div className="sideBar" style = {{height:cssCanvasSize}}>
-                    <Sidebar width={'90%'} height={cssCanvasSize}>
-                        <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
-                        <Palettes></Palettes>
-                    </Sidebar>
-                </div>}
+                {!isMobile && 
+                  <Sidebar width={'250px'} height={cssCanvasSize}>
+                    <div style = {{width:'90%',height:'100%'}}>
+                      <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
+                      <Palettes></Palettes>
+                    </div>
+                  </Sidebar>
+                }
               </div>
 
               <div>
-              {isMobile && <div style={{width:'350px', height:'300px',marginTop:'18px'}}>
-                  <HuePicker width="auto" color={selectedColor} onChangeComplete={handleChangeSelectedColor}></HuePicker>
+              {isMobile && <div className = "mobileOptions">
+                  <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
                   <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool} setPenSize = {setPenSize} penSize = {penSize}></Toolbar>
               </div>}
               
               </div>
           </section>
-          <Tooltip id="my-tooltip" place="right" style={{zIndex:9999,backgroundColor:'#383838'}}/>
-          <div><button onClick = {handleResetCanvasPosition}>center canvas</button></div>
+          {
+            !isMobile && <Tooltip id="my-tooltip" place="right" style={{zIndex:9999,backgroundColor:'#634cb8'}}/>
+          }
+          <div className = "footer">
+            <button onClick = {handleResetCanvasPosition}>center canvas</button>
+            <p id = "coordinates">{"[X:0,Y:0]"}</p>
+          </div>
         </main>
   )
 }

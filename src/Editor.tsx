@@ -354,13 +354,14 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
         {
 
             if(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size){
-                if(!scene.current.previousPixelWhileMovingMouse || 
-                    (scene.current.previousPixelWhileMovingMouse && 
-                        !(mouse.x >= scene.current.previousPixelWhileMovingMouse.x1 &&
-                             mouse.x < scene.current.previousPixelWhileMovingMouse.x1 + penSize &&
-                              mouse.y >=scene.current.previousPixelWhileMovingMouse.y1 &&
-                               mouse.y < scene.current.previousPixelWhileMovingMouse.y1 + penSize)))
-                {
+                //if(!scene.current.previousPixelWhileMovingMouse)
+                //  || 
+                //     (scene.current.previousPixelWhileMovingMouse && 
+                //         !(mouse.x >= scene.current.previousPixelWhileMovingMouse.x1 &&
+                //              mouse.x < scene.current.previousPixelWhileMovingMouse.x1 + penSize &&
+                //               mouse.y >=scene.current.previousPixelWhileMovingMouse.y1 &&
+                //                mouse.y < scene.current.previousPixelWhileMovingMouse.y1 + penSize)))
+                //{
                     const newPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
                     if(newPixel)
                     {
@@ -395,7 +396,7 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
                         scene.current.previousPixelWhileMovingMouse = newPixel;
 
                     }
-                }
+                //}
             }else
             {
                 if(scene.current.previousPixelWhileMovingMouse)

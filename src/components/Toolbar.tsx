@@ -69,13 +69,14 @@ export function Toolbar({toolButtons,setSelectedTool,selectedTool,setPenSize,pen
     console.log(penSize);
 
     return <div className = "toolbar">
-            <div><h6>TOOLS</h6></div>
+            <div className = "toolbarItem">
+            <div className = "toolTitle">TOOLS</div>
             <div className = "toolbarButtons">
 
                     {
                     toolButtons.map((button : ToolButton)=>{
                         return <button className = "toolButton"
-                        style={{backgroundColor:selectedTool === button.tool ? "#634cb8" : "#dddddd"}}
+                        style={{backgroundColor:selectedTool === button.tool ? "#634cb8" : ""}}
                         onClick={()=>setSelectedTool(button.tool)}
                         key = {button.tool} 
                         data-tooltip-id="my-tooltip"
@@ -86,15 +87,16 @@ export function Toolbar({toolButtons,setSelectedTool,selectedTool,setPenSize,pen
                 
 
             </div>
-
-            <div><h6>PEN SIZES</h6></div>
+            </div>
+            
+            <div className = "toolbarItem">
+            <div className = "toolTitle">PEN SIZES</div>
             <div className="toolbarPenSizes" data-tooltip-id="my-tooltip" data-tooltip-content={"Pen sizes(1 to 3)"} >
                 <button className = "penSizeButton" style={{backgroundColor: penSize === 1 ? "#634cb8" : "#dddddd",height:'10px',width:'10%'}} onClick={()=>setPenSize(1)}></button>
                 <button className = "penSizeButton" style={{backgroundColor: penSize === 2 ? "#634cb8" : "#dddddd",height:'15px',width:'20%'}} onClick={()=>setPenSize(2)}></button>
                 <button className = "penSizeButton" style={{backgroundColor: penSize === 3 ? "#634cb8" : "#dddddd",height:'20px',width:'20%'}} onClick={()=>setPenSize(3)}></button>
             </div>
-
-            <p id = "coordinates">{"[X:0,Y:0]"}</p>
+            </div>
             </div>
 
 }
