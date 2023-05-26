@@ -38,7 +38,7 @@ const ToolButtons = [
 ] as ToolButton[];
 
 
-//TODO: Set the important variables as states (pen size, canvas size, etc, also update canvas size on window resize)
+//TODO: Changas Canvas Size on window resize (for the canvas size wrapper, only change its size on mobile)
 //TODO: Add button to reset all canvas positions (back to the center of outer div)
 //TODO: set CANVAS_SIZE and pen size as state and globally available with context
 //TODO: Add license page to add licenses of libs used (tabler-icon)
@@ -49,8 +49,7 @@ function App() {
   const {selectedColor,setSelectedColor} = useContext(selectedColorContext);
   const {selectedTool,setSelectedTool} = useContext(selectedToolContext);
 
-
-  const [cssCanvasSize,setCssCanvasSize] = useState<number>(window.innerHeight - 50 - 30); //TODO: change the name of this state to something like canvasWrapperSize
+  const [cssCanvasSize,setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize
 
   const [penSize,setPenSize] = useState<number>(1);
 
@@ -58,26 +57,26 @@ function App() {
   //here mobile is simply any device that has a screen height greater than screen width
   const [isMobile,setIsMobile] = useState<boolean>(window.innerWidth <= 768); //TODO:this may be two simple, search for a better way to detect a mobile device
 
+  function handleWindowResize(){
+    
+
+    setCssCanvasSize(window.innerHeight - 50 - 30)
+    
+    if(window.innerWidth <= 768)
+    {
+      setCssCanvasSize(window.innerWidth);
+    }
+
+    setIsMobile(window.innerWidth <= 768);
+  }
 
   useEffect(function(){
-    function handleWindowResize(){
-      // console.log(cssCanvasSize);
-      // console.log("updating size:",window.innerWidth - 200 - 30);
-    
-      setCssCanvasSize((_)=>window.innerHeight - 50 - 30)
-  
-      if(window.innerWidth <= 1000)
-      {
-        setCssCanvasSize((_)=>cssCanvasSize - 200);
-      }
-      
-      if(window.innerWidth <= 768)
-      {
-        setCssCanvasSize((_)=>window.innerWidth);
-      }
-  
-      setIsMobile((_)=>window.innerWidth <= 768);
-    }
+
+
+    //if on mobile, set this state to be equal to screen width
+      if(isMobile)setCssCanvasSize(window.innerWidth);
+      else setCssCanvasSize(window.innerHeight - 50 - 30)
+      //setCssCanvasSize(600)
 
       window.addEventListener('resize',handleWindowResize)
 
@@ -85,8 +84,9 @@ function App() {
         window.removeEventListener('resize',handleWindowResize);
       }
 
-  },[cssCanvasSize]);
+  },[isMobile]);
 
+  
 
 
   function handleChangeSelectedColor(color : ColorResult){

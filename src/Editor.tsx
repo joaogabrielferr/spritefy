@@ -12,7 +12,7 @@ import Mouse from './scene/Mouse';
 import Scene from './scene/Scene';
 import { Pencil } from './Tools/Pencil';
 import { Eraser } from './Tools/Eraser';
-import {undoLastDraw, undoStack } from './Tools/UndoRedo';
+import {redoLastDraw, undoLastDraw, undoStack } from './Tools/UndoRedo';
 import { PaintBucket } from './Tools/PaintBucket';
 import { Dropper } from './Tools/Dropper';
 import { Line } from './Tools/Line';
@@ -107,24 +107,24 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
             originalCanvasWidth = cssCanvasSize;
         }else
         {
-            if(cssCanvasSize <= 700)
-            {
-                canvas.style.width = `${cssCanvasSize - 200}px`;
-                canvas.style.height = `${cssCanvasSize - 200}px`;
-    
-                topCanvas.style.width = `${cssCanvasSize - 200}px`;
-                topCanvas.style.height = `${cssCanvasSize - 200}px`;
-                originalCanvasWidth = cssCanvasSize - 200;
-            }else
-            {
+            // if(cssCanvasSize <= 700)
+            // {
                 canvas.style.width = `${cssCanvasSize - 100}px`;
                 canvas.style.height = `${cssCanvasSize - 100}px`;
     
                 topCanvas.style.width = `${cssCanvasSize - 100}px`;
                 topCanvas.style.height = `${cssCanvasSize - 100}px`;
                 originalCanvasWidth = cssCanvasSize - 100;
+            // }else
+            // {
+            //     canvas.style.width = `${cssCanvasSize - 100}px`;
+            //     canvas.style.height = `${cssCanvasSize - 100}px`;
+    
+            //     topCanvas.style.width = `${cssCanvasSize - 100}px`;
+            //     topCanvas.style.height = `${cssCanvasSize - 100}px`;
+            //     originalCanvasWidth = cssCanvasSize - 100;
                 
-            }
+            // }
 
         }
 
@@ -413,7 +413,8 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
                 canvas.style.height = `${newSize}px`;
                 topCanvas.style.width = `${newSize}px`;
                 topCanvas.style.height = `${newSize}px`;
-            }else if(scene.current.zoomAmount < MAX_ZOOM_AMOUNT){
+            }else 
+            if(scene.current.zoomAmount < MAX_ZOOM_AMOUNT){
 
                 scene.current.zoomAmount++;
                 
@@ -474,7 +475,8 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
                 topCanvas.style.top = `${topCanvas.offsetTop + dy}px`;
 
             }   
-        }else if(parseFloat(canvas.style.width) > display_size)
+        }
+        else if(parseFloat(canvas.style.width) > display_size)
         {
             const newSize = Math.max(parseFloat(canvas.style.width) - 100,display_size);
             canvas.style.width = `${newSize}px`;
@@ -546,13 +548,15 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
         if(event.ctrlKey && event.code === 'KeyZ')
         {
             undoLastDraw(scene.current,pixel_size,ctx.current!);
+        }else if(event.ctrlKey && event.code === 'KeyY')
+        {
+            redoLastDraw(ctx.current!,pixel_size);
         }
     }
 
     
 
-    return <div style = {!isMobile ? {height:cssCanvasSize, width:'100%'} : {width:'100%',height:cssCanvasSize}} >
-        <div className = "editor" 
+    return <div className = "editor" 
             style = {!isMobile ? {height:cssCanvasSize, width:'100%'} : {width:'100%',height:cssCanvasSize}} 
             ref = {outerDivRef} 
             onWheel={handleZoom}
@@ -565,8 +569,6 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
             ></canvas>
             <canvas id="canvas" ref = {canvasRef}> Your browser does not support canvas </canvas>  
           </div>
-            <button onClick ={resetCanvasPosition}>center</button>          
-        </div>
 
 
 }
