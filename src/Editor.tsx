@@ -13,7 +13,7 @@ import Mouse from './scene/Mouse';
 import Scene from './scene/Scene';
 import { Pencil } from './Tools/Pencil';
 import { Eraser } from './Tools/Eraser';
-import {redoLastDraw, undoLastDraw, undoStack } from './Tools/UndoRedo';
+import {redoLastDraw, redoStack, undoLastDraw, undoStack } from './Tools/UndoRedo';
 import { PaintBucket } from './Tools/PaintBucket';
 import { Dropper } from './Tools/Dropper';
 import { Line } from './Tools/Line';
@@ -354,14 +354,6 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
         {
 
             if(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size){
-                //if(!scene.current.previousPixelWhileMovingMouse)
-                //  || 
-                //     (scene.current.previousPixelWhileMovingMouse && 
-                //         !(mouse.x >= scene.current.previousPixelWhileMovingMouse.x1 &&
-                //              mouse.x < scene.current.previousPixelWhileMovingMouse.x1 + penSize &&
-                //               mouse.y >=scene.current.previousPixelWhileMovingMouse.y1 &&
-                //                mouse.y < scene.current.previousPixelWhileMovingMouse.y1 + penSize)))
-                //{
                     const newPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
                     if(newPixel)
                     {
@@ -549,7 +541,10 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
                     break;
                 }
             }
-            if(!empty)undoStack.push(scene.current.currentDraw);
+            if(!empty){
+                undoStack.push(scene.current.currentDraw);
+                redoStack.clear();
+            }
         }
 
         //here the draws made with Line, Square or circle tool are put in main canvas
@@ -558,6 +553,7 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
             const clean : Pixel[] = cleanDraw(scene.current.currentDrawTopCanvas);
             translateDrawToMainCanvas(clean,ctx.current!,pixel_size,selectedColor,penSize,scene.current);
             undoStack.push(scene.current.currentDrawTopCanvas);
+            redoStack.clear();
             
         }
         

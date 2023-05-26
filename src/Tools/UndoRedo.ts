@@ -1,7 +1,7 @@
 //the pixels drawn until I released the mouse are put in the undo stack
-//if i press ctrl + z, i select the pixels at the top of the undo stack, and remove then from the canvas
-//after that, i put theses pixels in the redo stack
-//if i press ctrz + y, i select the pixels at the top of the redo stack, and add then to the canvas
+//if i press ctrl + z, select the pixels at the top of the undo stack, and remove then from the canvas
+//after that, put theses pixels in the redo stack
+//if i press ctrz + y, select the pixels at the top of the redo stack, and add then to the canvas
 //after that, i put these pixels in the undo stack
 
 import Scene from "../scene/Scene";
