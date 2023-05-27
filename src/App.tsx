@@ -2,7 +2,7 @@ import {useContext, useEffect, useState } from "react";
 import Editor from "./Editor"
 import './styles/sideBar.css';
 import './styles/index.css';
-import {ColorResult, CustomPicker, HuePicker} from 'react-color';
+import {ColorResult, CustomPicker} from 'react-color';
 import { Pencil } from "./svg/Pencil";
 import { Eraser } from "./svg/Eraser";
 import { PaintBucket } from "./svg/PaintBucket";
@@ -34,11 +34,9 @@ const ToolButtons = [
   {tool: 'circle',svg : <Circle/>,tooltip:'Circle tool(C or 7)'},
 ] as ToolButton[];
 
-//TODO: fix undo redo (if i put a new draw on undo, redo should be cleaned) i.e 1,2,3,4,5 on undo, 5 and 4 added to redo, if i add 6 to undo, redo should be cleaned, but 4 and 5 can be added back to undo
+
+//TODO: Add background canvas
 //TODO: Detect pinch for zooming in mobile
-//TODO: Changas Canvas Size on window resize (for the canvas size wrapper, only change its size on mobile)
-//TODO: Add button to reset all canvas positions (back to the center of outer div)
-//TODO: set CANVAS_SIZE and pen size as state and globally available with context
 //TODO: Add license page to add licenses of libs used (tabler-icon)
 
 
@@ -112,12 +110,17 @@ function App() {
                 <Sidebar width={'80px'} height={cssCanvasSize}>
                     <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool} setPenSize = {setPenSize} penSize = {penSize}/>
                 </Sidebar>}
-
-                <Editor 
-                  cssCanvasSize = {cssCanvasSize} 
-                  isMobile = {isMobile}
-                  penSize = {penSize}
-                ></Editor>    
+                
+                <div style = {{width:'100%',height:'100%'}}>
+                <div style = {{width:'100%',height:'30px',backgroundColor:'#000000',display:'flex',justifyContent:'flex-start',alignItems:'center'}}>
+                <span id = "coordinates" style = {{color:'white'}}>{"[X:0,Y:0]"}</span>
+                </div>
+                  <Editor 
+                    cssCanvasSize = {cssCanvasSize} 
+                    isMobile = {isMobile}
+                    penSize = {penSize}
+                  ></Editor>    
+                </div>
 
 
                 {!isMobile && 

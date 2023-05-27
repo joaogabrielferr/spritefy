@@ -50,7 +50,7 @@ let bgTileSize : number;
 
 let currentScale = 1;
 
-let coordinatesElement : HTMLParagraphElement;
+let coordinatesElement : HTMLSpanElement;
 
 let originalCanvasWidth : number;
 
@@ -167,7 +167,7 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
         if(bgTileSize === CANVAS_SIZE)
             bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
         
-
+        // bgTileSize = 1;
         // penSize = pixel_size;
     }
 

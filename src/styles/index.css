@@ -1,7 +1,7 @@
 body{
     margin: 0;
     padding: 0;
-    background-color: #555353;
+    background-color: #7a7979;
     /* background-color: rgb(233, 233, 233); */
     overflow: hidden;
     font-family: 'Roboto', sans-serif;
@@ -23,7 +23,7 @@ body{
     justify-content: space-between;
     align-items: flex-start;
     width: 100%;
-    background-color: #1F1F1F;
+    background-color: #222222;
 }
 
 /* .navbar{
