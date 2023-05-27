@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useRef } from "react";
 import { Logo } from "../svg/Logo";
-import '../styles/header.css';
+import './header.css';
 import { Github } from "../svg/Github";
 
 export function Header({isMobile} : {isMobile : boolean}){

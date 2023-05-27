@@ -1,7 +1,6 @@
-import { ChangeEvent, useContext, useState } from "react";
-import '../styles/palettes.css';
+import { ChangeEvent, useContext} from "react";
+import './palettes.css';
 import { PaletteType } from "../types";
-import { Palette } from "./Palette";
 import { selectedColorContext } from "../contexts/selectedColor/selectedColorContext";
 
 

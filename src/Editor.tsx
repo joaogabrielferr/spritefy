@@ -1,5 +1,5 @@
 import {useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,PointerEvent, useContext } from 'react';
-import './styles/editor.css';
+import './editor.css';
 import { 
 CANVAS_SIZE,
 MAX_ZOOM_AMOUNT,
@@ -536,18 +536,18 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
         console.log("resetando");
         canvas.style.width = `${originalCanvasWidth}px`;
         canvas.style.height = `${originalCanvasWidth}px`;
-        canvas.style.left = "50%";
-        canvas.style.top = "50%";
+        canvas.style.left = "45%";
+        canvas.style.top = "45%";
         
         topCanvas.style.width = `${originalCanvasWidth}px`;
         topCanvas.style.height = `${originalCanvasWidth}px`;
-        topCanvas.style.left = "50%";
-        topCanvas.style.top = "50%";
+        topCanvas.style.left = "45%";
+        topCanvas.style.top = "45%";
         
         backgroundCanvas.style.width = `${originalCanvasWidth}px`;
         backgroundCanvas.style.height = `${originalCanvasWidth}px`;
-        backgroundCanvas.style.left = "50%";
-        backgroundCanvas.style.top = "50%";
+        backgroundCanvas.style.left = "45%";
+        backgroundCanvas.style.top = "45%";
         
         currentScale = 1;
         scene.current.zoomAmount = 0;

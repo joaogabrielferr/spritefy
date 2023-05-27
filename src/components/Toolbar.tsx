@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import { ToolButton, toolsType } from "../types";
-import '../styles/toolbar.css';
-import { RightArrow } from "../svg/RightArrow";
-import { LeftArrow } from "../svg/LeftArrow";
+import './toolbar.css';
+import { ToolOptions } from "./ToolOptions";
 
 
 interface ToolbarProps{
@@ -57,18 +56,6 @@ export function Toolbar({toolButtons,setSelectedTool,selectedTool,setPenSize,pen
 
     },[selectedTool, setSelectedTool])
 
-    
-    // function createButton(button : ToolButton) : JSX.Element{
-    //     console.log("RUNNING CREATE BUTTON");
-    //     // const desktopHandler = {onClick: ()=>setSelectedTool(button.tool)};
-    //     // const mobileHandler = {onPointerEnter: ()=>setSelectedTool(button.tool)};
-    //     let buttonProps = {className : 'toolButton', key: button.tool};
-    //     if(isMobile)buttonProps = {...buttonProps};
-    //     else buttonProps = {...buttonProps};
-    //     return <button {...buttonProps} style={{backgroundColor:selectedTool === button.tool ? "#634cb8" : "#dddddd"}} >{button.svg}</button>
-    
-    //   }
-
     return <div className = "toolbar">
             <div className = "toolbarItem">
             <div className = "toolTitle">TOOLS</div>
@@ -89,13 +76,17 @@ export function Toolbar({toolButtons,setSelectedTool,selectedTool,setPenSize,pen
 
             </div>
             </div>
+
+            <div className="toolbarItem" style = {{height:'100px'}}>
+                {
+                    selectedTool === 'pencil' ? <ToolOptions><div className = "toolTitle">PENCIL</div></ToolOptions> :
+                    (selectedTool === 'eraser' ? <ToolOptions><div className = "toolTitle">ERASER</div></ToolOptions> : null)
+                }
+            </div>
             
-            <div className = "toolbarItem">
+            {/* <div className = "toolbarItem">
             <div className = "toolTitle">PEN SIZE</div>
             <div className="toolbarPenSizes" data-tooltip-id="my-tooltip" data-tooltip-content={"Pen sizes(1 to 3)"} >
-                {/* <button className = "penSizeButton" style={{backgroundColor: penSize === 1 ? "#634cb8" : "#dddddd",height:'10px',width:'50%'}} onClick={()=>setPenSize(1)}></button>
-                <button className = "penSizeButton" style={{backgroundColor: penSize === 2 ? "#634cb8" : "#dddddd",height:'15px',width:'50%'}} onClick={()=>setPenSize(2)}></button>
-                <button className = "penSizeButton" style={{backgroundColor: penSize === 3 ? "#634cb8" : "#dddddd",height:'25px',width:'50%'}} onClick={()=>setPenSize(3)}></button> */}
                 <div style={{width:'25px',height:'100%',display:'flex',justifyContent:'center',alignItems:'center'}}>
                 {penSize > 1 && <button className = "penSizeButton" onClick={()=>setPenSize((prev)=>prev-1)}><LeftArrow/></button>}
                 </div>
@@ -104,7 +95,7 @@ export function Toolbar({toolButtons,setSelectedTool,selectedTool,setPenSize,pen
                 {penSize < 3 && <button  className = "penSizeButton" onClick={()=>setPenSize((prev)=>prev+1)}><RightArrow/></button>}
                 </div>
             </div>
-            </div>
+            </div> */}
             </div>
 
 }

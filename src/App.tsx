@@ -1,7 +1,6 @@
 import {useContext, useEffect, useState } from "react";
-import Editor from "./Editor"
-import './styles/sideBar.css';
-import './styles/index.css';
+import Editor from "./Editor";
+import './index.css';
 import {ColorResult, CustomPicker} from 'react-color';
 import { Pencil } from "./svg/Pencil";
 import { Eraser } from "./svg/Eraser";
@@ -32,14 +31,18 @@ const ToolButtons = [
   {tool:'line',svg: <Line/>,tooltip:'Pencil stroke line(L or 5)'},
   {tool: 'square',svg : <Square/>,tooltip:'Rectangle tool(R or 6)'},
   {tool: 'circle',svg : <Circle/>,tooltip:'Circle tool(C or 7)'},
+  {tool: 'circle',svg : <Circle/>,tooltip:'Circle tool(C or 7)'},
+  {tool: 'circle',svg : <Circle/>,tooltip:'Circle tool(C or 7)'},
+  {tool: 'circle',svg : <Circle/>,tooltip:'Circle tool(C or 7)'},
 ] as ToolButton[];
 
 
-//TODO: Add background canvas
+//TODO: Redo UI
 //TODO: Detect pinch for zooming in mobile
 //TODO: save image (check if its possible to save pixel matrix, if not generate an image and save it)
+//TODO: Add tutorial if opened for the first time
 //TODO: Add license page to add licenses of libs used (tabler-icon)
-
+//TODO: Add layer functionality
 
 function App() {
 
@@ -53,11 +56,6 @@ function App() {
 
   //here mobile is simply any device that has a screen height greater than screen width
   const [isMobile,setIsMobile] = useState<boolean>(window.innerWidth <= 768); //TODO:this may be two simple, search for a better way to detect a mobile device
-
-
-  function handleResetCanvasPosition(){
-      EventBus.getInstance().publish(RESET_CANVAS_POSITION);
-  }
 
 
   function handleWindowResize(){
@@ -107,11 +105,17 @@ function App() {
           <section className = "mainSection">
             <div className = "editorWrapper">
 
+                {/* left sidebar */}
                 {!isMobile && 
-                <Sidebar width={'80px'} height={cssCanvasSize}>
+                <Sidebar width={'230px'} height={cssCanvasSize}>
                     <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool} setPenSize = {setPenSize} penSize = {penSize}/>
+                  <div style = {{width:'95%'}}>
+                    <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
+                  </div>
+                    <Palettes></Palettes>
                 </Sidebar>}
                 
+                {/* main editor */}
                 <div style = {{width:'100%',height:'100%'}}>
                 <div style = {{width:'100%',height:'30px',backgroundColor:'#000000',display:'flex',justifyContent:'flex-start',alignItems:'center'}}>
                 <span id = "coordinates" style = {{color:'white'}}>{"[X:0,Y:0]"}</span>
@@ -123,16 +127,17 @@ function App() {
                   ></Editor>    
                 </div>
 
-
+                 {/* right sidebar */}
                 {!isMobile && 
                   <Sidebar width={'250px'} height={cssCanvasSize}>
                     <div style = {{width:'90%',height:'100%'}}>
                       
-                      <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
-                      <Palettes></Palettes>
+                      {/* <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
+                      <Palettes></Palettes> */}
                     </div>
                   </Sidebar>
                 }
+
               </div>
 
               <div>
@@ -143,9 +148,9 @@ function App() {
               
               </div>
           </section>
-          {
-            !isMobile && <Tooltip id="my-tooltip" place="right" style={{zIndex:9999,backgroundColor:'#634cb8'}}/>
-          }
+          {/* {
+            !isMobile && <Tooltip id="my-tooltip" place="bottom" style={{zIndex:9999,backgroundColor:'#634cb8'}}/>
+          } */}
           <div className = "footer">
             {/* <button onClick = {handleResetCanvasPosition}>center canvas</button>
             <p id = "coordinates">{"[X:0,Y:0]"}</p> */}

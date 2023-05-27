@@ -1,4 +1,4 @@
-
+import './sideBar.css';
 
 interface SidebarProps{
     children: React.ReactNode;
