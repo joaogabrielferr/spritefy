@@ -5,4 +5,5 @@ export const MAX_ZOOM_AMOUNT = 40;
 export const CIRCLE_RADIUS_INCREASE_FACTOR = 0.3;
 export const BG_COLORS = ['#757474','#a1a1a1'];
 export const RESET_CANVAS_POSITION = 'reset-canvas-position';
+export const ERASING = 'erasing';
 // export const BG_COLORS = ['#757575','#5e5e5e'];

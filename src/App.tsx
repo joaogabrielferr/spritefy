@@ -37,6 +37,7 @@ const ToolButtons = [
 
 //TODO: Add background canvas
 //TODO: Detect pinch for zooming in mobile
+//TODO: save image (check if its possible to save pixel matrix, if not generate an image and save it)
 //TODO: Add license page to add licenses of libs used (tabler-icon)
 
 

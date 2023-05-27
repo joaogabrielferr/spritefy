@@ -9,12 +9,11 @@
   position:relative;
   overflow: hidden;
   z-index: 1;
-  /* top:50; */
   touch-action: none;
 }
 
   
-  #canvas,#BGCanvas,#topCanvas{
+  .canvases{
     position: absolute; /* Position the canvas relative to the outer div */
     top: 50%;
     left: 50%;
@@ -39,4 +38,8 @@
 
 #topCanvas{
   z-index: 3;
+}
+
+#backgroundCanvas{
+  z-index: 0;
 }

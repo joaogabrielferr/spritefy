@@ -38,7 +38,7 @@ interface IEditor{
 
 //////////////////////////////////////////////////////////
 
-let canvas : HTMLCanvasElement,topCanvas : HTMLCanvasElement;
+let canvas : HTMLCanvasElement,topCanvas : HTMLCanvasElement,backgroundCanvas : HTMLCanvasElement;
 let outerDiv : HTMLDivElement;
 
 const mouse = new Mouse();
@@ -65,10 +65,14 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
 
     const canvasRef = useRef<HTMLCanvasElement>(null); //main canvas
     const topCanvasRef = useRef<HTMLCanvasElement>(null); //top canvas for temporary draws (like in line tool, square tool, circle tool, etc)
+    const backgroundCanvasRef = useRef<HTMLCanvasElement>(null) //checkerboard canvas
+
     const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvas
+    
 
     const ctx = useRef<CanvasRenderingContext2D | null>(null);
     const topCtx = useRef<CanvasRenderingContext2D | null>(null);
+    const bgCtx = useRef<CanvasRenderingContext2D | null>(null);
 
     const firstInit = useRef(false); //for development
     
@@ -80,23 +84,26 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
 
     useEffect(()=>{
         setUpVariables();
-        //TODO: i need to save current drawing on browser
-        //problem: for big drawing sizes like 500x500 its impractical to save it on local storage, and even on indexedDB
-        //possible solution: save canvas as png, store it on indexedDB, then after page load, get the image and parse it using some library and store info on scene.current.pixels(lol)
-        
+
         //setting up canvas
         canvas = canvasRef.current!;
         topCanvas = topCanvasRef.current!;
+        backgroundCanvas = backgroundCanvasRef.current!;
+
         outerDiv = outerDivRef.current!;
 
         ctx.current = canvas.getContext("2d")!;
         topCtx.current = topCanvas.getContext("2d")!;
+        bgCtx.current = backgroundCanvas.getContext("2d")!;
 
         canvas.width = display_size;
         canvas.height = display_size;
       
         topCanvas.width = display_size;
         topCanvas.height = display_size;
+
+        backgroundCanvas.width = display_size;
+        backgroundCanvas.height = display_size;
         
         if(isMobile)
         {
@@ -105,28 +112,23 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
 
             topCanvas.style.width = `${cssCanvasSize}px`;
             topCanvas.style.height = `${cssCanvasSize}px`;
+            
+            backgroundCanvas.style.width = `${cssCanvasSize}px`;
+            backgroundCanvas.style.height = `${cssCanvasSize}px`;
+            
             originalCanvasWidth = cssCanvasSize;
         }else
         {
-            // if(cssCanvasSize <= 700)
-            // {
-                canvas.style.width = `${cssCanvasSize - 100}px`;
-                canvas.style.height = `${cssCanvasSize - 100}px`;
-    
-                topCanvas.style.width = `${cssCanvasSize - 100}px`;
-                topCanvas.style.height = `${cssCanvasSize - 100}px`;
-                originalCanvasWidth = cssCanvasSize - 100;
-            // }else
-            // {
-            //     canvas.style.width = `${cssCanvasSize - 100}px`;
-            //     canvas.style.height = `${cssCanvasSize - 100}px`;
-    
-            //     topCanvas.style.width = `${cssCanvasSize - 100}px`;
-            //     topCanvas.style.height = `${cssCanvasSize - 100}px`;
-            //     originalCanvasWidth = cssCanvasSize - 100;
-                
-            // }
+            canvas.style.width = `${cssCanvasSize - 100}px`;
+            canvas.style.height = `${cssCanvasSize - 100}px`;
 
+            topCanvas.style.width = `${cssCanvasSize - 100}px`;
+            topCanvas.style.height = `${cssCanvasSize - 100}px`;
+            
+            backgroundCanvas.style.width = `${cssCanvasSize - 100}px`;
+            backgroundCanvas.style.height = `${cssCanvasSize - 100}px`;
+            
+            originalCanvasWidth = cssCanvasSize - 100;
         }
 
 
@@ -175,6 +177,7 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
     useEffect(()=>{
 
         const subscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION,resetCanvasPosition);
+
         document.addEventListener('keydown',checkKeyCombinations);
         
         return ()=>{
@@ -200,8 +203,8 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
             else a = 1;
             firstInRow = firstInRow ? 0 : 1;
             for (let j = 0; j <= display_size; j += pixel_size * bgTileSize) {
-                ctx.current!.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
-                ctx.current!.fillRect(i, j, pixel_size * bgTileSize, pixel_size * bgTileSize);
+                bgCtx.current!.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
+                bgCtx.current!.fillRect(i, j, pixel_size * bgTileSize, pixel_size * bgTileSize);
                 a = a ? 0 : 1;
             }
         }
@@ -436,6 +439,8 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
                 canvas.style.height = `${newSize}px`;
                 topCanvas.style.width = `${newSize}px`;
                 topCanvas.style.height = `${newSize}px`;
+                backgroundCanvas.style.width = `${newSize}px`;
+                backgroundCanvas.style.height = `${newSize}px`;
             }else 
             if(scene.current.zoomAmount < MAX_ZOOM_AMOUNT){
 
@@ -460,10 +465,16 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
                 canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
                 canvas.style.left = `${canvas.offsetLeft - dx}px`;
                 canvas.style.top = `${canvas.offsetTop - dy}px`;
+                
                 topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
                 topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
                 topCanvas.style.left = `${topCanvas.offsetLeft - dx}px`;
                 topCanvas.style.top = `${topCanvas.offsetTop - dy}px`;
+                
+                backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
+                backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
+                backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft - dx}px`;
+                backgroundCanvas.style.top = `${backgroundCanvas.offsetTop - dy}px`;
 
 
                 // Store the mouse position in the history
@@ -492,10 +503,16 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
                 canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
                 canvas.style.left = `${canvas.offsetLeft + dx}px`;
                 canvas.style.top = `${canvas.offsetTop + dy}px`;
+                
                 topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
                 topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
                 topCanvas.style.left = `${topCanvas.offsetLeft + dx}px`;
                 topCanvas.style.top = `${topCanvas.offsetTop + dy}px`;
+                
+                backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
+                backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
+                backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft + dx}px`;
+                backgroundCanvas.style.top = `${backgroundCanvas.offsetTop + dy}px`;
 
             }   
         }
@@ -506,6 +523,8 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
             canvas.style.height = `${newSize}px`;
             topCanvas.style.width = `${newSize}px`;
             topCanvas.style.height = `${newSize}px`;
+            backgroundCanvas.style.width = `${newSize}px`;
+            backgroundCanvas.style.height = `${newSize}px`;
             currentScale -= SCALE_FACTOR;
         }
 
@@ -519,10 +538,17 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
         canvas.style.height = `${originalCanvasWidth}px`;
         canvas.style.left = "50%";
         canvas.style.top = "50%";
+        
         topCanvas.style.width = `${originalCanvasWidth}px`;
         topCanvas.style.height = `${originalCanvasWidth}px`;
         topCanvas.style.left = "50%";
         topCanvas.style.top = "50%";
+        
+        backgroundCanvas.style.width = `${originalCanvasWidth}px`;
+        backgroundCanvas.style.height = `${originalCanvasWidth}px`;
+        backgroundCanvas.style.left = "50%";
+        backgroundCanvas.style.top = "50%";
+        
         currentScale = 1;
         scene.current.zoomAmount = 0;
     }
@@ -576,7 +602,7 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
     {
         if(event.ctrlKey && event.code === 'KeyZ')
         {
-            undoLastDraw(scene.current,pixel_size,ctx.current!);
+            undoLastDraw(pixel_size,ctx.current!);
         }else if(event.ctrlKey && event.code === 'KeyY')
         {
             redoLastDraw(ctx.current!,pixel_size);
@@ -593,10 +619,9 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
             onPointerMove={handlePointerMove}
             onPointerUp={handleFinishDraw}
             >
-            <canvas id = "topCanvas"
-                ref = {topCanvasRef}
-            ></canvas>
-            <canvas id="canvas" ref = {canvasRef}> Your browser does not support canvas </canvas>  
+                <canvas className = "canvases" id = "topCanvas" ref = {topCanvasRef}></canvas>
+                <canvas className = "canvases" id="canvas" ref = {canvasRef}> Your browser does not support canvas </canvas>
+                <canvas className = "canvases" id="backgroundCanvas" ref = {backgroundCanvasRef}> Your browser does not support canvas </canvas>
           </div>
 
 

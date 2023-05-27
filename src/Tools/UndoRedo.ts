@@ -4,15 +4,16 @@
 //if i press ctrz + y, select the pixels at the top of the redo stack, and add then to the canvas
 //after that, i put these pixels in the undo stack
 
-import Scene from "../scene/Scene";
 import { Pixel } from "../types";
 import { Stack } from "../utils/Stack";
+import { ERASING } from "../utils/constants";
 import { cleanDraw } from "./helpers/CleanDraw";
 
 
 
 
-export function undoLastDraw(scene : Scene, pixel_size : number, ctx : CanvasRenderingContext2D){
+export function undoLastDraw(pixel_size : number, ctx : CanvasRenderingContext2D){
+
   if (undoStack.isEmpty()) return;
 
   const draw = undoStack.top();
@@ -29,18 +30,25 @@ export function undoLastDraw(scene : Scene, pixel_size : number, ctx : CanvasRen
     redo.push([pixel,pixel.colorStack.top()]);
 
     pixel.colorStack.pop();
+
     const previousColor = pixel.colorStack.top();
+    
+    // if(!previousColor)return;
     //   pixel.color = previousColor;
-      if(previousColor)
+      if(!previousColor || previousColor === ERASING)
       {
-          ctx.fillStyle = previousColor;
-          ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
-      }
-      if(pixel.colorStack.isEmpty())
+          // ctx.fillStyle = previousColor;
+          ctx.clearRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
+      }else
       {
-          ctx.fillStyle = pixel.bgColor;
-          ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
+        ctx.fillStyle = previousColor;
+        ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
       }
+      // if(pixel.colorStack.isEmpty())
+      // {
+      //     ctx.fillStyle = pixel.bgColor;
+      //     ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
+      // }
     // }
   }
 
@@ -60,13 +68,21 @@ export function redoLastDraw(ctx : CanvasRenderingContext2D,pixel_size : number)
   for(let d of draw)
   {
     let [pixel,color] = d;
-    if(!color)color = pixel.bgColor;
+    if(!color || color === ERASING)color = pixel.bgColor;
 
     undo.push(pixel);
 
-    ctx.fillStyle = color;
-    ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
-    pixel.colorStack.push(color);
+    if(!color || color === ERASING)
+    {
+      ctx.clearRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
+      if(color)pixel.colorStack.push(color);  
+    }else
+    {
+      ctx.fillStyle = color;
+      ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
+      pixel.colorStack.push(color);
+    }
+
   }
   
   undoStack.push([undo]);
