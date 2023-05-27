@@ -288,12 +288,17 @@ export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX
             coordinatesElement.innerHTML = `[X:${Math.floor(mouse.x) + 1},Y:${Math.floor(mouse.y) + 1}]`;
         }
 
-        // if(!(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size))
-        // {
-        //     //out of canvas
-        //     handleFinishDraw(undefined);
-        //     return;
-        // }
+        if(!(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size))
+        {
+            //out of canvas
+            // handleFinishDraw(undefined);
+            scene.current.lastPixel = null;
+            if(scene.current.previousPixelWhileMovingMouse)
+            {
+                removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse,...scene.current.previousNeighborsWhileMovingMouse],pixel_size);
+            }
+            return;
+        }
 
         if (selectedTool === 'pencil' && mouse.isPressed) {
             scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));

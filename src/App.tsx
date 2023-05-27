@@ -123,6 +123,7 @@ function App() {
                 {!isMobile && 
                   <Sidebar width={'250px'} height={cssCanvasSize}>
                     <div style = {{width:'90%',height:'100%'}}>
+                      
                       <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
                       <Palettes></Palettes>
                     </div>

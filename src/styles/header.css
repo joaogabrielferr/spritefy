@@ -5,7 +5,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgb(233, 233, 233);
+    background-color: rgb(230, 230, 230);
+    
 }
 
 .innerHeader{
@@ -33,7 +34,7 @@ input:focus{
 }
 
 .downloadButton{
-    width:10%;
+    width:200px;
     height: 85%;
     border-style: none;
     font-family: 'Roboto', sans-serif;

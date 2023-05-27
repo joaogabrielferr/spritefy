@@ -35,11 +35,10 @@ export function Header({isMobile} : {isMobile : boolean}){
 
     return <header className="header">
                 <div className="innerHeader">
-                    <div style={{width: isMobile ? '20%' : '80px',height:'100%',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                        <Logo></Logo>
+                    <div style={{width: isMobile ? '20%' : '80px',height:'90%',display:'flex',justifyContent: isMobile ? 'flex-start' : 'space-between',alignItems:'center'}}>
                         <a href="https://github.com/joaogabrielferr/pixel-art-editor" target="_blank"><Github></Github></a>
                     </div>
-                    {!isMobile && <div style = {{fontWeight:'bold'}}>New drawing</div>}
+                    {!isMobile && <div style = {{fontWeight:'bold'}}><Logo></Logo></div>}
                     {/* {!isMobile && <input className = "drawingNameInput" ref = {drawingNameInput} type="text" onChange={handleInputChange}/>} */}
                     <button ref = {downloadButton} className = "downloadButton">DOWNLOAD DRAWING</button>
                 </div>
