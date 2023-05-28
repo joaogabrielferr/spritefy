@@ -1,22 +1,20 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { ToolButton, toolsType } from "../types";
 import './toolbar.css';
 import { ToolOptions } from "./ToolOptions";
+import { penSizeContext } from "../contexts/penSize/penSizeContext";
+import { selectedToolContext } from "../contexts/selectedTool/selectedToolContext";
 
 
 interface ToolbarProps{
     toolButtons : ToolButton[],
-    selectedTool : string,
-    setSelectedTool : React.Dispatch<React.SetStateAction<toolsType>>,
-    setPenSize : React.Dispatch<React.SetStateAction<number>>,
-    penSize : number
 }
 
 
 
-export function Toolbar({toolButtons,setSelectedTool,selectedTool,setPenSize,penSize} : ToolbarProps){
+export function Toolbar({toolButtons} : ToolbarProps){
 
-    
+    const {selectedTool,setSelectedTool} = useContext(selectedToolContext);
     
     useEffect(()=>{
         
@@ -77,11 +75,11 @@ export function Toolbar({toolButtons,setSelectedTool,selectedTool,setPenSize,pen
             </div>
             </div>
 
-            <div className="toolbarItem" style = {{height:'100px'}}>
-                {
-                    selectedTool === 'pencil' ? <ToolOptions><div className = "toolTitle">PENCIL</div></ToolOptions> :
-                    (selectedTool === 'eraser' ? <ToolOptions><div className = "toolTitle">ERASER</div></ToolOptions> : null)
-                }
+            <div className="toolbarItem" style = {{height:'100%'}}>
+                    <ToolOptions>
+                        <div className = "toolTitle" style = {{marginTop:'5px'}}>Pen size</div>
+                        <PenSizeSlider/>
+                    </ToolOptions>
             </div>
             
             {/* <div className = "toolbarItem">
@@ -98,4 +96,19 @@ export function Toolbar({toolButtons,setSelectedTool,selectedTool,setPenSize,pen
             </div> */}
             </div>
 
+}
+
+
+function PenSizeSlider(){
+
+    const {penSize,setPenSize} = useContext(penSizeContext)
+
+    return <>
+                <div className = "penSizeWrapper">
+                    <div className ="penSizeRange">
+                        <input className = "penSizeSlider" type="range" min={1} max={5} value={penSize} onChange={(e)=>setPenSize(+e.target.value)} id="range" /> 
+                    </div>
+                    <div className ="penSizeValue">{penSize}</div>
+            </div>
+    </>
 }

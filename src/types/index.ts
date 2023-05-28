@@ -10,7 +10,7 @@ export type Pixel = {
     bgColor : string;
 }
 
-export type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper' | 'line' | 'square' | 'circle';
+export type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper' | 'line' | 'square' | 'circle' | 'undo' | 'redo';
 
 export type ToolButton= {tool : toolsType, svg : JSX.Element,tooltip:string,tooltipDataHtml? : string[]};
 

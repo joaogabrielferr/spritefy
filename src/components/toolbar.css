@@ -11,14 +11,15 @@
 }
 
 .toolbarItem{
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     width: 95%;
     border: 1px solid #555555;
-    background-color: #313131;
+    background-color: rgb(58, 57, 57);
+
 
 }
 
@@ -71,6 +72,79 @@
     font-size: 12px;
     width: 99%;
 }
+
+.penSizeSlider {
+    /* removing default appearance */
+    -webkit-appearance: none;
+    appearance: none; 
+    /* creating a custom design */
+    width: 150px;
+    cursor: pointer;
+    outline: none;
+    /*  slider progress trick  */
+    overflow: hidden;
+    cursor: grab;
+  }
+
+  .penSizeSlider:active{
+    cursor: grabbing;
+  }
+  
+  /* Track: webkit browsers */
+  .penSizeSlider::-webkit-slider-runnable-track {
+    height: 15px;
+    background: #ccc;
+  }
+  
+  /* Track: Mozilla Firefox */
+  .penSizeSlider::-moz-range-track {
+    height: 15px;
+    background: #ccc;
+  }
+  
+  /* Thumb: webkit */
+  .penSizeSlider::-webkit-slider-thumb {
+    /* removing default appearance */
+    -webkit-appearance: none;
+    appearance: none; 
+    /* creating a custom design */
+    height: 15px;
+    width: 15px;
+    background-color: black;
+    border: 2px solid black;
+    /*  slider progress trick  */
+    box-shadow: -407px 0 0 400px black;
+  }
+  
+  
+  /* Thumb: Firefox */
+  .penSizeSlider::-moz-range-thumb {
+    height: 15px;
+    width: 15px;
+    background-color: black;
+    border: 1px solid black;
+    /*  slider progress trick  */
+    box-shadow: -407px 0 0 400px black;
+  }
+  
+
+  .penSizeRange{
+    display: flex;
+  }
+
+  .penSizeValue{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .penSizeWrapper{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+
 
 @media screen and (max-width:768px) {
     .toolbar{

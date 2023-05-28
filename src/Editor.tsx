@@ -26,13 +26,13 @@ import { Circle } from './Tools/Circle';
 import { selectedColorContext } from './contexts/selectedColor/selectedColorContext';
 import { selectedToolContext } from './contexts/selectedTool/selectedToolContext';
 import { EventBus } from './EventBus';
+import { penSizeContext } from './contexts/penSize/penSizeContext';
 
 
 
 interface IEditor{
     cssCanvasSize : number;
     isMobile : boolean,
-    penSize : number;
 }
 
 
@@ -57,11 +57,12 @@ let originalCanvasWidth : number;
 
 //////////////////////////////////////////////////////////
 
-export default function Editor({cssCanvasSize,isMobile,penSize} : IEditor) : JSX.Element{
+export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element{
     
 
     const {selectedColor,setSelectedColor} = useContext(selectedColorContext);
     const {selectedTool} = useContext(selectedToolContext);
+    const {penSize} = useContext(penSizeContext);
 
     const canvasRef = useRef<HTMLCanvasElement>(null); //main canvas
     const topCanvasRef = useRef<HTMLCanvasElement>(null); //top canvas for temporary draws (like in line tool, square tool, circle tool, etc)

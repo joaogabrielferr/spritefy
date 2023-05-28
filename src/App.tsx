@@ -20,6 +20,8 @@ import { Tooltip } from 'react-tooltip';
 import CustomColorPicker from "./components/ColorPicker";
 import { EventBus } from "./EventBus";
 import { RESET_CANVAS_POSITION } from "./utils/constants";
+import { LeftArrow } from "./svg/LeftArrow";
+import { RightArrow } from "./svg/RightArrow";
 
 
 
@@ -31,9 +33,8 @@ const ToolButtons = [
   {tool:'line',svg: <Line/>,tooltip:'Pencil stroke line(L or 5)'},
   {tool: 'square',svg : <Square/>,tooltip:'Rectangle tool(R or 6)'},
   {tool: 'circle',svg : <Circle/>,tooltip:'Circle tool(C or 7)'},
-  {tool: 'circle',svg : <Circle/>,tooltip:'Circle tool(C or 7)'},
-  {tool: 'circle',svg : <Circle/>,tooltip:'Circle tool(C or 7)'},
-  {tool: 'circle',svg : <Circle/>,tooltip:'Circle tool(C or 7)'},
+  {tool: 'undo',svg : <LeftArrow/>,tooltip:'Undo last draw(Ctrl + Z)'},
+  {tool: 'redo',svg : <RightArrow/>,tooltip:'Redo last draw(Ctrl + Y)'},
 ] as ToolButton[];
 
 
@@ -47,12 +48,7 @@ const ToolButtons = [
 function App() {
 
   const {selectedColor,setSelectedColor} = useContext(selectedColorContext);
-  const {selectedTool,setSelectedTool} = useContext(selectedToolContext);
-
   const [cssCanvasSize,setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize
-
-  const [penSize,setPenSize] = useState<number>(1);
-
 
   //here mobile is simply any device that has a screen height greater than screen width
   const [isMobile,setIsMobile] = useState<boolean>(window.innerWidth <= 768); //TODO:this may be two simple, search for a better way to detect a mobile device
@@ -108,7 +104,7 @@ function App() {
                 {/* left sidebar */}
                 {!isMobile && 
                 <Sidebar width={'230px'} height={cssCanvasSize}>
-                    <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool} setPenSize = {setPenSize} penSize = {penSize}/>
+                    <Toolbar toolButtons={ToolButtons}/>
                   <div style = {{width:'95%'}}>
                     <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
                   </div>
@@ -123,7 +119,6 @@ function App() {
                   <Editor 
                     cssCanvasSize = {cssCanvasSize} 
                     isMobile = {isMobile}
-                    penSize = {penSize}
                   ></Editor>    
                 </div>
 
@@ -143,7 +138,7 @@ function App() {
               <div>
               {isMobile && <div className = "mobileOptions">
                   <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
-                  <Toolbar toolButtons={ToolButtons} selectedTool={selectedTool} setSelectedTool={setSelectedTool} setPenSize = {setPenSize} penSize = {penSize}></Toolbar>
+                  <Toolbar toolButtons={ToolButtons}></Toolbar>
               </div>}
               
               </div>
