@@ -1,7 +1,6 @@
 import React, { useContext, useEffect } from "react";
 import { ToolButton, toolsType } from "../types";
 import './toolbar.css';
-import { ToolOptions } from "./ToolOptions";
 import { penSizeContext } from "../contexts/penSize/penSizeContext";
 import { selectedToolContext } from "../contexts/selectedTool/selectedToolContext";
 
@@ -42,7 +41,7 @@ export function Toolbar({toolButtons} : ToolbarProps){
                 setSelectedTool('square');
             }else if(['c','C','7'].indexOf(event.key) > -1)
             {
-                setSelectedTool('circle');
+                setSelectedTool('elipse');
             }
         }
 
@@ -75,25 +74,17 @@ export function Toolbar({toolButtons} : ToolbarProps){
             </div>
             </div>
 
-            <div className="toolbarItem" style = {{height:'100%'}}>
-                    <ToolOptions>
-                        <div className = "toolTitle" style = {{marginTop:'5px'}}>Pen size</div>
-                        <PenSizeSlider/>
-                    </ToolOptions>
+            <div className="toolbarItem">
+                    {
+                        (['pencil','eraser','line','square','elipse'].find((tool)=>tool === selectedTool)) &&
+                        <ToolOptions>
+                            <div style = {{marginTop:'5px',fontSize:'12px'}}>{selectedTool}</div>
+                            <div className = "toolTitle" style = {{marginTop:'5px'}}>Pen size</div>
+                            <PenSizeSlider/>
+                        </ToolOptions>
+                    }
             </div>
-            
-            {/* <div className = "toolbarItem">
-            <div className = "toolTitle">PEN SIZE</div>
-            <div className="toolbarPenSizes" data-tooltip-id="my-tooltip" data-tooltip-content={"Pen sizes(1 to 3)"} >
-                <div style={{width:'25px',height:'100%',display:'flex',justifyContent:'center',alignItems:'center'}}>
-                {penSize > 1 && <button className = "penSizeButton" onClick={()=>setPenSize((prev)=>prev-1)}><LeftArrow/></button>}
-                </div>
-                <div style = {{fontWeight:'bold',width:'25px',height:'100%',display:'flex',justifyContent:'center',alignItems:'center'}}>{penSize}x</div>
-                <div style={{width:'25px',height:'100%',display:'flex',justifyContent:'center',alignItems:'center'}}>
-                {penSize < 3 && <button  className = "penSizeButton" onClick={()=>setPenSize((prev)=>prev+1)}><RightArrow/></button>}
-                </div>
-            </div>
-            </div> */}
+        
             </div>
 
 }
@@ -104,11 +95,19 @@ function PenSizeSlider(){
     const {penSize,setPenSize} = useContext(penSizeContext)
 
     return <>
-                <div className = "penSizeWrapper">
-                    <div className ="penSizeRange">
-                        <input className = "penSizeSlider" type="range" min={1} max={5} value={penSize} onChange={(e)=>setPenSize(+e.target.value)} id="range" /> 
-                    </div>
-                    <div className ="penSizeValue">{penSize}</div>
+            <div className = "penSizeWrapper">
+                <div className ="penSizeRange">
+                    <input className = "penSizeSlider" type="range" min={1} max={10} value={penSize} onChange={(e)=>setPenSize(+e.target.value)} id="range" /> 
+                </div>
+                <div className ="penSizeValue">{penSize}</div>
             </div>
     </>
+}
+
+function ToolOptions({children} : {children:React.ReactNode}){
+
+    return <div className = "ToolOptions">
+        {children}    
+    </div>
+
 }

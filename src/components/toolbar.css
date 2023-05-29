@@ -7,7 +7,7 @@
     align-items: center;
     margin: 0 auto;
     color: white;
-    margin-top: 10px;
+    /* margin-top: 30px; */
 }
 
 .toolbarItem{
@@ -73,33 +73,42 @@
     width: 99%;
 }
 
+.ToolOptions{
+  width: 100%;
+  height: 100px;
+}
+
 .penSizeSlider {
     /* removing default appearance */
     -webkit-appearance: none;
     appearance: none; 
     /* creating a custom design */
-    width: 150px;
+    width: 100%;
     cursor: pointer;
     outline: none;
+    cursor: grab;
+    border: 1px solid gray;
     /*  slider progress trick  */
     overflow: hidden;
-    cursor: grab;
+
   }
 
   .penSizeSlider:active{
     cursor: grabbing;
+    border-style: none;
+    border: 1px solid gray;
   }
   
   /* Track: webkit browsers */
   .penSizeSlider::-webkit-slider-runnable-track {
-    height: 15px;
-    background: #ccc;
+    height: 13px;
+    background: #252525;
   }
   
   /* Track: Mozilla Firefox */
   .penSizeSlider::-moz-range-track {
-    height: 15px;
-    background: #ccc;
+    height: 13px;
+    background: #111;
   }
   
   /* Thumb: webkit */
@@ -108,43 +117,66 @@
     -webkit-appearance: none;
     appearance: none; 
     /* creating a custom design */
-    height: 15px;
+    height: 13px;
     width: 15px;
-    background-color: black;
-    border: 2px solid black;
+    background-color: gray;
+    border: 2px solid gray;
     /*  slider progress trick  */
-    box-shadow: -407px 0 0 400px black;
+    box-shadow: -407px 0 0 400px gray;
   }
   
   
   /* Thumb: Firefox */
   .penSizeSlider::-moz-range-thumb {
-    height: 15px;
+    height: 13px;
     width: 15px;
-    background-color: black;
-    border: 1px solid black;
+    background-color: gray;
+    border: 1px solid gray;
     /*  slider progress trick  */
-    box-shadow: -407px 0 0 400px black;
+    box-shadow: -407px 0 0 400px gray;
   }
   
 
   .penSizeRange{
     display: flex;
+    width: 100%;
   }
 
   .penSizeValue{
-    width: 100%;
+    font-size: 12px;
+    width: 10%;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: absolute;
+    color: white;
+    left: 90%;
+    top:8%;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
   }
 
   .penSizeWrapper{
-    width: 100%;
+    width: 95%;
     display: flex;
     justify-content: space-between;
+    position: relative;
+    align-items: center;
   }
 
+
+  
+  
+  @media screen and (max-width:1200px) {
+    .toolbarButtons{
+      grid-template-columns: repeat(3, 1fr);
+  }
+
+  }
 
 @media screen and (max-width:768px) {
     .toolbar{

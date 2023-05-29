@@ -61,7 +61,6 @@ export default class Scene{
         let idxi = 0,
             idxj = 0;
         let a = 0;
-        let counter = 0;
         for (let i = 0; i < display_size; i += pixel_size) {
             const row : Pixel[] = [];
             if(columnCounter%bgTileSize === 0)
@@ -70,7 +69,6 @@ export default class Scene{
             }
             columnCounter++;
             for (let j = 0; j < display_size; j += pixel_size) {
-                counter++;
                 let x1 = i;
                 let y1 = j;
                 const pixel = {
@@ -146,6 +144,29 @@ export default class Scene{
         // }
 
         // return pixel;
+    }
+
+
+    findNeighbors(pixel : Pixel, penSize : number){
+
+        const size = this.pixels[0].length;
+
+        const neighbors : Pixel[] = [];
+
+        for(let i = -(penSize - 1);i<=penSize - 1;i++)
+        {
+            for(let j = -(penSize - 1);j<=penSize - 1;j++)
+            {
+                if(i == 0 && j == 0)continue;
+                {
+                    if(pixel.i + i >= 0 && pixel.i + i < size && pixel.j + j >= 0 && pixel.j + j < size)
+                        neighbors.push(this.pixels[pixel.i+i][pixel.j+j]);
+                }   
+            }
+        }
+
+        return neighbors;
+
     }
 
     findNeighborsSize2(pixel : Pixel)

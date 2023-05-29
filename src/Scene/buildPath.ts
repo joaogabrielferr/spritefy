@@ -95,6 +95,155 @@ export function bresenhamsAlgorithm(scene : Scene,start : Pixel,end : Pixel,pixe
 
     }
 
+
+    //function to find all necessary points to draw an elipse given its middle point and the major and minor radius
+    export function drawElipse(midPoint : Pixel,majorRadius : number,minorRadius : number,scene : Scene,pixel_size : number)
+    {
+
+        const path : Pixel[] = [];
+
+        let rx = majorRadius;
+        let ry = minorRadius;
+        let xc = midPoint.x1;
+        let yc = midPoint.y1;
+      
+        let dx, dy, d1, d2, x, y;
+      
+        x = 0;
+        y = ry;
+      
+        d1 = (ry * ry) - (rx * rx * ry) + (0.25 * rx * rx);
+        dx = 2 * ry * ry * x;
+        dy = 2 * rx * rx * y;
+      
+        while (dx < dy) {
+          // Print points based on 4-way symmetry
+        findAndPush(x + xc,y+yc,scene,pixel_size,path);
+        findAndPush(-x + xc,y+yc,scene,pixel_size,path);
+        findAndPush(x + xc,-y+yc,scene,pixel_size,path);
+        findAndPush(-x + xc,-y+yc,scene,pixel_size,path);
+      
+          if (d1 < 0) {
+            x++;
+            dx = dx + (2 * ry * ry);
+            d1 = d1 + dx + (ry * ry);
+          } else {
+            x++;
+            y--;
+            dx = dx + (2 * ry * ry);
+            dy = dy - (2 * rx * rx);
+            d1 = d1 + dx - dy + (ry * ry);
+          }
+        }
+      
+        d2 = ((ry * ry) * ((x + 0.5) * (x + 0.5))) + ((rx * rx) * ((y - 1) * (y - 1))) - (rx * rx * ry * ry);
+      
+        while (y >= 0) {
+          // Print points based on 4-way symmetry
+        findAndPush(x + xc,y+yc,scene,pixel_size,path);
+        findAndPush(-x + xc,y+yc,scene,pixel_size,path);
+        findAndPush(x + xc,-y+yc,scene,pixel_size,path);
+        findAndPush(-x + xc,-y+yc,scene,pixel_size,path);
+      
+          if (d2 > 0) {
+            y--;
+            dy = dy - (2 * rx * rx);
+            d2 = d2 + (rx * rx) - dy;
+          } else {
+            y--;
+            x++;
+            dx = dx + (2 * ry * ry);
+            dy = dy - (2 * rx * rx);
+            d2 = d2 + dx - dy + (rx * rx);
+          }
+        }
+      
+        return path;
+
+
+    //     let rx = minor,ry = major,xc = midPoint.x1,yc = midPoint.y1;
+
+    //     let dx,dy,d1,d2,x,y;
+        
+    //     const rxSquared = major * major;
+    //     const rySquared = minor * minor;
+
+
+
+    //     x = 0;
+    //     y = ry;
+
+    //     d1 = (ry * ry) - (rx * rx * ry) +
+    //     (0.25 * rx * rx);
+    //     dx = 2 * ry * ry * x;
+    //     dy = 2 * rx * rx * y;
+        
+    //     while (dx < dy)
+    //     {
+ 
+    //     // Print points based on 4-way symmetry
+    //     findAndPush(x + xc,y+yc,scene,pixel_size,path);
+    //     findAndPush(-x + xc,y+yc,scene,pixel_size,path);
+    //     findAndPush(x + xc,-y+yc,scene,pixel_size,path);
+    //     findAndPush(-x + xc,-y+yc,scene,pixel_size,path);
+ 
+    //     // Checking and updating value of
+    //     // decision parameter based on algorithm
+    //     if (d1 < 0)
+    //     {
+    //         x++;
+    //         dx = dx + (2 * ry * ry);
+    //         d1 = d1 + dx + (ry * ry);
+    //     }
+    //     else
+    //     {
+    //         x++;
+    //         y--;
+    //         dx = dx + (2 * ry * ry);
+    //         dy = dy - (2 * rx * rx);
+    //         d1 = d1 + dx - dy + (ry * ry);
+    //     }
+    // }
+ 
+    // // Decision parameter of region 2
+    // d2 = ((ry * ry) * ((x + 0.5) * (x + 0.5))) +
+    //      ((rx * rx) * ((y - 1) * (y - 1))) -
+    //       (rx * rx * ry * ry);
+ 
+    // // Plotting points of region 2
+    // while (y >= 0)
+    // {
+ 
+    //     // Print points based on 4-way symmetry
+    //     findAndPush(x + xc,y+yc,scene,pixel_size,path);
+    //     findAndPush(-x + xc,y+yc,scene,pixel_size,path);
+    //     findAndPush(x + xc,-y+yc,scene,pixel_size,path);
+    //     findAndPush(-x + xc,-y+yc,scene,pixel_size,path);
+ 
+    //     // Checking and updating parameter
+    //     // value based on algorithm
+    //     if (d2 > 0)
+    //     {
+    //         y--;
+    //         dy = dy - (2 * rx * rx);
+    //         d2 = d2 + (rx * rx) - dy;
+    //     }
+    //     else
+    //     {
+    //         y--;
+    //         x++;
+    //         dx = dx + (2 * ry * ry);
+    //         dy = dy - (2 * rx * rx);
+    //         d2 = d2 + dx - dy + (rx * rx);
+    //     }
+    // }
+
+    
+    // return path;
+    
+    }
+
+
     //function to find all necessary points to draw a circle given a middle point and a radius
     //bresenham's circle drawing algorithm
     export function completeCircle(midPoint : Pixel,radius : number,scene : Scene,pixel_size : number){

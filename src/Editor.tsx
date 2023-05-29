@@ -22,7 +22,7 @@ import { removeDraw } from './Tools/helpers/RemoveDraw';
 import { cleanDraw } from './Tools/helpers/CleanDraw';
 import { translateDrawToMainCanvas } from './Tools/helpers/TranslateDrawToMainCanvas';
 import { Square } from './Tools/Square';
-import { Circle } from './Tools/Circle';
+import { Elipse } from './Tools/Elipse';
 import { selectedColorContext } from './contexts/selectedColor/selectedColorContext';
 import { selectedToolContext } from './contexts/selectedTool/selectedToolContext';
 import { EventBus } from './EventBus';
@@ -120,16 +120,16 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             originalCanvasWidth = cssCanvasSize;
         }else
         {
-            canvas.style.width = `${cssCanvasSize - 100}px`;
-            canvas.style.height = `${cssCanvasSize - 100}px`;
+            canvas.style.width = `${cssCanvasSize - 150}px`;
+            canvas.style.height = `${cssCanvasSize - 150}px`;
 
-            topCanvas.style.width = `${cssCanvasSize - 100}px`;
-            topCanvas.style.height = `${cssCanvasSize - 100}px`;
+            topCanvas.style.width = `${cssCanvasSize - 150}px`;
+            topCanvas.style.height = `${cssCanvasSize - 150}px`;
             
-            backgroundCanvas.style.width = `${cssCanvasSize - 100}px`;
-            backgroundCanvas.style.height = `${cssCanvasSize - 100}px`;
+            backgroundCanvas.style.width = `${cssCanvasSize - 150}px`;
+            backgroundCanvas.style.height = `${cssCanvasSize - 150}px`;
             
-            originalCanvasWidth = cssCanvasSize - 100;
+            originalCanvasWidth = cssCanvasSize - 150;
         }
 
 
@@ -220,6 +220,15 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 }
             }
         }
+
+        // for(let i = 50;i<100;i++)
+        // {
+        //     for(let j = 50;j<=100;j++)
+        //     {
+        //         topCtx.current!.fillStyle = scene.current.pixels[i][j].colorStack.top()!;
+        //         topCtx.current!.fillRect(scene.current.pixels[i][j].x1, scene.current.pixels[i][j].y1, pixel_size, pixel_size);
+        //     }
+        // }
     
     }
 
@@ -262,7 +271,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         {
             const color : string | undefined | null = Dropper(scene.current,mouse,pixel_size);
             if(color)setSelectedColor(color);
-        }else if(selectedTool === 'line' || selectedTool === 'square' || selectedTool === 'circle')
+        }else if(selectedTool === 'line' || selectedTool === 'square' || selectedTool === 'elipse')
         {
             scene.current.lineFirstPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
         }
@@ -271,7 +280,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     function handlePointerMove(event : PointerEvent ){
 
         if(!canvas)return;
-
 
         //TODO: maybe decouple mouse listeners from tool function calls, functions can be called a super high number of times depending on device config and mouse type i guess
         const bounding = canvas.getBoundingClientRect();
@@ -322,44 +330,68 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
             scene.current.currentDrawTopCanvas = [];
             scene.current.currentDrawTopCanvas.push(Square(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
-        }else if(selectedTool === 'circle' && mouse.isPressed)
+        }else if(selectedTool === 'elipse' && mouse.isPressed)
         {
-            //remove draw from the top canvas
+                        //remove draw from the top canvas
             removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
             scene.current.currentDrawTopCanvas = [];
 
+            if(scene.current.lineFirstPixel)
+            {
 
-            //increase or decrease circle radius based on mouse movement
-            if(mouse.mouseMoveLastPos && scene.current.lineFirstPixel){
-                if(
-                    ((mouse.x > scene.current.lineFirstPixel.x1 && mouse.x > mouse.mouseMoveLastPos.x) ||
-                    (mouse.y > scene.current.lineFirstPixel.y1 && mouse.y > mouse.mouseMoveLastPos.y)) ||
-                ( (mouse.x < scene.current.lineFirstPixel.x1 && mouse.x < mouse.mouseMoveLastPos.x) ||
-                (mouse.y < scene.current.lineFirstPixel.y1 && mouse.y < mouse.mouseMoveLastPos.y)))
-                {
-                    //mouse is going away from middle point (from left or right), increase radius
-                    scene.current.circleRadius+=CIRCLE_RADIUS_INCREASE_FACTOR;
-                }else
-                {
-                    //mouse is moving toward middle point, decrase radius
-                    if(scene.current.circleRadius - CIRCLE_RADIUS_INCREASE_FACTOR <= 1)
-                    {
-                        scene.current.circleRadius = 1;
-                    }else
-                    {
-                        scene.current.circleRadius-=CIRCLE_RADIUS_INCREASE_FACTOR;
-                    }
-                }
+                const majorRadius = Math.abs(scene.current.lineFirstPixel.x1 - mouse.x);
+                const minorRadius = Math.abs(scene.current.lineFirstPixel.y1 - mouse.y);
+                
+                scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,minorRadius));
+            
 
             }
 
-            scene.current.currentDrawTopCanvas.push(Circle(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
-                        
+            
+            /////////////1 TO 1 RATIO CIRCLE////////////////////////////
+            //remove draw from the top canvas
+            // removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
+            // scene.current.currentDrawTopCanvas = [];
+
+
+            // //increase or decrease circle radius based on mouse movement
+            // if(mouse.mouseMoveLastPos && scene.current.lineFirstPixel){
+            //     if(
+            //         ((mouse.x > scene.current.lineFirstPixel.x1 && mouse.x > mouse.mouseMoveLastPos.x) ||
+            //         (mouse.y > scene.current.lineFirstPixel.y1 && mouse.y > mouse.mouseMoveLastPos.y)) ||
+            //     ( (mouse.x < scene.current.lineFirstPixel.x1 && mouse.x < mouse.mouseMoveLastPos.x) ||
+            //     (mouse.y < scene.current.lineFirstPixel.y1 && mouse.y < mouse.mouseMoveLastPos.y)))
+            //     {
+            //         //mouse is going away from middle point (from left or right), increase radius
+            //         scene.current.circleRadius+=CIRCLE_RADIUS_INCREASE_FACTOR;
+            //     }else
+            //     {
+            //         //mouse is moving toward middle point, decrase radius
+            //         if(scene.current.circleRadius - CIRCLE_RADIUS_INCREASE_FACTOR <= 1)
+            //         {
+            //             scene.current.circleRadius = 1;
+            //         }else
+            //         {
+            //             scene.current.circleRadius-=CIRCLE_RADIUS_INCREASE_FACTOR;
+            //         }
+            //     }
+            // }
+
+            // scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
+            // /////////////////////////////////////          
         }
 
         //paint pixel in top canvas relative to mouse position
+        paintMousePosition(event.pointerType);
 
-        if(event.pointerType === 'mouse')
+
+        mouse.mouseMoveLastPos = {x: mouse.x,y : mouse.y};
+
+    }
+    
+    
+    function paintMousePosition(pointerType : string){
+        if(pointerType === 'mouse')
         {
 
             if(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size){
@@ -375,15 +407,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                         topCtx.current!.fillStyle = 'rgb(196, 193, 206,0.5)';
                         topCtx.current!.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
 
-                        let neighbors : Pixel[] = [];
-
-                        if(penSize === 2)
-                        {
-                            neighbors = scene.current.findNeighborsSize2(newPixel);
-                        }else if(penSize === 3)
-                        {
-                            neighbors = scene.current.findNeighborsSize3(newPixel);
-                        }
+                        let neighbors : Pixel[] = scene.current.findNeighbors(newPixel,penSize);
 
                         for(let n of neighbors)
                         {
@@ -397,7 +421,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                         scene.current.previousPixelWhileMovingMouse = newPixel;
 
                     }
-                //}
             }else
             {
                 if(scene.current.previousPixelWhileMovingMouse)
@@ -407,12 +430,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             }
 
         }
-
-        mouse.mouseMoveLastPos = {x: mouse.x,y : mouse.y};
-
-
-     
-    } 
+    }
     
 
 
@@ -534,7 +552,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     }
 
     function resetCanvasPosition(){
-        console.log("resetando");
         canvas.style.width = `${originalCanvasWidth}px`;
         canvas.style.height = `${originalCanvasWidth}px`;
         canvas.style.left = "45%";

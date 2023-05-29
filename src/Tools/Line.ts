@@ -23,32 +23,7 @@ export function Line(scene : Scene,ctx : CanvasRenderingContext2D ,mouse : Mouse
             ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
             draw.push(pixel);
 
-            if(penSize === 2)
-            {
-                const neighbors = scene.findNeighborsSize2(pixel);
-                for(let n of neighbors)
-                {
-                    if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
-                    {
-                        scene.currentPixelsMousePressed.set(n.id, true);
-                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
-                        //not adding to pixel color stack since this is being painted on top canvas temporarily
-                        draw.push(n);
-                    }
-                }
-            }else if(penSize === 3)
-            {
-                const neighbors = scene.findNeighborsSize3(pixel);
-                for(let n of neighbors)
-                {
-                    if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
-                    {
-                        scene.currentPixelsMousePressed.set(n.id, true);
-                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
-                        draw.push(n);
-                    }
-                }
-            }
+            paintNeighbors(pixel,scene,ctx,draw,penSize,pixel_size);            
         }
 
     }
@@ -59,4 +34,17 @@ export function Line(scene : Scene,ctx : CanvasRenderingContext2D ,mouse : Mouse
 
 function isPixelAlreadyPaintedInCurrentDraw(pixel : Pixel,scene : Scene){
     return scene.currentPixelsMousePressed.get(pixel.id);
+}
+
+function paintNeighbors(pixel : Pixel, scene : Scene, ctx : CanvasRenderingContext2D,draw : Pixel[],penSize : number,pixel_size : number)
+{
+
+    let neighbors : Pixel[] = scene.findNeighbors(pixel,penSize);
+
+    for(let n of neighbors)
+    {
+        scene.currentPixelsMousePressed.set(n.id, true);
+        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
+        draw.push(n);
+    }
 }

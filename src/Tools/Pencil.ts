@@ -45,36 +45,8 @@ Pencil(eventName : string,
             }
             ctx.fillStyle = selectedColor;
             ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
-
             
-            if(penSize === 2)
-            {
-                const neighbors = scene.findNeighborsSize2(pixel);
-                for(let n of neighbors)
-                {
-                    if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
-                    {
-                        scene.currentPixelsMousePressed.set(n.id, true);
-                        n.colorStack.push(selectedColor);
-                        draw.push(n);
-                    }  
-                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
-                    
-                }
-            }else if(penSize === 3)
-            {
-                const neighbors = scene.findNeighborsSize3(pixel);
-                for(let n of neighbors)
-                {
-                    if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
-                    {
-                        scene.currentPixelsMousePressed.set(n.id, true);
-                        draw.push(n);
-                        n.colorStack.push(selectedColor);
-                    }
-                        ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
-                }
-            }
+            paintNeighbors(pixel,scene,ctx,draw,penSize,selectedColor,pixel_size);            
 
             
         //if there are gaps between the points, fill them with bresenham's algorithm (see scene/buildPath.ts)
@@ -92,37 +64,8 @@ Pencil(eventName : string,
                 ctx.fillStyle = selectedColor;
                 ctx.fillRect(p.x1, p.y1, pixel_size, pixel_size);
                 
-                if(penSize === 2)
-                {
-                    const neighbors = scene.findNeighborsSize2(p);
-                    for(let n of neighbors)
-                    {
-                        if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
-                        {
-                            scene.currentPixelsMousePressed.set(n.id, true);
-                            n.colorStack.push(selectedColor);
-                            draw.push(n);
-                        }
-                            ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
-                    }
-                }else if(penSize === 3)
-                {
-                    const neighbors = scene.findNeighborsSize3(p);
-                    for(let n of neighbors)
-                    {
-                        if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
-                        {
-                            scene.currentPixelsMousePressed.set(n.id, true);
-                            n.colorStack.push(selectedColor);
-                            draw.push(n);
-                        }
-                            ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
-                    }
-                }
-
-
-                
-                
+                paintNeighbors(p,scene,ctx,draw,penSize,selectedColor,pixel_size);            
+  
             }
         }
 
@@ -135,4 +78,22 @@ Pencil(eventName : string,
 
 function isPixelAlreadyPaintedInCurrentDraw(pixel : Pixel,scene : Scene){
     return scene.currentPixelsMousePressed.get(pixel.id);
+}
+
+function paintNeighbors(pixel : Pixel, scene : Scene, ctx : CanvasRenderingContext2D,draw : Pixel[],penSize : number,selectedColor : string,pixel_size : number)
+{
+
+    let neighbors : Pixel[] = scene.findNeighbors(pixel,penSize);
+
+    for(let n of neighbors)
+    {
+        if(!isPixelAlreadyPaintedInCurrentDraw(n, scene))
+        {
+            scene.currentPixelsMousePressed.set(n.id, true);
+            draw.push(n);
+            n.colorStack.push(selectedColor);
+        }  
+            ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
+        
+    }
 }
