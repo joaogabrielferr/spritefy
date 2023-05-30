@@ -1,8 +1,7 @@
-import React, { useContext, useEffect } from "react";
-import { ToolButton, toolsType } from "../types";
+import React, { useEffect } from "react";
+import { Store, ToolButton } from "../types";
 import './toolbar.css';
-import { penSizeContext } from "../contexts/penSize/penSizeContext";
-import { selectedToolContext } from "../contexts/selectedTool/selectedToolContext";
+import { store } from "../store";
 
 
 interface ToolbarProps{
@@ -13,7 +12,8 @@ interface ToolbarProps{
 
 export function Toolbar({toolButtons} : ToolbarProps){
 
-    const {selectedTool,setSelectedTool} = useContext(selectedToolContext);
+    const selectedTool = store((state : Store) => state.selectedTool);
+    const setSelectedTool = store((state : Store) => state.setSelectedTool);
     
     useEffect(()=>{
         
@@ -38,7 +38,7 @@ export function Toolbar({toolButtons} : ToolbarProps){
                 setSelectedTool('line');
             }else if(['r','R','6'].indexOf(event.key) > -1)
             {
-                setSelectedTool('square');
+                setSelectedTool('rectangle');
             }else if(['c','C','7'].indexOf(event.key) > -1)
             {
                 setSelectedTool('elipse');
@@ -92,7 +92,9 @@ export function Toolbar({toolButtons} : ToolbarProps){
 
 function PenSizeSlider(){
 
-    const {penSize,setPenSize} = useContext(penSizeContext)
+    // const {penSize,setPenSize} = useContext(penSizeContext);
+    const penSize = store((state : Store) => state.penSize);
+    const setPenSize = store((state : Store) => state.setPenSize);
 
     return <>
             <div className = "penSizeWrapper">

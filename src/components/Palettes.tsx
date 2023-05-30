@@ -1,7 +1,7 @@
-import { ChangeEvent, useContext} from "react";
+import { ChangeEvent} from "react";
 import './palettes.css';
-import { PaletteType } from "../types";
-import { selectedColorContext } from "../contexts/selectedColor/selectedColorContext";
+import { PaletteType, Store } from "../types";
+import { store } from "../store";
 
 
 const palettes = [
@@ -42,7 +42,9 @@ export function Palettes(){
     //TODO: Save palettes created by user on local storage
     // const [selectedPalette,setSelectedPalette] = useState<PaletteType>(palettes[0]);
 
-    const {setSelectedColor} = useContext(selectedColorContext);
+    // const {setSelectedColor} = useContext(selectedColorContext);
+
+    const setSelectedColor = store((state : Store) => state.setSelectedColor);
 
     function handleChangePalette(e : ChangeEvent<HTMLSelectElement>){
         // setSelectedPalette(palettes.find((palette)=>+palette.id === +e.target.value)!)

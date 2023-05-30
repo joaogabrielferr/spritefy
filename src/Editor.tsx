@@ -1,4 +1,4 @@
-import {useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,PointerEvent, useContext } from 'react';
+import {useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,PointerEvent} from 'react';
 import './editor.css';
 import { 
 CANVAS_SIZE,
@@ -17,16 +17,14 @@ import {redoLastDraw, redoStack, undoLastDraw, undoStack } from './Tools/UndoRed
 import { PaintBucket } from './Tools/PaintBucket';
 import { Dropper } from './Tools/Dropper';
 import { Line } from './Tools/Line';
-import { Pixel } from './types';
+import { Pixel, Store } from './types';
 import { removeDraw } from './Tools/helpers/RemoveDraw';
 import { cleanDraw } from './Tools/helpers/CleanDraw';
 import { translateDrawToMainCanvas } from './Tools/helpers/TranslateDrawToMainCanvas';
 import { Rectangle } from './Tools/Rectangle';
 import { Elipse } from './Tools/Elipse';
-import { selectedColorContext } from './contexts/selectedColor/selectedColorContext';
-import { selectedToolContext } from './contexts/selectedTool/selectedToolContext';
 import { EventBus } from './EventBus';
-import { penSizeContext } from './contexts/penSize/penSizeContext';
+import { store } from './store';
 
 
 
@@ -60,9 +58,17 @@ let originalCanvasWidth : number;
 export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element{
     
 
-    const {selectedColor,setSelectedColor} = useContext(selectedColorContext);
-    const {selectedTool} = useContext(selectedToolContext);
-    const {penSize} = useContext(penSizeContext);
+    // const {selectedColor,setSelectedColor} = useContext(selectedColorContext);
+    // const {selectedTool} = useContext(selectedToolContext);
+    // const {penSize} = useContext(penSizeContext);
+
+    const selectedColor = store((state : Store) => state.selectedColor);
+    const setSelectedColor = store((state : Store) => state.setSelectedColor);
+
+    const selectedTool = store((state : Store) => state.selectedTool);
+    // const setSelectedTool = store((state : Store) => state.setSelectedTool);
+
+    const penSize = store((state : Store) => state.penSize);
 
     const canvasRef = useRef<HTMLCanvasElement>(null); //main canvas
     const topCanvasRef = useRef<HTMLCanvasElement>(null); //top canvas for temporary draws (like in line tool, rectangle tool, elipse tool, etc)

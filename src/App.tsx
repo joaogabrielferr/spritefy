@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Editor from "./Editor";
 import './index.css';
 import {ColorResult, CustomPicker} from 'react-color';
@@ -9,11 +9,10 @@ import { Dropper } from "./svg/Dropper";
 import { Line } from "./svg/Line";
 import { Square } from "./svg/Square";
 import { Sidebar } from "./components/Sidebar";
-import { ToolButton } from "./types";
+import { Store, ToolButton } from "./types";
 import { Toolbar } from "./components/Toolbar";
 import { Circle } from "./svg/Circle";
 import { Palettes } from "./components/Palettes";
-import { selectedColorContext } from "./contexts/selectedColor/selectedColorContext";
 import { Header } from "./components/Header";
 import { Tooltip } from 'react-tooltip';
 import CustomColorPicker from "./components/ColorPicker";
@@ -21,6 +20,7 @@ import { EventBus } from "./EventBus";
 import { RESET_CANVAS_POSITION } from "./utils/constants";
 import { LeftArrow } from "./svg/LeftArrow";
 import { RightArrow } from "./svg/RightArrow";
+import { store } from "./store";
 
 
 
@@ -42,6 +42,7 @@ const ToolButtons = [
 //TODO: Detect pinch for zooming in mobile
 //TODO: Add layer functionality
 //TODO: save image (check if its possible to save pixel matrix, if not generate an image and save it)
+//TODO: Decrease canvas (not cssCanvasSize!!!) as window becomes smaller (i added a onresizehandler that changes cssCanvasSize, the size of canvas is set on editor.tsx in a useeffect that has cssCanvasSize as dep, simply adjust the values there)
 //TODO: Add tutorial if opened for the first time
 //TODO: Add license page to add licenses of libs used (tabler-icon)
 
@@ -72,11 +73,13 @@ const ToolButtons = [
 
 
 function App() {
+  
+  const selectedColor = store((state : Store) => state.selectedColor);
+  const setSelectedColor = store((state : Store) => state.setSelectedColor);
 
-  const {selectedColor,setSelectedColor} = useContext(selectedColorContext);
+
   const [cssCanvasSize,setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize
 
-  //here mobile is simply any device that has a screen height greater than screen width
   const [isMobile,setIsMobile] = useState<boolean>(window.innerWidth <= 768); //TODO:this may be two simple, search for a better way to detect a mobile device
 
 
@@ -98,10 +101,8 @@ function App() {
   useEffect(function(){
 
 
-    //if on mobile, set this state to be equal to screen width
       if(isMobile)setCssCanvasSize(window.innerWidth);
       else setCssCanvasSize(window.innerHeight - 50 - 30)
-      //setCssCanvasSize(600)
 
       window.addEventListener('resize',handleWindowResize)
 

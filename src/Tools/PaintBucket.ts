@@ -1,7 +1,7 @@
 import Mouse from "../scene/Mouse";
 import Scene from "../scene/Scene";
 import { Pixel } from "../types";
-import { BG_COLORS } from "../utils/constants";
+import { BG_COLORS, ERASING } from "../utils/constants";
 
 export function PaintBucket(scene : Scene,
     mouse : Mouse,
@@ -87,7 +87,7 @@ export function PaintBucket(scene : Scene,
   }
   
   function canVisitNeighbor(neighbor : Pixel, visited : boolean[], startColor : string) {
-    return visited[neighbor.id] === false && (neighbor.colorStack.top() === startColor || (BG_COLORS.includes(startColor) && neighbor.colorStack.isEmpty()));
+    return visited[neighbor.id] === false && (neighbor.colorStack.top() === startColor || neighbor.colorStack.top() === ERASING || (BG_COLORS.includes(startColor) && neighbor.colorStack.isEmpty()));
 }
 
 
