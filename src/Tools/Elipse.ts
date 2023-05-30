@@ -1,4 +1,4 @@
-import { completeCircle, drawElipse } from "../scene/BuildPath";
+import { drawElipse } from "../scene/BuildPath";
 import Scene from "../scene/Scene";
 import { Pixel } from "../types";
 

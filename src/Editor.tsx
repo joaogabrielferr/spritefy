@@ -21,7 +21,7 @@ import { Pixel } from './types';
 import { removeDraw } from './Tools/helpers/RemoveDraw';
 import { cleanDraw } from './Tools/helpers/CleanDraw';
 import { translateDrawToMainCanvas } from './Tools/helpers/TranslateDrawToMainCanvas';
-import { Square } from './Tools/Square';
+import { Rectangle } from './Tools/Rectangle';
 import { Elipse } from './Tools/Elipse';
 import { selectedColorContext } from './contexts/selectedColor/selectedColorContext';
 import { selectedToolContext } from './contexts/selectedTool/selectedToolContext';
@@ -65,7 +65,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     const {penSize} = useContext(penSizeContext);
 
     const canvasRef = useRef<HTMLCanvasElement>(null); //main canvas
-    const topCanvasRef = useRef<HTMLCanvasElement>(null); //top canvas for temporary draws (like in line tool, square tool, circle tool, etc)
+    const topCanvasRef = useRef<HTMLCanvasElement>(null); //top canvas for temporary draws (like in line tool, rectangle tool, elipse tool, etc)
     const backgroundCanvasRef = useRef<HTMLCanvasElement>(null) //checkerboard canvas
 
     const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvas
@@ -271,7 +271,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         {
             const color : string | undefined | null = Dropper(scene.current,mouse,pixel_size);
             if(color)setSelectedColor(color);
-        }else if(selectedTool === 'line' || selectedTool === 'square' || selectedTool === 'elipse')
+        }else if(selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse')
         {
             scene.current.lineFirstPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
         }
@@ -324,12 +324,12 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             scene.current.currentDrawTopCanvas = [];
             scene.current.currentPixelsMousePressed = new Map();
             scene.current.currentDrawTopCanvas.push(Line(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
-        }else if(selectedTool === 'square' && mouse.isPressed)
+        }else if(selectedTool === 'rectangle' && mouse.isPressed)
         {
             //remove draw from the top canvas
             removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
             scene.current.currentDrawTopCanvas = [];
-            scene.current.currentDrawTopCanvas.push(Square(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
+            scene.current.currentDrawTopCanvas.push(Rectangle(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
         }else if(selectedTool === 'elipse' && mouse.isPressed)
         {
                         //remove draw from the top canvas
@@ -342,7 +342,11 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 const majorRadius = Math.abs(scene.current.lineFirstPixel.x1 - mouse.x);
                 const minorRadius = Math.abs(scene.current.lineFirstPixel.y1 - mouse.y);
                 
-                scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,minorRadius));
+                
+                // scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,minorRadius));
+
+                //for 1 to 1 ratio, using same radius
+                scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,majorRadius));
             
 
             }
@@ -596,7 +600,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             }
         }
 
-        //here the draws made with Line, Square or circle tool are put in main canvas
+        //here the draws made with Line, Rectangle or Elipse tool are put in main canvas
         if(scene.current.currentDrawTopCanvas.length > 0)
         {
             const clean : Pixel[] = cleanDraw(scene.current.currentDrawTopCanvas);

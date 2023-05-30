@@ -30,19 +30,20 @@ const ToolButtons = [
   {tool:'paintBucket',svg: <PaintBucket/>,tooltip: 'Paint bucket(B or 3)'},
   {tool:'dropper',svg: <Dropper/>,tooltip:'Color picker(D or 4)'},
   {tool:'line',svg: <Line/>,tooltip:'Pencil stroke line(L or 5)'},
-  {tool: 'square',svg : <Square/>,tooltip:'Rectangle tool(R or 6)'},
+  {tool: 'rectangle',svg : <Square/>,tooltip:'Rectangle tool(R or 6)'},
   {tool: 'elipse',svg : <Circle/>,tooltip:'Circle tool(C or 7)'},
   {tool: 'undo',svg : <LeftArrow/>,tooltip:'Undo last draw(Ctrl + Z)'},
   {tool: 'redo',svg : <RightArrow/>,tooltip:'Redo last draw(Ctrl + Y)'},
 ] as ToolButton[];
 
 
-//TODO: Redo UI
+//TODO: rename square to rectangle
+//TODO: Add zustand
 //TODO: Detect pinch for zooming in mobile
+//TODO: Add layer functionality
 //TODO: save image (check if its possible to save pixel matrix, if not generate an image and save it)
 //TODO: Add tutorial if opened for the first time
 //TODO: Add license page to add licenses of libs used (tabler-icon)
-//TODO: Add layer functionality
 
 //TODO: possible options to each tool
 // pen:
