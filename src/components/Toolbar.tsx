@@ -53,6 +53,8 @@ export function Toolbar({toolButtons} : ToolbarProps){
 
     },[selectedTool, setSelectedTool])
 
+    
+
     return <div className = "toolbar">
             <div className = "toolbarItem">
             <div className = "toolTitle">TOOLS</div>

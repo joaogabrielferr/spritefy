@@ -20,11 +20,9 @@ export type Store = {
     selectedTool : toolsType;
     selectedColor : string;
     penSize : number;
-    previousPenSize : number; 
     setSelectedColor : (color : string) => void,
     setSelectedTool : (tool : toolsType) => void,
     setPenSize : (size : number) => void,
-    setPreviousPenSize : (size : number) => void,
 }
 
 export type Subscription = {

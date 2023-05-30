@@ -349,10 +349,10 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 const minorRadius = Math.abs(scene.current.lineFirstPixel.y1 - mouse.y);
                 
                 
-                // scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,minorRadius));
+                scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,minorRadius));
 
                 //for 1 to 1 ratio, using same radius
-                scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,majorRadius));
+                //scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,majorRadius));
             
 
             }
@@ -418,12 +418,16 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                         topCtx.current!.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
 
                         let neighbors : Pixel[] = scene.current.findNeighbors(newPixel,penSize);
-
-                        for(let n of neighbors)
+                        
+                        if(selectedTool !== 'dropper' && selectedTool !== 'paintBucket')
                         {
-                            topCtx.current!.fillStyle = 'rgb(196, 193, 206,0.5)';
-                            topCtx.current!.fillRect(n.x1,n.y1,pixel_size,pixel_size);                                            
+                            for(let n of neighbors)
+                            {
+                                topCtx.current!.fillStyle = 'rgb(196, 193, 206,0.5)';
+                                topCtx.current!.fillRect(n.x1,n.y1,pixel_size,pixel_size);                                            
+                            }
                         }
+
                         
                         scene.current.previousNeighborsWhileMovingMouse = neighbors;
                         
