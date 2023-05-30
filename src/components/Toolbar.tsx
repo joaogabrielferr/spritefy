@@ -78,7 +78,7 @@ export function Toolbar({toolButtons} : ToolbarProps){
 
             <div className="toolbarItem">
                     {
-                        (['pencil','eraser','line','square','elipse'].find((tool)=>tool === selectedTool)) &&
+                        (['pencil','eraser','line','rectangle','elipse'].find((tool)=>tool === selectedTool)) &&
                         <ToolOptions>
                             <div style = {{marginTop:'5px',fontSize:'12px'}}>{selectedTool}</div>
                             <div className = "toolTitle" style = {{marginTop:'5px'}}>Pen size</div>

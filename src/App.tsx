@@ -165,13 +165,12 @@ function App() {
 
               </div>
 
-              <div>
               {isMobile && <div className = "mobileOptions">
                   <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
                   <Toolbar toolButtons={ToolButtons}></Toolbar>
               </div>}
               
-              </div>
+             
           </section>
           {/* {
             !isMobile && <Tooltip id="my-tooltip" place="bottom" style={{zIndex:9999,backgroundColor:'#634cb8'}}/>
