@@ -51,7 +51,7 @@ Pencil(eventName : string,
             
         //if there are gaps between the points, fill them with bresenham's algorithm (see scene/buildPath.ts)
         if (scene.lastPixel !== null && mouse.isPressed && scene.lastPixel.id !== pixel.id && (eventName == "mousemove" || "touchmove")) {
-        
+            console.log(eventName);
             //build path from last pixel to current pixel
             const path = bresenhamsAlgorithm(scene, scene.lastPixel, pixel,pixel_size);
             for (let p of path) {

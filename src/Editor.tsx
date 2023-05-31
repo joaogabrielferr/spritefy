@@ -238,29 +238,29 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     
     }
 
-    function handleFirstClick(e : PointerEvent){
+    function handleFirstClick(e : MouseEvent){
 
-        if(e.pointerType === 'touch' || e.pointerType === 'pen')
-        {
-            if(e.cancelable)
-            {
-                e.preventDefault();
-            }
+        // if(e.pointerType === 'touch' || e.pointerType === 'pen')
+        // {
+        //     if(e.cancelable)
+        //     {
+        //         e.preventDefault();
+        //     }
 
-            const bounding = canvas.getBoundingClientRect();
-            mouse.x = e.clientX - bounding.left;
-            mouse.y = e.clientY - bounding.top;
+        //     const bounding = canvas.getBoundingClientRect();
+        //     mouse.x = e.clientX - bounding.left;
+        //     mouse.y = e.clientY - bounding.top;
 
-            const canvasWidth = parseFloat(canvas.style.width); 
-            const canvasHeight = parseFloat(canvas.style.height);
+        //     const canvasWidth = parseFloat(canvas.style.width); 
+        //     const canvasHeight = parseFloat(canvas.style.height);
 
-            const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
-            const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
+        //     const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
+        //     const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
 
-            mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
-            mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas 
+        //     mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
+        //     mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas 
 
-        }
+        // }
 
 
 
@@ -283,9 +283,57 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }
     }
 
-    function handlePointerMove(event : PointerEvent ){
+
+    function handleTouchStart(e : TouchEvent)
+    {
+
+            if(e.cancelable)
+            {
+                e.preventDefault();
+            }
+
+            const bounding = canvas.getBoundingClientRect();
+            mouse.x = e.touches[0].clientX - bounding.left;
+            mouse.y = e.touches[0].clientY - bounding.top;
+
+            const canvasWidth = parseFloat(canvas.style.width); 
+            const canvasHeight = parseFloat(canvas.style.height);
+
+            const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
+            const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
+
+            mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
+            mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas 
+
+        
+
+
+
+        mouse.isPressed = true;
+        if (selectedTool === 'pencil'){
+            scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
+        }else if (selectedTool === 'eraser')
+        {
+            scene.current.currentDraw.push(Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
+        }else if (selectedTool === 'paintBucket')
+        {
+            scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,penSize,CANVAS_SIZE,selectedColor));
+        }else if(selectedTool === 'dropper')
+        {
+            const color : string | undefined | null = Dropper(scene.current,mouse,pixel_size);
+            if(color)setSelectedColor(color);
+        }else if(selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse')
+        {
+            scene.current.lineFirstPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
+        }
+    }
+
+
+    function handleMouseMove(event : MouseEvent ){
 
         if(!canvas)return;
+
+
 
         //TODO: maybe decouple mouse listeners from tool function calls, functions can be called a super high number of times depending on device config and mouse type i guess
         const bounding = canvas.getBoundingClientRect();
@@ -297,6 +345,11 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
         const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
+
+        // if((mouse.x - offsetX) * (display_size / canvasWidth) != mouse.x && (mouse.y - offsetY) * (display_size / canvasHeight) != mouse.y )
+        // {
+        //     document.getElementById('finish')!.innerHTML = "";
+        // }
 
         mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
         mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
@@ -392,17 +445,139 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }
 
         //paint pixel in top canvas relative to mouse position
-        paintMousePosition(event.pointerType);
+        paintMousePosition();
+
+
+        mouse.mouseMoveLastPos = {x: mouse.x,y : mouse.y};
+
+    }
+
+
+    function handleTouchMove(event : TouchEvent)
+    {
+        if(!canvas)return;
+
+
+
+        //TODO: maybe decouple mouse listeners from tool function calls, functions can be called a super high number of times depending on device config and mouse type i guess
+        const bounding = canvas.getBoundingClientRect();
+        mouse.x = event.touches[0].clientX - bounding.left;
+        mouse.y = event.touches[0].clientY - bounding.top;
+
+        const canvasWidth = parseFloat(canvas.style.width); 
+        const canvasHeight = parseFloat(canvas.style.height);
+
+        const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
+        const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
+
+        // if((mouse.x - offsetX) * (display_size / canvasWidth) != mouse.x && (mouse.y - offsetY) * (display_size / canvasHeight) != mouse.y )
+        // {
+        //     document.getElementById('finish')!.innerHTML = "";
+        // }
+
+        mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
+        mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
+
+        if(coordinatesElement && mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size)
+        {
+            coordinatesElement.innerHTML = `[X:${Math.floor(mouse.x) + 1},Y:${Math.floor(mouse.y) + 1}]`;
+        }
+
+        if(!(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size))
+        {
+            //out of canvas
+            // handleFinishDraw(undefined);
+            scene.current.lastPixel = null;
+            if(scene.current.previousPixelWhileMovingMouse)
+            {
+                removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse,...scene.current.previousNeighborsWhileMovingMouse],pixel_size);
+            }
+            return;
+        }
+
+        if (selectedTool === 'pencil' && mouse.isPressed) {
+            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
+        }else if(selectedTool === 'eraser' && mouse.isPressed)
+        {
+            scene.current.currentDraw.push(Eraser("mousemove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
+        }else if(selectedTool === 'line' && mouse.isPressed)
+        {
+            //remove draw from the top canvas
+            removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),penSize);
+            scene.current.currentDrawTopCanvas = [];
+            scene.current.currentPixelsMousePressed = new Map();
+            scene.current.currentDrawTopCanvas.push(Line(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
+        }else if(selectedTool === 'rectangle' && mouse.isPressed)
+        {
+            //remove draw from the top canvas
+            removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
+            scene.current.currentDrawTopCanvas = [];
+            scene.current.currentDrawTopCanvas.push(Rectangle(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
+        }else if(selectedTool === 'elipse' && mouse.isPressed)
+        {
+                        //remove draw from the top canvas
+            removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
+            scene.current.currentDrawTopCanvas = [];
+
+            if(scene.current.lineFirstPixel)
+            {
+
+                const majorRadius = Math.abs(scene.current.lineFirstPixel.x1 - mouse.x);
+                const minorRadius = Math.abs(scene.current.lineFirstPixel.y1 - mouse.y);
+                
+                
+                scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,minorRadius));
+
+                //for 1 to 1 ratio, using same radius
+                //scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,majorRadius));
+            
+
+            }
+
+            
+            /////////////1 TO 1 RATIO CIRCLE////////////////////////////
+            //remove draw from the top canvas
+            // removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
+            // scene.current.currentDrawTopCanvas = [];
+
+
+            // //increase or decrease circle radius based on mouse movement
+            // if(mouse.mouseMoveLastPos && scene.current.lineFirstPixel){
+            //     if(
+            //         ((mouse.x > scene.current.lineFirstPixel.x1 && mouse.x > mouse.mouseMoveLastPos.x) ||
+            //         (mouse.y > scene.current.lineFirstPixel.y1 && mouse.y > mouse.mouseMoveLastPos.y)) ||
+            //     ( (mouse.x < scene.current.lineFirstPixel.x1 && mouse.x < mouse.mouseMoveLastPos.x) ||
+            //     (mouse.y < scene.current.lineFirstPixel.y1 && mouse.y < mouse.mouseMoveLastPos.y)))
+            //     {
+            //         //mouse is going away from middle point (from left or right), increase radius
+            //         scene.current.circleRadius+=CIRCLE_RADIUS_INCREASE_FACTOR;
+            //     }else
+            //     {
+            //         //mouse is moving toward middle point, decrase radius
+            //         if(scene.current.circleRadius - CIRCLE_RADIUS_INCREASE_FACTOR <= 1)
+            //         {
+            //             scene.current.circleRadius = 1;
+            //         }else
+            //         {
+            //             scene.current.circleRadius-=CIRCLE_RADIUS_INCREASE_FACTOR;
+            //         }
+            //     }
+            // }
+
+            // scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
+            // /////////////////////////////////////          
+        }
+
+        //paint pixel in top canvas relative to mouse position
+        // paintMousePosition();
 
 
         mouse.mouseMoveLastPos = {x: mouse.x,y : mouse.y};
 
     }
     
-    
-    function paintMousePosition(pointerType : string){
-        if(pointerType === 'mouse')
-        {
+    function paintMousePosition(){
+
 
             if(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size){
                     const newPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
@@ -443,7 +618,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 }
             }
 
-        }
+        
     }
     
 
@@ -591,6 +766,8 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     function handleFinishDraw(e : TouchEvent | MouseEvent | undefined){
         if(e)
             e.preventDefault();
+
+
         mouse.isPressed = false;
         scene.current.lastPixel = null;
         if (scene.current.currentDraw.length > 0) {
@@ -647,9 +824,13 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             style = {!isMobile ? {height:cssCanvasSize, width:'100%'} : {width:'100%',height:cssCanvasSize}} 
             ref = {outerDivRef} 
             onWheel={handleZoom}
-            onPointerDown={handleFirstClick}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handleFinishDraw}
+            onMouseDown={handleFirstClick}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleFinishDraw}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleFinishDraw}
+            
             >
                 <canvas className = "canvases" id = "topCanvas" ref = {topCanvasRef}></canvas>
                 <canvas className = "canvases" id="canvas" ref = {canvasRef}> Your browser does not support canvas </canvas>
