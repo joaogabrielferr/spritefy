@@ -9,7 +9,7 @@ import { Dropper } from "./svg/Dropper";
 import { Line } from "./svg/Line";
 import { Square } from "./svg/Square";
 import { Sidebar } from "./components/Sidebar";
-import { Store, ToolButton } from "./types";
+import { ToolButton } from "./types";
 import { Toolbar } from "./components/Toolbar";
 import { Circle } from "./svg/Circle";
 import { Palettes } from "./components/Palettes";
@@ -20,7 +20,7 @@ import { EventBus } from "./EventBus";
 import { RESET_CANVAS_POSITION } from "./utils/constants";
 import { LeftArrow } from "./svg/LeftArrow";
 import { RightArrow } from "./svg/RightArrow";
-import { store } from "./store";
+import { store,StoreType } from "./store";
 
 
 
@@ -37,8 +37,6 @@ const ToolButtons = [
 ] as ToolButton[];
 
 
-//TODO: rename square to rectangle
-//TODO: Add zustand
 //TODO: Detect pinch for zooming in mobile
 //TODO: Add layer functionality
 //TODO: save image (check if its possible to save pixel matrix, if not generate an image and save it)
@@ -74,8 +72,8 @@ const ToolButtons = [
 
 function App() {
   
-  const selectedColor = store((state : Store) => state.selectedColor);
-  const setSelectedColor = store((state : Store) => state.setSelectedColor);
+  const selectedColor = store((state : StoreType) => state.selectedColor);
+  const setSelectedColor = store((state : StoreType) => state.setSelectedColor);
 
 
   const [cssCanvasSize,setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize

@@ -77,97 +77,144 @@
   width: 100%;
   height: 100px;
 }
+.InnerToolOptions{
+  width: 95%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin: 0 auto;
+}
+
+.InnerToolOptions > div{
+  margin-bottom: 10px;
+}
 
 .penSizeSlider {
-    /* removing default appearance */
-    -webkit-appearance: none;
-    appearance: none; 
-    /* creating a custom design */
-    width: 100%;
-    cursor: pointer;
-    outline: none;
-    cursor: grab;
-    border: 1px solid gray;
-    /*  slider progress trick  */
-    overflow: hidden;
+  /* removing default appearance */
+  -webkit-appearance: none;
+  appearance: none; 
+  /* creating a custom design */
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+  cursor: grab;
+  border: 1px solid rgb(20, 20, 20);
+  border-radius: 2px;
+  /*  slider progress trick  */
+  overflow: hidden;
+  margin: 0;
 
-  }
+}
 
-  .penSizeSlider:active{
-    cursor: grabbing;
-    border-style: none;
-    border: 1px solid gray;
-  }
-  
-  /* Track: webkit browsers */
-  .penSizeSlider::-webkit-slider-runnable-track {
-    height: 13px;
-    background: #252525;
-  }
-  
-  /* Track: Mozilla Firefox */
-  .penSizeSlider::-moz-range-track {
-    height: 13px;
-    background: #111;
-  }
-  
-  /* Thumb: webkit */
-  .penSizeSlider::-webkit-slider-thumb {
-    /* removing default appearance */
-    -webkit-appearance: none;
-    appearance: none; 
-    /* creating a custom design */
-    height: 13px;
-    width: 15px;
-    background-color: gray;
-    border: 2px solid gray;
-    /*  slider progress trick  */
-    box-shadow: -407px 0 0 400px gray;
-  }
-  
-  
-  /* Thumb: Firefox */
-  .penSizeSlider::-moz-range-thumb {
-    height: 13px;
-    width: 15px;
-    background-color: gray;
-    border: 1px solid gray;
-    /*  slider progress trick  */
-    box-shadow: -407px 0 0 400px gray;
-  }
-  
+.penSizeSlider:active{
+  cursor: grabbing;
+  border-style: none;
+  border: 1px solid rgb(20, 20, 20);
+}
 
-  .penSizeRange{
-    display: flex;
-    width: 100%;
-  }
 
-  .penSizeValue{
-    font-size: 12px;
-    width: 10%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    color: white;
-    left: 90%;
-    top:8%;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
+/* Track: webkit browsers */
+.penSizeSlider::-webkit-slider-runnable-track {
+  height: 13px;
+  background: #252525;
+}
 
-  .penSizeWrapper{
-    width: 95%;
-    display: flex;
-    justify-content: space-between;
-    position: relative;
-    align-items: center;
-  }
+/* Track: Mozilla Firefox */
+.penSizeSlider::-moz-range-track {
+  height: 13px;
+  background: #111;
+}
 
+/* Thumb: webkit */
+.penSizeSlider::-webkit-slider-thumb {
+  /* removing default appearance */
+  -webkit-appearance: none;
+  appearance: none; 
+  /* creating a custom design */
+  height: 13px;
+  width: 15px;
+  background-color: #634cb8;
+  border: 2px solid #634cb8;
+  /*  slider progress trick  */
+  box-shadow: -407px 0 0 400px #634cb8;
+}
+
+
+/* Thumb: Firefox */
+.penSizeSlider::-moz-range-thumb {
+  height: 13px;
+  width: 15px;
+  background-color:  #634cb8;
+  border: 1px solid  #634cb8;
+  /*  slider progress trick  */
+  box-shadow: -407px 0 0 400px  #634cb8;
+}
+
+
+.penSizeRange{
+  display: flex;
+  width: 100%;
+}
+
+.penSizeValue{
+  font-size: 12px;
+  width: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  color: white;
+  left: 90%;
+  top:8%;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.penSizeWrapper{
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  align-items: center;
+}
+
+.checkbox input {
+  height: 0;
+  width: 0;
+}
+
+
+.checkbox {
+  display: block;
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 18px;
+  font-size: 12px;
+  user-select: none;
+
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 12px;
+  width: 12px;
+  border: 2px solid #111;
+  background-color: #292929;
+} 
+
+.checkbox:hover input ~ .checkmark {
+  background-color: rgb(65, 65, 65);
+}
+.checkbox input:checked ~ .checkmark {
+  background-color: #634cb8;
+}
 
   
   

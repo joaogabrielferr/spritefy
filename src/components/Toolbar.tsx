@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import { Store, ToolButton } from "../types";
+import { ToolButton } from "../types";
 import './toolbar.css';
-import { store } from "../store";
+import { store,StoreType } from "../store";
 
 
 interface ToolbarProps{
@@ -12,8 +12,10 @@ interface ToolbarProps{
 
 export function Toolbar({toolButtons} : ToolbarProps){
 
-    const selectedTool = store((state : Store) => state.selectedTool);
-    const setSelectedTool = store((state : Store) => state.setSelectedTool);
+    const selectedTool = store((state : StoreType) => state.selectedTool);
+    const setSelectedTool = store((state : StoreType) => state.setSelectedTool);
+    const oneToOneRatioElipse = store((state : StoreType) => state.oneToOneRatioElipse);
+    const toogleOneToOneRatioElipse = store((state : StoreType) => state.toogleOneToOneRatioElipse);
     
     useEffect(()=>{
         
@@ -77,14 +79,26 @@ export function Toolbar({toolButtons} : ToolbarProps){
             </div>
 
             <div className="toolbarItem">
+                <ToolOptions>
+                    <div style = {{marginTop:'5px',fontSize:'12px'}}>{selectedTool}</div>
                     {
-                        (['pencil','eraser','line','rectangle','elipse'].find((tool)=>tool === selectedTool)) &&
-                        <ToolOptions>
-                            <div style = {{marginTop:'5px',fontSize:'12px'}}>{selectedTool}</div>
-                            <div className = "toolTitle" style = {{marginTop:'5px'}}>Pen size</div>
-                            <PenSizeSlider/>
-                        </ToolOptions>
+                    (['pencil','eraser','line','rectangle','elipse'].find((tool)=>tool === selectedTool)) && <div>
+                        <div className = "toolTitle" style = {{marginTop:'5px'}}>Pen size</div>
+                        <PenSizeSlider/>
+                    </div>
                     }
+                    {
+                        selectedTool === 'elipse' && <div>
+                            <label className="checkbox">
+                            1 to 1 Ratio
+                            <input type="checkbox" id = "OneToOneRatioElipse" checked = {oneToOneRatioElipse} onChange = {()=>toogleOneToOneRatioElipse()}/>
+                            <span className="checkmark"></span>
+                            </label>
+                        </div>
+                    }
+
+                </ToolOptions>
+                    
             </div>
         
             </div>
@@ -95,8 +109,8 @@ export function Toolbar({toolButtons} : ToolbarProps){
 function PenSizeSlider(){
 
     // const {penSize,setPenSize} = useContext(penSizeContext);
-    const penSize = store((state : Store) => state.penSize);
-    const setPenSize = store((state : Store) => state.setPenSize);
+    const penSize = store((state : StoreType) => state.penSize);
+    const setPenSize = store((state : StoreType) => state.setPenSize);
 
     return <>
             <div className = "penSizeWrapper">
@@ -111,7 +125,9 @@ function PenSizeSlider(){
 function ToolOptions({children} : {children:React.ReactNode}){
 
     return <div className = "ToolOptions">
+        <div className = "InnerToolOptions">
         {children}    
+        </div>
     </div>
 
 }

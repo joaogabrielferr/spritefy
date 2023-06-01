@@ -17,14 +17,14 @@ import {redoLastDraw, redoStack, undoLastDraw, undoStack } from './Tools/UndoRed
 import { PaintBucket } from './Tools/PaintBucket';
 import { Dropper } from './Tools/Dropper';
 import { Line } from './Tools/Line';
-import { Pixel, Store } from './types';
+import { Pixel } from './types';
 import { removeDraw } from './Tools/helpers/RemoveDraw';
 import { cleanDraw } from './Tools/helpers/CleanDraw';
 import { translateDrawToMainCanvas } from './Tools/helpers/TranslateDrawToMainCanvas';
 import { Rectangle } from './Tools/Rectangle';
 import { Elipse } from './Tools/Elipse';
 import { EventBus } from './EventBus';
-import { store } from './store';
+import { store,StoreType } from './store';
 
 
 
@@ -62,13 +62,17 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     // const {selectedTool} = useContext(selectedToolContext);
     // const {penSize} = useContext(penSizeContext);
 
-    const selectedColor = store((state : Store) => state.selectedColor);
-    const setSelectedColor = store((state : Store) => state.setSelectedColor);
+    const selectedColor = store((state : StoreType) => state.selectedColor);
+    const setSelectedColor = store((state : StoreType) => state.setSelectedColor);
 
-    const selectedTool = store((state : Store) => state.selectedTool);
+    const selectedTool = store((state : StoreType) => state.selectedTool);
     // const setSelectedTool = store((state : Store) => state.setSelectedTool);
 
-    const penSize = store((state : Store) => state.penSize);
+    const penSize = store((state : StoreType) => state.penSize);
+
+    const oneToOneRatioElipse = store((state : StoreType) => state.oneToOneRatioElipse);
+
+
 
     const canvasRef = useRef<HTMLCanvasElement>(null); //main canvas
     const topCanvasRef = useRef<HTMLCanvasElement>(null); //top canvas for temporary draws (like in line tool, rectangle tool, elipse tool, etc)
@@ -286,11 +290,12 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
     function handleTouchStart(e : TouchEvent)
     {
+        e.preventDefault();
 
-            if(e.cancelable)
-            {
-                e.preventDefault();
-            }
+            // if(e.cancelable)
+            // {
+            //     e.preventDefault();
+            // }
 
             const bounding = canvas.getBoundingClientRect();
             mouse.x = e.touches[0].clientX - bounding.left;
@@ -402,10 +407,16 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 const minorRadius = Math.abs(scene.current.lineFirstPixel.y1 - mouse.y);
                 
                 
-                scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,minorRadius));
+                if(oneToOneRatioElipse)
+                {
+                    scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,majorRadius));
+                }else
+                {
+                    scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,minorRadius));
+                }
 
+                
                 //for 1 to 1 ratio, using same radius
-                //scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,majorRadius));
             
 
             }
@@ -457,6 +468,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     {
         if(!canvas)return;
 
+        event.preventDefault();
 
 
         //TODO: maybe decouple mouse listeners from tool function calls, functions can be called a super high number of times depending on device config and mouse type i guess
@@ -525,7 +537,8 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 const majorRadius = Math.abs(scene.current.lineFirstPixel.x1 - mouse.x);
                 const minorRadius = Math.abs(scene.current.lineFirstPixel.y1 - mouse.y);
                 
-                
+
+
                 scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,minorRadius));
 
                 //for 1 to 1 ratio, using same radius
@@ -535,7 +548,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             }
 
             
-            /////////////1 TO 1 RATIO CIRCLE////////////////////////////
             //remove draw from the top canvas
             // removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
             // scene.current.currentDrawTopCanvas = [];
@@ -568,8 +580,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             // /////////////////////////////////////          
         }
 
-        //paint pixel in top canvas relative to mouse position
-        // paintMousePosition();
+
 
 
         mouse.mouseMoveLastPos = {x: mouse.x,y : mouse.y};
