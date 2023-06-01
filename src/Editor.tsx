@@ -1,4 +1,4 @@
-import {useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,PointerEvent} from 'react';
+import {useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,PointerEvent,Touch} from 'react';
 import './editor.css';
 import { 
 CANVAS_SIZE,
@@ -51,6 +51,9 @@ let currentScale = 1;
 let coordinatesElement : HTMLSpanElement;
 
 let originalCanvasWidth : number;
+
+let touchStartDistance : number;
+let touchMoveDistance : number;
 
 
 //////////////////////////////////////////////////////////
@@ -118,14 +121,14 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         
         if(isMobile)
         {
-            canvas.style.width = `${cssCanvasSize}px`;
-            canvas.style.height = `${cssCanvasSize}px`;
+            canvas.style.width = `${cssCanvasSize - 100}px`;
+            canvas.style.height = `${cssCanvasSize - 100}px`;
 
-            topCanvas.style.width = `${cssCanvasSize}px`;
-            topCanvas.style.height = `${cssCanvasSize}px`;
+            topCanvas.style.width = `${cssCanvasSize - 100}px`;
+            topCanvas.style.height = `${cssCanvasSize - 100}px`;
             
-            backgroundCanvas.style.width = `${cssCanvasSize}px`;
-            backgroundCanvas.style.height = `${cssCanvasSize}px`;
+            backgroundCanvas.style.width = `${cssCanvasSize - 100}px`;
+            backgroundCanvas.style.height = `${cssCanvasSize - 100}px`;
             
             originalCanvasWidth = cssCanvasSize;
         }else
@@ -288,6 +291,15 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     }
 
 
+    // Helper function to calculate distance between two touches
+    function getTouchDistance(touch1 : Touch, touch2 : Touch) {
+        const dx = touch1.clientX - touch2.clientX;
+        const dy = touch1.clientY - touch2.clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    let counter = 0;
+
     function handleTouchStart(e : TouchEvent)
     {
         e.preventDefault();
@@ -296,6 +308,14 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             // {
             //     e.preventDefault();
             // }
+
+            if(e.touches.length === 2)
+            {
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                touchStartDistance = getTouchDistance(touch1, touch2);
+            }else
+            {
 
             const bounding = canvas.getBoundingClientRect();
             mouse.x = e.touches[0].clientX - bounding.left;
@@ -310,26 +330,25 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
             mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas 
 
-        
 
-
-
-        mouse.isPressed = true;
-        if (selectedTool === 'pencil'){
-            scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
-        }else if (selectedTool === 'eraser')
-        {
-            scene.current.currentDraw.push(Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
-        }else if (selectedTool === 'paintBucket')
-        {
-            scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,penSize,CANVAS_SIZE,selectedColor));
-        }else if(selectedTool === 'dropper')
-        {
-            const color : string | undefined | null = Dropper(scene.current,mouse,pixel_size);
-            if(color)setSelectedColor(color);
-        }else if(selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse')
-        {
-            scene.current.lineFirstPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
+            mouse.isPressed = true;
+            if (selectedTool === 'pencil'){
+                scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
+            }else if (selectedTool === 'eraser')
+            {
+                scene.current.currentDraw.push(Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
+            }else if (selectedTool === 'paintBucket')
+            {
+                scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,penSize,CANVAS_SIZE,selectedColor));
+            }else
+            if(selectedTool === 'dropper')
+            {
+                const color : string | undefined | null = Dropper(scene.current,mouse,pixel_size);
+                if(color)setSelectedColor(color);
+            }else if(selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse')
+            {
+                scene.current.lineFirstPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
+            }
         }
     }
 
@@ -415,10 +434,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                     scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,minorRadius));
                 }
 
-                
-                //for 1 to 1 ratio, using same radius
             
-
             }
 
             
@@ -468,7 +484,23 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     {
         if(!canvas)return;
 
-        event.preventDefault();
+        // event.preventDefault();
+
+        if (event.touches.length === 2) {
+            // Get the current distance between the two touch points
+            const touch1 = event.touches[0];
+            const touch2 = event.touches[1];
+
+            touchMoveDistance = getTouchDistance(touch1, touch2);
+        
+            // Compare the initial and current distances
+            //const pinchScale = touchMoveDistance / touchStartDistance;
+            
+
+            handleZoomMobile(event);
+            return;
+            
+          }
 
 
         //TODO: maybe decouple mouse listeners from tool function calls, functions can be called a super high number of times depending on device config and mouse type i guess
@@ -633,6 +665,142 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     }
     
 
+    function handleZoomMobile(e : TouchEvent)
+    {
+        if (!outerDiv) return;
+
+
+        // Prevent the default behavior of the touch event
+        e.preventDefault();
+
+        const rect = outerDiv.getBoundingClientRect();
+
+        if (e.touches.length === 2) {
+            // Update the touch positions relative to the outer div
+            const touch1 = e.touches[0];
+            const touch2 = e.touches[1];
+            const touch1X = touch1.clientX - rect.left;
+            const touch1Y = touch1.clientY - rect.top;
+            const touch2X = touch2.clientX - rect.left;
+            const touch2Y = touch2.clientY - rect.top;
+
+            // Calculate the distance between the two touch points
+            const touchDistance = Math.sqrt(
+            Math.pow(touch2X - touch1X, 2) + Math.pow(touch2Y - touch1Y, 2)
+            );
+
+            const mouseX = (touch1X + touch2X) / 2;
+            const mouseY = (touch1Y + touch2Y) / 2;
+
+            
+            // Calculate the pinch scale based on the initial touch distance and current touch distance
+            const pinchScale = touchDistance / touchStartDistance;
+
+            if (pinchScale > 1 && scene.current.zoomAmount < MAX_ZOOM_AMOUNT) {
+                // Zoom in
+                // if(parseFloat(canvas.style.width) < originalCanvasWidth)
+                // {
+                //     currentScale += SCALE_FACTOR;
+                //     const newSize = Math.min(parseFloat(canvas.style.width) + 100,originalCanvasWidth);
+                //     canvas.style.width = `${newSize}px`;
+                //     canvas.style.height = `${newSize}px`;
+                //     topCanvas.style.width = `${newSize}px`;
+                //     topCanvas.style.height = `${newSize}px`;
+                //     backgroundCanvas.style.width = `${newSize}px`;
+                //     backgroundCanvas.style.height = `${newSize}px`;
+                // }else 
+                if(scene.current.zoomAmount < MAX_ZOOM_AMOUNT){
+    
+                    scene.current.zoomAmount++;
+                    
+                    //dx and dy determines the translation of the canvas based on the mouse position during zooming
+                    //subtracting outerDiv.offsetWidth / 2 from mouse.x determines the offset of the mouse position from the center of the outer div.
+                    //the resulting value is then multiplied by the SCALE_FACTOR to ensure the correct translation based on the current scale factor.
+    
+                    // console.log("mouse.x:",mouseX);
+                    // console.log("offset:",outerDiv.offsetWidth/2);
+    
+                    const dx = (mouseX - outerDiv.offsetWidth / 2) * SCALE_FACTOR;
+                    const dy = (mouseY - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
+            
+                    currentScale += SCALE_FACTOR;
+                    currentScale = Math.max(currentScale, 0.15); // Set a minimum scale value
+            
+                    const scaleChangeFactor = currentScale / (currentScale - SCALE_FACTOR); //calculate current scale factor
+            
+                    canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
+                    canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
+                    canvas.style.left = `${canvas.offsetLeft - dx}px`;
+                    canvas.style.top = `${canvas.offsetTop - dy}px`;
+                    
+                    topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
+                    topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
+                    topCanvas.style.left = `${topCanvas.offsetLeft - dx}px`;
+                    topCanvas.style.top = `${topCanvas.offsetTop - dy}px`;
+                    
+                    backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
+                    backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
+                    backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft - dx}px`;
+                    backgroundCanvas.style.top = `${backgroundCanvas.offsetTop - dy}px`;
+    
+    
+                    // Store the mouse position in the history
+                    mouse.history.push({ x: mouseX, y: mouseY });
+            }
+    
+        }else if (pinchScale < 1) {
+          // Zoom out
+    
+            if(scene.current.zoomAmount > 0){
+    
+                scene.current.zoomAmount--;
+                if (mouse.history.length > 0) {
+                    const lastMousePos = mouse.history.pop()!;
+    
+                    const dx = (lastMousePos.x - outerDiv.offsetWidth / 2) * SCALE_FACTOR;
+                    const dy = (lastMousePos.y - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
+    
+                    currentScale -= SCALE_FACTOR;
+                    currentScale = Math.max(currentScale, 0.1); // Set a minimum scale value
+    
+                    const scaleChangeFactor = currentScale / (currentScale + SCALE_FACTOR);
+    
+    
+                    canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
+                    canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
+                    canvas.style.left = `${canvas.offsetLeft + dx}px`;
+                    canvas.style.top = `${canvas.offsetTop + dy}px`;
+                    
+                    topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
+                    topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
+                    topCanvas.style.left = `${topCanvas.offsetLeft + dx}px`;
+                    topCanvas.style.top = `${topCanvas.offsetTop + dy}px`;
+                    
+                    backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
+                    backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
+                    backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft + dx}px`;
+                    backgroundCanvas.style.top = `${backgroundCanvas.offsetTop + dy}px`;
+    
+                }   
+            }
+            // else if(parseFloat(canvas.style.width) > display_size)
+            // {
+            //     const newSize = Math.max(parseFloat(canvas.style.width) - 100,display_size);
+            //     canvas.style.width = `${newSize}px`;
+            //     canvas.style.height = `${newSize}px`;
+            //     topCanvas.style.width = `${newSize}px`;
+            //     topCanvas.style.height = `${newSize}px`;
+            //     backgroundCanvas.style.width = `${newSize}px`;
+            //     backgroundCanvas.style.height = `${newSize}px`;
+            //     currentScale -= SCALE_FACTOR;
+            // }
+    
+        }
+
+
+
+        }
+    }
 
     function handleZoom(e : WheelEvent){
         

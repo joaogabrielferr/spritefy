@@ -90,7 +90,7 @@ export function Toolbar({toolButtons} : ToolbarProps){
                     {
                         selectedTool === 'elipse' && <div>
                             <label className="checkbox">
-                            1 to 1 Ratio
+                            Keep 1 to 1 ratio
                             <input type="checkbox" id = "OneToOneRatioElipse" checked = {oneToOneRatioElipse} onChange = {()=>toogleOneToOneRatioElipse()}/>
                             <span className="checkmark"></span>
                             </label>

@@ -16,15 +16,6 @@ export type ToolButton= {tool : toolsType, svg : JSX.Element,tooltip:string,tool
 
 export type PaletteType = {name : string,colors: string[],id : number};
 
-export type Store = {
-    selectedTool : toolsType;
-    selectedColor : string;
-    penSize : number;
-    setSelectedColor : (color : string) => void,
-    setSelectedTool : (tool : toolsType) => void,
-    setPenSize : (size : number) => void,
-}
-
 export type Subscription = {
     unsubscribe: () => void;
 }
