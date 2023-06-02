@@ -1,4 +1,4 @@
-import {useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,PointerEvent,Touch} from 'react';
+import {useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,Touch} from 'react';
 import './editor.css';
 import { 
 CANVAS_SIZE,
@@ -54,7 +54,9 @@ let originalCanvasWidth : number;
 
 let touchStartDistance : number;
 let touchMoveDistance : number;
+let isPinching  = false;
 
+let pinchTouchStartTimeOut : number | undefined = undefined;
 
 //////////////////////////////////////////////////////////
 
@@ -298,58 +300,74 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    let counter = 0;
 
     function handleTouchStart(e : TouchEvent)
     {
-        e.preventDefault();
 
-            // if(e.cancelable)
-            // {
-            //     e.preventDefault();
-            // }
+        //in some mobile devices, when pinching, the touchstart listener is called with e.touches.length === 1, and only then it is called again with e.touches.length === 1
+        clearTimeout(pinchTouchStartTimeOut);
+        
+
+        pinchTouchStartTimeOut = setTimeout(() => {
+
 
             if(e.touches.length === 2)
             {
+                isPinching = true;
+            }
+
+
+            if(e.touches.length === 2)
+            {
+
+                // isPinching = true;
                 const touch1 = e.touches[0];
                 const touch2 = e.touches[1];
                 touchStartDistance = getTouchDistance(touch1, touch2);
-            }else
+                // document.getElementById('zooming')!.innerHTML = `pinching ${++counter}`;
+            }else if(!isPinching)
             {
-
-            const bounding = canvas.getBoundingClientRect();
-            mouse.x = e.touches[0].clientX - bounding.left;
-            mouse.y = e.touches[0].clientY - bounding.top;
-
-            const canvasWidth = parseFloat(canvas.style.width); 
-            const canvasHeight = parseFloat(canvas.style.height);
-
-            const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
-            const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
-
-            mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
-            mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas 
+                // document.getElementById('zooming2')!.innerHTML = `NO PINCHING ${++counter2}`;
 
 
-            mouse.isPressed = true;
-            if (selectedTool === 'pencil'){
-                scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
-            }else if (selectedTool === 'eraser')
-            {
-                scene.current.currentDraw.push(Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
-            }else if (selectedTool === 'paintBucket')
-            {
-                scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,penSize,CANVAS_SIZE,selectedColor));
-            }else
-            if(selectedTool === 'dropper')
-            {
-                const color : string | undefined | null = Dropper(scene.current,mouse,pixel_size);
-                if(color)setSelectedColor(color);
-            }else if(selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse')
-            {
-                scene.current.lineFirstPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
-            }
+
+                const bounding = canvas.getBoundingClientRect();
+                mouse.x = e.touches[0].clientX - bounding.left;
+                mouse.y = e.touches[0].clientY - bounding.top;
+
+                const canvasWidth = parseFloat(canvas.style.width); 
+                const canvasHeight = parseFloat(canvas.style.height);
+
+                const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
+                const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
+
+                mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
+                mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas 
+
+
+                mouse.isPressed = true;
+
+                if (selectedTool === 'pencil'){
+                    scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
+                }else if (selectedTool === 'eraser')
+                {
+                    scene.current.currentDraw.push(Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
+                }else if (selectedTool === 'paintBucket')
+                {
+                    scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,penSize,CANVAS_SIZE,selectedColor));
+                }else
+                if(selectedTool === 'dropper')
+                {
+                    const color : string | undefined | null = Dropper(scene.current,mouse,pixel_size);
+                    if(color)setSelectedColor(color);
+                }else if(selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse')
+                {
+                    scene.current.lineFirstPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
+                }
         }
+
+        }, 100);
+
     }
 
 
@@ -671,7 +689,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
 
         // Prevent the default behavior of the touch event
-        e.preventDefault();
+        //e.preventDefault();
 
         const rect = outerDiv.getBoundingClientRect();
 
@@ -717,8 +735,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                     //subtracting outerDiv.offsetWidth / 2 from mouse.x determines the offset of the mouse position from the center of the outer div.
                     //the resulting value is then multiplied by the SCALE_FACTOR to ensure the correct translation based on the current scale factor.
     
-                    // console.log("mouse.x:",mouseX);
-                    // console.log("offset:",outerDiv.offsetWidth/2);
     
                     const dx = (mouseX - outerDiv.offsetWidth / 2) * SCALE_FACTOR;
                     const dy = (mouseY - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
@@ -837,8 +853,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 //subtracting outerDiv.offsetWidth / 2 from mouse.x determines the offset of the mouse position from the center of the outer div.
                 //the resulting value is then multiplied by the SCALE_FACTOR to ensure the correct translation based on the current scale factor.
 
-                // console.log("mouse.x:",mouseX);
-                // console.log("offset:",outerDiv.offsetWidth/2);
 
                 const dx = (mouseX - outerDiv.offsetWidth / 2) * SCALE_FACTOR;
                 const dy = (mouseY - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
@@ -940,12 +954,18 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     }
     
 
-        
+    let counter3 = 0;        
     
     function handleFinishDraw(e : TouchEvent | MouseEvent | undefined){
         if(e)
             e.preventDefault();
 
+        clearTimeout(pinchTouchStartTimeOut);
+        
+
+
+        isPinching = false;
+        // document.getElementById("boolean")!.innerHTML = `finishing ${++counter3}`;
 
         mouse.isPressed = false;
         scene.current.lastPixel = null;
