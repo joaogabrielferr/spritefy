@@ -69,14 +69,10 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
     const selectedColor = store((state : StoreType) => state.selectedColor);
     const setSelectedColor = store((state : StoreType) => state.setSelectedColor);
-
     const selectedTool = store((state : StoreType) => state.selectedTool);
-    // const setSelectedTool = store((state : Store) => state.setSelectedTool);
-
     const penSize = store((state : StoreType) => state.penSize);
-
     const oneToOneRatioElipse = store((state : StoreType) => state.oneToOneRatioElipse);
-
+    const xMirror = store((state : StoreType) => state.xMirror);
 
 
     const canvasRef = useRef<HTMLCanvasElement>(null); //main canvas
@@ -86,6 +82,8 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvas
     
 
+    //change this to have one useRef as a array of CanvasRenderingContext2D
+    //layersRef.current = [ctx : CanvasRenderingContext2D,topCtx:CanvasRenderingContext2D,bgCtx:CanvasRenderingContext2D]
     const ctx = useRef<CanvasRenderingContext2D | null>(null);
     const topCtx = useRef<CanvasRenderingContext2D | null>(null);
     const bgCtx = useRef<CanvasRenderingContext2D | null>(null);
@@ -93,10 +91,8 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     const firstInit = useRef(false); //for development
     
 
-    //i need to persist scene between re renders but i also dont want to trigger a re render every time i change it, i guess this works
-    //this may be better than declaring it as a global variable
+    //persist scene between re renders
     const scene = useRef<Scene>(new Scene());
-
 
     useEffect(()=>{
         setUpVariables();
@@ -156,7 +152,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         
         draw();
         
-        //originalSize = cssCanvasSize - 50;
+        //originalSize = editorSize - 50;
 
         coordinatesElement = document.getElementById('coordinates') as HTMLParagraphElement;
         
@@ -275,7 +271,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         mouse.isPressed = true;
         if (selectedTool === 'pencil'){
-            scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
+            scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror));
         }else if (selectedTool === 'eraser')
         {
             scene.current.currentDraw.push(Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
@@ -348,7 +344,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 mouse.isPressed = true;
 
                 if (selectedTool === 'pencil'){
-                    scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
+                    scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror));
                 }else if (selectedTool === 'eraser')
                 {
                     scene.current.currentDraw.push(Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
@@ -406,6 +402,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             //out of canvas
             // handleFinishDraw(undefined);
             scene.current.lastPixel = null;
+            scene.current.lastPixelXMirror = null;
             if(scene.current.previousPixelWhileMovingMouse)
             {
                 removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse,...scene.current.previousNeighborsWhileMovingMouse],pixel_size);
@@ -414,7 +411,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }
 
         if (selectedTool === 'pencil' && mouse.isPressed) {
-            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
+            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror));
         }else if(selectedTool === 'eraser' && mouse.isPressed)
         {
             scene.current.currentDraw.push(Eraser("mousemove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
@@ -550,6 +547,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             //out of canvas
             // handleFinishDraw(undefined);
             scene.current.lastPixel = null;
+            scene.current.lastPixelXMirror = null;
             if(scene.current.previousPixelWhileMovingMouse)
             {
                 removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse,...scene.current.previousNeighborsWhileMovingMouse],pixel_size);
@@ -558,7 +556,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }
 
         if (selectedTool === 'pencil' && mouse.isPressed) {
-            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor));
+            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror));
         }else if(selectedTool === 'eraser' && mouse.isPressed)
         {
             scene.current.currentDraw.push(Eraser("mousemove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
@@ -969,6 +967,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         mouse.isPressed = false;
         scene.current.lastPixel = null;
+        scene.current.lastPixelXMirror = null;
         if (scene.current.currentDraw.length > 0) {
 
             let empty = true;

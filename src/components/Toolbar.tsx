@@ -6,16 +6,19 @@ import { store,StoreType } from "../store";
 
 interface ToolbarProps{
     toolButtons : ToolButton[],
+    isMobile? : boolean
 }
 
 
 
-export function Toolbar({toolButtons} : ToolbarProps){
+export function Toolbar({toolButtons,isMobile} : ToolbarProps){
 
     const selectedTool = store((state : StoreType) => state.selectedTool);
     const setSelectedTool = store((state : StoreType) => state.setSelectedTool);
     const oneToOneRatioElipse = store((state : StoreType) => state.oneToOneRatioElipse);
     const toogleOneToOneRatioElipse = store((state : StoreType) => state.toogleOneToOneRatioElipse);
+    const toogleXMirror = store((state : StoreType)=> state.toogleXMirror);
+    const XMirror = store((state : StoreType) => state.xMirror);
     
     useEffect(()=>{
         
@@ -25,7 +28,6 @@ export function Toolbar({toolButtons} : ToolbarProps){
             if(['p','P','1'].indexOf(event.key) > -1)
             {
                 setSelectedTool('pencil');
-                selectedTool
             }else if(['e','E','2'].indexOf(event.key) > -1)
             {
                 setSelectedTool('eraser');
@@ -53,9 +55,11 @@ export function Toolbar({toolButtons} : ToolbarProps){
             document.removeEventListener('keydown',checkKeys);
         }
 
-    },[selectedTool, setSelectedTool])
+    },[setSelectedTool])
 
-    
+
+
+
 
     return <div className = "toolbar">
             <div className = "toolbarItem">
@@ -92,6 +96,33 @@ export function Toolbar({toolButtons} : ToolbarProps){
                             <label className="checkbox">
                             Keep 1 to 1 ratio
                             <input type="checkbox" id = "OneToOneRatioElipse" checked = {oneToOneRatioElipse} onChange = {()=>toogleOneToOneRatioElipse()}/>
+                            <span className="checkmark"></span>
+                            </label>
+                        </div>
+                    }
+                    {
+                        (['pencil','eraser'].find((tool)=>tool === selectedTool)) && <div>
+                            <label className="checkbox">
+                            Mirror X axis
+                            <input type="checkbox" id = "MirrorXAxis" checked = {XMirror} onChange = {()=>toogleXMirror()}/>
+                            <span className="checkmark"></span>
+                            </label>
+                        </div>
+                    }
+                    {
+                        (['pencil','eraser'].find((tool)=>tool === selectedTool)) && <div>
+                            <label className="checkbox">
+                            Mirror Y axis
+                            <input type="checkbox" id = "MirrorXAxis"/>
+                            <span className="checkmark"></span>
+                            </label>
+                        </div>
+                    }
+                    {
+                        (['pencil','eraser'].find((tool)=>tool === selectedTool)) && !isMobile && <div>
+                            <label className="checkbox">
+                            Enable right click erase 
+                            <input type="checkbox" id = "MirrorXAxis"/>
                             <span className="checkmark"></span>
                             </label>
                         </div>

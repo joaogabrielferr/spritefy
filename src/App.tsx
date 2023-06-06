@@ -129,7 +129,7 @@ function App() {
                 {/* left sidebar */}
                 {!isMobile && 
                 <Sidebar width={'230px'} height={cssCanvasSize} marginTop={'30px'}> {/*30px to take the extra bar into consideration*/}
-                    <Toolbar toolButtons={ToolButtons}/>
+                    <Toolbar toolButtons={ToolButtons} isMobile = {isMobile}/>
                   <div style = {{width:'95%'}}>
                     <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
                   </div>

@@ -1,7 +1,7 @@
 
 .editor{
   /* width: 100%; */
-  background-color: #5f5e5e;
+  background-color: #525252;
   /* background-color: #681abd; */
   display: flex;
   justify-content: center;
@@ -19,6 +19,7 @@
     top: 45%;
     left: 45%;
     transform: translate(-45%, -45%);
+    border: 1px solid black;
 
     /* cursor:crosshair; */
     /* cursor: url('../svg/pencil.svg'),auto; */
@@ -34,7 +35,7 @@
 
   #canvas{
     z-index: 2;
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
+    /* box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px; */
     /* box-shadow: blue 0px 0px 0px 2px inset, rgb(255, 255, 255) 10px -10px 0px -3px, rgb(31, 193, 27) 10px -10px, rgb(255, 255, 255) 20px -20px 0px -3px, rgb(255, 217, 19) 20px -20px, rgb(255, 255, 255) 30px -30px 0px -3px, rgb(255, 156, 85) 30px -30px, rgb(255, 255, 255) 40px -40px 0px -3px, rgb(255, 85, 85) 40px -40px; */
   }
 
