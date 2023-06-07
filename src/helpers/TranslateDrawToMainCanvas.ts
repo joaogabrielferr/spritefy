@@ -1,5 +1,5 @@
-import Scene from "../../scene/Scene";
-import { Pixel } from "../../types";
+import Scene from "../scene/Scene";
+import { Pixel } from "../types";
 
 export function translateDrawToMainCanvas(draw : Pixel[],ctx : CanvasRenderingContext2D,pixel_size : number,selectedColor : string,penSize : number,scene : Scene){
 

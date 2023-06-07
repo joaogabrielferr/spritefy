@@ -19,6 +19,8 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
     const toogleOneToOneRatioElipse = store((state : StoreType) => state.toogleOneToOneRatioElipse);
     const toogleXMirror = store((state : StoreType)=> state.toogleXMirror);
     const XMirror = store((state : StoreType) => state.xMirror);
+    const toogleYMirror = store((state : StoreType)=> state.toogleYMirror);
+    const YMirror = store((state : StoreType) => state.yMirror);
     
     useEffect(()=>{
         
@@ -113,7 +115,7 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
                         (['pencil','eraser'].find((tool)=>tool === selectedTool)) && <div>
                             <label className="checkbox">
                             Mirror Y axis
-                            <input type="checkbox" id = "MirrorXAxis"/>
+                            <input type="checkbox" id = "MirrorXAxis" checked = {YMirror} onChange = {()=>toogleYMirror()}/>
                             <span className="checkmark"></span>
                             </label>
                         </div>

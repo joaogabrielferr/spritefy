@@ -14,8 +14,11 @@ export default class Scene{
     lastPixel : Pixel | null; //last pixel painted in the canvas
     
     lastPixelXMirror : Pixel | null; //last pixel painted in the canvas
-
     
+    lastPixelYMirror : Pixel | null; //last pixel painted in the canvas
+    
+    lastPixelXYMirror : Pixel | null; //last pixel painted in the canvas
+
     currentPixelsMousePressed : Map<number,boolean>; //current pixels painted while the user is moving the mouse with one of its buttons pressed (<pixel id, true>)
 
     previousPixelWhileMovingMouse : Pixel | null;
@@ -37,6 +40,8 @@ export default class Scene{
         this.currentDrawTopCanvas = [];
         this.lastPixel = null;
         this.lastPixelXMirror = null;
+        this.lastPixelYMirror = null;
+        this.lastPixelXYMirror = null;
         this.currentPixelsMousePressed = new Map();
         this.previousPixelWhileMovingMouse = null;
         this.previousNeighborsWhileMovingMouse = [];

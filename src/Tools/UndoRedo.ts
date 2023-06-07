@@ -7,7 +7,7 @@
 import { Pixel } from "../types";
 import { Stack } from "../utils/Stack";
 import { ERASING } from "../utils/constants";
-import { cleanDraw } from "./helpers/CleanDraw";
+import { cleanDraw } from "../helpers/CleanDraw";
 
 
 

@@ -1,4 +1,4 @@
-import { Pixel } from "../../types";
+import { Pixel } from "../types";
 
 //clean draw from top canvas
 export function removeDraw(ctx : CanvasRenderingContext2D, draw : Pixel[],pixel_size : number)

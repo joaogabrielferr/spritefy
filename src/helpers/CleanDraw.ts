@@ -1,4 +1,4 @@
-import { Pixel } from "../../types";
+import { Pixel } from "../types";
 
 //removes duplicated pixels
 export function cleanDraw(draw : Pixel[][]){

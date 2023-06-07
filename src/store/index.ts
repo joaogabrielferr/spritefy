@@ -9,12 +9,14 @@ export type StoreType = {
     oneToOneRatioElipse : boolean;
     oneToOneRatioRectangle : boolean;
     xMirror : boolean;
+    yMirror : boolean;
     setSelectedColor : (color : string) => void,
     setSelectedTool : (tool : toolsType) => void,
     setPenSize : (size : number) => void,
     toogleOneToOneRatioElipse : () => void,
     toogleOneToOneRatioRectangle : () => void,
     toogleXMirror : () => void
+    toogleYMirror : () => void
 }
 
 
@@ -25,10 +27,12 @@ export const store = create<StoreType>()((set)=>({
     oneToOneRatioElipse : false,
     oneToOneRatioRectangle : false,
     xMirror : false,
+    yMirror : false,
     setSelectedColor : (color : string) => set(()=> ({selectedColor : color})),
     setSelectedTool : (tool : toolsType) => set(()=> ({selectedTool : tool})),
     setPenSize : (size : number) => set(() => ({penSize : size,previousPenSize : size})),
     toogleOneToOneRatioElipse : () => set((state : StoreType)=> ({oneToOneRatioElipse : !state.oneToOneRatioElipse}) ),
     toogleOneToOneRatioRectangle : () => set((state : StoreType)=> ({oneToOneRatioRectangle : !state.oneToOneRatioRectangle}) ),
     toogleXMirror : () => set((state : StoreType)=>({xMirror : !state.xMirror})),
+    toogleYMirror : () => set((state : StoreType)=>({yMirror : !state.yMirror})),
 }));

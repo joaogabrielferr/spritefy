@@ -18,9 +18,9 @@ import { PaintBucket } from './Tools/PaintBucket';
 import { Dropper } from './Tools/Dropper';
 import { Line } from './Tools/Line';
 import { Pixel } from './types';
-import { removeDraw } from './Tools/helpers/RemoveDraw';
-import { cleanDraw } from './Tools/helpers/CleanDraw';
-import { translateDrawToMainCanvas } from './Tools/helpers/TranslateDrawToMainCanvas';
+import { removeDraw } from './helpers/RemoveDraw';
+import { cleanDraw } from './helpers/CleanDraw';
+import { translateDrawToMainCanvas } from './helpers/TranslateDrawToMainCanvas';
 import { Rectangle } from './Tools/Rectangle';
 import { Elipse } from './Tools/Elipse';
 import { EventBus } from './EventBus';
@@ -73,6 +73,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     const penSize = store((state : StoreType) => state.penSize);
     const oneToOneRatioElipse = store((state : StoreType) => state.oneToOneRatioElipse);
     const xMirror = store((state : StoreType) => state.xMirror);
+    const yMirror = store((state : StoreType) => state.yMirror);
 
 
     const canvasRef = useRef<HTMLCanvasElement>(null); //main canvas
@@ -271,7 +272,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         mouse.isPressed = true;
         if (selectedTool === 'pencil'){
-            scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror));
+            scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror,yMirror));
         }else if (selectedTool === 'eraser')
         {
             scene.current.currentDraw.push(Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
@@ -344,7 +345,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 mouse.isPressed = true;
 
                 if (selectedTool === 'pencil'){
-                    scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror));
+                    scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror,yMirror));
                 }else if (selectedTool === 'eraser')
                 {
                     scene.current.currentDraw.push(Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
@@ -403,6 +404,8 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             // handleFinishDraw(undefined);
             scene.current.lastPixel = null;
             scene.current.lastPixelXMirror = null;
+            scene.current.lastPixelYMirror = null;
+            scene.current.lastPixelXYMirror = null;
             if(scene.current.previousPixelWhileMovingMouse)
             {
                 removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse,...scene.current.previousNeighborsWhileMovingMouse],pixel_size);
@@ -411,7 +414,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }
 
         if (selectedTool === 'pencil' && mouse.isPressed) {
-            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror));
+            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror,yMirror));
         }else if(selectedTool === 'eraser' && mouse.isPressed)
         {
             scene.current.currentDraw.push(Eraser("mousemove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
@@ -548,6 +551,8 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             // handleFinishDraw(undefined);
             scene.current.lastPixel = null;
             scene.current.lastPixelXMirror = null;
+            scene.current.lastPixelYMirror = null;
+            scene.current.lastPixelXYMirror = null;
             if(scene.current.previousPixelWhileMovingMouse)
             {
                 removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse,...scene.current.previousNeighborsWhileMovingMouse],pixel_size);
@@ -556,7 +561,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }
 
         if (selectedTool === 'pencil' && mouse.isPressed) {
-            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror));
+            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror,yMirror));
         }else if(selectedTool === 'eraser' && mouse.isPressed)
         {
             scene.current.currentDraw.push(Eraser("mousemove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
@@ -968,6 +973,8 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         mouse.isPressed = false;
         scene.current.lastPixel = null;
         scene.current.lastPixelXMirror = null;
+        scene.current.lastPixelYMirror = null;
+        scene.current.lastPixelXYMirror = null;
         if (scene.current.currentDraw.length > 0) {
 
             let empty = true;
