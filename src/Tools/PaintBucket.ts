@@ -19,6 +19,8 @@ export function PaintBucket(scene : Scene,
     // const [x,y] = mouse.toWorldCoordinates(currentScale);
     const x = mouse.x;
     const y = mouse.y;
+
+    console.log(x,y,ctx);
   
     if (x > pixel_size * display_size || x < 0 || y > pixel_size * display_size || y < 0) return [];
   

@@ -1,4 +1,4 @@
-import {useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,Touch} from 'react';
+import {useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,Touch, useState} from 'react';
 import './editor.css';
 import { 
 CANVAS_SIZE,
@@ -26,8 +26,6 @@ import { Elipse } from './Tools/Elipse';
 import { EventBus } from './EventBus';
 import { store,StoreType } from './store';
 
-
-
 interface IEditor{
     cssCanvasSize : number;
     isMobile : boolean,
@@ -37,6 +35,8 @@ interface IEditor{
 //////////////////////////////////////////////////////////
 
 let canvas : HTMLCanvasElement,topCanvas : HTMLCanvasElement,backgroundCanvas : HTMLCanvasElement;
+let ctx : CanvasRenderingContext2D,topCtx : CanvasRenderingContext2D,bgCtx : CanvasRenderingContext2D;
+
 let outerDiv : HTMLDivElement;
 
 const mouse = new Mouse();
@@ -45,7 +45,6 @@ let pixel_size : number;
 let display_size : number;
 let bgTileSize : number;
 
-
 let currentScale = 1;
 
 let coordinatesElement : HTMLSpanElement;
@@ -53,19 +52,23 @@ let coordinatesElement : HTMLSpanElement;
 let originalCanvasWidth : number;
 
 let touchStartDistance : number;
-let touchMoveDistance : number;
+
 let isPinching  = false;
 
 let pinchTouchStartTimeOut : number | undefined = undefined;
+
+let currentSceneIndex = 0;
 
 //////////////////////////////////////////////////////////
 
 export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element{
     
 
-    // const {selectedColor,setSelectedColor} = useContext(selectedColorContext);
-    // const {selectedTool} = useContext(selectedToolContext);
-    // const {penSize} = useContext(penSizeContext);
+    const [layers,setLayers] = useState<string[]>(['topCanvas','canvas1','backgroundCanvas']);
+    const layersRef = useRef<{[key : string] : HTMLCanvasElement}>({});
+
+    const [currentLayer,setCurrentLayer] = useState<string>('canvas1');
+
 
     const selectedColor = store((state : StoreType) => state.selectedColor);
     const setSelectedColor = store((state : StoreType) => state.setSelectedColor);
@@ -76,38 +79,44 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     const yMirror = store((state : StoreType) => state.yMirror);
 
 
-    const canvasRef = useRef<HTMLCanvasElement>(null); //main canvas
-    const topCanvasRef = useRef<HTMLCanvasElement>(null); //top canvas for temporary draws (like in line tool, rectangle tool, elipse tool, etc)
-    const backgroundCanvasRef = useRef<HTMLCanvasElement>(null) //checkerboard canvas
+    // const canvasRef = useRef<HTMLCanvasElement>(null); //main canvas
+    // const topCanvasRef = useRef<HTMLCanvasElement>(null); //top canvas for temporary draws (like in line tool, rectangle tool, elipse tool, etc)
+    // const backgroundCanvasRef = useRef<HTMLCanvasElement>(null) //checkerboard canvas
 
     const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvas
     
 
-    //change this to have one useRef as a array of CanvasRenderingContext2D
-    //layersRef.current = [ctx : CanvasRenderingContext2D,topCtx:CanvasRenderingContext2D,bgCtx:CanvasRenderingContext2D]
-    const ctx = useRef<CanvasRenderingContext2D | null>(null);
-    const topCtx = useRef<CanvasRenderingContext2D | null>(null);
-    const bgCtx = useRef<CanvasRenderingContext2D | null>(null);
+    //const ctx = useRef<CanvasRenderingContext2D | null>(null);
+    // const topCtx = useRef<CanvasRenderingContext2D | null>(null);
+    // const bgCtx = useRef<CanvasRenderingContext2D | null>(null);
 
     const firstInit = useRef(false); //for development
     
 
-    //persist scene between re renders
-    const scene = useRef<Scene>(new Scene());
+    //persist scenes between re renders
+    const scenes = useRef<{canvas : string;scene : Scene}[]>([{canvas:'canvas1',scene:new Scene()}]);
+    
 
     useEffect(()=>{
+        canvas = layersRef.current![currentLayer];
+        topCanvas = layersRef.current!['topCanvas'];
+        backgroundCanvas = layersRef.current!['backgroundCanvas'];
+    },[layers,currentLayer]);
+
+    useEffect(()=>{
+
         setUpVariables();
 
-        //setting up canvas
-        canvas = canvasRef.current!;
-        topCanvas = topCanvasRef.current!;
-        backgroundCanvas = backgroundCanvasRef.current!;
 
+        canvas = layersRef.current![currentLayer];
+        topCanvas = layersRef.current!['topCanvas'];
+        backgroundCanvas = layersRef.current!['backgroundCanvas'];
+    
         outerDiv = outerDivRef.current!;
 
-        ctx.current = canvas.getContext("2d")!;
-        topCtx.current = topCanvas.getContext("2d")!;
-        bgCtx.current = backgroundCanvas.getContext("2d")!;
+        ctx = canvas.getContext('2d')!;
+        topCtx = topCanvas.getContext("2d")!;
+        bgCtx = backgroundCanvas.getContext("2d")!;
 
         canvas.width = display_size;
         canvas.height = display_size;
@@ -147,7 +156,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         if(!firstInit.current)
         {
-            scene.current.initilializePixelMatrix(display_size,pixel_size,bgTileSize);
+            scenes.current[currentSceneIndex].scene.initializePixelMatrix(display_size,pixel_size,bgTileSize);
             firstInit.current = true;
         }
         
@@ -158,7 +167,17 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         coordinatesElement = document.getElementById('coordinates') as HTMLParagraphElement;
         
 
-    },[cssCanvasSize,isMobile]);
+    },[currentLayer,cssCanvasSize,isMobile]);
+
+
+
+    function handleLayersRef(layerName : string)
+    {
+        return function(element : HTMLCanvasElement)
+        {
+            layersRef.current![layerName] = element;
+        }
+    }
 
     function setUpVariables(){
 
@@ -216,82 +235,48 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             else a = 1;
             firstInRow = firstInRow ? 0 : 1;
             for (let j = 0; j <= display_size; j += pixel_size * bgTileSize) {
-                bgCtx.current!.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
-                bgCtx.current!.fillRect(i, j, pixel_size * bgTileSize, pixel_size * bgTileSize);
+                bgCtx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
+                bgCtx.fillRect(i, j, pixel_size * bgTileSize, pixel_size * bgTileSize);
                 a = a ? 0 : 1;
             }
         }
         
         
-        //draw pixel matrix
-        for (let i = 0; i < scene.current.pixels.length; i++) {
-            for (let j = 0; j < scene.current.pixels[i].length; j++) {
-                if (!scene.current.pixels[i][j].colorStack.isEmpty()) {
-                    ctx.current!.fillStyle = scene.current.pixels[i][j].colorStack.top()!;
-                    ctx.current!.fillRect(scene.current.pixels[i][j].x1, scene.current.pixels[i][j].y1, pixel_size, pixel_size);
+        //draw pixel matrix (when loading from indexedDB)
+        for (let i = 0; i < scenes.current[currentSceneIndex].scene.pixels.length; i++) {
+            for (let j = 0; j < scenes.current[currentSceneIndex].scene.pixels[i].length; j++) {
+                if (!scenes.current[currentSceneIndex].scene.pixels[i][j].colorStack.isEmpty()) {
+                    ctx.fillStyle = scenes.current[currentSceneIndex].scene.pixels[i][j].colorStack.top()!;
+                    ctx.fillRect(scenes.current[currentSceneIndex].scene.pixels[i][j].x1, scenes.current[currentSceneIndex].scene.pixels[i][j].y1, pixel_size, pixel_size);
                 }
             }
         }
-
-        // for(let i = 50;i<100;i++)
-        // {
-        //     for(let j = 50;j<=100;j++)
-        //     {
-        //         topCtx.current!.fillStyle = scene.current.pixels[i][j].colorStack.top()!;
-        //         topCtx.current!.fillRect(scene.current.pixels[i][j].x1, scene.current.pixels[i][j].y1, pixel_size, pixel_size);
-        //     }
-        // }
-    
+ 
     }
 
-    function handleFirstClick(e : MouseEvent){
-
-        // if(e.pointerType === 'touch' || e.pointerType === 'pen')
-        // {
-        //     if(e.cancelable)
-        //     {
-        //         e.preventDefault();
-        //     }
-
-        //     const bounding = canvas.getBoundingClientRect();
-        //     mouse.x = e.clientX - bounding.left;
-        //     mouse.y = e.clientY - bounding.top;
-
-        //     const canvasWidth = parseFloat(canvas.style.width); 
-        //     const canvasHeight = parseFloat(canvas.style.height);
-
-        //     const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
-        //     const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
-
-        //     mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
-        //     mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas 
-
-        // }
-
-
+    function handleFirstClick(){
 
         mouse.isPressed = true;
         if (selectedTool === 'pencil'){
-            scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror,yMirror));
+            scenes.current[currentSceneIndex].scene.currentDraw.push(Pencil('mousedown', scenes.current[currentSceneIndex].scene, mouse,pixel_size, display_size,ctx, penSize,selectedColor,xMirror,yMirror));
         }else if (selectedTool === 'eraser')
         {
-            scene.current.currentDraw.push(Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
+            scenes.current[currentSceneIndex].scene.currentDraw.push(Eraser('mousedown', mouse, scenes.current[currentSceneIndex].scene, pixel_size, display_size, ctx, penSize));
         }else if (selectedTool === 'paintBucket')
         {
-            scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,penSize,CANVAS_SIZE,selectedColor));
+            scenes.current[currentSceneIndex].scene.currentDraw.push(PaintBucket(scenes.current[currentSceneIndex].scene,mouse,pixel_size,display_size,ctx,penSize,CANVAS_SIZE,selectedColor));
         }else if(selectedTool === 'dropper')
         {
-            const color : string | undefined | null = Dropper(scene.current,mouse,pixel_size);
+            const color : string | undefined | null = Dropper(scenes.current[currentSceneIndex].scene,mouse,pixel_size);
             if(color)setSelectedColor(color);
         }else if(selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse')
         {
-            scene.current.lineFirstPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
+            scenes.current[currentSceneIndex].scene.lineFirstPixel = scenes.current[currentSceneIndex].scene.findPixel(mouse.x,mouse.y,pixel_size);
         }
     }
 
 
-    // Helper function to calculate distance between two touches
-    function getTouchDistance(touch1 : Touch, touch2 : Touch) {
+    function getTouchDistanceBetweenTwoTouches(touch1 : Touch, touch2 : Touch) {
         const dx = touch1.clientX - touch2.clientX;
         const dy = touch1.clientY - touch2.clientY;
         return Math.sqrt(dx * dx + dy * dy);
@@ -316,15 +301,11 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
             if(e.touches.length === 2)
             {
-
-                // isPinching = true;
                 const touch1 = e.touches[0];
                 const touch2 = e.touches[1];
-                touchStartDistance = getTouchDistance(touch1, touch2);
-                // document.getElementById('zooming')!.innerHTML = `pinching ${++counter}`;
+                touchStartDistance = getTouchDistanceBetweenTwoTouches(touch1, touch2);
             }else if(!isPinching)
             {
-                // document.getElementById('zooming2')!.innerHTML = `NO PINCHING ${++counter2}`;
 
 
 
@@ -345,21 +326,21 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 mouse.isPressed = true;
 
                 if (selectedTool === 'pencil'){
-                    scene.current.currentDraw.push(Pencil('mousedown', scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror,yMirror));
+                    scenes.current[currentSceneIndex].scene.currentDraw.push(Pencil('mousedown', scenes.current[currentSceneIndex].scene, mouse,pixel_size, display_size,ctx, penSize,selectedColor,xMirror,yMirror));
                 }else if (selectedTool === 'eraser')
                 {
-                    scene.current.currentDraw.push(Eraser('mousedown', mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
+                    scenes.current[currentSceneIndex].scene.currentDraw.push(Eraser('mousedown', mouse, scenes.current[currentSceneIndex].scene, pixel_size, display_size, ctx, penSize));
                 }else if (selectedTool === 'paintBucket')
                 {
-                    scene.current.currentDraw.push(PaintBucket(scene.current,mouse,pixel_size,display_size,ctx.current!,penSize,CANVAS_SIZE,selectedColor));
+                    scenes.current[currentSceneIndex].scene.currentDraw.push(PaintBucket(scenes.current[currentSceneIndex].scene,mouse,pixel_size,display_size,ctx,penSize,CANVAS_SIZE,selectedColor));
                 }else
                 if(selectedTool === 'dropper')
                 {
-                    const color : string | undefined | null = Dropper(scene.current,mouse,pixel_size);
+                    const color : string | undefined | null = Dropper(scenes.current[currentSceneIndex].scene,mouse,pixel_size);
                     if(color)setSelectedColor(color);
                 }else if(selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse')
                 {
-                    scene.current.lineFirstPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
+                    scenes.current[currentSceneIndex].scene.lineFirstPixel = scenes.current[currentSceneIndex].scene.findPixel(mouse.x,mouse.y,pixel_size);
                 }
         }
 
@@ -385,10 +366,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
         const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
 
-        // if((mouse.x - offsetX) * (display_size / canvasWidth) != mouse.x && (mouse.y - offsetY) * (display_size / canvasHeight) != mouse.y )
-        // {
-        //     document.getElementById('finish')!.innerHTML = "";
-        // }
 
         mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
         mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
@@ -402,54 +379,54 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         {
             //out of canvas
             // handleFinishDraw(undefined);
-            scene.current.lastPixel = null;
-            scene.current.lastPixelXMirror = null;
-            scene.current.lastPixelYMirror = null;
-            scene.current.lastPixelXYMirror = null;
-            if(scene.current.previousPixelWhileMovingMouse)
+            scenes.current[currentSceneIndex].scene.lastPixel = null;
+            scenes.current[currentSceneIndex].scene.lastPixelXMirror = null;
+            scenes.current[currentSceneIndex].scene.lastPixelYMirror = null;
+            scenes.current[currentSceneIndex].scene.lastPixelXYMirror = null;
+            if(scenes.current[currentSceneIndex].scene.previousPixelWhileMovingMouse)
             {
-                removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse,...scene.current.previousNeighborsWhileMovingMouse],pixel_size);
+                removeDraw(topCtx,[scenes.current[currentSceneIndex].scene.previousPixelWhileMovingMouse!,...scenes.current[currentSceneIndex].scene.previousNeighborsWhileMovingMouse],pixel_size);
             }
             return;
         }
 
         if (selectedTool === 'pencil' && mouse.isPressed) {
-            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror,yMirror));
+            scenes.current[currentSceneIndex].scene.currentDraw.push(Pencil("mousemove", scenes.current[currentSceneIndex].scene, mouse,pixel_size, display_size,ctx, penSize,selectedColor,xMirror,yMirror));
         }else if(selectedTool === 'eraser' && mouse.isPressed)
         {
-            scene.current.currentDraw.push(Eraser("mousemove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
+            scenes.current[currentSceneIndex].scene.currentDraw.push(Eraser("mousemove", mouse, scenes.current[currentSceneIndex].scene, pixel_size, display_size, ctx, penSize));
         }else if(selectedTool === 'line' && mouse.isPressed)
         {
             //remove draw from the top canvas
-            removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),penSize);
-            scene.current.currentDrawTopCanvas = [];
-            scene.current.currentPixelsMousePressed = new Map();
-            scene.current.currentDrawTopCanvas.push(Line(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
+            removeDraw(topCtx,cleanDraw(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas),penSize);
+            scenes.current[currentSceneIndex].scene.currentDrawTopCanvas = [];
+            scenes.current[currentSceneIndex].scene.currentPixelsMousePressed = new Map();
+            scenes.current[currentSceneIndex].scene.currentDrawTopCanvas.push(Line(scenes.current[currentSceneIndex].scene,topCtx,mouse,pixel_size,scenes.current[currentSceneIndex].scene.lineFirstPixel!,selectedColor,penSize));
         }else if(selectedTool === 'rectangle' && mouse.isPressed)
         {
             //remove draw from the top canvas
-            removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
-            scene.current.currentDrawTopCanvas = [];
-            scene.current.currentDrawTopCanvas.push(Rectangle(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
+            removeDraw(topCtx,cleanDraw(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas),pixel_size);
+            scenes.current[currentSceneIndex].scene.currentDrawTopCanvas = [];
+            scenes.current[currentSceneIndex].scene.currentDrawTopCanvas.push(Rectangle(scenes.current[currentSceneIndex].scene,topCtx,mouse,pixel_size,scenes.current[currentSceneIndex].scene.lineFirstPixel!,selectedColor,penSize));
         }else if(selectedTool === 'elipse' && mouse.isPressed)
         {
-                        //remove draw from the top canvas
-            removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
-            scene.current.currentDrawTopCanvas = [];
+            //remove draw from the top canvas
+            removeDraw(topCtx,cleanDraw(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas),pixel_size);
+            scenes.current[currentSceneIndex].scene.currentDrawTopCanvas = [];
 
-            if(scene.current.lineFirstPixel)
+            if(scenes.current[currentSceneIndex].scene.lineFirstPixel)
             {
 
-                const majorRadius = Math.abs(scene.current.lineFirstPixel.x1 - mouse.x);
-                const minorRadius = Math.abs(scene.current.lineFirstPixel.y1 - mouse.y);
+                const majorRadius = Math.abs(scenes.current[currentSceneIndex].scene.lineFirstPixel!.x1 - mouse.x);
+                const minorRadius = Math.abs(scenes.current[currentSceneIndex].scene.lineFirstPixel!.y1 - mouse.y);
                 
                 
                 if(oneToOneRatioElipse)
                 {
-                    scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,majorRadius));
+                    scenes.current[currentSceneIndex].scene.currentDrawTopCanvas.push(Elipse(scenes.current[currentSceneIndex].scene,topCtx,pixel_size,scenes.current[currentSceneIndex].scene.lineFirstPixel!,selectedColor,penSize,majorRadius,majorRadius));
                 }else
                 {
-                    scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,minorRadius));
+                    scenes.current[currentSceneIndex].scene.currentDrawTopCanvas.push(Elipse(scenes.current[currentSceneIndex].scene,topCtx,pixel_size,scenes.current[currentSceneIndex].scene.lineFirstPixel!,selectedColor,penSize,majorRadius,minorRadius));
                 }
 
             
@@ -458,34 +435,34 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             
             /////////////1 TO 1 RATIO CIRCLE////////////////////////////
             //remove draw from the top canvas
-            // removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
-            // scene.current.currentDrawTopCanvas = [];
+            // removeDraw(topCtx,cleanDraw(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas),pixel_size);
+            // scenes.current[currentSceneIndex].scene.currentDrawTopCanvas = [];
 
 
             // //increase or decrease circle radius based on mouse movement
-            // if(mouse.mouseMoveLastPos && scene.current.lineFirstPixel){
+            // if(mouse.mouseMoveLastPos && scenes.current[currentSceneIndex].scene.lineFirstPixel){
             //     if(
-            //         ((mouse.x > scene.current.lineFirstPixel.x1 && mouse.x > mouse.mouseMoveLastPos.x) ||
-            //         (mouse.y > scene.current.lineFirstPixel.y1 && mouse.y > mouse.mouseMoveLastPos.y)) ||
-            //     ( (mouse.x < scene.current.lineFirstPixel.x1 && mouse.x < mouse.mouseMoveLastPos.x) ||
-            //     (mouse.y < scene.current.lineFirstPixel.y1 && mouse.y < mouse.mouseMoveLastPos.y)))
+            //         ((mouse.x > scenes.current[currentSceneIndex].scene.lineFirstPixel.x1 && mouse.x > mouse.mouseMoveLastPos.x) ||
+            //         (mouse.y > scenes.current[currentSceneIndex].scene.lineFirstPixel.y1 && mouse.y > mouse.mouseMoveLastPos.y)) ||
+            //     ( (mouse.x < scenes.current[currentSceneIndex].scene.lineFirstPixel.x1 && mouse.x < mouse.mouseMoveLastPos.x) ||
+            //     (mouse.y < scenes.current[currentSceneIndex].scene.lineFirstPixel.y1 && mouse.y < mouse.mouseMoveLastPos.y)))
             //     {
             //         //mouse is going away from middle point (from left or right), increase radius
-            //         scene.current.circleRadius+=CIRCLE_RADIUS_INCREASE_FACTOR;
+            //         scenes.current[currentSceneIndex].scene.circleRadius+=CIRCLE_RADIUS_INCREASE_FACTOR;
             //     }else
             //     {
             //         //mouse is moving toward middle point, decrase radius
-            //         if(scene.current.circleRadius - CIRCLE_RADIUS_INCREASE_FACTOR <= 1)
+            //         if(scenes.current[currentSceneIndex].scene.circleRadius - CIRCLE_RADIUS_INCREASE_FACTOR <= 1)
             //         {
-            //             scene.current.circleRadius = 1;
+            //             scenes.current[currentSceneIndex].scene.circleRadius = 1;
             //         }else
             //         {
-            //             scene.current.circleRadius-=CIRCLE_RADIUS_INCREASE_FACTOR;
+            //             scenes.current[currentSceneIndex].scene.circleRadius-=CIRCLE_RADIUS_INCREASE_FACTOR;
             //         }
             //     }
             // }
 
-            // scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
+            // scenes.current[currentSceneIndex].scene.currentDrawTopCanvas.push(Elipse(scenes.current[currentSceneIndex].scene,topCtx,pixel_size,scenes.current[currentSceneIndex].scene.lineFirstPixel!,selectedColor,penSize));
             // /////////////////////////////////////          
         }
 
@@ -506,14 +483,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         if (event.touches.length === 2) {
             // Get the current distance between the two touch points
-            const touch1 = event.touches[0];
-            const touch2 = event.touches[1];
-
-            touchMoveDistance = getTouchDistance(touch1, touch2);
-        
-            // Compare the initial and current distances
-            //const pinchScale = touchMoveDistance / touchStartDistance;
-            
 
             handleZoomMobile(event);
             return;
@@ -532,11 +501,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
         const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
 
-        // if((mouse.x - offsetX) * (display_size / canvasWidth) != mouse.x && (mouse.y - offsetY) * (display_size / canvasHeight) != mouse.y )
-        // {
-        //     document.getElementById('finish')!.innerHTML = "";
-        // }
-
         mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
         mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
 
@@ -549,87 +513,87 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         {
             //out of canvas
             // handleFinishDraw(undefined);
-            scene.current.lastPixel = null;
-            scene.current.lastPixelXMirror = null;
-            scene.current.lastPixelYMirror = null;
-            scene.current.lastPixelXYMirror = null;
-            if(scene.current.previousPixelWhileMovingMouse)
+            scenes.current[currentSceneIndex].scene.lastPixel = null;
+            scenes.current[currentSceneIndex].scene.lastPixelXMirror = null;
+            scenes.current[currentSceneIndex].scene.lastPixelYMirror = null;
+            scenes.current[currentSceneIndex].scene.lastPixelXYMirror = null;
+            if(scenes.current[currentSceneIndex].scene.previousPixelWhileMovingMouse)
             {
-                removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse,...scene.current.previousNeighborsWhileMovingMouse],pixel_size);
+                removeDraw(topCtx,[scenes.current[currentSceneIndex].scene.previousPixelWhileMovingMouse!,...scenes.current[currentSceneIndex].scene.previousNeighborsWhileMovingMouse],pixel_size);
             }
             return;
         }
 
         if (selectedTool === 'pencil' && mouse.isPressed) {
-            scene.current.currentDraw.push(Pencil("mousemove", scene.current, mouse,pixel_size, display_size,ctx.current!, penSize,selectedColor,xMirror,yMirror));
+            scenes.current[currentSceneIndex].scene.currentDraw.push(Pencil("mousemove", scenes.current[currentSceneIndex].scene, mouse,pixel_size, display_size,ctx, penSize,selectedColor,xMirror,yMirror));
         }else if(selectedTool === 'eraser' && mouse.isPressed)
         {
-            scene.current.currentDraw.push(Eraser("mousemove", mouse, scene.current, pixel_size, display_size, ctx.current!, penSize));
+            scenes.current[currentSceneIndex].scene.currentDraw.push(Eraser("mousemove", mouse, scenes.current[currentSceneIndex].scene, pixel_size, display_size, ctx, penSize));
         }else if(selectedTool === 'line' && mouse.isPressed)
         {
             //remove draw from the top canvas
-            removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),penSize);
-            scene.current.currentDrawTopCanvas = [];
-            scene.current.currentPixelsMousePressed = new Map();
-            scene.current.currentDrawTopCanvas.push(Line(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
+            removeDraw(topCtx,cleanDraw(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas),penSize);
+            scenes.current[currentSceneIndex].scene.currentDrawTopCanvas = [];
+            scenes.current[currentSceneIndex].scene.currentPixelsMousePressed = new Map();
+            scenes.current[currentSceneIndex].scene.currentDrawTopCanvas.push(Line(scenes.current[currentSceneIndex].scene,topCtx,mouse,pixel_size,scenes.current[currentSceneIndex].scene.lineFirstPixel!,selectedColor,penSize));
         }else if(selectedTool === 'rectangle' && mouse.isPressed)
         {
             //remove draw from the top canvas
-            removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
-            scene.current.currentDrawTopCanvas = [];
-            scene.current.currentDrawTopCanvas.push(Rectangle(scene.current,topCtx.current!,mouse,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
+            removeDraw(topCtx,cleanDraw(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas),pixel_size);
+            scenes.current[currentSceneIndex].scene.currentDrawTopCanvas = [];
+            scenes.current[currentSceneIndex].scene.currentDrawTopCanvas.push(Rectangle(scenes.current[currentSceneIndex].scene,topCtx,mouse,pixel_size,scenes.current[currentSceneIndex].scene.lineFirstPixel!,selectedColor,penSize));
         }else if(selectedTool === 'elipse' && mouse.isPressed)
         {
                         //remove draw from the top canvas
-            removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
-            scene.current.currentDrawTopCanvas = [];
+            removeDraw(topCtx,cleanDraw(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas),pixel_size);
+            scenes.current[currentSceneIndex].scene.currentDrawTopCanvas = [];
 
-            if(scene.current.lineFirstPixel)
+            if(scenes.current[currentSceneIndex].scene.lineFirstPixel)
             {
 
-                const majorRadius = Math.abs(scene.current.lineFirstPixel.x1 - mouse.x);
-                const minorRadius = Math.abs(scene.current.lineFirstPixel.y1 - mouse.y);
+                const majorRadius = Math.abs(scenes.current[currentSceneIndex].scene.lineFirstPixel!.x1 - mouse.x);
+                const minorRadius = Math.abs(scenes.current[currentSceneIndex].scene.lineFirstPixel!.y1 - mouse.y);
                 
 
 
-                scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,minorRadius));
+                scenes.current[currentSceneIndex].scene.currentDrawTopCanvas.push(Elipse(scenes.current[currentSceneIndex].scene,topCtx,pixel_size,scenes.current[currentSceneIndex].scene.lineFirstPixel!,selectedColor,penSize,majorRadius,minorRadius));
 
                 //for 1 to 1 ratio, using same radius
-                //scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel,selectedColor,penSize,majorRadius,majorRadius));
+                //scenes.current[currentSceneIndex].scene.currentDrawTopCanvas.push(Elipse(scenes.current[currentSceneIndex].scene,topCtx,pixel_size,scenes.current[currentSceneIndex].scene.lineFirstPixel,selectedColor,penSize,majorRadius,majorRadius));
             
 
             }
 
             
             //remove draw from the top canvas
-            // removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
-            // scene.current.currentDrawTopCanvas = [];
+            // removeDraw(topCtx,cleanDraw(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas),pixel_size);
+            // scenes.current[currentSceneIndex].scene.currentDrawTopCanvas = [];
 
 
             // //increase or decrease circle radius based on mouse movement
-            // if(mouse.mouseMoveLastPos && scene.current.lineFirstPixel){
+            // if(mouse.mouseMoveLastPos && scenes.current[currentSceneIndex].scene.lineFirstPixel){
             //     if(
-            //         ((mouse.x > scene.current.lineFirstPixel.x1 && mouse.x > mouse.mouseMoveLastPos.x) ||
-            //         (mouse.y > scene.current.lineFirstPixel.y1 && mouse.y > mouse.mouseMoveLastPos.y)) ||
-            //     ( (mouse.x < scene.current.lineFirstPixel.x1 && mouse.x < mouse.mouseMoveLastPos.x) ||
-            //     (mouse.y < scene.current.lineFirstPixel.y1 && mouse.y < mouse.mouseMoveLastPos.y)))
+            //         ((mouse.x > scenes.current[currentSceneIndex].scene.lineFirstPixel.x1 && mouse.x > mouse.mouseMoveLastPos.x) ||
+            //         (mouse.y > scenes.current[currentSceneIndex].scene.lineFirstPixel.y1 && mouse.y > mouse.mouseMoveLastPos.y)) ||
+            //     ( (mouse.x < scenes.current[currentSceneIndex].scene.lineFirstPixel.x1 && mouse.x < mouse.mouseMoveLastPos.x) ||
+            //     (mouse.y < scenes.current[currentSceneIndex].scene.lineFirstPixel.y1 && mouse.y < mouse.mouseMoveLastPos.y)))
             //     {
             //         //mouse is going away from middle point (from left or right), increase radius
-            //         scene.current.circleRadius+=CIRCLE_RADIUS_INCREASE_FACTOR;
+            //         scenes.current[currentSceneIndex].scene.circleRadius+=CIRCLE_RADIUS_INCREASE_FACTOR;
             //     }else
             //     {
             //         //mouse is moving toward middle point, decrase radius
-            //         if(scene.current.circleRadius - CIRCLE_RADIUS_INCREASE_FACTOR <= 1)
+            //         if(scenes.current[currentSceneIndex].scene.circleRadius - CIRCLE_RADIUS_INCREASE_FACTOR <= 1)
             //         {
-            //             scene.current.circleRadius = 1;
+            //             scenes.current[currentSceneIndex].scene.circleRadius = 1;
             //         }else
             //         {
-            //             scene.current.circleRadius-=CIRCLE_RADIUS_INCREASE_FACTOR;
+            //             scenes.current[currentSceneIndex].scene.circleRadius-=CIRCLE_RADIUS_INCREASE_FACTOR;
             //         }
             //     }
             // }
 
-            // scene.current.currentDrawTopCanvas.push(Elipse(scene.current,topCtx.current!,pixel_size,scene.current.lineFirstPixel!,selectedColor,penSize));
+            // scenes.current[currentSceneIndex].scene.currentDrawTopCanvas.push(Elipse(scenes.current[currentSceneIndex].scene,topCtx,pixel_size,scenes.current[currentSceneIndex].scene.lineFirstPixel!,selectedColor,penSize));
             // /////////////////////////////////////          
         }
 
@@ -644,41 +608,41 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
 
             if(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size){
-                    const newPixel = scene.current.findPixel(mouse.x,mouse.y,pixel_size);
+                    const newPixel = scenes.current[currentSceneIndex].scene.findPixel(mouse.x,mouse.y,pixel_size);
                     if(newPixel)
                     {
                     
-                        if(scene.current.previousPixelWhileMovingMouse)
+                        if(scenes.current[currentSceneIndex].scene.previousPixelWhileMovingMouse)
                         {
-                            removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse,...scene.current.previousNeighborsWhileMovingMouse],pixel_size);
+                            removeDraw(topCtx,[scenes.current[currentSceneIndex].scene.previousPixelWhileMovingMouse!,...scenes.current[currentSceneIndex].scene.previousNeighborsWhileMovingMouse],pixel_size);
                         }
-                        // topCtx.current!.fillStyle = selectedColor;
-                        topCtx.current!.fillStyle = 'rgb(196, 193, 206,0.5)';
-                        topCtx.current!.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
+                        // topCtx.fillStyle = selectedColor;
+                        topCtx.fillStyle = 'rgb(196, 193, 206,0.5)';
+                        topCtx.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
 
-                        let neighbors : Pixel[] = scene.current.findNeighbors(newPixel,penSize);
+                        let neighbors : Pixel[] = scenes.current[currentSceneIndex].scene.findNeighbors(newPixel,penSize);
                         
                         if(selectedTool !== 'dropper' && selectedTool !== 'paintBucket')
                         {
                             for(let n of neighbors)
                             {
-                                topCtx.current!.fillStyle = 'rgb(196, 193, 206,0.5)';
-                                topCtx.current!.fillRect(n.x1,n.y1,pixel_size,pixel_size);                                            
+                                topCtx.fillStyle = 'rgb(196, 193, 206,0.5)';
+                                topCtx.fillRect(n.x1,n.y1,pixel_size,pixel_size);                                            
                             }
                         }
 
                         
-                        scene.current.previousNeighborsWhileMovingMouse = neighbors;
+                        scenes.current[currentSceneIndex].scene.previousNeighborsWhileMovingMouse = neighbors;
                         
                 
-                        scene.current.previousPixelWhileMovingMouse = newPixel;
+                        scenes.current[currentSceneIndex].scene.previousPixelWhileMovingMouse = newPixel;
 
                     }
             }else
             {
-                if(scene.current.previousPixelWhileMovingMouse)
+                if(scenes.current[currentSceneIndex].scene.previousPixelWhileMovingMouse)
                 {
-                    removeDraw(topCtx.current!,[scene.current.previousPixelWhileMovingMouse,...scene.current.previousNeighborsWhileMovingMouse],pixel_size);
+                    removeDraw(topCtx,[scenes.current[currentSceneIndex].scene.previousPixelWhileMovingMouse!,...scenes.current[currentSceneIndex].scene.previousNeighborsWhileMovingMouse],pixel_size);
                 }
             }
 
@@ -717,7 +681,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             // Calculate the pinch scale based on the initial touch distance and current touch distance
             const pinchScale = touchDistance / touchStartDistance;
 
-            if (pinchScale > 1 && scene.current.zoomAmount < MAX_ZOOM_AMOUNT) {
+            if (pinchScale > 1 && scenes.current[currentSceneIndex].scene.zoomAmount < MAX_ZOOM_AMOUNT) {
                 // Zoom in
                 // if(parseFloat(canvas.style.width) < originalCanvasWidth)
                 // {
@@ -730,9 +694,9 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 //     backgroundCanvas.style.width = `${newSize}px`;
                 //     backgroundCanvas.style.height = `${newSize}px`;
                 // }else 
-                if(scene.current.zoomAmount < MAX_ZOOM_AMOUNT){
+                if(scenes.current[currentSceneIndex].scene.zoomAmount < MAX_ZOOM_AMOUNT){
     
-                    scene.current.zoomAmount++;
+                    scenes.current[currentSceneIndex].scene.zoomAmount++;
                     
                     //dx and dy determines the translation of the canvas based on the mouse position during zooming
                     //subtracting outerDiv.offsetWidth / 2 from mouse.x determines the offset of the mouse position from the center of the outer div.
@@ -747,20 +711,31 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             
                     const scaleChangeFactor = currentScale / (currentScale - SCALE_FACTOR); //calculate current scale factor
             
-                    canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
-                    canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
-                    canvas.style.left = `${canvas.offsetLeft - dx}px`;
-                    canvas.style.top = `${canvas.offsetTop - dy}px`;
+                    // canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
+                    // canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
+                    // canvas.style.left = `${canvas.offsetLeft - dx}px`;
+                    // canvas.style.top = `${canvas.offsetTop - dy}px`;
                     
-                    topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
-                    topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
-                    topCanvas.style.left = `${topCanvas.offsetLeft - dx}px`;
-                    topCanvas.style.top = `${topCanvas.offsetTop - dy}px`;
+                    // topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
+                    // topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
+                    // topCanvas.style.left = `${topCanvas.offsetLeft - dx}px`;
+                    // topCanvas.style.top = `${topCanvas.offsetTop - dy}px`;
                     
-                    backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
-                    backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
-                    backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft - dx}px`;
-                    backgroundCanvas.style.top = `${backgroundCanvas.offsetTop - dy}px`;
+                    // backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
+                    // backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
+                    // backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft - dx}px`;
+                    // backgroundCanvas.style.top = `${backgroundCanvas.offsetTop - dy}px`;
+
+                    for(const layer in layersRef.current)
+                    {
+                        if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
+                            layersRef.current[layer].style.width = `${layersRef.current[layer].offsetWidth * scaleChangeFactor}px`;
+                            layersRef.current[layer].style.height = `${layersRef.current[layer].offsetHeight * scaleChangeFactor}px`;
+                            layersRef.current[layer].style.left = `${layersRef.current[layer].offsetLeft - dx}px`;
+                            layersRef.current[layer].style.top = `${layersRef.current[layer].offsetTop - dy}px`;
+    
+                        }
+                    }
     
     
                     // Store the mouse position in the history
@@ -770,9 +745,9 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }else if (pinchScale < 1) {
           // Zoom out
     
-            if(scene.current.zoomAmount > 0){
+            if(scenes.current[currentSceneIndex].scene.zoomAmount > 0){
     
-                scene.current.zoomAmount--;
+                scenes.current[currentSceneIndex].scene.zoomAmount--;
                 if (mouse.history.length > 0) {
                     const lastMousePos = mouse.history.pop()!;
     
@@ -785,35 +760,35 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                     const scaleChangeFactor = currentScale / (currentScale + SCALE_FACTOR);
     
     
-                    canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
-                    canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
-                    canvas.style.left = `${canvas.offsetLeft + dx}px`;
-                    canvas.style.top = `${canvas.offsetTop + dy}px`;
+                    // canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
+                    // canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
+                    // canvas.style.left = `${canvas.offsetLeft + dx}px`;
+                    // canvas.style.top = `${canvas.offsetTop + dy}px`;
                     
-                    topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
-                    topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
-                    topCanvas.style.left = `${topCanvas.offsetLeft + dx}px`;
-                    topCanvas.style.top = `${topCanvas.offsetTop + dy}px`;
+                    // topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
+                    // topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
+                    // topCanvas.style.left = `${topCanvas.offsetLeft + dx}px`;
+                    // topCanvas.style.top = `${topCanvas.offsetTop + dy}px`;
                     
-                    backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
-                    backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
-                    backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft + dx}px`;
-                    backgroundCanvas.style.top = `${backgroundCanvas.offsetTop + dy}px`;
+                    // backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
+                    // backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
+                    // backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft + dx}px`;
+                    // backgroundCanvas.style.top = `${backgroundCanvas.offsetTop + dy}px`;
+
+                    for(const layer in layersRef.current)
+                    {
+                        if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
+                            layersRef.current[layer].style.width = `${layersRef.current[layer].offsetWidth * scaleChangeFactor}px`;
+                            layersRef.current[layer].style.height = `${layersRef.current[layer].offsetHeight * scaleChangeFactor}px`;
+                            layersRef.current[layer].style.left = `${layersRef.current[layer].offsetLeft + dx}px`;
+                            layersRef.current[layer].style.top = `${layersRef.current[layer].offsetTop + dy}px`;
+    
+                        }
+                    }
     
                 }   
             }
-            // else if(parseFloat(canvas.style.width) > display_size)
-            // {
-            //     const newSize = Math.max(parseFloat(canvas.style.width) - 100,display_size);
-            //     canvas.style.width = `${newSize}px`;
-            //     canvas.style.height = `${newSize}px`;
-            //     topCanvas.style.width = `${newSize}px`;
-            //     topCanvas.style.height = `${newSize}px`;
-            //     backgroundCanvas.style.width = `${newSize}px`;
-            //     backgroundCanvas.style.height = `${newSize}px`;
-            //     currentScale -= SCALE_FACTOR;
-            // }
-    
+ 
         }
 
 
@@ -835,22 +810,33 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         const delta = Math.sign(e.deltaY);
     
-        if (delta < 0 && scene.current.zoomAmount < MAX_ZOOM_AMOUNT) {
+        if (delta < 0 && scenes.current[currentSceneIndex].scene.zoomAmount < MAX_ZOOM_AMOUNT) {
             // Zoom in
             if(parseFloat(canvas.style.width) < originalCanvasWidth)
             {
                 currentScale += SCALE_FACTOR;
                 const newSize = Math.min(parseFloat(canvas.style.width) + 100,originalCanvasWidth);
-                canvas.style.width = `${newSize}px`;
-                canvas.style.height = `${newSize}px`;
-                topCanvas.style.width = `${newSize}px`;
-                topCanvas.style.height = `${newSize}px`;
-                backgroundCanvas.style.width = `${newSize}px`;
-                backgroundCanvas.style.height = `${newSize}px`;
-            }else 
-            if(scene.current.zoomAmount < MAX_ZOOM_AMOUNT){
+                // canvas.style.width = `${newSize}px`;
+                // canvas.style.height = `${newSize}px`;
+                // topCanvas.style.width = `${newSize}px`;
+                // topCanvas.style.height = `${newSize}px`;
+                // backgroundCanvas.style.width = `${newSize}px`;
+                // backgroundCanvas.style.height = `${newSize}px`;
 
-                scene.current.zoomAmount++;
+                for(const layer in layersRef.current)
+                {
+                    if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
+                        layersRef.current[layer].style.width = `${newSize}px`;
+                        layersRef.current[layer].style.height = `${newSize}px`;
+                    }
+                }
+
+                
+
+            }else 
+            if(scenes.current[currentSceneIndex].scene.zoomAmount < MAX_ZOOM_AMOUNT){
+
+                scenes.current[currentSceneIndex].scene.zoomAmount++;
                 
                 //dx and dy determines the translation of the canvas based on the mouse position during zooming
                 //subtracting outerDiv.offsetWidth / 2 from mouse.x determines the offset of the mouse position from the center of the outer div.
@@ -865,20 +851,35 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         
                 const scaleChangeFactor = currentScale / (currentScale - SCALE_FACTOR); //calculate current scale factor
         
-                canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
-                canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
-                canvas.style.left = `${canvas.offsetLeft - dx}px`;
-                canvas.style.top = `${canvas.offsetTop - dy}px`;
+                // canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
+                // canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
+                // canvas.style.left = `${canvas.offsetLeft - dx}px`;
+                // canvas.style.top = `${canvas.offsetTop - dy}px`;
                 
-                topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
-                topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
-                topCanvas.style.left = `${topCanvas.offsetLeft - dx}px`;
-                topCanvas.style.top = `${topCanvas.offsetTop - dy}px`;
+                // topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
+                // topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
+                // topCanvas.style.left = `${topCanvas.offsetLeft - dx}px`;
+                // topCanvas.style.top = `${topCanvas.offsetTop - dy}px`;
                 
-                backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
-                backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
-                backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft - dx}px`;
-                backgroundCanvas.style.top = `${backgroundCanvas.offsetTop - dy}px`;
+                // backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
+                // backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
+                // backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft - dx}px`;
+                // backgroundCanvas.style.top = `${backgroundCanvas.offsetTop - dy}px`;
+
+                for(const layer in layersRef.current)
+                {
+                    if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
+                        //console.log("layer:",layer);
+                        layersRef.current[layer].style.width = `${layersRef.current[layer].offsetWidth * scaleChangeFactor}px`;
+                        layersRef.current[layer].style.height = `${layersRef.current[layer].offsetHeight * scaleChangeFactor}px`;
+                        layersRef.current[layer].style.left = `${layersRef.current[layer].offsetLeft - dx}px`;
+                        layersRef.current[layer].style.top = `${layersRef.current[layer].offsetTop - dy}px`;
+
+                        //console.table([layersRef.current[layer].style.width,layersRef.current[layer].style.height,layersRef.current[layer].style.left,layersRef.current[layer].style.top]);
+
+                    }
+                }
+
 
 
                 // Store the mouse position in the history
@@ -888,9 +889,9 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     }else if (delta > 0) {
       // Zoom out
 
-        if(scene.current.zoomAmount > 0){
+        if(scenes.current[currentSceneIndex].scene.zoomAmount > 0){
 
-            scene.current.zoomAmount--;
+            scenes.current[currentSceneIndex].scene.zoomAmount--;
             if (mouse.history.length > 0) {
                 const lastMousePos = mouse.history.pop()!;
 
@@ -903,33 +904,59 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 const scaleChangeFactor = currentScale / (currentScale + SCALE_FACTOR);
 
 
-                canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
-                canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
-                canvas.style.left = `${canvas.offsetLeft + dx}px`;
-                canvas.style.top = `${canvas.offsetTop + dy}px`;
+                // canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
+                // canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
+                // canvas.style.left = `${canvas.offsetLeft + dx}px`;
+                // canvas.style.top = `${canvas.offsetTop + dy}px`;
                 
-                topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
-                topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
-                topCanvas.style.left = `${topCanvas.offsetLeft + dx}px`;
-                topCanvas.style.top = `${topCanvas.offsetTop + dy}px`;
+                // topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
+                // topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
+                // topCanvas.style.left = `${topCanvas.offsetLeft + dx}px`;
+                // topCanvas.style.top = `${topCanvas.offsetTop + dy}px`;
                 
-                backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
-                backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
-                backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft + dx}px`;
-                backgroundCanvas.style.top = `${backgroundCanvas.offsetTop + dy}px`;
+                // backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
+                // backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
+                // backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft + dx}px`;
+                // backgroundCanvas.style.top = `${backgroundCanvas.offsetTop + dy}px`;
+
+                for(const layer in layersRef.current)
+                {
+                    if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
+                        layersRef.current[layer].style.width = `${layersRef.current[layer].offsetWidth * scaleChangeFactor}px`;
+                        layersRef.current[layer].style.height = `${layersRef.current[layer].offsetHeight * scaleChangeFactor}px`;
+                        layersRef.current[layer].style.left = `${layersRef.current[layer].offsetLeft + dx}px`;
+                        layersRef.current[layer].style.top = `${layersRef.current[layer].offsetTop + dy}px`;
+
+                    }
+                }
+
 
             }   
         }
         else if(parseFloat(canvas.style.width) > display_size)
         {
             const newSize = Math.max(parseFloat(canvas.style.width) - 100,display_size);
-            canvas.style.width = `${newSize}px`;
-            canvas.style.height = `${newSize}px`;
-            topCanvas.style.width = `${newSize}px`;
-            topCanvas.style.height = `${newSize}px`;
-            backgroundCanvas.style.width = `${newSize}px`;
-            backgroundCanvas.style.height = `${newSize}px`;
+            // canvas.style.width = `${newSize}px`;
+            // canvas.style.height = `${newSize}px`;
+            // topCanvas.style.width = `${newSize}px`;
+            // topCanvas.style.height = `${newSize}px`;
+            // backgroundCanvas.style.width = `${newSize}px`;
+            // backgroundCanvas.style.height = `${newSize}px`;
+
+
+            
+            for(const layer in layersRef.current)
+            {
+                if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
+                    layersRef.current[layer].style.width = `${newSize}px`;
+                    layersRef.current[layer].style.height = `${newSize}px`;
+                }
+            }
+
             currentScale -= SCALE_FACTOR;
+
+
+
         }
 
     }
@@ -937,27 +964,37 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     }
 
     function resetCanvasPosition(){
-        canvas.style.width = `${originalCanvasWidth}px`;
-        canvas.style.height = `${originalCanvasWidth}px`;
-        canvas.style.left = "45%";
-        canvas.style.top = "45%";
+        // canvas.style.width = `${originalCanvasWidth}px`;
+        // canvas.style.height = `${originalCanvasWidth}px`;
+        // canvas.style.left = "45%";
+        // canvas.style.top = "45%";
         
-        topCanvas.style.width = `${originalCanvasWidth}px`;
-        topCanvas.style.height = `${originalCanvasWidth}px`;
-        topCanvas.style.left = "45%";
-        topCanvas.style.top = "45%";
+        // topCanvas.style.width = `${originalCanvasWidth}px`;
+        // topCanvas.style.height = `${originalCanvasWidth}px`;
+        // topCanvas.style.left = "45%";
+        // topCanvas.style.top = "45%";
         
-        backgroundCanvas.style.width = `${originalCanvasWidth}px`;
-        backgroundCanvas.style.height = `${originalCanvasWidth}px`;
-        backgroundCanvas.style.left = "45%";
-        backgroundCanvas.style.top = "45%";
+        // backgroundCanvas.style.width = `${originalCanvasWidth}px`;
+        // backgroundCanvas.style.height = `${originalCanvasWidth}px`;
+        // backgroundCanvas.style.left = "45%";
+        // backgroundCanvas.style.top = "45%";
+
+        
+        for(const layer in layersRef.current)
+        {
+            if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
+                layersRef.current[layer].style.width = `${originalCanvasWidth}px`;
+                layersRef.current[layer].style.height = `${originalCanvasWidth}px`;
+                layersRef.current[layer].style.left = "45%";
+                layersRef.current[layer].style.top = "45%";
+            }
+        }
+
         
         currentScale = 1;
-        scene.current.zoomAmount = 0;
+        scenes.current[currentSceneIndex].scene.zoomAmount = 0;
     }
     
-
-    let counter3 = 0;        
     
     function handleFinishDraw(e : TouchEvent | MouseEvent | undefined){
         if(e)
@@ -971,14 +1008,14 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         // document.getElementById("boolean")!.innerHTML = `finishing ${++counter3}`;
 
         mouse.isPressed = false;
-        scene.current.lastPixel = null;
-        scene.current.lastPixelXMirror = null;
-        scene.current.lastPixelYMirror = null;
-        scene.current.lastPixelXYMirror = null;
-        if (scene.current.currentDraw.length > 0) {
+        scenes.current[currentSceneIndex].scene.lastPixel = null;
+        scenes.current[currentSceneIndex].scene.lastPixelXMirror = null;
+        scenes.current[currentSceneIndex].scene.lastPixelYMirror = null;
+        scenes.current[currentSceneIndex].scene.lastPixelXYMirror = null;
+        if (scenes.current[currentSceneIndex].scene.currentDraw.length > 0) {
 
             let empty = true;
-            for(let a of scene.current.currentDraw)
+            for(let a of scenes.current[currentSceneIndex].scene.currentDraw)
             {
                 if(a.length > 0)
                 {
@@ -987,39 +1024,87 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 }
             }
             if(!empty){
-                undoStack.push(scene.current.currentDraw);
+                undoStack.push(scenes.current[currentSceneIndex].scene.currentDraw);
                 redoStack.clear();
             }
         }
 
         //here the draws made with Line, Rectangle or Elipse tool are put in main canvas
-        if(scene.current.currentDrawTopCanvas.length > 0)
+        if(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas.length > 0)
         {
-            const clean : Pixel[] = cleanDraw(scene.current.currentDrawTopCanvas);
-            translateDrawToMainCanvas(clean,ctx.current!,pixel_size,selectedColor,penSize,scene.current);
-            undoStack.push(scene.current.currentDrawTopCanvas);
+            const clean : Pixel[] = cleanDraw(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas);
+            translateDrawToMainCanvas(clean,ctx,pixel_size,selectedColor,penSize,scenes.current[currentSceneIndex].scene);
+            undoStack.push(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas);
             redoStack.clear();
             
         }
         
-        scene.current.currentDraw = [];
-        removeDraw(topCtx.current!,cleanDraw(scene.current.currentDrawTopCanvas),pixel_size);
-        scene.current.currentDrawTopCanvas = [];
+        scenes.current[currentSceneIndex].scene.currentDraw = [];
+        removeDraw(topCtx,cleanDraw(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas),pixel_size);
+        scenes.current[currentSceneIndex].scene.currentDrawTopCanvas = [];
     
-        scene.current.currentPixelsMousePressed = new Map();
+        scenes.current[currentSceneIndex].scene.currentPixelsMousePressed = new Map();
 
-        scene.current.circleRadius = 0;
+        scenes.current[currentSceneIndex].scene.circleRadius = 0;
     }
     
+    function createNewLayer()
+    {
+        const numOfLayers = layers.length - 2;
+
+        scenes.current.push({canvas:`canvas${numOfLayers + 1}`,scene: new Scene()});
+        
+        currentSceneIndex = scenes.current.findIndex((obj)=>obj.canvas === `canvas${numOfLayers + 1}`);
+
+        scenes.current[currentSceneIndex].scene.initializePixelMatrix(display_size,pixel_size,bgTileSize);
+    
+        const layersCopy = [...layers];
+
+        const newLayers = [];
+
+        for(const canvas of layersCopy)
+        {
+            if(canvas !== 'topCanvas' && canvas != 'backgroundCanvas')
+            {
+                newLayers.push(canvas);
+            }
+        }
+
+        // newLayers.splice(layers.length - 1,0,'topCanvas')
+        // newLayers.splice(layers.length - 1,0,`canvas${numOfLayers + 1}`);
+
+        newLayers.push('topCanvas');
+        newLayers.push(`canvas${numOfLayers + 1}`);
+
+
+        setCurrentLayer(`canvas${numOfLayers + 1}`);
+
+        newLayers.push('backgroundCanvas');
+
+        console.log("new layers:",newLayers);
+        console.log("scene ref:",scenes.current);
+        console.log("current scene index:",currentSceneIndex);
+    
+        setLayers(newLayers);
+
+    }
+
+    function swapLayers(canvas1 : string,canvas2 : string)
+    {
+        
+        //
+
+    }
+
 
     function checkKeyCombinations(event : KeyboardEvent)
     {
         if(event.ctrlKey && event.code === 'KeyZ')
         {
-            undoLastDraw(pixel_size,ctx.current!);
+            undoLastDraw(pixel_size,ctx);
         }else if(event.ctrlKey && event.code === 'KeyY')
         {
-            redoLastDraw(ctx.current!,pixel_size);
+            redoLastDraw(ctx,pixel_size);
         }
     }
 
@@ -1035,11 +1120,22 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleFinishDraw}
-            
             >
-                <canvas className = "canvases" id = "topCanvas" ref = {topCanvasRef}></canvas>
+                {/* <canvas className = "canvases" id = "topCanvas" ref = {topCanvasRef}></canvas>
                 <canvas className = "canvases" id="canvas" ref = {canvasRef}> Your browser does not support canvas </canvas>
-                <canvas className = "canvases" id="backgroundCanvas" ref = {backgroundCanvasRef}> Your browser does not support canvas </canvas>
+                <canvas className = "canvases" id="backgroundCanvas" ref = {backgroundCanvasRef}> Your browser does not support canvas </canvas> */}
+
+                {
+                    layers.map((layer,index)=><canvas
+                     ref = {handleLayersRef(layer)} 
+                     className = "canvases" 
+                     style = {{zIndex: layers.length - index - 1}}
+                     key = {layer}
+                     id={layer}
+                     ></canvas>)
+                }
+            <button style = {{position:'absolute',top:0,left:0}} onClick = {()=>setCurrentLayer(currentLayer === 'canvas1' ? 'canvas2' : 'canvas1')}>change canvas</button>
+            <button style = {{position:'absolute',top:0,left:100}} onClick = {createNewLayer}>create canvas</button>
           </div>
 
 

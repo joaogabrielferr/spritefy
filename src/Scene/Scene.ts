@@ -33,6 +33,8 @@ export default class Scene{
 
     keyMap : Map<string,boolean>;
 
+    initialized : boolean;
+
 
     constructor(){
         this.pixels = [];
@@ -49,10 +51,11 @@ export default class Scene{
         this.lineFirstPixel = null;
         this.circleRadius = 1;
         this.keyMap = new Map();
+        this.initialized = false;
         
     }
 
-    initilializePixelMatrix(display_size : number,pixel_size : number, bgTileSize : number){
+    initializePixelMatrix(display_size : number,pixel_size : number, bgTileSize : number){
         
         this.pixels = [];
 
@@ -103,6 +106,7 @@ export default class Scene{
             this.pixels.push(row);
         }
 
+        this.initialized = true;
 
     }
 

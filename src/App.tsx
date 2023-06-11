@@ -37,8 +37,8 @@ const ToolButtons = [
 ] as ToolButton[];
 
 
-//TODO: Detect pinch for zooming in mobile
 //TODO: Add layer functionality
+//TODO: add eslint to project
 //TODO: save image (check if its possible to save pixel matrix, if not generate an image and save it)
 //TODO: Decrease canvas (not cssCanvasSize!!!) as window becomes smaller (i added a onresizehandler that changes cssCanvasSize, the size of canvas is set on editor.tsx in a useeffect that has cssCanvasSize as dep, simply adjust the values there)
 //TODO: Add tutorial if opened for the first time
@@ -46,11 +46,9 @@ const ToolButtons = [
 
 //TODO: possible options to each tool
 // pen:
-// pen size - added
 // erase with left click
 
 // eraser:
-// pen size -added
 // erase with left click
 
 // paint bucket:
@@ -59,12 +57,6 @@ const ToolButtons = [
 // color picker:
 // choose as current color
 // add to palette
-
-// rectangle:
-// keep 1 to 1 ratio
-
-// elipe:
-// keep 1 to 1 ratio
 
 
 

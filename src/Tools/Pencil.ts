@@ -28,6 +28,8 @@ Pencil(eventName : string,
       const xs = mouse.x;
       const ys = mouse.y;
 
+      console.log(xs,ys);
+
       if (xs > display_size || xs < 0 || ys > display_size || ys < 0)
       {
         return [];
@@ -39,7 +41,7 @@ Pencil(eventName : string,
       const pixelYMirror : Pixel | null = scene.findPixel(xs,display_size/2 + (display_size/2 - ys),pixel_size);
       const pixelXYMirror : Pixel | null = scene.findPixel(display_size/2 + (display_size/2 - xs),display_size/2 + (display_size/2 - ys),pixel_size);
 
-
+      console.log(pixel);
       //if this pixel is in currentPixelsMousePressed, that means it was already painted in the current pen stroke, no need to paint it twice
       if (pixel != null) {
           
