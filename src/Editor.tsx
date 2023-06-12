@@ -409,7 +409,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         if(!(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size))
         {
             //out of canvas
-            // handleFinishDraw(undefined);
             scenes.current[currentSceneIndex].scene.lastPixel = null;
             scenes.current[currentSceneIndex].scene.lastPixelXMirror = null;
             scenes.current[currentSceneIndex].scene.lastPixelYMirror = null;
@@ -543,7 +542,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         if(!(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size))
         {
             //out of canvas
-            // handleFinishDraw(undefined);
             scenes.current[currentSceneIndex].scene.lastPixel = null;
             scenes.current[currentSceneIndex].scene.lastPixelXMirror = null;
             scenes.current[currentSceneIndex].scene.lastPixelYMirror = null;
@@ -1048,6 +1046,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         {
             const clean : Pixel[] = cleanDraw(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas);
             translateDrawToMainCanvas(clean,ctx,pixel_size,selectedColor,penSize,scenes.current[currentSceneIndex].scene);
+            EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{canvas : currentLayer,pixelMatrix:scenes.current[currentSceneIndex].scene.pixels});
             scenes.current[currentSceneIndex].undoStack.push(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas);
             scenes.current[currentSceneIndex].redoStack.clear();            
         }
