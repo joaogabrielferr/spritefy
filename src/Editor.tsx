@@ -6,18 +6,21 @@ MAX_ZOOM_AMOUNT,
 BG_COLORS,
 SCALE_FACTOR,
 CIRCLE_RADIUS_INCREASE_FACTOR,
-RESET_CANVAS_POSITION
+RESET_CANVAS_POSITION,
+TOP_CANVAS,
+BACKGROUND_CANVAS,
+DRAW_ON_SIDEBAR_CANVAS
 }
  from './utils/constants';
 import Mouse from './scene/Mouse';
 import Scene from './scene/Scene';
 import { Pencil } from './Tools/Pencil';
 import { Eraser } from './Tools/Eraser';
-import {redoLastDraw, redoStack, undoLastDraw, undoStack } from './Tools/UndoRedo';
+import {redoLastDraw,undoLastDraw } from './Tools/UndoRedo';
 import { PaintBucket } from './Tools/PaintBucket';
 import { Dropper } from './Tools/Dropper';
 import { Line } from './Tools/Line';
-import { Pixel } from './types';
+import { Pixel, drawOnSideBarCanvasType } from './types';
 import { removeDraw } from './helpers/RemoveDraw';
 import { cleanDraw } from './helpers/CleanDraw';
 import { translateDrawToMainCanvas } from './helpers/TranslateDrawToMainCanvas';
@@ -25,10 +28,18 @@ import { Rectangle } from './Tools/Rectangle';
 import { Elipse } from './Tools/Elipse';
 import { EventBus } from './EventBus';
 import { store,StoreType } from './store';
+import { Stack } from './utils/Stack';
 
 interface IEditor{
     cssCanvasSize : number;
     isMobile : boolean,
+}
+
+interface SceneState{
+    canvas : string;
+    scene : Scene;
+    undoStack : Stack<Pixel[][]>;
+    redoStack: Stack<[Pixel,string | undefined][]>;
 }
 
 
@@ -64,7 +75,11 @@ let currentSceneIndex = 0;
 export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element{
     
 
-    const [layers,setLayers] = useState<string[]>(['topCanvas','canvas1','backgroundCanvas']);
+    //const [layers,setLayers] = useState<string[]>([TOP_CANVAS,'canvas1',BACKGROUND_CANVAS]);
+    
+    const layers = store((state : StoreType) => state.layers);
+    const setLayers = store((state : StoreType) => state.setLayers);
+
     const layersRef = useRef<{[key : string] : HTMLCanvasElement}>({});
 
     const [currentLayer,setCurrentLayer] = useState<string>('canvas1');
@@ -79,40 +94,34 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     const yMirror = store((state : StoreType) => state.yMirror);
 
 
-    // const canvasRef = useRef<HTMLCanvasElement>(null); //main canvas
-    // const topCanvasRef = useRef<HTMLCanvasElement>(null); //top canvas for temporary draws (like in line tool, rectangle tool, elipse tool, etc)
-    // const backgroundCanvasRef = useRef<HTMLCanvasElement>(null) //checkerboard canvas
-
     const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvas
     
-
-    //const ctx = useRef<CanvasRenderingContext2D | null>(null);
-    // const topCtx = useRef<CanvasRenderingContext2D | null>(null);
-    // const bgCtx = useRef<CanvasRenderingContext2D | null>(null);
-
     const firstInit = useRef(false); //for development
     
 
     //persist scenes between re renders
-    const scenes = useRef<{canvas : string;scene : Scene}[]>([{canvas:'canvas1',scene:new Scene()}]);
-    
+    const scenes = useRef<SceneState[]>(
+        [
+            {
+            canvas:'canvas1',
+            scene:new Scene(),
+            undoStack : new Stack<Pixel[][]>,
+            redoStack: new Stack<[Pixel,string | undefined][]>
+            }
+        ]
+    );
+
+
 
     useEffect(()=>{
-        canvas = layersRef.current![currentLayer];
-        topCanvas = layersRef.current!['topCanvas'];
-        backgroundCanvas = layersRef.current!['backgroundCanvas'];
-    },[layers,currentLayer]);
-
-    useEffect(()=>{
-
+        console.log("USE EFFECT SET VARIABLES",currentLayer);
         setUpVariables();
 
+        outerDiv = outerDivRef.current!;
 
         canvas = layersRef.current![currentLayer];
-        topCanvas = layersRef.current!['topCanvas'];
-        backgroundCanvas = layersRef.current!['backgroundCanvas'];
-    
-        outerDiv = outerDivRef.current!;
+        topCanvas = layersRef.current![TOP_CANVAS];
+        backgroundCanvas = layersRef.current![BACKGROUND_CANVAS];
 
         ctx = canvas.getContext('2d')!;
         topCtx = topCanvas.getContext("2d")!;
@@ -161,13 +170,15 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }
         
         draw();
+
+        resetCanvasPosition();
         
         //originalSize = editorSize - 50;
 
         coordinatesElement = document.getElementById('coordinates') as HTMLParagraphElement;
         
 
-    },[currentLayer,cssCanvasSize,isMobile]);
+    },[layers,currentLayer,cssCanvasSize,isMobile]);
 
 
 
@@ -210,6 +221,21 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         const subscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION,resetCanvasPosition);
 
+        function checkKeyCombinations(event : KeyboardEvent)
+        {
+            if(event.ctrlKey && event.code === 'KeyZ')
+            {   
+                console.log(currentLayer);
+                undoLastDraw(pixel_size,ctx,scenes.current[currentSceneIndex]);
+                EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{canvas : currentLayer,pixelMatrix : scenes.current[currentSceneIndex].scene.pixels});
+    
+            }else if(event.ctrlKey && event.code === 'KeyY')
+            {
+                redoLastDraw(ctx,pixel_size,scenes.current[currentSceneIndex]);
+                EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{canvas : currentLayer,pixelMatrix : scenes.current[currentSceneIndex].scene.pixels});
+            }
+        }
+
         document.addEventListener('keydown',checkKeyCombinations);
         
         return ()=>{
@@ -217,7 +243,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             document.removeEventListener('keydown',checkKeyCombinations);
         }
 
-    },[]);
+    },[currentLayer]);
 
 
 
@@ -964,22 +990,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     }
 
     function resetCanvasPosition(){
-        // canvas.style.width = `${originalCanvasWidth}px`;
-        // canvas.style.height = `${originalCanvasWidth}px`;
-        // canvas.style.left = "45%";
-        // canvas.style.top = "45%";
-        
-        // topCanvas.style.width = `${originalCanvasWidth}px`;
-        // topCanvas.style.height = `${originalCanvasWidth}px`;
-        // topCanvas.style.left = "45%";
-        // topCanvas.style.top = "45%";
-        
-        // backgroundCanvas.style.width = `${originalCanvasWidth}px`;
-        // backgroundCanvas.style.height = `${originalCanvasWidth}px`;
-        // backgroundCanvas.style.left = "45%";
-        // backgroundCanvas.style.top = "45%";
-
-        
+     
         for(const layer in layersRef.current)
         {
             if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
@@ -1005,7 +1016,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
 
         isPinching = false;
-        // document.getElementById("boolean")!.innerHTML = `finishing ${++counter3}`;
 
         mouse.isPressed = false;
         scenes.current[currentSceneIndex].scene.lastPixel = null;
@@ -1024,8 +1034,9 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 }
             }
             if(!empty){
-                undoStack.push(scenes.current[currentSceneIndex].scene.currentDraw);
-                redoStack.clear();
+                scenes.current[currentSceneIndex].undoStack.push(scenes.current[currentSceneIndex].scene.currentDraw);
+                EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{canvas : currentLayer,pixelMatrix:scenes.current[currentSceneIndex].scene.pixels});
+                scenes.current[currentSceneIndex].redoStack.clear();
             }
         }
 
@@ -1034,9 +1045,8 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         {
             const clean : Pixel[] = cleanDraw(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas);
             translateDrawToMainCanvas(clean,ctx,pixel_size,selectedColor,penSize,scenes.current[currentSceneIndex].scene);
-            undoStack.push(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas);
-            redoStack.clear();
-            
+            scenes.current[currentSceneIndex].undoStack.push(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas);
+            scenes.current[currentSceneIndex].redoStack.clear();            
         }
         
         scenes.current[currentSceneIndex].scene.currentDraw = [];
@@ -1052,7 +1062,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     {
         const numOfLayers = layers.length - 2;
 
-        scenes.current.push({canvas:`canvas${numOfLayers + 1}`,scene: new Scene()});
+        scenes.current.push(createNewScene());
         
         currentSceneIndex = scenes.current.findIndex((obj)=>obj.canvas === `canvas${numOfLayers + 1}`);
 
@@ -1064,29 +1074,33 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         for(const canvas of layersCopy)
         {
-            if(canvas !== 'topCanvas' && canvas != 'backgroundCanvas')
+            if(canvas !== TOP_CANVAS && canvas != BACKGROUND_CANVAS)
             {
                 newLayers.push(canvas);
             }
         }
 
-        // newLayers.splice(layers.length - 1,0,'topCanvas')
-        // newLayers.splice(layers.length - 1,0,`canvas${numOfLayers + 1}`);
-
-        newLayers.push('topCanvas');
+        newLayers.push(TOP_CANVAS);
         newLayers.push(`canvas${numOfLayers + 1}`);
-
-
+        newLayers.push(BACKGROUND_CANVAS);
+        
+        console.log("NEW CANVAS CREATED:",newLayers);
         setCurrentLayer(`canvas${numOfLayers + 1}`);
-
-        newLayers.push('backgroundCanvas');
-
-        console.log("new layers:",newLayers);
-        console.log("scene ref:",scenes.current);
-        console.log("current scene index:",currentSceneIndex);
-    
         setLayers(newLayers);
 
+
+        
+
+    }
+
+    function createNewScene()
+    {
+        return {
+            canvas : `canvas${layers.length - 1}`,
+            scene : new Scene(),
+            undoStack : new Stack<Pixel[][]>,
+            redoStack: new Stack<[Pixel,string | undefined][]>
+        } as SceneState;
     }
 
     function swapLayers(canvas1 : string,canvas2 : string)
@@ -1096,19 +1110,22 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
     }
 
-
-    function checkKeyCombinations(event : KeyboardEvent)
+    function selectLayer(canvas : string)
     {
-        if(event.ctrlKey && event.code === 'KeyZ')
-        {
-            undoLastDraw(pixel_size,ctx);
-        }else if(event.ctrlKey && event.code === 'KeyY')
-        {
-            redoLastDraw(ctx,pixel_size);
-        }
+        const newLayers = [...layers];
+        newLayers.splice(newLayers.indexOf(TOP_CANVAS),1);
+
+        newLayers.splice(newLayers.indexOf(canvas),0,TOP_CANVAS);
+
+        currentSceneIndex = scenes.current.findIndex((obj)=>obj.canvas === canvas);
+
+        setCurrentLayer(canvas);
+
+        setLayers(newLayers);
+
     }
 
-    
+
 
     return <div className = "editor" 
             style = {!isMobile ? {height:cssCanvasSize, width:'100%'} : {width:'100%',height:cssCanvasSize}} 
@@ -1121,9 +1138,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             onTouchMove={handleTouchMove}
             onTouchEnd={handleFinishDraw}
             >
-                {/* <canvas className = "canvases" id = "topCanvas" ref = {topCanvasRef}></canvas>
-                <canvas className = "canvases" id="canvas" ref = {canvasRef}> Your browser does not support canvas </canvas>
-                <canvas className = "canvases" id="backgroundCanvas" ref = {backgroundCanvasRef}> Your browser does not support canvas </canvas> */}
 
                 {
                     layers.map((layer,index)=><canvas
@@ -1131,10 +1145,10 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                      className = "canvases" 
                      style = {{zIndex: layers.length - index - 1}}
                      key = {layer}
-                     id={layer}
+                     id = {layer}
                      ></canvas>)
                 }
-            <button style = {{position:'absolute',top:0,left:0}} onClick = {()=>setCurrentLayer(currentLayer === 'canvas1' ? 'canvas2' : 'canvas1')}>change canvas</button>
+            {/* <button style = {{position:'absolute',top:0,left:0}} onClick = {()=>selectLayer(currentLayer === 'canvas1' ? 'canvas2' : 'canvas1')}>change canvas</button> */}
             <button style = {{position:'absolute',top:0,left:100}} onClick = {createNewLayer}>create canvas</button>
           </div>
 

@@ -1,5 +1,7 @@
 import { IEventBus, Subscription, Subscriber } from "./types";
 
+
+
 //for triggering events from unrelated components
 export class EventBus implements IEventBus {
 
@@ -29,16 +31,17 @@ export class EventBus implements IEventBus {
       if (!subscriber) {
         return;
       }
+
   
       Object.keys(subscriber).forEach((id) => subscriber[id](arg));
     }
   
-    public subscribe(event: string, callback: ()=> void): Subscription {
+    public subscribe(event: string, callback: (...args : any)=> void): Subscription {
       const id = this.getNextId();
       if (!this.subscribers[event]) this.subscribers[event] = {};
   
       this.subscribers[event][id] = callback;
-  
+
       return {
         unsubscribe: () => {
           delete this.subscribers[event][id];

@@ -32,3 +32,8 @@ export type IEventBus = {
 publish<T>(event: string, arg?: T): void;
 subscribe(event: string, callback: ()=> void) : Subscription;
 }
+
+export type drawOnSideBarCanvasType = {
+    canvas : string;
+    pixelMatrix : Pixel[][];
+}

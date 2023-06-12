@@ -8,17 +8,24 @@ import { Pixel } from "../types";
 import { Stack } from "../utils/Stack";
 import { ERASING } from "../utils/constants";
 import { cleanDraw } from "../helpers/CleanDraw";
+import Scene from "../scene/Scene";
 
 
+interface SceneState{
+  canvas : string;
+  scene : Scene;
+  undoStack : Stack<Pixel[][]>;
+  redoStack: Stack<[Pixel,string | undefined][]>;
+}
 
 
-export function undoLastDraw(pixel_size : number, ctx : CanvasRenderingContext2D){
+export function undoLastDraw(pixel_size : number, ctx : CanvasRenderingContext2D,scene : SceneState){
 
-  if (undoStack.isEmpty()) return;
+  if (scene.undoStack.isEmpty()) return;
 
-  const draw = undoStack.top();
+  const draw = scene.undoStack.top();
   if(!draw)return;
-  undoStack.pop();
+  scene.undoStack.pop();
   const clean = cleanDraw(draw);
 
 
@@ -52,16 +59,16 @@ export function undoLastDraw(pixel_size : number, ctx : CanvasRenderingContext2D
     // }
   }
 
-  redoStack.push(redo);
+  scene.redoStack.push(redo);
 
 }
 
-export function redoLastDraw(ctx : CanvasRenderingContext2D,pixel_size : number)
+export function redoLastDraw(ctx : CanvasRenderingContext2D,pixel_size : number,scene : SceneState)
 {
-  const draw = redoStack.top();
+  const draw = scene.redoStack.top();
   if(!draw)return;
 
-  redoStack.pop();
+  scene.redoStack.pop();
 
   const undo : Pixel[] = [];
 
@@ -85,13 +92,13 @@ export function redoLastDraw(ctx : CanvasRenderingContext2D,pixel_size : number)
 
   }
   
-  undoStack.push([undo]);
+  scene.undoStack.push([undo]);
 
 }
 
 
-export const undoStack = new Stack<Pixel[][]>();
+// export const undoStack = new Stack<Pixel[][]>();
 
-//storing the draw and the color used for each pixel in the draw
-export const redoStack = new Stack<[Pixel,string | undefined][]>();
+// //storing the draw and the color used for each pixel in the draw
+// export const redoStack = new Stack<[Pixel,string | undefined][]>();
 

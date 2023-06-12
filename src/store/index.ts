@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { toolsType } from "../types";
+import { BACKGROUND_CANVAS, TOP_CANVAS } from "../utils/constants";
 
 
 export type StoreType = {
@@ -10,13 +11,17 @@ export type StoreType = {
     oneToOneRatioRectangle : boolean;
     xMirror : boolean;
     yMirror : boolean;
+
+    layers : string[];
+
     setSelectedColor : (color : string) => void,
     setSelectedTool : (tool : toolsType) => void,
     setPenSize : (size : number) => void,
     toogleOneToOneRatioElipse : () => void,
     toogleOneToOneRatioRectangle : () => void,
-    toogleXMirror : () => void
-    toogleYMirror : () => void
+    toogleXMirror : () => void,
+    toogleYMirror : () => void,
+    setLayers : (newLayers : string[]) => void
 }
 
 
@@ -28,6 +33,7 @@ export const store = create<StoreType>()((set)=>({
     oneToOneRatioRectangle : false,
     xMirror : false,
     yMirror : false,
+    layers : [TOP_CANVAS,'canvas1',BACKGROUND_CANVAS],
     setSelectedColor : (color : string) => set(()=> ({selectedColor : color})),
     setSelectedTool : (tool : toolsType) => set(()=> ({selectedTool : tool})),
     setPenSize : (size : number) => set(() => ({penSize : size,previousPenSize : size})),
@@ -35,4 +41,5 @@ export const store = create<StoreType>()((set)=>({
     toogleOneToOneRatioRectangle : () => set((state : StoreType)=> ({oneToOneRatioRectangle : !state.oneToOneRatioRectangle}) ),
     toogleXMirror : () => set((state : StoreType)=>({xMirror : !state.xMirror})),
     toogleYMirror : () => set((state : StoreType)=>({yMirror : !state.yMirror})),
+    setLayers : (newLayers : string[]) => set(()=>({layers : newLayers}))
 }));

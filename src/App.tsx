@@ -21,6 +21,7 @@ import { RESET_CANVAS_POSITION } from "./utils/constants";
 import { LeftArrow } from "./svg/LeftArrow";
 import { RightArrow } from "./svg/RightArrow";
 import { store,StoreType } from "./store";
+import { Layers } from "./components/Layers";
 
 
 
@@ -39,6 +40,7 @@ const ToolButtons = [
 
 //TODO: Add layer functionality
 //TODO: add eslint to project
+//TODO: add styled components
 //TODO: save image (check if its possible to save pixel matrix, if not generate an image and save it)
 //TODO: Decrease canvas (not cssCanvasSize!!!) as window becomes smaller (i added a onresizehandler that changes cssCanvasSize, the size of canvas is set on editor.tsx in a useeffect that has cssCanvasSize as dep, simply adjust the values there)
 //TODO: Add tutorial if opened for the first time
@@ -132,8 +134,8 @@ function App() {
                   {/* extra bar */}
                 <div style = {{width:'100%',height:'30px',backgroundColor:'rgb(73, 71, 71)',display:'flex',justifyContent:'flex-start',alignItems:'center'}}>
                   <span id = "coordinates" style = {{color:'white',fontSize:'12px',marginRight:'20px'}}>{"[X:0,Y:0]"}</span>
-                  {/* <button onClick = {()=>{EventBus.getInstance().publish(RESET_CANVAS_POSITION)}}>reset canvas position</button>
-                  <button>Enable grid(TO DO)</button> should probably be a checkbox */}
+                  <button onClick = {()=>{EventBus.getInstance().publish(RESET_CANVAS_POSITION)}}>reset canvas position</button>
+                  {/*<button>Enable grid(TO DO)</button> should probably be a checkbox */}
                 </div>
                 {/* main editor */}
                   <Editor 
@@ -145,7 +147,7 @@ function App() {
                  {/* right sidebar */}
                 {!isMobile && 
                   <Sidebar width={'250px'} height={cssCanvasSize} marginTop={'30px'}>
-                    <div>here</div>
+                    <Layers></Layers>
                     {/* <div style = {{width:'100%',height:'100%'}}>
                       
                       {/* <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
