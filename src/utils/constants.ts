@@ -14,3 +14,4 @@ export const BG_COLORS = ['#757474','#a1a1a1'];
 //events
 export const RESET_CANVAS_POSITION = 'reset-canvas-position';
 export const DRAW_ON_SIDEBAR_CANVAS = 'draw-on-sidebar-canvas';
+export const SELECT_LAYER = 'select-layer';

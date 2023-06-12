@@ -122,7 +122,7 @@ function App() {
 
                 {/* left sidebar */}
                 {!isMobile && 
-                <Sidebar width={'230px'} height={cssCanvasSize} marginTop={'30px'}> {/*30px to take the extra bar into consideration*/}
+                <Sidebar width={'230px'} height={cssCanvasSize} marginTop={'30px'}>
                     <Toolbar toolButtons={ToolButtons} isMobile = {isMobile}/>
                   <div style = {{width:'95%'}}>
                     <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
@@ -131,18 +131,20 @@ function App() {
                 </Sidebar>}
                 
                 <div style = {{width:'100%',height:cssCanvasSize}}>
-                  {/* extra bar */}
+                  {/* extra bar TODO:CREATE A COMPONENT FOR THIS EXTRA BAR*/}
                 <div style = {{width:'100%',height:'30px',backgroundColor:'rgb(73, 71, 71)',display:'flex',justifyContent:'flex-start',alignItems:'center'}}>
                   <span id = "coordinates" style = {{color:'white',fontSize:'12px',marginRight:'20px'}}>{"[X:0,Y:0]"}</span>
                   <button onClick = {()=>{EventBus.getInstance().publish(RESET_CANVAS_POSITION)}}>reset canvas position</button>
                   {/*<button>Enable grid(TO DO)</button> should probably be a checkbox */}
                 </div>
+
                 {/* main editor */}
                   <Editor 
                     cssCanvasSize = {cssCanvasSize} 
                     isMobile = {isMobile}
                   ></Editor>    
                 </div>
+
 
                  {/* right sidebar */}
                 {!isMobile && 
