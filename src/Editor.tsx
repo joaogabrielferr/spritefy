@@ -76,6 +76,8 @@ let currentSceneIndex = 0;
 export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element{
     
 
+    //const [layers,setLayers] = useState<string[]>([TOP_CANVAS,'canvas1',BACKGROUND_CANVAS]);
+    
     const layers = store((state : StoreType) => state.layers);
     const setLayers = store((state : StoreType) => state.setLayers);
 
@@ -94,7 +96,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     const yMirror = store((state : StoreType) => state.yMirror);
 
 
-    const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvases
+    const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvas
     
     const firstInit = useRef(false); //for development
     
@@ -114,7 +116,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
 
     useEffect(()=>{
-
+        console.log("USE EFFECT SET VARIABLES",currentLayer);
         setUpVariables();
 
         outerDiv = outerDivRef.current!;
@@ -127,54 +129,37 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         topCtx = topCanvas.getContext("2d")!;
         bgCtx = backgroundCanvas.getContext("2d")!;
 
-        // canvas.width = display_size;
-        // canvas.height = display_size;
+        canvas.width = display_size;
+        canvas.height = display_size;
       
-        // topCanvas.width = display_size;
-        // topCanvas.height = display_size;
+        topCanvas.width = display_size;
+        topCanvas.height = display_size;
 
-        // backgroundCanvas.width = display_size;
-        // backgroundCanvas.height = display_size;
-
-        for(const layer in layersRef.current)
-            {
-                if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
-                    layersRef.current[layer].width = display_size;
-                    layersRef.current[layer].height = display_size;
-
-                }
-            }
+        backgroundCanvas.width = display_size;
+        backgroundCanvas.height = display_size;
         
         if(isMobile)
         {
-            console.log("hey");
+            canvas.style.width = `${cssCanvasSize - 100}px`;
+            canvas.style.height = `${cssCanvasSize - 100}px`;
 
-
-            for(const layer in layersRef.current)
-            {
-                if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
-                    console.log(layersRef.current[layer].style.width);
-                    layersRef.current[layer].style.width = `${cssCanvasSize - 100}px`;
-                    console.log(layersRef.current[layer].style.width);
-                    layersRef.current[layer].style.height = `${cssCanvasSize - 100}px`;
-                }
-            }
-
+            topCanvas.style.width = `${cssCanvasSize - 100}px`;
+            topCanvas.style.height = `${cssCanvasSize - 100}px`;
+            
+            backgroundCanvas.style.width = `${cssCanvasSize - 100}px`;
+            backgroundCanvas.style.height = `${cssCanvasSize - 100}px`;
             
             originalCanvasWidth = cssCanvasSize - 100;
         }else
-        {   
+        {
+            canvas.style.width = `${cssCanvasSize - 150}px`;
+            canvas.style.height = `${cssCanvasSize - 150}px`;
 
-            console.log("hey 2");
-
-            for(const layer in layersRef.current)
-            {
-                if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
-                    layersRef.current[layer].style.width = `${cssCanvasSize - 150}px`;
-                    layersRef.current[layer].style.height = `${cssCanvasSize - 150}px`;
-
-                }
-            }            
+            topCanvas.style.width = `${cssCanvasSize - 150}px`;
+            topCanvas.style.height = `${cssCanvasSize - 150}px`;
+            
+            backgroundCanvas.style.width = `${cssCanvasSize - 150}px`;
+            backgroundCanvas.style.height = `${cssCanvasSize - 150}px`;
             
             originalCanvasWidth = cssCanvasSize - 150;
         }
@@ -264,7 +249,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             document.removeEventListener('keydown',checkKeyCombinations);
         }
 
-    },[currentLayer]);
+    },[currentLayer,selectLayer]);
 
 
 
@@ -559,6 +544,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         if(!(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size))
         {
             //out of canvas
+            // handleFinishDraw(undefined);
             scenes.current[currentSceneIndex].scene.lastPixel = null;
             scenes.current[currentSceneIndex].scene.lastPixelXMirror = null;
             scenes.current[currentSceneIndex].scene.lastPixelYMirror = null;
@@ -700,7 +686,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     {
         if (!outerDiv) return;
 
-        console.log("ZOOMING");
 
         // Prevent the default behavior of the touch event
         //e.preventDefault();
@@ -1066,7 +1051,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         {
             const clean : Pixel[] = cleanDraw(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas);
             translateDrawToMainCanvas(clean,ctx,pixel_size,selectedColor,penSize,scenes.current[currentSceneIndex].scene);
-            EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{canvas : currentLayer,pixelMatrix:scenes.current[currentSceneIndex].scene.pixels});
             scenes.current[currentSceneIndex].undoStack.push(scenes.current[currentSceneIndex].scene.currentDrawTopCanvas);
             scenes.current[currentSceneIndex].redoStack.clear();            
         }
@@ -1150,7 +1134,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
 
     return <div className = "editor" 
-            style = {{height:cssCanvasSize, width:'100%'}} 
+            style = {!isMobile ? {height:cssCanvasSize, width:'100%'} : {width:'100%',height:cssCanvasSize}} 
             ref = {outerDivRef} 
             onWheel={handleZoom}
             onMouseDown={handleFirstClick}
