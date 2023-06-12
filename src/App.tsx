@@ -55,6 +55,8 @@ const ToolButtons = [
 
 // paint bucket:
 // diagonal neighbors
+//erase pixels instead of painting
+//change color of all pixels with the start colors
 
 // color picker:
 // choose as current color
@@ -135,6 +137,9 @@ function App() {
                 <div style = {{width:'100%',height:'30px',backgroundColor:'rgb(73, 71, 71)',display:'flex',justifyContent:'flex-start',alignItems:'center'}}>
                   <span id = "coordinates" style = {{color:'white',fontSize:'12px',marginRight:'20px'}}>{"[X:0,Y:0]"}</span>
                   <button onClick = {()=>{EventBus.getInstance().publish(RESET_CANVAS_POSITION)}}>reset canvas position</button>
+                  <button>show default cursor</button>
+                  <button>show grid</button>
+
                   {/*<button>Enable grid(TO DO)</button> should probably be a checkbox */}
                 </div>
 

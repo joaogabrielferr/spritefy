@@ -10,7 +10,8 @@ RESET_CANVAS_POSITION,
 TOP_CANVAS,
 BACKGROUND_CANVAS,
 DRAW_ON_SIDEBAR_CANVAS,
-SELECT_LAYER
+SELECT_LAYER,
+CREATE_NEW_LAYER
 }
  from './utils/constants';
 import Mouse from './scene/Mouse';
@@ -116,7 +117,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
 
     useEffect(()=>{
-        console.log("USE EFFECT SET VARIABLES",currentLayer);
         setUpVariables();
 
         outerDiv = outerDivRef.current!;
@@ -223,14 +223,12 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         const resetCanvasSubscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION,resetCanvasPosition);
         const selectCanvasSubscription = EventBus.getInstance().subscribe(SELECT_LAYER,selectLayer);
-
-
+        const createNewCanvasSubscription = EventBus.getInstance().subscribe(CREATE_NEW_LAYER,createNewLayer);
 
         function checkKeyCombinations(event : KeyboardEvent)
         {
             if(event.ctrlKey && event.code === 'KeyZ')
             {   
-                console.log(currentLayer);
                 undoLastDraw(pixel_size,ctx,scenes.current[currentSceneIndex]);
                 EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{canvas : currentLayer,pixelMatrix : scenes.current[currentSceneIndex].scene.pixels});
     
@@ -246,6 +244,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         return ()=>{
             resetCanvasSubscription.unsubscribe();
             selectCanvasSubscription.unsubscribe();
+            createNewCanvasSubscription.unsubscribe();
             document.removeEventListener('keydown',checkKeyCombinations);
         }
 
@@ -901,13 +900,11 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 for(const layer in layersRef.current)
                 {
                     if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
-                        //console.log("layer:",layer);
                         layersRef.current[layer].style.width = `${layersRef.current[layer].offsetWidth * scaleChangeFactor}px`;
                         layersRef.current[layer].style.height = `${layersRef.current[layer].offsetHeight * scaleChangeFactor}px`;
                         layersRef.current[layer].style.left = `${layersRef.current[layer].offsetLeft - dx}px`;
                         layersRef.current[layer].style.top = `${layersRef.current[layer].offsetTop - dy}px`;
 
-                        //console.table([layersRef.current[layer].style.width,layersRef.current[layer].style.height,layersRef.current[layer].style.left,layersRef.current[layer].style.top]);
 
                     }
                 }
@@ -1090,7 +1087,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         newLayers.push(`canvas${numOfLayers + 1}`);
         newLayers.push(BACKGROUND_CANVAS);
         
-        console.log("NEW CANVAS CREATED:",newLayers);
         setCurrentLayer(`canvas${numOfLayers + 1}`);
         setLayers(newLayers);
 

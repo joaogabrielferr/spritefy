@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { EventBus } from "../EventBus";
 import { StoreType, store } from "../store"
 import {drawOnSideBarCanvasType } from "../types";
-import { BACKGROUND_CANVAS, CANVAS_SIZE, DRAW_ON_SIDEBAR_CANVAS, SELECT_LAYER, TOP_CANVAS } from "../utils/constants";
+import { BACKGROUND_CANVAS, CANVAS_SIZE, CREATE_NEW_LAYER, DRAW_ON_SIDEBAR_CANVAS, SELECT_LAYER, TOP_CANVAS } from "../utils/constants";
 import './layers.css';
 
 export function Layers(){
@@ -13,14 +13,13 @@ export function Layers(){
     const setCurrentLayer = store((state : StoreType) => state.setCurrentLayer);
 
     useEffect(()=>{
-        
+    
         function drawOnCanvas(args : drawOnSideBarCanvasType)
         {  
     
             //TODO: Just iterate over the entire pixel matrix and redraw from scratch 
             const {canvas,pixelMatrix} = args;
             
-            console.log("canvas:",canvas,layers);
             if(!canvas || !pixelMatrix)return;
     
             const ctx = (document.getElementById(`${canvas}@sidebar`)as HTMLCanvasElement).getContext('2d')!;
@@ -52,14 +51,39 @@ export function Layers(){
         EventBus.getInstance().publish<string>(SELECT_LAYER,layer);
     }
 
+    function prepareLayerName(name : string)
+    {
+        return "LAYER " + name[name.length - 1];
+    }
+
+    function createNewLayerHandler()
+    {
+        EventBus.getInstance().publish(CREATE_NEW_LAYER);
+    }
 
     return <div className = "layers">
-        LAYERS
+        <div className="layersTitle">
+            LAYERS
+        </div>
+        <div className="createNewLayerWrapper">
+            <button className = "createNewLayerButton" onClick = {createNewLayerHandler}>
+                NEW LAYER
+                <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-square-rounded-plus" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M9 12h6"></path>
+                    <path d="M12 9v6"></path>
+                    <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z"></path>
+                </svg>
+            </button>
+        </div>
         {
             layers.map((layer)=>{
 
-                return (layer != TOP_CANVAS && layer != BACKGROUND_CANVAS) && <div onClick={()=>changeCurrentLayer(layer)} key = {layer} style = {{height:'60px',width:'100%',border:layer === currentLayer ? '2px solid black' : undefined}}>
+                return (layer != TOP_CANVAS && layer != BACKGROUND_CANVAS) && <div className = "layerWrapper" onClick={()=>changeCurrentLayer(layer)} key = {layer} style = {{height:'60px',width:'100%',border:layer === currentLayer ? '3px solid black' : undefined}}>
                     <canvas width={CANVAS_SIZE} height={CANVAS_SIZE} id = {`${layer}@sidebar`} style = {{width:'60px',height:'60px',backgroundColor:'white'}}></canvas>
+                    <div className="layerOptions">
+                    {prepareLayerName(layer)}
+                    </div>
                 </div>
 
             })
