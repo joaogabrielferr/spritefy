@@ -43,11 +43,30 @@
     justify-content: flex-start;
     align-items: center;
     margin-top:5px;
-    cursor: pointer;
+    background-color: rgb(121, 121, 121);
+    
+}
+
+.layerCanvas{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: start;
 }
 
 .layerOptions{
-    width: 100%;
+    width: 20%;
     height: 100%;
-    background-color: rgb(121, 121, 121);
+    background-color: rgb(48, 48, 48);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    cursor: default;
+}
+
+.layerOptions button{
+    border-style: none;
+    background-color: transparent;
+    cursor: pointer;
 }

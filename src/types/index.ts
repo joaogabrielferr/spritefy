@@ -16,6 +16,7 @@ export type ToolButton= {tool : toolsType, svg : JSX.Element,tooltip:string,tool
 
 export type PaletteType = {name : string,colors: string[],id : number};
 
+//Event bus types////////////////////
 export type Subscription = {
     unsubscribe: () => void;
 }
@@ -33,7 +34,15 @@ publish<T>(event: string, arg?: T): void;
 subscribe(event: string, callback: ()=> void) : Subscription;
 }
 
+///////////////////////////////////
+
 export type drawOnSideBarCanvasType = {
     canvas : string;
     pixelMatrix : Pixel[][];
+}
+
+export type Layer = {
+    canvas : string;
+    visible : boolean;
+    blocked : boolean;
 }

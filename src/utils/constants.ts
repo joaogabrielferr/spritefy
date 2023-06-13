@@ -6,13 +6,15 @@ export const CIRCLE_RADIUS_INCREASE_FACTOR = 0.3;
 export const UNDO_LAST_DRAW = 'undo-last-draw';
 export const REDO_LAST_dRAW = 'redo-last-draw';
 export const ERASING = 'erasing';
-export const TOP_CANVAS = 'topCanvas';
-export const BACKGROUND_CANVAS = 'backgroundCanvas';
+export const TOP_CANVAS = {canvas:'topCanvas',visible:true,blocked:false};
+export const BACKGROUND_CANVAS = {canvas:'backgroundCanvas',visible:true,blocked:false};
 
 export const BG_COLORS = ['#757474','#a1a1a1'];
 
-//events
+
+//pub sub events
 export const RESET_CANVAS_POSITION = 'reset-canvas-position';
 export const DRAW_ON_SIDEBAR_CANVAS = 'draw-on-sidebar-canvas';
 export const SELECT_LAYER = 'select-layer';
 export const CREATE_NEW_LAYER = 'create-new-canvas';
+export const TOOGLE_LAYER_VISIBILITY = 'toogle-layer-visibility';

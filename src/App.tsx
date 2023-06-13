@@ -155,11 +155,6 @@ function App() {
                 {!isMobile && 
                   <Sidebar width={'250px'} height={cssCanvasSize} marginTop={'30px'}>
                     <Layers></Layers>
-                    {/* <div style = {{width:'100%',height:'100%'}}>
-                      
-                      {/* <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
-                      <Palettes></Palettes> */}
-                    {/*</div> */}
                   </Sidebar>
                 }
 
@@ -172,9 +167,12 @@ function App() {
               
              
           </section>
-          {/* {
+          {
             !isMobile && <Tooltip id="my-tooltip" place="bottom" style={{zIndex:9999,backgroundColor:'#634cb8'}}/>
-          } */}
+          }
+          {
+            !isMobile && <Tooltip id="my-tooltip-layers" place="left" style={{zIndex:9999,backgroundColor:'#634cb8'}}/>
+          }
           <div className = "footer">
             {/* <button onClick = {handleResetCanvasPosition}>center canvas</button>
             <p id = "coordinates">{"[X:0,Y:0]"}</p> */}

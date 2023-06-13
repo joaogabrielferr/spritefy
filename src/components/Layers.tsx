@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import { EventBus } from "../EventBus";
 import { StoreType, store } from "../store"
-import {drawOnSideBarCanvasType } from "../types";
-import { BACKGROUND_CANVAS, CANVAS_SIZE, CREATE_NEW_LAYER, DRAW_ON_SIDEBAR_CANVAS, SELECT_LAYER, TOP_CANVAS } from "../utils/constants";
+import {Layer, drawOnSideBarCanvasType } from "../types";
+import { BACKGROUND_CANVAS, CANVAS_SIZE, CREATE_NEW_LAYER, DRAW_ON_SIDEBAR_CANVAS, SELECT_LAYER, TOOGLE_LAYER_VISIBILITY, TOP_CANVAS } from "../utils/constants";
 import './layers.css';
+import { Eye } from "../svg/Eye";
+import { EyeOff } from "../svg/EyeOff";
 
 export function Layers(){
     
@@ -46,9 +48,13 @@ export function Layers(){
 
     },[layers]);
 
-    function changeCurrentLayer(layer : string)
+    function changeCurrentLayer(layer : Layer)
     {
-        EventBus.getInstance().publish<string>(SELECT_LAYER,layer);
+        if(layer.visible)
+        {
+            EventBus.getInstance().publish<string>(SELECT_LAYER,layer.canvas);
+        }
+
     }
 
     function prepareLayerName(name : string)
@@ -59,6 +65,10 @@ export function Layers(){
     function createNewLayerHandler()
     {
         EventBus.getInstance().publish(CREATE_NEW_LAYER);
+    }
+
+    function toogleLayerVisibility(layer : Layer){
+            EventBus.getInstance().publish(TOOGLE_LAYER_VISIBILITY,layer.canvas);
     }
 
     return <div className = "layers">
@@ -79,10 +89,22 @@ export function Layers(){
         {
             layers.map((layer)=>{
 
-                return (layer != TOP_CANVAS && layer != BACKGROUND_CANVAS) && <div className = "layerWrapper" onClick={()=>changeCurrentLayer(layer)} key = {layer} style = {{height:'60px',width:'100%',border:layer === currentLayer ? '3px solid black' : undefined}}>
-                    <canvas width={CANVAS_SIZE} height={CANVAS_SIZE} id = {`${layer}@sidebar`} style = {{width:'60px',height:'60px',backgroundColor:'white'}}></canvas>
+                return (layer.canvas != TOP_CANVAS.canvas && layer.canvas != BACKGROUND_CANVAS.canvas) && 
+                <div className = "layerWrapper" key = {layer.canvas} style = {{height:'60px',width:'100%',border:layer.canvas === currentLayer ? `3px solid #261857` : undefined}}>
+                    <div 
+                    className = "layerCanvas" 
+                    onClick={()=>changeCurrentLayer(layer)}
+                    style = {{backgroundColor: !layer.visible ? '#5e1818' : undefined,cursor: layer.visible ? 'pointer' : 'default'}}
+                    data-tooltip-id={!layer.visible ? "my-tooltip-layers" : ""}
+                    data-tooltip-content={!layer.visible ? 'toogle the visibility of the layer before selecting it' : ""}  
+                    >
+                    <canvas width={CANVAS_SIZE} height={CANVAS_SIZE} id = {`${layer.canvas}@sidebar`} style = {{width:'60px',height:'60px',backgroundColor:'white'}}></canvas>
+                    {prepareLayerName(layer.canvas)}
+                    </div>
                     <div className="layerOptions">
-                    {prepareLayerName(layer)}
+                       <span>
+                        <button onClick ={()=>toogleLayerVisibility(layer)}>{layer.visible ? <Eye/> : <EyeOff/>}</button>
+                       </span>
                     </div>
                 </div>
 

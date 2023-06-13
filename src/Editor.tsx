@@ -11,7 +11,8 @@ TOP_CANVAS,
 BACKGROUND_CANVAS,
 DRAW_ON_SIDEBAR_CANVAS,
 SELECT_LAYER,
-CREATE_NEW_LAYER
+CREATE_NEW_LAYER,
+TOOGLE_LAYER_VISIBILITY
 }
  from './utils/constants';
 import Mouse from './scene/Mouse';
@@ -22,7 +23,7 @@ import {redoLastDraw,undoLastDraw } from './Tools/UndoRedo';
 import { PaintBucket } from './Tools/PaintBucket';
 import { Dropper } from './Tools/Dropper';
 import { Line } from './Tools/Line';
-import { Pixel, drawOnSideBarCanvasType } from './types';
+import { Layer, Pixel, drawOnSideBarCanvasType } from './types';
 import { removeDraw } from './helpers/RemoveDraw';
 import { cleanDraw } from './helpers/CleanDraw';
 import { translateDrawToMainCanvas } from './helpers/TranslateDrawToMainCanvas';
@@ -122,8 +123,8 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         outerDiv = outerDivRef.current!;
 
         canvas = layersRef.current![currentLayer];
-        topCanvas = layersRef.current![TOP_CANVAS];
-        backgroundCanvas = layersRef.current![BACKGROUND_CANVAS];
+        topCanvas = layersRef.current![TOP_CANVAS.canvas];
+        backgroundCanvas = layersRef.current![BACKGROUND_CANVAS.canvas];
 
         ctx = canvas.getContext('2d')!;
         topCtx = topCanvas.getContext("2d")!;
@@ -224,6 +225,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         const resetCanvasSubscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION,resetCanvasPosition);
         const selectCanvasSubscription = EventBus.getInstance().subscribe(SELECT_LAYER,selectLayer);
         const createNewCanvasSubscription = EventBus.getInstance().subscribe(CREATE_NEW_LAYER,createNewLayer);
+        const toogleLayerVisibilitySubscription = EventBus.getInstance().subscribe(TOOGLE_LAYER_VISIBILITY,toogleLayerVisibility);
 
         function checkKeyCombinations(event : KeyboardEvent)
         {
@@ -245,10 +247,11 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             resetCanvasSubscription.unsubscribe();
             selectCanvasSubscription.unsubscribe();
             createNewCanvasSubscription.unsubscribe();
+            toogleLayerVisibilitySubscription.unsubscribe();
             document.removeEventListener('keydown',checkKeyCombinations);
         }
 
-    },[currentLayer,selectLayer]);
+    },[currentLayer,selectLayer,createNewLayer,toogleLayerVisibility]);
 
 
 
@@ -1072,18 +1075,18 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     
         const layersCopy = [...layers];
 
-        const newLayers = [];
+        const newLayers : Layer[] = [];
 
-        for(const canvas of layersCopy)
+        for(const layer of layersCopy)
         {
-            if(canvas !== TOP_CANVAS && canvas != BACKGROUND_CANVAS)
+            if(layer.canvas !== TOP_CANVAS.canvas && layer.canvas != BACKGROUND_CANVAS.canvas)
             {
-                newLayers.push(canvas);
+                newLayers.push(layer);
             }
         }
 
         newLayers.push(TOP_CANVAS);
-        newLayers.push(`canvas${numOfLayers + 1}`);
+        newLayers.push({canvas:`canvas${numOfLayers + 1}`,visible:true,blocked:false});
         newLayers.push(BACKGROUND_CANVAS);
         
         setCurrentLayer(`canvas${numOfLayers + 1}`);
@@ -1104,19 +1107,31 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         } as SceneState;
     }
 
-    function swapLayers(canvas1 : string,canvas2 : string)
+    function toogleLayerVisibility(canvas : string)
     {
-        
-        //
+        const newLayers = [...layers];
+
+        for(const layer of newLayers)
+        {
+            if(layer.canvas === canvas)
+            {
+                layer.visible = !layer.visible;
+            }
+        }
+
+        setLayers(newLayers);
 
     }
 
     function selectLayer(canvas : string)
     {
         const newLayers = [...layers];
-        newLayers.splice(newLayers.indexOf(TOP_CANVAS),1);
 
-        newLayers.splice(newLayers.indexOf(canvas),0,TOP_CANVAS);
+        //remove top canvas
+        newLayers.splice(newLayers.findIndex((layer : Layer) => TOP_CANVAS.canvas === layer.canvas),1);
+
+        //insert top canvas before selected canvas
+        newLayers.splice(newLayers.findIndex((layer : Layer)=>layer.canvas === canvas),0,TOP_CANVAS);
 
         currentSceneIndex = scenes.current.findIndex((obj)=>obj.canvas === canvas);
 
@@ -1142,15 +1157,13 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
                 {
                     layers.map((layer,index)=><canvas
-                     ref = {handleLayersRef(layer)} 
+                     ref = {handleLayersRef(layer.canvas)} 
                      className = "canvases" 
-                     style = {{zIndex: layers.length - index - 1}}
-                     key = {layer}
-                     id = {layer}
+                     style = {{zIndex: layers.length - index - 1,display: layer.visible ? 'block' : 'none'}}
+                     key = {layer.canvas}
+                     id = {layer.canvas}
                      ></canvas>)
                 }
-            {/* <button style = {{position:'absolute',top:0,left:0}} onClick = {()=>selectLayer(currentLayer === 'canvas1' ? 'canvas2' : 'canvas1')}>change canvas</button> */}
-            <button style = {{position:'absolute',top:0,left:100}} onClick = {createNewLayer}>create canvas</button>
           </div>
 
 
