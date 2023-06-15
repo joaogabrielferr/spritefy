@@ -1,8 +1,8 @@
-import Mouse from "../scene/Mouse.js";
-import Scene from "../scene/Scene.js";
-import { bresenhamsAlgorithm } from "../scene/BuildPath.js";
-import { Pixel } from "../types/index.js";
-import { ERASING } from "../utils/constants.js";
+import Mouse from "../scene/Mouse";
+import Scene from "../scene/Scene";
+import { bresenhamsAlgorithm } from "../scene/buildPath"
+import { Pixel } from "../types/index";
+import { ERASING } from "../utils/constants";
 
 export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_size : number, display_size : number, ctx : CanvasRenderingContext2D, penSize : number){
   
@@ -27,7 +27,6 @@ export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_s
     //if pixel is empty (not painted) dont do anything
     if (pixel != null) {
 
-        console.log(!isPixelAlreadyPaintedInCurrentDraw(pixel, scene) && !empty(pixel));
           if(!isPixelAlreadyPaintedInCurrentDraw(pixel, scene) && !empty(pixel))
           {
               pixel.colorStack.push(ERASING);

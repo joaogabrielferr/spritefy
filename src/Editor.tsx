@@ -50,7 +50,6 @@ const mouse = new Mouse();
 
 let pixel_size : number;
 let display_size : number;
-let backgroundTileSize : number;
 
 let currentScale = 1;
 
@@ -109,6 +108,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     const firstInit = useRef(false); //for development
     
 
+    //TODO: refactor this shit
     useEffect(()=>{
         
         pixel_size = 1;
@@ -127,9 +127,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         //if CANVAS_SIZE is a prime number
         if(backgroundTileSize === CANVAS_SIZE)
         bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
-        
-        // backgroundTileSize = 1;
-        // penSize = pixel_size;
+        console.log(bgTileSize);
 
         setBackgroundTileSize(bgTileSize);
         
@@ -156,16 +154,18 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         if(!firstInit.current)
         {
-            frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,backgroundTileSize);
+            frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,bgTileSize);
             firstInit.current = true;
         }
 
-        draw();
+        draw(bgTileSize);
+        EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix:frames.current[currentFrameIndex].scene.pixels});
+
     
     //eslint-disable-next-line react-hooks/exhaustive-deps
-    },[]);
+    },[setBackgroundTileSize]);
 
-
+    console.log(backgroundTileSize);
     useEffect(()=>{
    
         if(isMobile)
@@ -211,38 +211,11 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     //     }
     // }
 
-    function setUpVariables(){
-
-
-        pixel_size = 1;
-        display_size = CANVAS_SIZE;
-
-        
-        //TODO: allow user to toggle the option to have a bg tile for every pixel (backgroundTileSize === 1)
-        const factors = [];
-        for(let i = 1;i<=CANVAS_SIZE;i++)
-        {
-            if(CANVAS_SIZE%i === 0)factors.push(i);
-        }
-        
-        const mid = Math.floor(factors.length/2);
-        let bgTileSize = factors[mid];
-
-        //if CANVAS_SIZE is a prime number
-        if(backgroundTileSize === CANVAS_SIZE)
-        bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
-        
-        // backgroundTileSize = 1;
-        // penSize = pixel_size;
-
-        setBackgroundTileSize(bgTileSize);
-
-    }
 
 
     useEffect(()=>{
 
-        // const resetCanvasSubscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION,resetCanvasPosition);
+        const resetCanvasSubscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION,resetCanvasPosition);
         // const selectCanvasSubscription = EventBus.getInstance().subscribe(SELECT_LAYER,selectLayer);
         // const createNewCanvasSubscription = EventBus.getInstance().subscribe(CREATE_NEW_LAYER,createNewLayer);
         // const toogleLayerVisibilitySubscription = EventBus.getInstance().subscribe(TOOGLE_LAYER_VISIBILITY,toogleLayerVisibility);
@@ -264,7 +237,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         document.addEventListener('keydown',checkKeyCombinations);
         
         return ()=>{
-            // resetCanvasSubscription.unsubscribe();
+            resetCanvasSubscription.unsubscribe();
             // selectCanvasSubscription.unsubscribe();
             // createNewCanvasSubscription.unsubscribe();
             // toogleLayerVisibilitySubscription.unsubscribe();
@@ -277,36 +250,40 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
 
     
-    const draw = useCallback(()=>{
+    // const draw = useCallback((bgTileSize : number)=>{
 
+    function draw(bgTileSize : number){
+
+    console.log("draw:",bgTileSize);
+    let firstInRow = 1;
+    let a = firstInRow;
+
+    //draw background
+    for (let i = 0; i <= display_size; i += pixel_size * bgTileSize) {
+        if (firstInRow) a = 0;
+        else a = 1;
+        firstInRow = firstInRow ? 0 : 1;
+        for (let j = 0; j <= display_size; j += pixel_size * bgTileSize) {
+            bgCtx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
+            bgCtx.fillRect(i, j, pixel_size * bgTileSize, pixel_size * bgTileSize);
+            a = a ? 0 : 1;
+        }
+    }
     
-        let firstInRow = 1;
-        let a = firstInRow;
     
-        //draw background
-        for (let i = 0; i <= display_size; i += pixel_size * backgroundTileSize) {
-            if (firstInRow) a = 0;
-            else a = 1;
-            firstInRow = firstInRow ? 0 : 1;
-            for (let j = 0; j <= display_size; j += pixel_size * backgroundTileSize) {
-                bgCtx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
-                bgCtx.fillRect(i, j, pixel_size * backgroundTileSize, pixel_size * backgroundTileSize);
-                a = a ? 0 : 1;
+    //draw pixel matrix (when loading from indexedDB)
+    for (let i = 0; i < frames.current[currentFrameIndex].scene.pixels.length; i++) {
+        for (let j = 0; j < frames.current[currentFrameIndex].scene.pixels[i].length; j++) {
+            if (!frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.isEmpty()) {
+                ctx.fillStyle = frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.top()!;
+                ctx.fillRect(frames.current[currentFrameIndex].scene.pixels[i][j].x1, frames.current[currentFrameIndex].scene.pixels[i][j].y1, pixel_size, pixel_size);
             }
         }
-        
-        
-        //draw pixel matrix (when loading from indexedDB)
-        for (let i = 0; i < frames.current[currentFrameIndex].scene.pixels.length; i++) {
-            for (let j = 0; j < frames.current[currentFrameIndex].scene.pixels[i].length; j++) {
-                if (!frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.isEmpty()) {
-                    ctx.fillStyle = frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.top()!;
-                    ctx.fillRect(frames.current[currentFrameIndex].scene.pixels[i][j].x1, frames.current[currentFrameIndex].scene.pixels[i][j].y1, pixel_size, pixel_size);
-                }
-            }
-        }
+    }
  
-    },[backgroundTileSize])
+    }
+
+
 
     function handleFirstClick(){
 
@@ -1028,13 +1005,18 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         //         layersRef.current[layer].style.top = "45%";
         //     }
         // }
-
         canvas.style.width = `${originalCanvasWidth}px`;
         canvas.style.height = `${originalCanvasWidth}px`;
+        canvas.style.left = "45%";
+        canvas.style.top = "45%";
+        topCanvas.style.width = `${originalCanvasWidth}px`;
         topCanvas.style.height = `${originalCanvasWidth}px`;
-        topCanvas.style.height = `${originalCanvasWidth}px`;
+        topCanvas.style.left = "45%";
+        topCanvas.style.top = "45%";
+        backgroundCanvas.style.width = `${originalCanvasWidth}px`;
         backgroundCanvas.style.height = `${originalCanvasWidth}px`;
-        backgroundCanvas.style.height = `${originalCanvasWidth}px`;
+        backgroundCanvas.style.left = "45%";
+        backgroundCanvas.style.top = "45%";
 
         
         currentScale = 1;

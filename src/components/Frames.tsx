@@ -1,8 +1,8 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { EventBus } from "../EventBus";
 import { StoreType, store } from "../store"
 import {Layer, drawOnSideBarCanvasType } from "../types";
-import { BACKGROUND_CANVAS, CANVAS_SIZE, CREATE_NEW_LAYER, DRAW_ON_SIDEBAR_CANVAS, SELECT_LAYER, TOOGLE_LAYER_VISIBILITY, TOP_CANVAS } from "../utils/constants";
+import { BACKGROUND_CANVAS, BG_COLORS, CANVAS_SIZE, CREATE_NEW_LAYER, DRAW_ON_SIDEBAR_CANVAS, SELECT_LAYER, TOOGLE_LAYER_VISIBILITY, TOP_CANVAS } from "../utils/constants";
 import './frames.css';
 import { Eye } from "../svg/Eye";
 import { EyeOff } from "../svg/EyeOff";
@@ -18,18 +18,28 @@ export function Frames(){
     const setCurrentFrame = store((state : StoreType) => state.setCurrentFrame);
 
     useEffect(()=>{
-    
-        const subscription = EventBus.getInstance().subscribe(DRAW_ON_SIDEBAR_CANVAS,drawOnCanvas);
+        const ctx = (document.getElementById(`frame1@sidebar`)as HTMLCanvasElement).getContext('2d')!;
         
-        return ()=>{
-            subscription.unsubscribe();
-        }
+        ctx.clearRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
 
+        let firstInRow = 1;
+        let a = firstInRow;
+
+         //draw background
+         for (let i = 0; i <= CANVAS_SIZE; i += 8) {
+            if (firstInRow) a = 0;
+            else a = 1;
+            firstInRow = firstInRow ? 0 : 1;
+            for (let j = 0; j <= CANVAS_SIZE; j += 8) {
+                ctx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
+                ctx.fillRect(i, j, 10, 10);
+                a = a ? 0 : 1;
+            }
+        }
     },[]);
 
-    function drawOnCanvas(args : drawOnSideBarCanvasType)
+    const drawOnCanvas = useCallback((args : drawOnSideBarCanvasType)=>
     {  
-
         const {frame,pixelMatrix} = args;
         
         if(!frame || !pixelMatrix)return;
@@ -37,6 +47,21 @@ export function Frames(){
         const ctx = (document.getElementById(`${frame}@sidebar`)as HTMLCanvasElement).getContext('2d')!;
         
         ctx.clearRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
+
+        let firstInRow = 1;
+        let a = firstInRow;
+
+         //draw background
+         for (let i = 0; i <= CANVAS_SIZE; i += 8) {
+            if (firstInRow) a = 0;
+            else a = 1;
+            firstInRow = firstInRow ? 0 : 1;
+            for (let j = 0; j <= CANVAS_SIZE; j += 8) {
+                ctx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
+                ctx.fillRect(i, j, 10, 10);
+                a = a ? 0 : 1;
+            }
+        }
 
         for (let i = 0; i < pixelMatrix.length; i++) {
             for (let j = 0; j < pixelMatrix[i].length; j++) {
@@ -46,12 +71,19 @@ export function Frames(){
                 }
             }
         }
+    },[]);
+    
+    useEffect(()=>{
 
+        const subscription = EventBus.getInstance().subscribe(DRAW_ON_SIDEBAR_CANVAS,drawOnCanvas);
         
-        
-    }
+        return ()=>{
+            subscription.unsubscribe();
+        }
 
-
+    },[drawOnCanvas]);
+    
+    
     // function changeCurrentLayer(layer : Layer)
     // {
     //     if(layer.visible)
@@ -96,9 +128,9 @@ export function Frames(){
                 // return (frame != TOP_CANVAS && frame != BACKGROUND_CANVAS) && 
                 return <div className = "frameWrapper" key = {frame} style = {{height:'90px',width:'100%',border:frame === currentFrame ? `3px solid #261857` : undefined}}>
                     <div 
-                    className = "frameCanvas" 
+                    className = "frameCanvasWrapper" 
                     >
-                    <canvas width={CANVAS_SIZE} height={CANVAS_SIZE} id = {`${frame}@sidebar`} style = {{width:'90px',height:'90px',backgroundColor:'white'}}></canvas>
+                    <canvas className = "frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id = {`${frame}@sidebar`} style = {{width:'90px',height:'90px'}}></canvas>
                     {prepareFrameName(frame)}
                     </div>
                     <div className="frameOptions">
