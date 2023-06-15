@@ -1,6 +1,5 @@
 import { create } from "zustand";
-import { Layer, toolsType } from "../types";
-import { BACKGROUND_CANVAS, TOP_CANVAS } from "../utils/constants";
+import { toolsType } from "../types";
 
 
 export type StoreType = {
@@ -12,9 +11,11 @@ export type StoreType = {
     xMirror : boolean;
     yMirror : boolean;
 
-    layers : Layer[];
+    //layers : Layer[];
 
-    currentLayer : string;
+    frames : string[]; //list of the names of all frames created
+
+    currentFrame : string;
 
     setSelectedColor : (color : string) => void,
     setSelectedTool : (tool : toolsType) => void,
@@ -23,8 +24,9 @@ export type StoreType = {
     toogleOneToOneRatioRectangle : () => void,
     toogleXMirror : () => void,
     toogleYMirror : () => void,
-    setLayers : (newLayers : Layer[]) => void,
-    setCurrentLayer : (newLayer : string) => void
+    //setLayers : (newLayers : Layer[]) => void,
+    setCurrentFrame : (newLayer : string) => void,
+    setFrames : (newFrames : string[]) => void
 }
 
 
@@ -36,8 +38,9 @@ export const store = create<StoreType>()((set)=>({
     oneToOneRatioRectangle : false,
     xMirror : false,
     yMirror : false,
-    layers : [TOP_CANVAS,{canvas:'canvas1',visible:true,blocked:false},BACKGROUND_CANVAS],
-    currentLayer : 'canvas1',
+    //layers : [TOP_CANVAS,{canvas:'canvas1',visible:true,blocked:false},BACKGROUND_CANVAS],
+    frames : ['frame1'],
+    currentFrame : 'frame1',
     setSelectedColor : (color : string) => set(()=> ({selectedColor : color})),
     setSelectedTool : (tool : toolsType) => set(()=> ({selectedTool : tool})),
     setPenSize : (size : number) => set(() => ({penSize : size,previousPenSize : size})),
@@ -45,6 +48,7 @@ export const store = create<StoreType>()((set)=>({
     toogleOneToOneRatioRectangle : () => set((state : StoreType)=> ({oneToOneRatioRectangle : !state.oneToOneRatioRectangle}) ),
     toogleXMirror : () => set((state : StoreType)=>({xMirror : !state.xMirror})),
     toogleYMirror : () => set((state : StoreType)=>({yMirror : !state.yMirror})),
-    setLayers : (newLayers : Layer[]) => set(()=>({layers : newLayers})),
-    setCurrentLayer : (newLayer : string) => set(()=>({currentLayer : newLayer})),
+    //setLayers : (newLayers : Layer[]) => set(()=>({layers : newLayers})),
+    setCurrentFrame : (newFrame : string) => set(()=>({currentFrame : newFrame})),
+    setFrames : (newFrames : string[]) => set((state : StoreType) => ({frames : newFrames}))
 }));

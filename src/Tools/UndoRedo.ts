@@ -4,35 +4,25 @@
 //if i press ctrz + y, select the pixels at the top of the redo stack, and add then to the canvas
 //after that, i put these pixels in the undo stack
 
-import { Pixel } from "../types";
-import { Stack } from "../utils/Stack";
+import { Frame, Pixel } from "../types";
 import { ERASING } from "../utils/constants";
 import { cleanDraw } from "../helpers/CleanDraw";
-import Scene from "../scene/Scene";
 
 
-interface SceneState{
-  canvas : string;
-  scene : Scene;
-  undoStack : Stack<Pixel[][]>;
-  redoStack: Stack<[Pixel,string | undefined][]>;
-}
+export function undoLastDraw(pixel_size : number, ctx : CanvasRenderingContext2D,frame : Frame){
 
+  if (frame.undoStack.isEmpty()) return;
 
-export function undoLastDraw(pixel_size : number, ctx : CanvasRenderingContext2D,scene : SceneState){
-
-  if (scene.undoStack.isEmpty()) return;
-
-  const draw = scene.undoStack.top();
+  const draw = frame.undoStack.top();
   if(!draw)return;
-  scene.undoStack.pop();
+  frame.undoStack.pop();
   const clean = cleanDraw(draw);
 
 
   const redo : [Pixel,string | undefined][] = [];
 
   for (let pixel of clean) {
-    //const currPixel = scene.pixels[pixel.i][pixel.j];
+    //const currPixel = frame.pixels[pixel.i][pixel.j];
 
     redo.push([pixel,pixel.colorStack.top()]);
 
@@ -59,16 +49,16 @@ export function undoLastDraw(pixel_size : number, ctx : CanvasRenderingContext2D
     // }
   }
 
-  scene.redoStack.push(redo);
+  frame.redoStack.push(redo);
 
 }
 
-export function redoLastDraw(ctx : CanvasRenderingContext2D,pixel_size : number,scene : SceneState)
+export function redoLastDraw(ctx : CanvasRenderingContext2D,pixel_size : number,frame : Frame)
 {
-  const draw = scene.redoStack.top();
+  const draw = frame.redoStack.top();
   if(!draw)return;
 
-  scene.redoStack.pop();
+  frame.redoStack.pop();
 
   const undo : Pixel[] = [];
 
@@ -92,7 +82,7 @@ export function redoLastDraw(ctx : CanvasRenderingContext2D,pixel_size : number,
 
   }
   
-  scene.undoStack.push([undo]);
+  frame.undoStack.push([undo]);
 
 }
 

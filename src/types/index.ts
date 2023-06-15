@@ -1,3 +1,4 @@
+import Scene from "../scene/Scene";
 import { Stack } from "../utils/Stack";
 
 export type Pixel = {
@@ -37,8 +38,15 @@ subscribe(event: string, callback: ()=> void) : Subscription;
 ///////////////////////////////////
 
 export type drawOnSideBarCanvasType = {
-    canvas : string;
+    frame : string;
     pixelMatrix : Pixel[][];
+}
+
+export type Frame = {
+    name : string;
+    scene : Scene;
+    undoStack : Stack<Pixel[][]>;
+    redoStack:  Stack<[Pixel,string | undefined][]>
 }
 
 export type Layer = {

@@ -21,7 +21,7 @@ import { RESET_CANVAS_POSITION } from "./utils/constants";
 import { LeftArrow } from "./svg/LeftArrow";
 import { RightArrow } from "./svg/RightArrow";
 import { store,StoreType } from "./store";
-import { Layers } from "./components/Layers";
+import { Frames } from "./components/Frames";
 
 
 
@@ -38,7 +38,8 @@ const ToolButtons = [
 ] as ToolButton[];
 
 
-//TODO: Add layer functionality
+//TODO: Add frame functionality
+//TODO: add pixel_size and display_size as global states (and stop using CANVAS_SIZE)
 //TODO: add eslint to project
 //TODO: add styled components
 //TODO: save image (check if its possible to save pixel matrix, if not generate an image and save it)
@@ -154,7 +155,7 @@ function App() {
                  {/* right sidebar */}
                 {!isMobile && 
                   <Sidebar width={'250px'} height={cssCanvasSize} marginTop={'30px'}>
-                    <Layers></Layers>
+                    <Frames></Frames>
                   </Sidebar>
                 }
 
