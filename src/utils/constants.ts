@@ -15,6 +15,6 @@ export const BG_COLORS = ['#757474','#a1a1a1'];
 //pub sub events
 export const RESET_CANVAS_POSITION = 'reset-canvas-position';
 export const DRAW_ON_SIDEBAR_CANVAS = 'draw-on-sidebar-canvas';
-export const SELECT_LAYER = 'select-layer';
-export const CREATE_NEW_LAYER = 'create-new-canvas';
-export const TOOGLE_LAYER_VISIBILITY = 'toogle-layer-visibility';
+export const SELECT_FRAME = 'select-layer';
+export const CREATE_NEW_FRAME = 'create-new-frame';
+export const DELETE_FRAME = 'delete-frame';

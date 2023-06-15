@@ -13,7 +13,8 @@ export type StoreType = {
 
     //layers : Layer[];
 
-    frames : string[]; //list of the names of all frames created
+    framesList : string[]; //list of the names of all frames created
+    
     currentFrame : string;
 
     backgroundTileSize : number;
@@ -27,7 +28,7 @@ export type StoreType = {
     toogleYMirror : () => void,
     //setLayers : (newLayers : Layer[]) => void,
     setCurrentFrame : (newLayer : string) => void,
-    setFrames : (newFrames : string[]) => void,
+    setFramesList : (newFrames : string[]) => void,
     setBackgroundTileSize : (newSzie : number) => void
 }
 
@@ -41,9 +42,9 @@ export const store = create<StoreType>()((set)=>({
     xMirror : false,
     yMirror : false,
     //layers : [TOP_CANVAS,{canvas:'canvas1',visible:true,blocked:false},BACKGROUND_CANVAS],
-    frames : ['frame1'],
+    framesList : ['frame1'],
     currentFrame : 'frame1',
-    backgroundTileSize : 10,
+    backgroundTileSize : 1,
     setSelectedColor : (color : string) => set(()=> ({selectedColor : color})),
     setSelectedTool : (tool : toolsType) => set(()=> ({selectedTool : tool})),
     setPenSize : (size : number) => set(() => ({penSize : size,previousPenSize : size})),
@@ -53,6 +54,6 @@ export const store = create<StoreType>()((set)=>({
     toogleYMirror : () => set((state : StoreType)=>({yMirror : !state.yMirror})),
     //setLayers : (newLayers : Layer[]) => set(()=>({layers : newLayers})),
     setCurrentFrame : (newFrame : string) => set(()=>({currentFrame : newFrame})),
-    setFrames : (newFrames : string[]) => set(() => ({frames : newFrames})),
+    setFramesList : (newFrames : string[]) => set(() => ({framesList : newFrames})),
     setBackgroundTileSize : (newSize : number) => set(() => ({backgroundTileSize : newSize}))
 }));

@@ -1,4 +1,4 @@
-import {useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,Touch, useState, useCallback} from 'react';
+import {useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,Touch, useCallback} from 'react';
 import './editor.css';
 import { 
 CANVAS_SIZE,
@@ -7,12 +7,10 @@ BG_COLORS,
 SCALE_FACTOR,
 CIRCLE_RADIUS_INCREASE_FACTOR,
 RESET_CANVAS_POSITION,
-TOP_CANVAS,
-BACKGROUND_CANVAS,
 DRAW_ON_SIDEBAR_CANVAS,
-SELECT_LAYER,
-CREATE_NEW_LAYER,
-TOOGLE_LAYER_VISIBILITY
+CREATE_NEW_FRAME,
+SELECT_FRAME,
+DELETE_FRAME
 }
  from './utils/constants';
 import Mouse from './scene/Mouse';
@@ -49,6 +47,7 @@ let outerDiv : HTMLDivElement;
 const mouse = new Mouse();
 
 let pixel_size : number;
+
 let display_size : number;
 
 let currentScale = 1;
@@ -65,21 +64,23 @@ let pinchTouchStartTimeOut : number | undefined = undefined;
 
 let currentFrameIndex = 0;
 
+let bgTileSize = 1;
+
 //////////////////////////////////////////////////////////
 
 export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element{
     
-    //const layers = store((state : StoreType) => state.layers);
-    //const setLayers = store((state : StoreType) => state.setLayers);
+
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const topCanvasRef = useRef<HTMLCanvasElement>(null);
     const backgroundCanvasRef = useRef<HTMLCanvasElement>(null);
 
     //persisting frames between re renders
-    //update to frames doesnt generate re renders
+    //updatiing frames doesnt generate re renders
     const frames = useRef<Frame[]>(
         [
+        //framesList is initialized with ['frame1']
         {
             name:'frame1',
             scene: new Scene(),
@@ -98,10 +99,14 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     const xMirror = store((state : StoreType) => state.xMirror);
     const yMirror = store((state : StoreType) => state.yMirror);
 
+
+    const framesList = store((state : StoreType) => state.framesList);
+    const setFramesList = store((state : StoreType) => state.setFramesList);
+
     const currentFrame = store((state : StoreType) => state.currentFrame);
+    const setCurrentFrame = store((state : StoreType) => state.setCurrentFrame);
 
     const backgroundTileSize = store((state : StoreType) => state.backgroundTileSize);
-    const setBackgroundTileSize = store((state : StoreType) => state.setBackgroundTileSize);
 
     const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvas
     
@@ -122,15 +127,12 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }
         
         const mid = Math.floor(factors.length/2);
-        let bgTileSize = factors[mid];
+        bgTileSize = factors[mid];
 
         //if CANVAS_SIZE is a prime number
         if(backgroundTileSize === CANVAS_SIZE)
         bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
-        console.log(bgTileSize);
 
-        setBackgroundTileSize(bgTileSize);
-        
         outerDiv = outerDivRef.current!;
 
         canvas = canvasRef.current!;
@@ -159,13 +161,12 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }
 
         draw(bgTileSize);
-        EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix:frames.current[currentFrameIndex].scene.pixels});
+        //EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix:frames.current[currentFrameIndex].scene.pixels});
 
     
     //eslint-disable-next-line react-hooks/exhaustive-deps
-    },[setBackgroundTileSize]);
+    },[]);
 
-    console.log(backgroundTileSize);
     useEffect(()=>{
    
         if(isMobile)
@@ -195,9 +196,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }
 
         resetCanvasPosition();
-        
-        //originalSize = editorSize - 50;
-
+    
 
     },[cssCanvasSize,isMobile]);
 
@@ -211,14 +210,76 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     //     }
     // }
 
+    const addNewFrame = useCallback(()=>
+    {
+
+        const newFrame = createNewFrame();
+
+        frames.current.push(newFrame);
+
+        currentFrameIndex = frames.current.length - 1;
+        
+        console.log("created new frame, new index:",currentFrameIndex);
+
+        frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,backgroundTileSize);
+
+        setCurrentFrame(newFrame.name);
+
+        setFramesList([...framesList,newFrame.name]);
+
+        resetCanvasPosition();
+
+        draw(bgTileSize);
+
+    },[backgroundTileSize, framesList, setCurrentFrame, setFramesList]);
+
+
+    const selectFrame = useCallback((_frame : string)=>
+    {
+        console.log("before selecting frame, index:",currentFrameIndex,"frame:",_frame);
+        currentFrameIndex = frames.current.findIndex((frame)=>frame.name === _frame);
+        console.log("after selecting frame,index:",currentFrameIndex,"frames:",frames.current);
+
+        resetCanvasPosition();
+
+        setCurrentFrame(_frame);
+
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[]);
+
+
+    const deleteFrame = useCallback((_frame : string)=>
+    {
+        const newFramesList = framesList.filter((frame) => frame !== _frame);
+
+        const frameToRemoveIndex = frames.current.findIndex((frame) => frame.name === _frame);
+
+        frames.current.splice(frameToRemoveIndex,1);
+
+        if(currentFrameIndex === frameToRemoveIndex)
+        {
+            currentFrameIndex = 0;
+            setCurrentFrame(frames.current[currentFrameIndex].name);
+        }else if(currentFrameIndex > frameToRemoveIndex)
+        {
+            currentFrameIndex = frames.current.length - 1;
+            setCurrentFrame(frames.current[frames.current.length - 1].name);
+        }
+
+
+        setFramesList(newFramesList);
+
+    },[framesList, setCurrentFrame, setFramesList]);
 
 
     useEffect(()=>{
 
         const resetCanvasSubscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION,resetCanvasPosition);
-        // const selectCanvasSubscription = EventBus.getInstance().subscribe(SELECT_LAYER,selectLayer);
-        // const createNewCanvasSubscription = EventBus.getInstance().subscribe(CREATE_NEW_LAYER,createNewLayer);
-        // const toogleLayerVisibilitySubscription = EventBus.getInstance().subscribe(TOOGLE_LAYER_VISIBILITY,toogleLayerVisibility);
+        const selectFrameSubscription = EventBus.getInstance().subscribe(SELECT_FRAME,selectFrame);
+        const createNewFrameSubscription = EventBus.getInstance().subscribe(CREATE_NEW_FRAME,addNewFrame);
+        const deleteFrameSubscription = EventBus.getInstance().subscribe(DELETE_FRAME,deleteFrame);
+        draw(bgTileSize);
 
         function checkKeyCombinations(event : KeyboardEvent)
         {
@@ -238,13 +299,14 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         
         return ()=>{
             resetCanvasSubscription.unsubscribe();
-            // selectCanvasSubscription.unsubscribe();
-            // createNewCanvasSubscription.unsubscribe();
-            // toogleLayerVisibilitySubscription.unsubscribe();
+            selectFrameSubscription.unsubscribe();
+            createNewFrameSubscription.unsubscribe();
+            deleteFrameSubscription.unsubscribe();
             document.removeEventListener('keydown',checkKeyCombinations);
         }
 
-    },[currentFrame]);
+    },[addNewFrame, currentFrame, deleteFrame, selectFrame]);
+
 
 
 
@@ -254,7 +316,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
     function draw(bgTileSize : number){
 
-    console.log("draw:",bgTileSize);
     let firstInRow = 1;
     let a = firstInRow;
 
@@ -270,13 +331,17 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }
     }
     
+
+    ctx.clearRect(0,0,display_size,display_size);
     
-    //draw pixel matrix (when loading from indexedDB)
+    //draw pixel matrix
     for (let i = 0; i < frames.current[currentFrameIndex].scene.pixels.length; i++) {
         for (let j = 0; j < frames.current[currentFrameIndex].scene.pixels[i].length; j++) {
             if (!frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.isEmpty()) {
                 ctx.fillStyle = frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.top()!;
                 ctx.fillRect(frames.current[currentFrameIndex].scene.pixels[i][j].x1, frames.current[currentFrameIndex].scene.pixels[i][j].y1, pixel_size, pixel_size);
+                
+
             }
         }
     }
@@ -1020,6 +1085,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         
         currentScale = 1;
+        console.log(currentFrameIndex);
         frames.current[currentFrameIndex].scene.zoomAmount = 0;
     }
     
@@ -1079,106 +1145,17 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     }
     
 
-    function addNewFrame()
-    {
-        const numOfFrames = frames.current.length;
-        frames.current.push(createNewFrame());
-        currentFrameIndex = frames.current.findIndex((obj)=>obj.name === `frame${numOfFrames + 1}`);
-
-        frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,backgroundTileSize);
-
-    }
-
-    // function createNewLayer()
-    // {
-    //     const numOfLayers = layers.length - 2;
-
-    //     frames.current.push(createNewScene());
-        
-    //     currentFrameIndex = frames.current.findIndex((obj)=>obj.canvas === `canvas${numOfLayers + 1}`);
-
-    //     frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,backgroundTileSize);
-    
-    //     const layersCopy = [...layers];
-
-    //     const newLayers : Layer[] = [];
-
-    //     for(const layer of layersCopy)
-    //     {
-    //         if(layer.canvas !== TOP_CANVAS.canvas && layer.canvas != BACKGROUND_CANVAS.canvas)
-    //         {
-    //             newLayers.push(layer);
-    //         }
-    //     }
-
-    //     newLayers.push(TOP_CANVAS);
-    //     newLayers.push({canvas:`canvas${numOfLayers + 1}`,visible:true,blocked:false});
-    //     newLayers.push(BACKGROUND_CANVAS);
-        
-    //     setCurrentLayer(`canvas${numOfLayers + 1}`);
-    //     setLayers(newLayers);
-
-
-        
-
-    // }
-
     function createNewFrame()
     {
         return {
-            name: `frame${frames.current.length}`,
+            name: `frame${Date.now()}`,
             scene : new Scene(),
             undoStack : new Stack<Pixel[][]>,
             redoStack: new Stack<[Pixel,string | undefined][]>
         } as Frame;
     }
 
-    // function createNewScene()
-    // {
-    //     return {
-    //         canvas : `canvas${layers.length - 1}`,
-    //         scene : new Scene(),
-    //         undoStack : new Stack<Pixel[][]>,
-    //         redoStack: new Stack<[Pixel,string | undefined][]>
-    //     } as SceneState;
-    // }
-
-    // function toogleLayerVisibility(canvas : string)
-    // {
-    //     const newLayers = [...layers];
-
-    //     for(const layer of newLayers)
-    //     {
-    //         if(layer.canvas === canvas)
-    //         {
-    //             layer.visible = !layer.visible;
-    //         }
-    //     }
-
-    //     setLayers(newLayers);
-
-    // }
-
-    // function selectLayer(canvas : string)
-    // {
-    //     const newLayers = [...layers];
-
-    //     //remove top canvas
-    //     newLayers.splice(newLayers.findIndex((layer : Layer) => TOP_CANVAS.canvas === layer.canvas),1);
-
-    //     //insert top canvas before selected canvas
-    //     newLayers.splice(newLayers.findIndex((layer : Layer)=>layer.canvas === canvas),0,TOP_CANVAS);
-
-    //     currentFrameIndex = frames.current.findIndex((obj)=>obj.canvas === canvas);
-
-    //     setCurrentLayer(canvas);
-
-    //     setLayers(newLayers);
-
-    // }
-
-
-
+    
     return <div className = "editor" 
             style = {!isMobile ? {height:cssCanvasSize, width:'100%'} : {width:'100%',height:cssCanvasSize}} 
             ref = {outerDivRef} 

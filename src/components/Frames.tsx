@@ -1,24 +1,46 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { EventBus } from "../EventBus";
 import { StoreType, store } from "../store"
-import {Layer, drawOnSideBarCanvasType } from "../types";
-import { BACKGROUND_CANVAS, BG_COLORS, CANVAS_SIZE, CREATE_NEW_LAYER, DRAW_ON_SIDEBAR_CANVAS, SELECT_LAYER, TOOGLE_LAYER_VISIBILITY, TOP_CANVAS } from "../utils/constants";
+import {drawOnSideBarCanvasType } from "../types";
+import { BG_COLORS, CANVAS_SIZE, CREATE_NEW_FRAME, DELETE_FRAME, DRAW_ON_SIDEBAR_CANVAS, SELECT_FRAME} from "../utils/constants";
 import './frames.css';
-import { Eye } from "../svg/Eye";
-import { EyeOff } from "../svg/EyeOff";
+import { Trash } from "../svg/Trash";
+
+
 
 export function Frames(){
     
     // const layers = store((state : StoreType) => state.layers);
-    const frames = store((state : StoreType) => state.frames);
+    const framesList = store((state : StoreType) => state.framesList);
 
-    const backgroundTileSize = store((state : StoreType) => state.backgroundTileSize);
+    const [touched,setTouched] = useState<{[frameName : string] : boolean}>({});
 
     const currentFrame = store((state : StoreType) => state.currentFrame);
     const setCurrentFrame = store((state : StoreType) => state.setCurrentFrame);
 
-    useEffect(()=>{
-        const ctx = (document.getElementById(`frame1@sidebar`)as HTMLCanvasElement).getContext('2d')!;
+    let bgTileSize = 1;
+
+    //simple calculation, can stay in component body
+    const factors = [];
+    for(let i = 1;i<=CANVAS_SIZE;i++)
+    {
+        if(CANVAS_SIZE%i === 0)factors.push(i);
+    }
+        
+    const mid = Math.floor(factors.length/2);
+    bgTileSize = factors[mid];
+
+    //if CANVAS_SIZE is a prime number
+    if(bgTileSize === CANVAS_SIZE)
+    bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
+
+    // useEffect(()=>{
+    //     drawBackground('frame1');
+    // },[]);
+
+    function drawBackground(frame : string)
+    {
+        const ctx = (document.getElementById(`${frame}@sidebar`)as HTMLCanvasElement).getContext('2d')!;
         
         ctx.clearRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
 
@@ -26,17 +48,17 @@ export function Frames(){
         let a = firstInRow;
 
          //draw background
-         for (let i = 0; i <= CANVAS_SIZE; i += 8) {
+         for (let i = 0; i <= CANVAS_SIZE; i += bgTileSize) {
             if (firstInRow) a = 0;
             else a = 1;
             firstInRow = firstInRow ? 0 : 1;
-            for (let j = 0; j <= CANVAS_SIZE; j += 8) {
+            for (let j = 0; j <= CANVAS_SIZE; j += bgTileSize) {
                 ctx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
                 ctx.fillRect(i, j, 10, 10);
                 a = a ? 0 : 1;
             }
         }
-    },[]);
+    }
 
     const drawOnCanvas = useCallback((args : drawOnSideBarCanvasType)=>
     {  
@@ -52,11 +74,11 @@ export function Frames(){
         let a = firstInRow;
 
          //draw background
-         for (let i = 0; i <= CANVAS_SIZE; i += 8) {
+         for (let i = 0; i <= CANVAS_SIZE; i += bgTileSize) {
             if (firstInRow) a = 0;
             else a = 1;
             firstInRow = firstInRow ? 0 : 1;
-            for (let j = 0; j <= CANVAS_SIZE; j += 8) {
+            for (let j = 0; j <= CANVAS_SIZE; j += bgTileSize) {
                 ctx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
                 ctx.fillRect(i, j, 10, 10);
                 a = a ? 0 : 1;
@@ -82,25 +104,38 @@ export function Frames(){
         }
 
     },[drawOnCanvas]);
+
+    
+    useEffect(()=>{
+        
+        framesList.forEach((frame)=>{
+
+            if(!touched[frame])
+            {
+                setTouched({...touched,[frame] : true})
+                drawBackground(frame);
+            }
+        })
+        
+    });
+
     
     
-    // function changeCurrentLayer(layer : Layer)
-    // {
-    //     if(layer.visible)
-    //     {
-    //         EventBus.getInstance().publish<string>(SELECT_LAYER,layer);
-    //     }
-
-    // }
-
-    function prepareFrameName(name : string)
+    function changeCurrentFrame(frame : string)
     {
-        return "FRAME " + name[name.length - 1];
+        console.log("IN FRAMES:",frame);
+        EventBus.getInstance().publish<string>(SELECT_FRAME,frame);
+
     }
 
     function createNewFrameHandler()
     {
-        //EventBus.getInstance().publish(CREATE_NEW_LAYER);
+        EventBus.getInstance().publish(CREATE_NEW_FRAME);
+    }
+
+    function deleteFrame(frame : string)
+    {
+        EventBus.getInstance().publish(DELETE_FRAME,frame);
     }
 
     // function toogleLayerVisibility(layer : Layer){
@@ -111,9 +146,34 @@ export function Frames(){
         <div className="framesTitle">
             FRAMES
         </div>
-        <div className="createNewFrameWrapper">
+        {
+            framesList.map((frame,index)=>{
+
+                // return (frame != TOP_CANVAS && frame != BACKGROUND_CANVAS) && 
+                return <div className = "frameWrapper" key = {frame} style = {{height:'90px',width:'95%',border:frame === currentFrame ? `3px solid #181818` : undefined}}>
+                    <div 
+                    className = "frameCanvasWrapper" style = {{width:'90px',height:'90px'}}
+                    onClick = {()=>changeCurrentFrame(frame)}
+                    >
+                    <canvas className = "frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id = {`${frame}@sidebar`} style = {{width:'90px',height:'90px'}}></canvas>
+                    {/* {prepareFrameName(frame)} */}
+                    </div>
+                    <div className="frameOptions">
+                        <div>FRAME {index + 1}</div>
+                        {framesList.length > 1 && <div>
+                            <button onClick = {()=>deleteFrame(frame)}><Trash/></button>
+                        </div>}
+                       {/* <span>
+                        <button onClick ={()=>toogleframeVisibility(frame)}>{layer.visible ? <Eye/> : <EyeOff/>}</button>
+                       </span> */}
+                    </div>
+                </div>
+
+            })
+        }
+                <div className="createNewFrameWrapper">
             <button className = "createNewFrameButton" onClick = {createNewFrameHandler}>
-                NEW FRAME
+                ADD NEW FRAME
                 <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-square-rounded-plus" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M9 12h6"></path>
@@ -122,26 +182,6 @@ export function Frames(){
                 </svg>
             </button>
         </div>
-        {
-            frames.map((frame)=>{
-
-                // return (frame != TOP_CANVAS && frame != BACKGROUND_CANVAS) && 
-                return <div className = "frameWrapper" key = {frame} style = {{height:'90px',width:'100%',border:frame === currentFrame ? `3px solid #261857` : undefined}}>
-                    <div 
-                    className = "frameCanvasWrapper" 
-                    >
-                    <canvas className = "frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id = {`${frame}@sidebar`} style = {{width:'90px',height:'90px'}}></canvas>
-                    {prepareFrameName(frame)}
-                    </div>
-                    <div className="frameOptions">
-                       <span>
-                        {/* <button onClick ={()=>toogleframeVisibility(frame)}>{layer.visible ? <Eye/> : <EyeOff/>}</button> */}
-                       </span>
-                    </div>
-                </div>
-
-            })
-        }
     </div>
 
 }
