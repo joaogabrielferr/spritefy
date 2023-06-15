@@ -12,6 +12,8 @@ export function Frames(){
     // const layers = store((state : StoreType) => state.layers);
     const frames = store((state : StoreType) => state.frames);
 
+    const backgroundTileSize = store((state : StoreType) => state.backgroundTileSize);
+
     const currentFrame = store((state : StoreType) => state.currentFrame);
     const setCurrentFrame = store((state : StoreType) => state.setCurrentFrame);
 

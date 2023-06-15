@@ -1,4 +1,4 @@
-import {useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,Touch, useState} from 'react';
+import {useEffect, useRef,WheelEvent,MouseEvent,TouchEvent,Touch, useState, useCallback} from 'react';
 import './editor.css';
 import { 
 CANVAS_SIZE,
@@ -50,7 +50,7 @@ const mouse = new Mouse();
 
 let pixel_size : number;
 let display_size : number;
-let bgTileSize : number;
+let backgroundTileSize : number;
 
 let currentScale = 1;
 
@@ -101,16 +101,38 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
     const currentFrame = store((state : StoreType) => state.currentFrame);
 
+    const backgroundTileSize = store((state : StoreType) => state.backgroundTileSize);
+    const setBackgroundTileSize = store((state : StoreType) => state.setBackgroundTileSize);
+
     const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvas
     
     const firstInit = useRef(false); //for development
     
 
-
-
     useEffect(()=>{
-        setUpVariables();
+        
+        pixel_size = 1;
+        display_size = CANVAS_SIZE;
 
+        //TODO: allow user to toggle the option to have a bg tile for every pixel (backgroundTileSize === 1)
+        const factors = [];
+        for(let i = 1;i<=CANVAS_SIZE;i++)
+        {
+            if(CANVAS_SIZE%i === 0)factors.push(i);
+        }
+        
+        const mid = Math.floor(factors.length/2);
+        let bgTileSize = factors[mid];
+
+        //if CANVAS_SIZE is a prime number
+        if(backgroundTileSize === CANVAS_SIZE)
+        bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
+        
+        // backgroundTileSize = 1;
+        // penSize = pixel_size;
+
+        setBackgroundTileSize(bgTileSize);
+        
         outerDiv = outerDivRef.current!;
 
         canvas = canvasRef.current!;
@@ -129,7 +151,23 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         backgroundCanvas.width = display_size;
         backgroundCanvas.height = display_size;
-        
+
+        coordinatesElement = document.getElementById('coordinates') as HTMLParagraphElement;
+
+        if(!firstInit.current)
+        {
+            frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,backgroundTileSize);
+            firstInit.current = true;
+        }
+
+        draw();
+    
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+    },[]);
+
+
+    useEffect(()=>{
+   
         if(isMobile)
         {
             canvas.style.width = `${cssCanvasSize - 100}px`;
@@ -156,21 +194,10 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             originalCanvasWidth = cssCanvasSize - 150;
         }
 
-
-        if(!firstInit.current)
-        {
-            frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,bgTileSize);
-            firstInit.current = true;
-        }
-        
-        draw();
-
         resetCanvasPosition();
         
         //originalSize = editorSize - 50;
 
-        coordinatesElement = document.getElementById('coordinates') as HTMLParagraphElement;
-        
 
     },[cssCanvasSize,isMobile]);
 
@@ -191,7 +218,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         display_size = CANVAS_SIZE;
 
         
-        //TODO: allow user to toggle the option to have a bg tile for every pixel (bgTileSize === 1)
+        //TODO: allow user to toggle the option to have a bg tile for every pixel (backgroundTileSize === 1)
         const factors = [];
         for(let i = 1;i<=CANVAS_SIZE;i++)
         {
@@ -199,15 +226,17 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }
         
         const mid = Math.floor(factors.length/2);
-
-        bgTileSize = factors[mid];
+        let bgTileSize = factors[mid];
 
         //if CANVAS_SIZE is a prime number
-        if(bgTileSize === CANVAS_SIZE)
-            bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
+        if(backgroundTileSize === CANVAS_SIZE)
+        bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
         
-        // bgTileSize = 1;
+        // backgroundTileSize = 1;
         // penSize = pixel_size;
+
+        setBackgroundTileSize(bgTileSize);
+
     }
 
 
@@ -242,26 +271,26 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             document.removeEventListener('keydown',checkKeyCombinations);
         }
 
-    },[]);
+    },[currentFrame]);
 
 
 
 
     
-    function draw(){
+    const draw = useCallback(()=>{
 
     
         let firstInRow = 1;
         let a = firstInRow;
     
         //draw background
-        for (let i = 0; i <= display_size; i += pixel_size * bgTileSize) {
+        for (let i = 0; i <= display_size; i += pixel_size * backgroundTileSize) {
             if (firstInRow) a = 0;
             else a = 1;
             firstInRow = firstInRow ? 0 : 1;
-            for (let j = 0; j <= display_size; j += pixel_size * bgTileSize) {
+            for (let j = 0; j <= display_size; j += pixel_size * backgroundTileSize) {
                 bgCtx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
-                bgCtx.fillRect(i, j, pixel_size * bgTileSize, pixel_size * bgTileSize);
+                bgCtx.fillRect(i, j, pixel_size * backgroundTileSize, pixel_size * backgroundTileSize);
                 a = a ? 0 : 1;
             }
         }
@@ -277,7 +306,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             }
         }
  
-    }
+    },[backgroundTileSize])
 
     function handleFirstClick(){
 
@@ -1074,7 +1103,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         frames.current.push(createNewFrame());
         currentFrameIndex = frames.current.findIndex((obj)=>obj.name === `frame${numOfFrames + 1}`);
 
-        frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,bgTileSize);
+        frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,backgroundTileSize);
 
     }
 
@@ -1086,7 +1115,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         
     //     currentFrameIndex = frames.current.findIndex((obj)=>obj.canvas === `canvas${numOfLayers + 1}`);
 
-    //     frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,bgTileSize);
+    //     frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,backgroundTileSize);
     
     //     const layersCopy = [...layers];
 
