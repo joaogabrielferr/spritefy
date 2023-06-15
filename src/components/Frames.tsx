@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { EventBus } from "../EventBus";
 import { StoreType, store } from "../store"
 import {drawOnSideBarCanvasType } from "../types";
-import { BG_COLORS, CANVAS_SIZE, CREATE_NEW_FRAME, DELETE_FRAME, DRAW_ON_SIDEBAR_CANVAS, SELECT_FRAME} from "../utils/constants";
+import { BG_COLORS, CANVAS_SIZE, CREATE_NEW_FRAME, DELETE_FRAME, DRAW_ON_SIDEBAR_CANVAS, ERASING, SELECT_FRAME} from "../utils/constants";
 import './frames.css';
 import { Trash } from "../svg/Trash";
 
@@ -88,8 +88,18 @@ export function Frames(){
         for (let i = 0; i < pixelMatrix.length; i++) {
             for (let j = 0; j < pixelMatrix[i].length; j++) {
                 if (!pixelMatrix[i][j].colorStack.isEmpty()) {
-                    ctx.fillStyle = pixelMatrix[i][j].colorStack.top()!;
-                    ctx.fillRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
+                    const color = pixelMatrix[i][j].colorStack.top();
+                    if(!color || color === ERASING)
+                    {
+
+                        ctx.fillStyle = pixelMatrix[i][j].bgColor;
+                        ctx.fillRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
+                    
+                    }else
+                    {
+                        ctx.fillStyle = color;
+                        ctx.fillRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
+                    }
                 }
             }
         }
