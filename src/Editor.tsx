@@ -11,7 +11,8 @@ DRAW_ON_SIDEBAR_CANVAS,
 CREATE_NEW_FRAME,
 SELECT_FRAME,
 DELETE_FRAME,
-UPDATE_PREVIEW_FRAMES
+UPDATE_PREVIEW_FRAMES,
+COPY_FRAME
 }
  from './utils/constants';
 import Mouse from './scene/Mouse';
@@ -232,7 +233,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         draw(bgTileSize);
 
-    },[backgroundTileSize, currentFrame, framesList, setCurrentFrame, setFramesList]);
+    },[backgroundTileSize, framesList, setCurrentFrame, setFramesList]);
 
 
     const selectFrame = useCallback((_frame : string)=>
@@ -271,6 +272,59 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
     },[framesList, setCurrentFrame, setFramesList]);
 
+    const copyFrame = useCallback((_frame : string)=>{
+
+        const newFrameName = `frame${Date.now()}`;
+
+        const newFramesList = [...framesList];
+
+        const insertIndex = newFramesList.findIndex((frame) => frame === _frame);
+
+        const newFrame = createNewFrame();
+        newFrame.name = newFrameName;
+
+        if(insertIndex === newFramesList.length - 1)
+        {
+            newFramesList.push(newFrameName);
+            const matrixCopy = frames.current[frames.current.length - 1].scene.pixels.map((row) => [...row]);
+            newFrame.scene.pixels = matrixCopy;
+
+            frames.current.push(newFrame);
+
+            currentFrameIndex = frames.current.length - 1;
+
+        }else
+        {
+            newFramesList.splice(insertIndex + 1,0,newFrameName);
+
+            const matrixCopy = frames.current[insertIndex].scene.pixels.map((row) => [...row]);
+            newFrame.scene.pixels = matrixCopy;
+
+            frames.current.splice(insertIndex + 1,0,newFrame);
+
+            currentFrameIndex = insertIndex + 1;
+            
+            
+        }
+        
+        setCurrentFrame(newFrame.name);
+        
+        setFramesList(newFramesList);
+        
+        resetCanvasPosition();
+        
+        draw(bgTileSize);
+        
+        //the end justifies the means
+        setTimeout(()=>{
+            EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : newFrame.name,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+        },500);
+        EventBus.getInstance().publish<drawOnSideBarCanvasType>(UPDATE_PREVIEW_FRAMES,{frame : newFrame.name,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+        
+
+
+
+    },[framesList, setCurrentFrame, setFramesList]);
 
     useEffect(()=>{
 
@@ -278,6 +332,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         const selectFrameSubscription = EventBus.getInstance().subscribe(SELECT_FRAME,selectFrame);
         const createNewFrameSubscription = EventBus.getInstance().subscribe(CREATE_NEW_FRAME,addNewFrame);
         const deleteFrameSubscription = EventBus.getInstance().subscribe(DELETE_FRAME,deleteFrame);
+        const copyFrameSubscription = EventBus.getInstance().subscribe(COPY_FRAME,copyFrame);
         draw(bgTileSize);
 
         function checkKeyCombinations(event : KeyboardEvent)
@@ -305,6 +360,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             selectFrameSubscription.unsubscribe();
             createNewFrameSubscription.unsubscribe();
             deleteFrameSubscription.unsubscribe();
+            copyFrameSubscription.unsubscribe();
             document.removeEventListener('keydown',checkKeyCombinations);
         }
 
@@ -1171,16 +1227,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             onTouchMove={handleTouchMove}
             onTouchEnd={handleFinishDraw}
             >
-
-                {/* {
-                    layers.map((layer,index)=><canvas
-                     ref = {handleLayersRef(layer.canvas)} 
-                     className = "canvases" 
-                     style = {{zIndex: layers.length - index - 1,display: layer.visible ? 'block' : 'none'}}
-                     key = {layer.canvas}
-                     id = {layer.canvas}
-                     ></canvas>)
-                } */}
                 <canvas className = "canvases" id = "topCanvas" style = {{zIndex:2}} ref ={topCanvasRef} ></canvas>
                 <canvas className = "canvases" id = "canvas" style = {{zIndex:1}} ref ={canvasRef}></canvas>
                 <canvas className = "canvases" id = "backgroundCanvas" style = {{zIndex:0}} ref ={backgroundCanvasRef}></canvas>

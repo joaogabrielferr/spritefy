@@ -34,7 +34,7 @@ export function Preview(){
         },frameDuration);
     }
 
-    //this is probably inneficient ¯\_(ツ)_/¯
+    //this is probably inefficient ¯\_(ツ)_/¯
     function redrawPreview()
     {
         const ctx = canvas.current!.getContext('2d')!;

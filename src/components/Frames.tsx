@@ -2,9 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { EventBus } from "../EventBus";
 import { StoreType, store } from "../store"
 import {drawOnSideBarCanvasType } from "../types";
-import { BG_COLORS, CANVAS_SIZE, CREATE_NEW_FRAME, DELETE_FRAME, DRAW_ON_SIDEBAR_CANVAS, ERASING, SELECT_FRAME} from "../utils/constants";
+import { BG_COLORS, CANVAS_SIZE, COPY_FRAME, CREATE_NEW_FRAME, DELETE_FRAME, DRAW_ON_SIDEBAR_CANVAS, ERASING, SELECT_FRAME} from "../utils/constants";
 import './frames.css';
 import { Trash } from "../svg/Trash";
+import { Copy } from "../svg/Copy";
 
 
 
@@ -65,8 +66,9 @@ export function Frames(){
         const {frame,pixelMatrix} = args;
         
         if(!frame || !pixelMatrix)return;
-
-        const ctx = (document.getElementById(`${frame}@sidebar`)as HTMLCanvasElement).getContext('2d')!;
+        const canvas = (document.getElementById(`${frame}@sidebar`)as HTMLCanvasElement);
+        if(!canvas)return;
+        const ctx = canvas.getContext('2d')!;
         
         ctx.clearRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
 
@@ -103,7 +105,7 @@ export function Frames(){
                 }
             }
         }
-    },[]);
+    },[bgTileSize, framesList]);
     
     useEffect(()=>{
 
@@ -117,11 +119,10 @@ export function Frames(){
 
     
     useEffect(()=>{
-        
         framesList.forEach((frame)=>{
-
             if(!touched[frame])
             {
+                //drawing background when a new canvas is added
                 setTouched({...touched,[frame] : true})
                 drawBackground(frame);
             }
@@ -147,9 +148,10 @@ export function Frames(){
         EventBus.getInstance().publish(DELETE_FRAME,frame);
     }
 
-    // function toogleLayerVisibility(layer : Layer){
-    //         EventBus.getInstance().publish(TOOGLE_LAYER_VISIBILITY,layer);
-    // }
+    function copyFrame(frame : string)
+    {
+        EventBus.getInstance().publish(COPY_FRAME,frame);
+    }
 
     return <div className = "frames">
         <div className="framesTitle">
@@ -169,9 +171,12 @@ export function Frames(){
                     </div>
                     <div className="frameOptions">
                         <div>FRAME {index + 1}</div>
+                        <div style = {{width:'100%',display:'flex',justifyContent:'space-between'}}>
+                        <div><button onClick = {()=>copyFrame(frame)}><Copy/></button></div>
                         {framesList.length > 1 && <div>
                             <button onClick = {()=>deleteFrame(frame)}><Trash/></button>
                         </div>}
+                        </div>
                        {/* <span>
                         <button onClick ={()=>toogleframeVisibility(frame)}>{layer.visible ? <Eye/> : <EyeOff/>}</button>
                        </span> */}
@@ -180,10 +185,10 @@ export function Frames(){
 
             })
         }
-                <div className="createNewFrameWrapper">
+        <div className="createNewFrameWrapper">
             <button className = "createNewFrameButton" onClick = {createNewFrameHandler}>
                 ADD NEW FRAME
-                <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-square-rounded-plus" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-square-rounded-plus" width="20" height="20" viewBox="0 0 20 20" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M9 12h6"></path>
                     <path d="M12 9v6"></path>
