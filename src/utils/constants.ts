@@ -18,3 +18,4 @@ export const DRAW_ON_SIDEBAR_CANVAS = 'draw-on-sidebar-canvas';
 export const SELECT_FRAME = 'select-layer';
 export const CREATE_NEW_FRAME = 'create-new-frame';
 export const DELETE_FRAME = 'delete-frame';
+export const UPDATE_PREVIEW_FRAMES = 'update-preview-frames';

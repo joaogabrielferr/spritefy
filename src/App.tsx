@@ -22,6 +22,7 @@ import { LeftArrow } from "./svg/LeftArrow";
 import { RightArrow } from "./svg/RightArrow";
 import { store,StoreType } from "./store";
 import { Frames } from "./components/Frames";
+import { Preview } from "./components/Preview";
 
 
 
@@ -155,7 +156,8 @@ function App() {
                  {/* right sidebar */}
                 {!isMobile && 
                   <Sidebar width={'250px'} height={cssCanvasSize} marginTop={'30px'}>
-                    <Frames></Frames>
+                    <Preview/>
+                    <Frames/>
                   </Sidebar>
                 }
 

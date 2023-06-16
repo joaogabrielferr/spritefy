@@ -10,7 +10,8 @@ RESET_CANVAS_POSITION,
 DRAW_ON_SIDEBAR_CANVAS,
 CREATE_NEW_FRAME,
 SELECT_FRAME,
-DELETE_FRAME
+DELETE_FRAME,
+UPDATE_PREVIEW_FRAMES
 }
  from './utils/constants';
 import Mouse from './scene/Mouse';
@@ -219,9 +220,9 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         currentFrameIndex = frames.current.length - 1;
         
-        console.log("created new frame, new index:",currentFrameIndex);
 
         frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,backgroundTileSize);
+        EventBus.getInstance().publish<drawOnSideBarCanvasType>(UPDATE_PREVIEW_FRAMES,{frame : newFrame.name,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
 
         setCurrentFrame(newFrame.name);
 
@@ -231,14 +232,12 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         draw(bgTileSize);
 
-    },[backgroundTileSize, framesList, setCurrentFrame, setFramesList]);
+    },[backgroundTileSize, currentFrame, framesList, setCurrentFrame, setFramesList]);
 
 
     const selectFrame = useCallback((_frame : string)=>
     {
-        console.log("before selecting frame, index:",currentFrameIndex,"frame:",_frame);
         currentFrameIndex = frames.current.findIndex((frame)=>frame.name === _frame);
-        console.log("after selecting frame,index:",currentFrameIndex,"frames:",frames.current);
 
         resetCanvasPosition();
 
@@ -287,11 +286,15 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             {   
                 undoLastDraw(pixel_size,ctx,frames.current[currentFrameIndex]);
                 EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+                EventBus.getInstance().publish<drawOnSideBarCanvasType>(UPDATE_PREVIEW_FRAMES,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
     
+
             }else if(event.ctrlKey && event.code === 'KeyY')
             {
                 redoLastDraw(ctx,pixel_size,frames.current[currentFrameIndex]);
-                //EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentLayer,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+                EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+                EventBus.getInstance().publish<drawOnSideBarCanvasType>(UPDATE_PREVIEW_FRAMES,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+
             }
         }
 
@@ -1085,7 +1088,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         
         currentScale = 1;
-        console.log(currentFrameIndex);
         frames.current[currentFrameIndex].scene.zoomAmount = 0;
     }
     
@@ -1120,6 +1122,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             if(!empty){
                 frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDraw);
                 EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix:frames.current[currentFrameIndex].scene.pixels});
+                EventBus.getInstance().publish<drawOnSideBarCanvasType>(UPDATE_PREVIEW_FRAMES,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
                 frames.current[currentFrameIndex].redoStack.clear();
             }
         }
@@ -1130,6 +1133,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             const clean : Pixel[] = cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
             translateDrawToMainCanvas(clean,ctx,pixel_size,selectedColor,penSize,frames.current[currentFrameIndex].scene);
             EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix:frames.current[currentFrameIndex].scene.pixels});
+            EventBus.getInstance().publish<drawOnSideBarCanvasType>(UPDATE_PREVIEW_FRAMES,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
             frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
             frames.current[currentFrameIndex].redoStack.clear();            
         }

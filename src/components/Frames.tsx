@@ -14,29 +14,29 @@ export function Frames(){
     const framesList = store((state : StoreType) => state.framesList);
 
     const [touched,setTouched] = useState<{[frameName : string] : boolean}>({});
-
+    
     const currentFrame = store((state : StoreType) => state.currentFrame);
-    const setCurrentFrame = store((state : StoreType) => state.setCurrentFrame);
+    // const setCurrentFrame = store((state : StoreType) => state.setCurrentFrame);
 
     let bgTileSize = 1;
 
-    //simple calculation, can stay in component body
-    const factors = [];
-    for(let i = 1;i<=CANVAS_SIZE;i++)
+    calculateBgTileSize();
+
+    function calculateBgTileSize()
     {
-        if(CANVAS_SIZE%i === 0)factors.push(i);
+        const factors = [];
+        for(let i = 1;i<=CANVAS_SIZE;i++)
+        {
+            if(CANVAS_SIZE%i === 0)factors.push(i);
+        }
+            
+        const mid = Math.floor(factors.length/2);
+        bgTileSize = factors[mid];
+    
+        //if CANVAS_SIZE is a prime number
+        if(bgTileSize === CANVAS_SIZE)
+        bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
     }
-        
-    const mid = Math.floor(factors.length/2);
-    bgTileSize = factors[mid];
-
-    //if CANVAS_SIZE is a prime number
-    if(bgTileSize === CANVAS_SIZE)
-    bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
-
-    // useEffect(()=>{
-    //     drawBackground('frame1');
-    // },[]);
 
     function drawBackground(frame : string)
     {
@@ -80,7 +80,7 @@ export function Frames(){
             firstInRow = firstInRow ? 0 : 1;
             for (let j = 0; j <= CANVAS_SIZE; j += bgTileSize) {
                 ctx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
-                ctx.fillRect(i, j, 10, 10);
+                ctx.fillRect(i, j, bgTileSize, bgTileSize);
                 a = a ? 0 : 1;
             }
         }
@@ -133,7 +133,6 @@ export function Frames(){
     
     function changeCurrentFrame(frame : string)
     {
-        console.log("IN FRAMES:",frame);
         EventBus.getInstance().publish<string>(SELECT_FRAME,frame);
 
     }
