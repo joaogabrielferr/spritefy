@@ -40,7 +40,9 @@ subscribe(event: string, callback: ()=> void) : Subscription;
 export type drawOnSideBarCanvasType = {
     frame : string;
     pixelMatrix : Pixel[][];
+    op? : 'add' | 'update' | 'delete';
 }
+
 
 export type Frame = {
     name : string;

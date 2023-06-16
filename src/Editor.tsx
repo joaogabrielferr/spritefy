@@ -12,7 +12,8 @@ CREATE_NEW_FRAME,
 SELECT_FRAME,
 DELETE_FRAME,
 UPDATE_PREVIEW_FRAMES,
-COPY_FRAME
+COPY_FRAME,
+ERASING
 }
  from './utils/constants';
 import Mouse from './scene/Mouse';
@@ -79,7 +80,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     const backgroundCanvasRef = useRef<HTMLCanvasElement>(null);
 
     //persisting frames between re renders
-    //updatiing frames doesnt generate re renders
+    //updating frames doesnt generate re renders
     const frames = useRef<Frame[]>(
         [
         //framesList is initialized with ['frame1']
@@ -222,8 +223,9 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         currentFrameIndex = frames.current.length - 1;
         
 
-        frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,backgroundTileSize);
-        EventBus.getInstance().publish<drawOnSideBarCanvasType>(UPDATE_PREVIEW_FRAMES,{frame : newFrame.name,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+        frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,bgTileSize);
+        console.log("in add new frame");
+        EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
 
         setCurrentFrame(newFrame.name);
 
@@ -233,7 +235,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         draw(bgTileSize);
 
-    },[backgroundTileSize, framesList, setCurrentFrame, setFramesList]);
+    },[framesList, setCurrentFrame, setFramesList]);
 
 
     const selectFrame = useCallback((_frame : string)=>
@@ -245,8 +247,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         setCurrentFrame(_frame);
 
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[]);
+    },[setCurrentFrame]);
 
 
     const deleteFrame = useCallback((_frame : string)=>
@@ -270,56 +271,103 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         setFramesList(newFramesList);
 
+        EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
+
+
     },[framesList, setCurrentFrame, setFramesList]);
 
     const copyFrame = useCallback((_frame : string)=>{
 
-        const newFrameName = `frame${Date.now()}`;
-
-        const newFramesList = [...framesList];
-
-        const insertIndex = newFramesList.findIndex((frame) => frame === _frame);
-
+        
         const newFrame = createNewFrame();
-        newFrame.name = newFrameName;
 
-        if(insertIndex === newFramesList.length - 1)
+        frames.current.push(newFrame);
+
+        currentFrameIndex = frames.current.length - 1;
+        
+        const frameCopiedIndex = frames.current.findIndex((frame)=> frame.name === _frame);
+
+        if(frameCopiedIndex < 0)return;
+        
+        // frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,backgroundTileSize);
+        frames.current[currentFrameIndex].scene.copyPixelMatrix(frames.current[frameCopiedIndex].scene.pixels);
+
+        if(frameCopiedIndex === frames.current.length - 1)
         {
-            newFramesList.push(newFrameName);
-            const matrixCopy = frames.current[frames.current.length - 1].scene.pixels.map((row) => [...row]);
-            newFrame.scene.pixels = matrixCopy;
-
-            frames.current.push(newFrame);
-
-            currentFrameIndex = frames.current.length - 1;
-
+            setFramesList([...framesList,newFrame.name]);
+            
         }else
         {
-            newFramesList.splice(insertIndex + 1,0,newFrameName);
-
-            const matrixCopy = frames.current[insertIndex].scene.pixels.map((row) => [...row]);
-            newFrame.scene.pixels = matrixCopy;
-
-            frames.current.splice(insertIndex + 1,0,newFrame);
-
-            currentFrameIndex = insertIndex + 1;
-            
+            const newFramesList = [...framesList];
+            newFramesList.splice(frameCopiedIndex + 1,0,newFrame.name);
+            console.log("new list:",newFramesList);
+            setFramesList(newFramesList);
             
         }
         
+        
         setCurrentFrame(newFrame.name);
-        
-        setFramesList(newFramesList);
-        
+
+
         resetCanvasPosition();
-        
+
         draw(bgTileSize);
+
+
+        EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
         
         //the end justifies the means
         setTimeout(()=>{
-            EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : newFrame.name,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+            EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : newFrame.name,pixelMatrix:frames.current[currentFrameIndex].scene.pixels});
         },500);
-        EventBus.getInstance().publish<drawOnSideBarCanvasType>(UPDATE_PREVIEW_FRAMES,{frame : newFrame.name,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+
+        
+        // const newFrameName = `frame${Date.now()}`;
+
+        // const newFramesList = [...framesList];
+
+        // const insertIndex = newFramesList.findIndex((frame) => frame === _frame);
+
+        // const newFrame = createNewFrame();
+        // newFrame.name = newFrameName;
+
+        // if(insertIndex === newFramesList.length - 1)
+        // {
+        //     console.log("copiando ultimo");
+        //     newFramesList.push(newFrameName);
+        //     newFrame.scene.copyPixelMatrix(frames.current[insertIndex].scene.pixels);
+
+        //     frames.current.push(newFrame);
+
+        //     currentFrameIndex = frames.current.length - 1;
+
+        // }else
+        // {
+        //     newFramesList.splice(insertIndex + 1,0,newFrameName);
+
+        //     newFrame.scene.copyPixelMatrix(frames.current[insertIndex].scene.pixels);
+
+        //     frames.current.splice(insertIndex + 1,0,newFrame);
+
+        //     currentFrameIndex = insertIndex + 1;
+            
+            
+        // }
+        
+        // setCurrentFrame(newFrame.name);
+        
+        // setFramesList(newFramesList);
+        
+        // resetCanvasPosition();
+        
+        // draw(bgTileSize);
+        
+        // //the end justifies the means
+        // setTimeout(()=>{
+        //     EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : newFrame.name,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+        // },500);
+        // console.log("current index after copying:",currentFrameIndex);
+        // EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
         
 
 
@@ -333,6 +381,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         const createNewFrameSubscription = EventBus.getInstance().subscribe(CREATE_NEW_FRAME,addNewFrame);
         const deleteFrameSubscription = EventBus.getInstance().subscribe(DELETE_FRAME,deleteFrame);
         const copyFrameSubscription = EventBus.getInstance().subscribe(COPY_FRAME,copyFrame);
+
         draw(bgTileSize);
 
         function checkKeyCombinations(event : KeyboardEvent)
@@ -341,14 +390,18 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             {   
                 undoLastDraw(pixel_size,ctx,frames.current[currentFrameIndex]);
                 EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
-                EventBus.getInstance().publish<drawOnSideBarCanvasType>(UPDATE_PREVIEW_FRAMES,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+                console.log("in keyZ");
+
+                EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
     
 
             }else if(event.ctrlKey && event.code === 'KeyY')
             {
                 redoLastDraw(ctx,pixel_size,frames.current[currentFrameIndex]);
                 EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
-                EventBus.getInstance().publish<drawOnSideBarCanvasType>(UPDATE_PREVIEW_FRAMES,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+                console.log("in keyY");
+
+                EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
 
             }
         }
@@ -364,46 +417,49 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             document.removeEventListener('keydown',checkKeyCombinations);
         }
 
-    },[addNewFrame, currentFrame, deleteFrame, selectFrame]);
+    },[addNewFrame, copyFrame, currentFrame, deleteFrame, selectFrame]);
 
-
-
-
-
-    
-    // const draw = useCallback((bgTileSize : number)=>{
 
     function draw(bgTileSize : number){
 
-    let firstInRow = 1;
-    let a = firstInRow;
+        let firstInRow = 1;
+        let a = firstInRow;
 
-    //draw background
-    for (let i = 0; i <= display_size; i += pixel_size * bgTileSize) {
-        if (firstInRow) a = 0;
-        else a = 1;
-        firstInRow = firstInRow ? 0 : 1;
-        for (let j = 0; j <= display_size; j += pixel_size * bgTileSize) {
-            bgCtx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
-            bgCtx.fillRect(i, j, pixel_size * bgTileSize, pixel_size * bgTileSize);
-            a = a ? 0 : 1;
-        }
-    }
-    
-
-    ctx.clearRect(0,0,display_size,display_size);
-    
-    //draw pixel matrix
-    for (let i = 0; i < frames.current[currentFrameIndex].scene.pixels.length; i++) {
-        for (let j = 0; j < frames.current[currentFrameIndex].scene.pixels[i].length; j++) {
-            if (!frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.isEmpty()) {
-                ctx.fillStyle = frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.top()!;
-                ctx.fillRect(frames.current[currentFrameIndex].scene.pixels[i][j].x1, frames.current[currentFrameIndex].scene.pixels[i][j].y1, pixel_size, pixel_size);
-                
-
+        //draw background
+        for (let i = 0; i <= display_size; i += pixel_size * bgTileSize) {
+            if (firstInRow) a = 0;
+            else a = 1;
+            firstInRow = firstInRow ? 0 : 1;
+            for (let j = 0; j <= display_size; j += pixel_size * bgTileSize) {
+                bgCtx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
+                bgCtx.fillRect(i, j, pixel_size * bgTileSize, pixel_size * bgTileSize);
+                a = a ? 0 : 1;
             }
         }
-    }
+        
+
+        ctx.clearRect(0,0,display_size,display_size);
+        
+        //draw pixel matrix
+        for (let i = 0; i < frames.current[currentFrameIndex].scene.pixels.length; i++) {
+            for (let j = 0; j < frames.current[currentFrameIndex].scene.pixels[i].length; j++) {
+                
+                if (!frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.isEmpty()) {
+                    const color = frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.top();
+                    if(!color || color === ERASING)
+                    {
+
+                        ctx.fillStyle = frames.current[currentFrameIndex].scene.pixels[i][j].bgColor;
+                        ctx.fillRect(frames.current[currentFrameIndex].scene.pixels[i][j].x1, frames.current[currentFrameIndex].scene.pixels[i][j].y1, 1, 1);
+                    
+                    }else
+                    {
+                        ctx.fillStyle = color;
+                        ctx.fillRect(frames.current[currentFrameIndex].scene.pixels[i][j].x1, frames.current[currentFrameIndex].scene.pixels[i][j].y1, 1, 1);
+                    }
+                }
+            }
+        }
  
     }
 
@@ -633,15 +689,11 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     {
         if(!canvas)return;
 
-        // event.preventDefault();
-
         if (event.touches.length === 2) {
-            // Get the current distance between the two touch points
-
             handleZoomMobile(event);
             return;
             
-          }
+        }
 
 
         //TODO: maybe decouple mouse listeners from tool function calls, functions can be called a super high number of times depending on device config and mouse type i guess
@@ -697,7 +749,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(Rectangle(frames.current[currentFrameIndex].scene,topCtx,mouse,pixel_size,frames.current[currentFrameIndex].scene.lineFirstPixel!,selectedColor,penSize));
         }else if(selectedTool === 'elipse' && mouse.isPressed)
         {
-                        //remove draw from the top canvas
+            //remove draw from the top canvas
             removeDraw(topCtx,cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas),pixel_size);
             frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
 
@@ -708,49 +760,12 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 const minorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.y1 - mouse.y);
                 
 
-
                 frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(Elipse(frames.current[currentFrameIndex].scene,topCtx,pixel_size,frames.current[currentFrameIndex].scene.lineFirstPixel!,selectedColor,penSize,majorRadius,minorRadius));
 
-                //for 1 to 1 ratio, using same radius
-                //frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(Elipse(frames.current[currentFrameIndex].scene,topCtx,pixel_size,frames.current[currentFrameIndex].scene.lineFirstPixel,selectedColor,penSize,majorRadius,majorRadius));
-            
-
             }
-
-            
-            //remove draw from the top canvas
-            // removeDraw(topCtx,cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas),pixel_size);
-            // frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
-
-
-            // //increase or decrease circle radius based on mouse movement
-            // if(mouse.mouseMoveLastPos && frames.current[currentFrameIndex].scene.lineFirstPixel){
-            //     if(
-            //         ((mouse.x > frames.current[currentFrameIndex].scene.lineFirstPixel.x1 && mouse.x > mouse.mouseMoveLastPos.x) ||
-            //         (mouse.y > frames.current[currentFrameIndex].scene.lineFirstPixel.y1 && mouse.y > mouse.mouseMoveLastPos.y)) ||
-            //     ( (mouse.x < frames.current[currentFrameIndex].scene.lineFirstPixel.x1 && mouse.x < mouse.mouseMoveLastPos.x) ||
-            //     (mouse.y < frames.current[currentFrameIndex].scene.lineFirstPixel.y1 && mouse.y < mouse.mouseMoveLastPos.y)))
-            //     {
-            //         //mouse is going away from middle point (from left or right), increase radius
-            //         frames.current[currentFrameIndex].scene.circleRadius+=CIRCLE_RADIUS_INCREASE_FACTOR;
-            //     }else
-            //     {
-            //         //mouse is moving toward middle point, decrase radius
-            //         if(frames.current[currentFrameIndex].scene.circleRadius - CIRCLE_RADIUS_INCREASE_FACTOR <= 1)
-            //         {
-            //             frames.current[currentFrameIndex].scene.circleRadius = 1;
-            //         }else
-            //         {
-            //             frames.current[currentFrameIndex].scene.circleRadius-=CIRCLE_RADIUS_INCREASE_FACTOR;
-            //         }
-            //     }
-            // }
-
-            // frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(Elipse(frames.current[currentFrameIndex].scene,topCtx,pixel_size,frames.current[currentFrameIndex].scene.lineFirstPixel!,selectedColor,penSize));
-            // /////////////////////////////////////          
+ 
+               
         }
-
-
 
 
         mouse.mouseMoveLastPos = {x: mouse.x,y : mouse.y};
@@ -833,18 +848,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             const pinchScale = touchDistance / touchStartDistance;
 
             if (pinchScale > 1 && frames.current[currentFrameIndex].scene.zoomAmount < MAX_ZOOM_AMOUNT) {
-                // Zoom in
-                // if(parseFloat(canvas.style.width) < originalCanvasWidth)
-                // {
-                //     currentScale += SCALE_FACTOR;
-                //     const newSize = Math.min(parseFloat(canvas.style.width) + 100,originalCanvasWidth);
-                //     canvas.style.width = `${newSize}px`;
-                //     canvas.style.height = `${newSize}px`;
-                //     topCanvas.style.width = `${newSize}px`;
-                //     topCanvas.style.height = `${newSize}px`;
-                //     backgroundCanvas.style.width = `${newSize}px`;
-                //     backgroundCanvas.style.height = `${newSize}px`;
-                // }else 
                 if(frames.current[currentFrameIndex].scene.zoomAmount < MAX_ZOOM_AMOUNT){
     
                     frames.current[currentFrameIndex].scene.zoomAmount++;
@@ -877,22 +880,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                     backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft - dx}px`;
                     backgroundCanvas.style.top = `${backgroundCanvas.offsetTop - dy}px`;
 
-                    // for(const layer in layersRef.current)
-                    // {
-                    //     if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
-                    //         layersRef.current[layer].style.width = `${layersRef.current[layer].offsetWidth * scaleChangeFactor}px`;
-                    //         layersRef.current[layer].style.height = `${layersRef.current[layer].offsetHeight * scaleChangeFactor}px`;
-                    //         layersRef.current[layer].style.left = `${layersRef.current[layer].offsetLeft - dx}px`;
-                    //         layersRef.current[layer].style.top = `${layersRef.current[layer].offsetTop - dy}px`;
-    
-                    //     }
-                    // }
-
-
-
-
-    
-    
                     // Store the mouse position in the history
                     mouse.history.push({ x: mouseX, y: mouseY });
             }
@@ -930,16 +917,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                     backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft + dx}px`;
                     backgroundCanvas.style.top = `${backgroundCanvas.offsetTop + dy}px`;
 
-                    // for(const layer in layersRef.current)
-                    // {
-                    //     if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
-                    //         layersRef.current[layer].style.width = `${layersRef.current[layer].offsetWidth * scaleChangeFactor}px`;
-                    //         layersRef.current[layer].style.height = `${layersRef.current[layer].offsetHeight * scaleChangeFactor}px`;
-                    //         layersRef.current[layer].style.left = `${layersRef.current[layer].offsetLeft + dx}px`;
-                    //         layersRef.current[layer].style.top = `${layersRef.current[layer].offsetTop + dy}px`;
-    
-                    //     }
-                    // }
     
                 }   
             }
@@ -979,13 +956,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 backgroundCanvas.style.width = `${newSize}px`;
                 backgroundCanvas.style.height = `${newSize}px`;
 
-                // for(const layer in layersRef.current)
-                // {
-                //     if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
-                //         layersRef.current[layer].style.width = `${newSize}px`;
-                //         layersRef.current[layer].style.height = `${newSize}px`;
-                //     }
-                // }
 
                 
 
@@ -1021,20 +991,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
                 backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft - dx}px`;
                 backgroundCanvas.style.top = `${backgroundCanvas.offsetTop - dy}px`;
-
-                // for(const layer in layersRef.current)
-                // {
-                //     if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
-                //         layersRef.current[layer].style.width = `${layersRef.current[layer].offsetWidth * scaleChangeFactor}px`;
-                //         layersRef.current[layer].style.height = `${layersRef.current[layer].offsetHeight * scaleChangeFactor}px`;
-                //         layersRef.current[layer].style.left = `${layersRef.current[layer].offsetLeft - dx}px`;
-                //         layersRef.current[layer].style.top = `${layersRef.current[layer].offsetTop - dy}px`;
-
-
-                //     }
-                // }
-
-
 
                 // Store the mouse position in the history
                 mouse.history.push({ x: mouseX, y: mouseY });
@@ -1073,18 +1029,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft + dx}px`;
                 backgroundCanvas.style.top = `${backgroundCanvas.offsetTop + dy}px`;
 
-                // for(const layer in layersRef.current)
-                // {
-                //     if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
-                //         layersRef.current[layer].style.width = `${layersRef.current[layer].offsetWidth * scaleChangeFactor}px`;
-                //         layersRef.current[layer].style.height = `${layersRef.current[layer].offsetHeight * scaleChangeFactor}px`;
-                //         layersRef.current[layer].style.left = `${layersRef.current[layer].offsetLeft + dx}px`;
-                //         layersRef.current[layer].style.top = `${layersRef.current[layer].offsetTop + dy}px`;
-
-                //     }
-                // }
-
-
             }   
         }
         else if(parseFloat(canvas.style.width) > display_size)
@@ -1098,16 +1042,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             backgroundCanvas.style.width = `${newSize}px`;
             backgroundCanvas.style.height = `${newSize}px`;
 
-
-            
-            // for(const layer in layersRef.current)
-            // {
-            //     if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
-            //         layersRef.current[layer].style.width = `${newSize}px`;
-            //         layersRef.current[layer].style.height = `${newSize}px`;
-            //     }
-            // }
-
             currentScale -= SCALE_FACTOR;
 
 
@@ -1120,15 +1054,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
     function resetCanvasPosition(){
      
-        // for(const layer in layersRef.current)
-        // {
-        //     if(Object.prototype.hasOwnProperty.call(layersRef.current,layer)){
-        //         layersRef.current[layer].style.width = `${originalCanvasWidth}px`;
-        //         layersRef.current[layer].style.height = `${originalCanvasWidth}px`;
-        //         layersRef.current[layer].style.left = "45%";
-        //         layersRef.current[layer].style.top = "45%";
-        //     }
-        // }
         canvas.style.width = `${originalCanvasWidth}px`;
         canvas.style.height = `${originalCanvasWidth}px`;
         canvas.style.left = "45%";
@@ -1173,12 +1098,12 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                     empty = false;
                     break;
                 }
-                //add pixels to scene here and not during mouse move
             }
             if(!empty){
                 frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDraw);
                 EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix:frames.current[currentFrameIndex].scene.pixels});
-                EventBus.getInstance().publish<drawOnSideBarCanvasType>(UPDATE_PREVIEW_FRAMES,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+                console.log("i finish draw current draw");
+                EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
                 frames.current[currentFrameIndex].redoStack.clear();
             }
         }
@@ -1189,7 +1114,8 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             const clean : Pixel[] = cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
             translateDrawToMainCanvas(clean,ctx,pixel_size,selectedColor,penSize,frames.current[currentFrameIndex].scene);
             EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix:frames.current[currentFrameIndex].scene.pixels});
-            EventBus.getInstance().publish<drawOnSideBarCanvasType>(UPDATE_PREVIEW_FRAMES,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+            console.log("in finish draw current draw top canvas");
+                EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
             frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
             frames.current[currentFrameIndex].redoStack.clear();            
         }

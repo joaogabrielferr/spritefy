@@ -182,49 +182,27 @@ export default class Scene{
 
     }
 
-    findNeighborsSize2(pixel : Pixel)
+
+    copyPixelMatrix(pixelMatrix : Pixel[][])
     {
-        const size = this.pixels[0].length;
 
-        const neighbors : Pixel[] = [];
-
-        for(let i = -1;i<=1;i++)
+        for(let i = 0;i<pixelMatrix.length;i++)
         {
-            for(let j = -1;j<=1;j++)
+            const row : Pixel[] = [];
+            for(let j = 0;j<pixelMatrix[i].length;j++)
             {
-                if(i == 0 && j == 0)continue;
-                {
-                    if(pixel.i + i >= 0 && pixel.i + i < size && pixel.j + j >= 0 && pixel.j + j < size)
-                        neighbors.push(this.pixels[pixel.i+i][pixel.j+j]);
-                }   
+                const pixel : Pixel = {
+                    i : pixelMatrix[i][j].i,
+                    j : pixelMatrix[i][j].j,
+                    x1 : pixelMatrix[i][j].x1,
+                    y1 : pixelMatrix[i][j].y1,
+                    id : pixelMatrix[i][j].id,
+                    bgColor : pixelMatrix[i][j].bgColor,
+                    colorStack : new Stack<string>(pixelMatrix[i][j].colorStack)
+                }
+                row.push(pixel);
             }
+            this.pixels.push(row);
         }
-
-        return neighbors;
-
     }
-
-    findNeighborsSize3(pixel : Pixel){
-
-        const size = this.pixels[0].length;
-
-        const neighbors : Pixel[] = [];
-
-        for(let i = -2;i<=2;i++)
-        {
-            for(let j = -2;j<=2;j++)
-            {
-                if(i == 0 && j == 0)continue;
-                {
-                    if(pixel.i + i >= 0 && pixel.i + i < size && pixel.j + j >= 0 && pixel.j + j < size)
-                        neighbors.push(this.pixels[pixel.i+i][pixel.j+j]);
-                }   
-            }
-        }
-
-        return neighbors;
-        
-
-    }
-
 }

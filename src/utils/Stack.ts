@@ -2,8 +2,13 @@ export class Stack<T>{
 
     self : T[];
 
-    constructor(){
+    constructor(copy? : Stack<T>){
         this.self = [];
+
+        if(copy)
+        {
+            this.self = [...copy.self];
+        }
     }
 
     push(value : T)

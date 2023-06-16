@@ -15,11 +15,9 @@ export function Preview(){
 
     let bgTileSize = 1;
 
-    const frames = useRef<{frame : string,pixelMatrix : Pixel[][]}[]>(
-        [{
-            frame:'frame1',
-            pixelMatrix : []
-        }]
+    //pixel matrices are passed by reference and are the same pixel matrices of editor
+    const frames = useRef<Frame[]>(
+        []
     );
 
     
@@ -41,20 +39,22 @@ export function Preview(){
         
         ctx.clearRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
 
-        for (let i = 0; i < frames.current[currentIndex].pixelMatrix.length; i++) {
-            for (let j = 0; j < frames.current[currentIndex].pixelMatrix[i].length; j++) {
-                if (!frames.current[currentIndex].pixelMatrix[i][j].colorStack.isEmpty()) {
-                    const color = frames.current[currentIndex].pixelMatrix[i][j].colorStack.top();
+        if(!frames.current[currentIndex])return;
+
+        for (let i = 0; i < frames.current[currentIndex].scene.pixels.length; i++) {
+            for (let j = 0; j < frames.current[currentIndex].scene.pixels[i].length; j++) {
+                if (!frames.current[currentIndex].scene.pixels[i][j].colorStack.isEmpty()) {
+                    const color = frames.current[currentIndex].scene.pixels[i][j].colorStack.top();
                     if(!color || color === ERASING)
                     {
 
-                        ctx.fillStyle = frames.current[currentIndex].pixelMatrix[i][j].bgColor;
-                        ctx.fillRect(frames.current[currentIndex].pixelMatrix[i][j].x1, frames.current[currentIndex].pixelMatrix[i][j].y1, 1, 1);
+                        ctx.fillStyle = frames.current[currentIndex].scene.pixels[i][j].bgColor;
+                        ctx.fillRect(frames.current[currentIndex].scene.pixels[i][j].x1, frames.current[currentIndex].scene.pixels[i][j].y1, 1, 1);
                     
                     }else
                     {
                         ctx.fillStyle = color;
-                        ctx.fillRect(frames.current[currentIndex].pixelMatrix[i][j].x1, frames.current[currentIndex].pixelMatrix[i][j].y1, 1, 1);
+                        ctx.fillRect(frames.current[currentIndex].scene.pixels[i][j].x1, frames.current[currentIndex].scene.pixels[i][j].y1, 1, 1);
                     }
                 }
             }
@@ -122,15 +122,13 @@ export function Preview(){
         }
     }
 
-    function updateFramesOnPreview(args : drawOnSideBarCanvasType)
+    function updateFramesOnPreview(_frames : Frame[])
     {
-        const {frame,pixelMatrix} = args;
 
-        const index = frames.current.findIndex((_frame) => _frame.frame === frame);
-        if(index >= 0)
-            frames.current[index].pixelMatrix = pixelMatrix;
-        else
-            frames.current.push({frame : frame,pixelMatrix: pixelMatrix});    
+        frames.current = _frames;
+
+        console.log("frames on preview now:",frames.current);
+
     }
 
     return <div className="Preview">
