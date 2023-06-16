@@ -224,7 +224,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         
 
         frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,bgTileSize);
-        console.log("in add new frame");
         EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
 
         setCurrentFrame(newFrame.name);
@@ -300,7 +299,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         {
             const newFramesList = [...framesList];
             newFramesList.splice(frameCopiedIndex + 1,0,newFrame.name);
-            console.log("new list:",newFramesList);
             setFramesList(newFramesList);
             
         }
@@ -333,7 +331,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         // if(insertIndex === newFramesList.length - 1)
         // {
-        //     console.log("copiando ultimo");
         //     newFramesList.push(newFrameName);
         //     newFrame.scene.copyPixelMatrix(frames.current[insertIndex].scene.pixels);
 
@@ -366,7 +363,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         // setTimeout(()=>{
         //     EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : newFrame.name,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
         // },500);
-        // console.log("current index after copying:",currentFrameIndex);
         // EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
         
 
@@ -390,7 +386,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             {   
                 undoLastDraw(pixel_size,ctx,frames.current[currentFrameIndex]);
                 EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
-                console.log("in keyZ");
 
                 EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
     
@@ -399,7 +394,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             {
                 redoLastDraw(ctx,pixel_size,frames.current[currentFrameIndex]);
                 EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
-                console.log("in keyY");
 
                 EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
 
@@ -1102,7 +1096,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             if(!empty){
                 frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDraw);
                 EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix:frames.current[currentFrameIndex].scene.pixels});
-                console.log("i finish draw current draw");
                 EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
                 frames.current[currentFrameIndex].redoStack.clear();
             }
@@ -1114,7 +1107,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             const clean : Pixel[] = cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
             translateDrawToMainCanvas(clean,ctx,pixel_size,selectedColor,penSize,frames.current[currentFrameIndex].scene);
             EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix:frames.current[currentFrameIndex].scene.pixels});
-            console.log("in finish draw current draw top canvas");
                 EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
             frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
             frames.current[currentFrameIndex].redoStack.clear();            

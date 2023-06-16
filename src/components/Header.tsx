@@ -2,35 +2,115 @@ import { ChangeEvent, useEffect, useRef } from "react";
 import { Logo } from "../svg/Logo";
 import './header.css';
 import { Github } from "../svg/Github";
+import { StoreType, store } from "../store";
+import GIF from 'gif.js';
+
 
 export function Header({isMobile} : {isMobile : boolean}){
 
-    const drawingNameInput = useRef<HTMLInputElement | null>(null);
     const downloadButton = useRef<HTMLButtonElement | null>(null);
+
+    const framesList = store((store : StoreType) => store.framesList);
 
 
     useEffect(function(){
 
-        if(drawingNameInput.current)drawingNameInput.current.value = "New Drawing*";
-   
+        const refAux = downloadButton.current;
+
+        function createGif(){
+            //generate gif from frames
+
+            //save all frame canvases as images
+            const images : string[] = [];
+
+            console.log("getting imageurl from all canvases on sidebar");
+            framesList.forEach((frame)=>{
+                const canvas : HTMLCanvasElement | null = document.getElementById(`${frame}@sidebar`) as HTMLCanvasElement;
+                if(canvas)
+                {
+                    images.push(canvas.toDataURL('image/png'));
+                }
+            })
+
+            console.log("result:",images);
+
+            const gif = new GIF({
+                workers: 2,
+                workerScript: '/public/gif.worker.js', 
+            });
+
+            console.log("add frames:");
+
+            let imagesProcessed = 0;
+            
+            images.forEach((imageDataURL)=>{
+
+                const image = new Image();
+                image.src = imageDataURL;
+                image.onload = () =>{
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    const ctx = canvas.getContext('2d')!;
+                    ctx.drawImage(image, 0, 0);
+                    gif.addFrame(canvas, { delay: 100 }); //TODO: Allow user to change the frame rate, currently hard coded in Preview.tsx
+                    console.log("frame added");
+
+                    imagesProcessed++;
+
+                    if(imagesProcessed === images.length)
+                    {
+                        gif.on('finished',(blob)=>{
+                            console.log("finish");
+                            const url = URL.createObjectURL(blob);
+                            
+                            // Create a link element
+                            const link = document.createElement("a");
+            
+                            // Set link's href to point to the Blob URL
+                            link.href = url;
+                            link.download = "animation.gif";
+            
+                            // Append link to the body
+                            document.body.appendChild(link);
+            
+                            // Dispatch click event on the link
+                            // This is necessary as link.click() does not work on the latest firefox
+                            link.dispatchEvent(
+                                new MouseEvent('click', { 
+                                bubbles: true, 
+                                cancelable: true, 
+                                view: window 
+                                })
+                            );
+            
+                            // Remove link from body
+                            document.body.removeChild(link);
+            
+                            
+                        });
+                        
+                        gif.render();
+                    }
+
+                }
+
+            });
+
+
+        }
+
          if(downloadButton.current){
-           downloadButton.current.addEventListener("click", function(){
-           let downloadLink = document.createElement("a");
-           downloadLink.setAttribute("download", "my_draw.png");
-           let dataURL = (document.getElementById('canvas') as HTMLCanvasElement)!.toDataURL("image/png");
-           let url = dataURL.replace(/^data:image\/png/, "data:application/octet-stream");
-           downloadLink.setAttribute("href", url);
-           downloadLink.click();
-           }
-       );
+           downloadButton.current.addEventListener("click",createGif);
      }
-   },[]);
 
+    return ()=>{
+        refAux!.removeEventListener("click",createGif);
+    }
 
-   function handleInputChange(event : ChangeEvent<HTMLInputElement>){
-        if(event.target.value.trim() === "")drawingNameInput.current!.value = "New drawing";
-        else drawingNameInput.current!.value = event.target.value;
-   }
+   },[framesList]);
+
 
 
     return <header className="header">
@@ -39,7 +119,6 @@ export function Header({isMobile} : {isMobile : boolean}){
                         <a href="https://github.com/joaogabrielferr/pixel-art-editor" target="_blank"><Github></Github></a>
                     </div>
                     {!isMobile && <div style = {{fontWeight:'bold'}}><Logo></Logo></div>}
-                    {/* {!isMobile && <input className = "drawingNameInput" ref = {drawingNameInput} type="text" onChange={handleInputChange}/>} */}
                     <button ref = {downloadButton} className = "downloadButton">DOWNLOAD DRAWING</button>
                 </div>
         </header>

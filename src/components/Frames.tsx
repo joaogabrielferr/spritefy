@@ -64,7 +64,6 @@ export function Frames(){
     const drawOnCanvas = useCallback((args : drawOnSideBarCanvasType)=>
     {  
         const {frame,pixelMatrix} = args;
-        console.log("dentro de frames, frame:",frame);
         
         if(!frame || !pixelMatrix)return;
         const canvas = (document.getElementById(`${frame}@sidebar`)as HTMLCanvasElement);

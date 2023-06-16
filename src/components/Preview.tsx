@@ -127,7 +127,6 @@ export function Preview(){
 
         frames.current = _frames;
 
-        console.log("frames on preview now:",frames.current);
 
     }
 
