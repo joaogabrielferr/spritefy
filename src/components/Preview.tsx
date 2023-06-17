@@ -1,17 +1,21 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { BG_COLORS, CANVAS_SIZE, ERASING, UPDATE_PREVIEW_FRAMES } from '../utils/constants';
 import './preview.css';
 import { Frame, Pixel, drawOnSideBarCanvasType } from '../types';
 import { EventBus } from '../EventBus';
+import { StoreType, store } from '../store';
 
 export function Preview(){
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const previewInterval = useRef<number>(0);
-    const frameRate = 10;
+
+    const frameRate = store((store : StoreType) => store.frameRate);
+    const setFrameRate = store((store : StoreType) => store.setFrameRate);
+
     const frameDuration = 1000/frameRate;
 
-    let currentIndex = 0;
+    const currentIndex = useRef<number>(0);
 
     let bgTileSize = 1;
 
@@ -21,16 +25,16 @@ export function Preview(){
     );
 
     
-    function startPreview(){
+    const startPreview = useCallback(()=>{
         previewInterval.current = setInterval(()=>{
             redrawPreview();
-            currentIndex++;
-            if(currentIndex >= frames.current.length)
+            currentIndex.current++;
+            if(currentIndex.current >= frames.current.length)
             {
-                currentIndex = 0;
+                currentIndex.current = 0;
             }
         },frameDuration);
-    }
+    },[frameDuration]);
 
     //this is probably inefficient ¯\_(ツ)_/¯
     function redrawPreview()
@@ -39,22 +43,22 @@ export function Preview(){
         
         ctx.clearRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
 
-        if(!frames.current[currentIndex])return;
+        if(!frames.current[currentIndex.current])return;
 
-        for (let i = 0; i < frames.current[currentIndex].scene.pixels.length; i++) {
-            for (let j = 0; j < frames.current[currentIndex].scene.pixels[i].length; j++) {
-                if (!frames.current[currentIndex].scene.pixels[i][j].colorStack.isEmpty()) {
-                    const color = frames.current[currentIndex].scene.pixels[i][j].colorStack.top();
+        for (let i = 0; i < frames.current[currentIndex.current].scene.pixels.length; i++) {
+            for (let j = 0; j < frames.current[currentIndex.current].scene.pixels[i].length; j++) {
+                if (!frames.current[currentIndex.current].scene.pixels[i][j].colorStack.isEmpty()) {
+                    const color = frames.current[currentIndex.current].scene.pixels[i][j].colorStack.top();
                     if(!color || color === ERASING)
                     {
 
-                        ctx.fillStyle = frames.current[currentIndex].scene.pixels[i][j].bgColor;
-                        ctx.fillRect(frames.current[currentIndex].scene.pixels[i][j].x1, frames.current[currentIndex].scene.pixels[i][j].y1, 1, 1);
+                        ctx.fillStyle = frames.current[currentIndex.current].scene.pixels[i][j].bgColor;
+                        ctx.fillRect(frames.current[currentIndex.current].scene.pixels[i][j].x1, frames.current[currentIndex.current].scene.pixels[i][j].y1, 1, 1);
                     
                     }else
                     {
                         ctx.fillStyle = color;
-                        ctx.fillRect(frames.current[currentIndex].scene.pixels[i][j].x1, frames.current[currentIndex].scene.pixels[i][j].y1, 1, 1);
+                        ctx.fillRect(frames.current[currentIndex.current].scene.pixels[i][j].x1, frames.current[currentIndex.current].scene.pixels[i][j].y1, 1, 1);
                     }
                 }
             }
@@ -84,23 +88,8 @@ export function Preview(){
     }
 
     calculateBgTileSize();
-    
-    useEffect(()=>{
-        
-        drawBackground()
-        
-        EventBus.getInstance().subscribe(UPDATE_PREVIEW_FRAMES,updateFramesOnPreview);
 
-        startPreview();
-
-        return ()=>{
-            finishPreview();
-        }
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[]);
-    
-    function drawBackground()
+    const drawBackground = useCallback(()=>
     {
         const ctx = (document.getElementById("previewBG")as HTMLCanvasElement).getContext('2d')!;
         
@@ -120,7 +109,22 @@ export function Preview(){
                 a = a ? 0 : 1;
             }
         }
-    }
+    },[bgTileSize]);
+    
+    useEffect(()=>{
+        
+        drawBackground()
+        
+        EventBus.getInstance().subscribe(UPDATE_PREVIEW_FRAMES,updateFramesOnPreview);
+
+        startPreview();
+
+        return ()=>{
+            finishPreview();
+        }
+
+    },[drawBackground, startPreview]);
+    
 
     function updateFramesOnPreview(_frames : Frame[])
     {
@@ -137,6 +141,16 @@ export function Preview(){
             <div className="PreviewCanvasWrapper">
                 <canvas width={CANVAS_SIZE} ref = {canvas} height={CANVAS_SIZE} className = "canvasPreview" id = "previewTop" style = {{width:'180px',height:'180px',zIndex:1}}></canvas>
                 <canvas width={CANVAS_SIZE} height={CANVAS_SIZE} className = "canvasPreview" id = "previewBG" style = {{width:'180px',height:'180px',zIndex:0}}></canvas>
+            </div>
+            <div>
+            <div style = {{width:'180px',margin:'0 auto',display:'flex'}}>
+                    <div style = {{color:'white',fontSize:'12px',width:'30%'}}>{frameRate} FPS</div>
+                <div className = "SliderWrapper">
+                    <div className ="SliderRange">
+                        <input className = "Slider" type="range" min={1} max={12} value={frameRate} onChange={(e)=>setFrameRate(+e.target.value)} id="range" /> 
+                    </div>
+                </div>
+            </div>
             </div>
     </div>
 }

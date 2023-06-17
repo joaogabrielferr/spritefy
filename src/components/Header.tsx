@@ -23,7 +23,6 @@ export function Header({isMobile} : {isMobile : boolean}){
             //save all frame canvases as images
             const images : string[] = [];
 
-            console.log("getting imageurl from all canvases on sidebar");
             framesList.forEach((frame)=>{
                 const canvas : HTMLCanvasElement | null = document.getElementById(`${frame}@sidebar`) as HTMLCanvasElement;
                 if(canvas)
@@ -32,14 +31,12 @@ export function Header({isMobile} : {isMobile : boolean}){
                 }
             })
 
-            console.log("result:",images);
 
             const gif = new GIF({
                 workers: 2,
                 workerScript: '/public/gif.worker.js', 
             });
 
-            console.log("add frames:");
 
             let imagesProcessed = 0;
             
@@ -55,14 +52,12 @@ export function Header({isMobile} : {isMobile : boolean}){
                     const ctx = canvas.getContext('2d')!;
                     ctx.drawImage(image, 0, 0);
                     gif.addFrame(canvas, { delay: 100 }); //TODO: Allow user to change the frame rate, currently hard coded in Preview.tsx
-                    console.log("frame added");
 
                     imagesProcessed++;
 
                     if(imagesProcessed === images.length)
                     {
                         gif.on('finished',(blob)=>{
-                            console.log("finish");
                             const url = URL.createObjectURL(blob);
                             
                             // Create a link element

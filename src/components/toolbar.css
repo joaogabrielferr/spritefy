@@ -13,14 +13,13 @@
 .toolbarItem{
     margin-bottom: 15px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
-    width: 95%;
+    width: 90%;
     border: 1px solid #555555;
-    background-color: rgb(58, 57, 57);
-
-
+    border-radius: 2px;
+    background-color: rgb(77, 77, 77);
 }
 
 
@@ -87,7 +86,7 @@
 }
 
 .InnerToolOptions > div{
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .penSizeSlider {

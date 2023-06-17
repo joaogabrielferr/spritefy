@@ -3,7 +3,7 @@
 body{
     margin: 0;
     padding: 0;
-    background-color: rgb(54, 53, 53);
+    background-color: rgb(46, 46, 49);
     /* background-color: rgb(233, 233, 233); */
     overflow: hidden;
     font-family: 'Roboto', sans-serif;
@@ -63,6 +63,101 @@ body{
     width: 99%;
     color: white;
 }
+
+
+.Slider {
+    /* removing default appearance */
+    -webkit-appearance: none;
+    appearance: none; 
+    /* creating a custom design */
+    width: 100%;
+    cursor: pointer;
+    outline: none;
+    cursor: grab;
+    border: 1px solid rgb(20, 20, 20);
+    border-radius: 2px;
+    /*  slider progress trick  */
+    overflow: hidden;
+    margin: 0;
+  
+  }
+  
+  .Slider:active{
+    cursor: grabbing;
+    border-style: none;
+    border: 1px solid rgb(20, 20, 20);
+  }
+  
+  
+  /* Track: webkit browsers */
+  .Slider::-webkit-slider-runnable-track {
+    height: 13px;
+    background: #252525;
+  }
+  
+  /* Track: Mozilla Firefox */
+  .Slider::-moz-range-track {
+    height: 13px;
+    background: #111;
+  }
+  
+  /* Thumb: webkit */
+  .Slider::-webkit-slider-thumb {
+    /* removing default appearance */
+    -webkit-appearance: none;
+    appearance: none; 
+    /* creating a custom design */
+    height: 13px;
+    width: 15px;
+    background-color: #634cb8;
+    border: 2px solid #634cb8;
+    /*  slider progress trick  */
+    box-shadow: -407px 0 0 400px #634cb8;
+  }
+  
+  
+  /* Thumb: Firefox */
+  .Slider::-moz-range-thumb {
+    height: 13px;
+    width: 15px;
+    background-color:  #634cb8;
+    border: 1px solid  #634cb8;
+    /*  slider progress trick  */
+    box-shadow: -407px 0 0 400px  #634cb8;
+  }
+  
+  
+  .SliderRange{
+    display: flex;
+    width: 100%;
+  }
+  
+  .SliderValue{
+    font-size: 12px;
+    width: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    color: white;
+    left: 90%;
+    top:8%;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  .SliderWrapper{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    align-items: center;
+  }
+
 
 @media screen and (max-width:768px) {
     

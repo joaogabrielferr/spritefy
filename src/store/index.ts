@@ -10,14 +10,10 @@ export type StoreType = {
     oneToOneRatioRectangle : boolean;
     xMirror : boolean;
     yMirror : boolean;
-
-    //layers : Layer[];
-
     framesList : string[]; //list of the names of all frames created
-    
     currentFrame : string;
-
     backgroundTileSize : number;
+    frameRate : number;
 
     setSelectedColor : (color : string) => void,
     setSelectedTool : (tool : toolsType) => void,
@@ -29,7 +25,9 @@ export type StoreType = {
     //setLayers : (newLayers : Layer[]) => void,
     setCurrentFrame : (newLayer : string) => void,
     setFramesList : (newFrames : string[]) => void,
-    setBackgroundTileSize : (newSzie : number) => void
+    setBackgroundTileSize : (newSize : number) => void,
+    setFrameRate : (newFrameRate : number) => void,
+
 }
 
 
@@ -45,6 +43,7 @@ export const store = create<StoreType>()((set)=>({
     framesList : ['frame1'],
     currentFrame : 'frame1',
     backgroundTileSize : 1,
+    frameRate:10,
     setSelectedColor : (color : string) => set(()=> ({selectedColor : color})),
     setSelectedTool : (tool : toolsType) => set(()=> ({selectedTool : tool})),
     setPenSize : (size : number) => set(() => ({penSize : size,previousPenSize : size})),
@@ -55,5 +54,7 @@ export const store = create<StoreType>()((set)=>({
     //setLayers : (newLayers : Layer[]) => set(()=>({layers : newLayers})),
     setCurrentFrame : (newFrame : string) => set(()=>({currentFrame : newFrame})),
     setFramesList : (newFrames : string[]) => set(() => ({framesList : newFrames})),
-    setBackgroundTileSize : (newSize : number) => set(() => ({backgroundTileSize : newSize}))
+    setBackgroundTileSize : (newSize : number) => set(() => ({backgroundTileSize : newSize})),
+    setFrameRate : (newFrameRate : number) => set(() => ({frameRate : newFrameRate})),
+
 }));

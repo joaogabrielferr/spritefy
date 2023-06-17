@@ -86,7 +86,7 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
 
             <div className="toolbarItem">
                 <ToolOptions>
-                    <div style = {{marginTop:'5px',fontSize:'12px'}}>{selectedTool}</div>
+                    <div style = {{marginTop:'5px',fontSize:'12px'}}>{selectedTool.toUpperCase()}</div>
                     {
                     (['pencil','eraser','line','rectangle','elipse'].find((tool)=>tool === selectedTool)) && <div>
                         <div className = "toolTitle" style = {{marginTop:'5px'}}>Pen size</div>
@@ -121,7 +121,7 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
                         </div>
                     }
                     {
-                        (['pencil','eraser'].find((tool)=>tool === selectedTool)) && !isMobile && <div>
+                        (['eraser'].find((tool)=>tool === selectedTool)) && !isMobile && <div>
                             <label className="checkbox">
                             Enable right click erase 
                             <input type="checkbox" id = "MirrorXAxis"/>
@@ -141,16 +141,15 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
 
 function PenSizeSlider(){
 
-    // const {penSize,setPenSize} = useContext(penSizeContext);
     const penSize = store((state : StoreType) => state.penSize);
     const setPenSize = store((state : StoreType) => state.setPenSize);
 
     return <>
-            <div className = "penSizeWrapper">
-                <div className ="penSizeRange">
-                    <input className = "penSizeSlider" type="range" min={1} max={10} value={penSize} onChange={(e)=>setPenSize(+e.target.value)} id="range" /> 
+            <div className = "SliderWrapper">
+                <div className ="SliderRange">
+                    <input className = "Slider" type="range" min={1} max={10} value={penSize} onChange={(e)=>setPenSize(+e.target.value)} id="range" /> 
                 </div>
-                <div className ="penSizeValue">{penSize}</div>
+                <div className ="SliderValue">{penSize}</div>
             </div>
     </>
 }

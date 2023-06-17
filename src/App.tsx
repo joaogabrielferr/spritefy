@@ -18,8 +18,6 @@ import { Tooltip } from 'react-tooltip';
 import CustomColorPicker from "./components/ColorPicker";
 import { EventBus } from "./EventBus";
 import { RESET_CANVAS_POSITION } from "./utils/constants";
-import { LeftArrow } from "./svg/LeftArrow";
-import { RightArrow } from "./svg/RightArrow";
 import { store,StoreType } from "./store";
 import { Frames } from "./components/Frames";
 import { Preview } from "./components/Preview";
@@ -34,8 +32,6 @@ const ToolButtons = [
   {tool:'line',svg: <Line/>,tooltip:'Pencil stroke line(L or 5)'},
   {tool: 'rectangle',svg : <Square/>,tooltip:'Rectangle tool(R or 6)'},
   {tool: 'elipse',svg : <Circle/>,tooltip:'Circle tool(C or 7)'},
-  {tool: 'undo',svg : <LeftArrow/>,tooltip:'Undo last draw(Ctrl + Z)'},
-  {tool: 'redo',svg : <RightArrow/>,tooltip:'Redo last draw(Ctrl + Y)'},
 ] as ToolButton[];
 
 
@@ -136,7 +132,7 @@ function App() {
                 
                 <div style = {{width:'100%',height:cssCanvasSize}}>
                   {/* extra bar TODO:CREATE A COMPONENT FOR THIS EXTRA BAR*/}
-                <div style = {{width:'100%',height:'30px',backgroundColor:'rgb(73, 71, 71)',display:'flex',justifyContent:'flex-start',alignItems:'center'}}>
+                <div style = {{width:'100%',height:'30px',backgroundColor:'rgb(46, 46, 49)',display:'flex',justifyContent:'flex-start',alignItems:'center'}}>
                   <span id = "coordinates" style = {{color:'white',fontSize:'12px',marginRight:'20px'}}>{"[X:0,Y:0]"}</span>
                   <button onClick = {()=>{EventBus.getInstance().publish(RESET_CANVAS_POSITION)}}>reset canvas position</button>
                   <button>show default cursor</button>
