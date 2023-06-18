@@ -35,12 +35,11 @@ const ToolButtons = [
 ] as ToolButton[];
 
 
-//TODO: Add frame functionality
+//TODO: fix downloaded gif not having correct frame rate
 //TODO: add pixel_size and display_size as global states (and stop using CANVAS_SIZE)
 //TODO: add eslint to project
 //TODO: add styled components
 //TODO: save image (check if its possible to save pixel matrix, if not generate an image and save it)
-//TODO: Decrease canvas (not cssCanvasSize!!!) as window becomes smaller (i added a onresizehandler that changes cssCanvasSize, the size of canvas is set on editor.tsx in a useeffect that has cssCanvasSize as dep, simply adjust the values there)
 //TODO: Add tutorial if opened for the first time
 //TODO: Add license page to add licenses of libs used (tabler-icon)
 

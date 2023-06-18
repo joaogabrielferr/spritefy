@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Logo } from "../svg/Logo";
 import './header.css';
 import { Github } from "../svg/Github";
@@ -12,6 +12,7 @@ export function Header({isMobile} : {isMobile : boolean}){
 
     const framesList = store((store : StoreType) => store.framesList);
 
+    const frameRate = store((store : StoreType) => store.frameRate);
 
     useEffect(function(){
 
@@ -29,7 +30,7 @@ export function Header({isMobile} : {isMobile : boolean}){
                 {
                     images.push(canvas.toDataURL('image/png'));
                 }
-            })
+            });
 
 
             const gif = new GIF({
@@ -51,27 +52,31 @@ export function Header({isMobile} : {isMobile : boolean}){
                     canvas.height = image.height;
                     const ctx = canvas.getContext('2d')!;
                     ctx.drawImage(image, 0, 0);
-                    gif.addFrame(canvas, { delay: 100 }); //TODO: Allow user to change the frame rate, currently hard coded in Preview.tsx
+                    gif.addFrame(canvas, { delay: frameRate });
 
                     imagesProcessed++;
 
                     if(imagesProcessed === images.length)
                     {
                         gif.on('finished',(blob)=>{
-                            const url = URL.createObjectURL(blob);
                             
-                            // Create a link element
                             const link = document.createElement("a");
-            
-                            // Set link's href to point to the Blob URL
-                            link.href = url;
-                            link.download = "animation.gif";
-            
-                            // Append link to the body
-                            document.body.appendChild(link);
-            
-                            // Dispatch click event on the link
-                            // This is necessary as link.click() does not work on the latest firefox
+                            if(images.length === 1)
+                            {
+                                link.href = images[0];
+                                link.download = "pixeldrawing.png";
+                                
+
+                            }else
+                            {
+                                const url = URL.createObjectURL(blob);
+                                link.href = url;
+                                link.download = "animation.gif";
+                                document.body.appendChild(link);
+
+                            }
+
+                            
                             link.dispatchEvent(
                                 new MouseEvent('click', { 
                                 bubbles: true, 
@@ -79,8 +84,7 @@ export function Header({isMobile} : {isMobile : boolean}){
                                 view: window 
                                 })
                             );
-            
-                            // Remove link from body
+                            
                             document.body.removeChild(link);
             
                             
@@ -104,7 +108,7 @@ export function Header({isMobile} : {isMobile : boolean}){
         refAux!.removeEventListener("click",createGif);
     }
 
-   },[framesList]);
+   },[frameRate, framesList]);
 
 
 

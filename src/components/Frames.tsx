@@ -57,7 +57,7 @@ export function Frames(){
             firstInRow = firstInRow ? 0 : 1;
             for (let j = 0; j <= CANVAS_SIZE; j += bgTileSize) {
                 ctx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
-                ctx.fillRect(i, j, 10, 10);
+                ctx.fillRect(i, j, bgTileSize, bgTileSize);
                 a = a ? 0 : 1;
             }
         }

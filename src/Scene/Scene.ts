@@ -140,23 +140,6 @@ export default class Scene{
 
       return pixel;
 
-
-        //this O(n^2) search was making the pen stroke sloooow
-        
-        // for (let i = 0; i < this.pixels.length; i++) {
-        //   if (flag) break;
-        //   for (let j = 0; j < this.pixels[i].length; j++) {
-        //     if (xs >= this.pixels[i][j].x1 && xs < this.pixels[i][j].x1 + pixel_size && ys >= this.pixels[i][j].y1 && ys < this.pixels[i][j].y1 + pixel_size) {
-        //       pixel = this.pixels[i][j];
-        //       // idxi = i;
-        //       // idxj = j;
-        //       flag = true;
-        //       break;
-        //     }
-        //   }
-        // }
-
-        // return pixel;
     }
 
 

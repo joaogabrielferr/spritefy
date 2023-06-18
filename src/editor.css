@@ -24,7 +24,7 @@
     /* cursor:crosshair; */
     /* cursor: url('../svg/pencil.svg'),auto; */
 
-    cursor:none;
+    /* cursor:none; */
 
     image-rendering: optimizeSpeed; /* Older browsers */
     image-rendering: -moz-crisp-edges; /* Firefox */
