@@ -1,5 +1,5 @@
 .frames{
-    width: 100%;
+    width: 95%;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -7,6 +7,10 @@
     align-items: center;
     color:white;
     user-select: none;
+    border-radius: 3px;
+    background-color: rgb(77, 77, 77);
+    margin-top: 10px;
+
 }
 
 .framesTitle{
@@ -16,7 +20,7 @@
 }
 
 .createNewFrameWrapper{
-    width: 99%;
+    width: 95%;
     height: 50px;
     display: flex;
     justify-content: center;
@@ -49,8 +53,7 @@
     justify-content: flex-start;
     align-items: center;
     margin-top:5px;
-    background-color: rgb(121, 121, 121);
-    
+    background-color: rgb(121, 121, 121);    
 }
 
 .frameCanvasWrapper{
@@ -72,6 +75,9 @@
 }
 
 .frameCanvas{
+    position: absolute;
+    top: 0;
+    left: 0;
     image-rendering: optimizeSpeed; /* Older browsers */
     image-rendering: -moz-crisp-edges; /* Firefox */
     image-rendering: -o-crisp-edges; /* Opera */
@@ -93,6 +99,7 @@
     cursor: pointer;
     display: none;
     position: absolute;
+    z-index: 3;
 }
 
 .moveFrameUp{
@@ -107,12 +114,13 @@
     align-items: center;
     cursor: pointer;
     display: none;
+    z-index: 3;
 }
 
 .frameOptions{
     width: 100%;
     height: 100%;
-    background-color: rgb(48, 48, 48);
+    background-color: rgb(100, 100, 100);
     display: flex;
     flex-direction: column;
     justify-content: space-between;

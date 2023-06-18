@@ -162,19 +162,19 @@ export function Frames(){
 
 
     return <div className = "frames">
-        <div className="framesTitle">
+        {/* <div className="framesTitle">
             FRAMES
-        </div>
+        </div> */}
         {
             framesList.map((frame,index)=>{
 
                 return <div className = "frameWrapper" key = {frame} style = {{height:'90px',width:'95%',border:frame === currentFrame ? `3px solid #000000` : undefined}}>
                     <div 
-                    className = "frameCanvasWrapper" style = {{width:'90px',height:'90px'}}
+                    className = "frameCanvasWrapper" 
                     onClick = {()=>changeCurrentFrame(frame)}
                     >
-                    <canvas className = "frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id = {`${frame}@sidebar`} style = {{width:'90px',height:'90px'}}></canvas>
-                    {/* {prepareFrameName(frame)} */}
+                    <canvas className = "frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id = {`${frame}@sidebar`} style = {{width:'100%',height:'100%',zIndex:1}}></canvas>
+                    <canvas className = "frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id = {`${frame}background@sidebar`} style = {{width:'100%',height:'100%',zIndex:0}}></canvas>
                     {framesList.length > 1 && index != 0 && <div className="moveFrameUp">
                         <button onClick = {()=>swapFrames(framesList[index-1],frame)} style = {{backgroundColor:'transparent',borderStyle:'none',color:'white',cursor:'pointer',width:'100%',height:'100%',margin:'0 auto',display:'flex',justifyContent:'center',alignItems:'center'}}>
                             <UpArrow/>

@@ -6,7 +6,7 @@
     align-items: center;
     flex-direction: column;
     overflow-y:auto;
-    background-color: rgb46, 46, 49);
+    /* background-color: rgb(46, 46, 49); */
     /* border: 1px solid gray; */
 }
 

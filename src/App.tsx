@@ -165,12 +165,12 @@ function App() {
               
              
           </section>
-          {
+          {/* {
             !isMobile && <Tooltip id="my-tooltip" place="bottom" style={{zIndex:9999,backgroundColor:'#634cb8'}}/>
           }
           {
             !isMobile && <Tooltip id="my-tooltip-layers" place="left" style={{zIndex:9999,backgroundColor:'#634cb8'}}/>
-          }
+          } */}
           <div className = "footer">
             {/* <button onClick = {handleResetCanvasPosition}>center canvas</button>
             <p id = "coordinates">{"[X:0,Y:0]"}</p> */}

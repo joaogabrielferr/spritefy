@@ -46,13 +46,13 @@ export function Header({isMobile} : {isMobile : boolean}){
                 const image = new Image();
                 image.src = imageDataURL;
                 image.onload = () =>{
-
+                    console.log("framerate:",frameRate);
                     const canvas = document.createElement('canvas');
                     canvas.width = image.width;
                     canvas.height = image.height;
                     const ctx = canvas.getContext('2d')!;
                     ctx.drawImage(image, 0, 0);
-                    gif.addFrame(canvas, { delay: frameRate });
+                    gif.addFrame(canvas, { delay: 1000/frameRate });
 
                     imagesProcessed++;
 
