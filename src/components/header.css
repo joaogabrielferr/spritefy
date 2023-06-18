@@ -5,7 +5,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgb(77, 82, 100);
+    background-color: rgb(212, 212, 212);
     
 }
 
@@ -15,7 +15,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: #111;
+    /* color: #111; */
 }
 
 .drawingNameInput{

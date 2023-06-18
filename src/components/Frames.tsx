@@ -2,10 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import { EventBus } from "../EventBus";
 import { StoreType, store } from "../store"
 import {drawOnSideBarCanvasType } from "../types";
-import { BG_COLORS, CANVAS_SIZE, COPY_FRAME, CREATE_NEW_FRAME, DELETE_FRAME, DRAW_ON_SIDEBAR_CANVAS, ERASING, SELECT_FRAME} from "../utils/constants";
+import { BG_COLORS, CANVAS_SIZE, COPY_FRAME, CREATE_NEW_FRAME, DELETE_FRAME, DRAW_ON_SIDEBAR_CANVAS, ERASING, SELECT_FRAME, SWAP_FRAMES} from "../utils/constants";
 import './frames.css';
 import { Trash } from "../svg/Trash";
 import { Copy } from "../svg/Copy";
+import { UpArrow } from "../svg/UpArrow";
+import { DownArrow } from "../svg/DownArrow";
 
 
 
@@ -105,7 +107,7 @@ export function Frames(){
                 }
             }
         }
-    },[bgTileSize, framesList]);
+    },[bgTileSize]);
     
     useEffect(()=>{
 
@@ -153,6 +155,12 @@ export function Frames(){
         EventBus.getInstance().publish(COPY_FRAME,frame);
     }
 
+    function swapFrames(frame1:string,frame2:string)
+    {
+        EventBus.getInstance().publish(SWAP_FRAMES,{frame1,frame2});
+    }
+
+
     return <div className = "frames">
         <div className="framesTitle">
             FRAMES
@@ -160,7 +168,6 @@ export function Frames(){
         {
             framesList.map((frame,index)=>{
 
-                // return (frame != TOP_CANVAS && frame != BACKGROUND_CANVAS) && 
                 return <div className = "frameWrapper" key = {frame} style = {{height:'90px',width:'95%',border:frame === currentFrame ? `3px solid #000000` : undefined}}>
                     <div 
                     className = "frameCanvasWrapper" style = {{width:'90px',height:'90px'}}
@@ -168,6 +175,18 @@ export function Frames(){
                     >
                     <canvas className = "frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id = {`${frame}@sidebar`} style = {{width:'90px',height:'90px'}}></canvas>
                     {/* {prepareFrameName(frame)} */}
+                    {framesList.length > 1 && index != 0 && <div className="moveFrameUp">
+                        <button onClick = {()=>swapFrames(framesList[index-1],frame)} style = {{backgroundColor:'transparent',borderStyle:'none',color:'white',cursor:'pointer',width:'100%',height:'100%',margin:'0 auto',display:'flex',justifyContent:'center',alignItems:'center'}}>
+                            <UpArrow/>
+                        </button>
+                    </div>
+                    }
+                    {framesList.length > 1 && index != framesList.length - 1 && <div className="moveFrameDown">
+                        <button onClick = {()=>swapFrames(frame,framesList[index+1])} style = {{backgroundColor:'transparent',borderStyle:'none',color:'white',cursor:'pointer',width:'100%',height:'100%',margin:'0 auto',display:'flex',justifyContent:'center',alignItems:'center'}}>
+                            <DownArrow/>
+                        </button>
+                    </div>
+                    }
                     </div>
                     <div className="frameOptions">
                         <div>FRAME {index + 1}</div>

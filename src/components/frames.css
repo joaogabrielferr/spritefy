@@ -6,6 +6,7 @@
     justify-content: flex-start;
     align-items: center;
     color:white;
+    user-select: none;
 }
 
 .framesTitle{
@@ -58,7 +59,16 @@
     display: flex;
     justify-content: flex-start;
     align-items: start;
-    cursor: pointer;
+    /* cursor: pointer; */
+    position: relative;
+}
+
+.frameCanvasWrapper:hover .moveFrameDown{
+    display: block;
+}
+
+.frameCanvasWrapper:hover .moveFrameUp{
+    display: block;
 }
 
 .frameCanvas{
@@ -69,6 +79,34 @@
     image-rendering: optimize-contrast; /* CSS3 Proposed */
     -ms-interpolation-mode: nearest-neighbor; /* IE8+ */
     image-rendering: pixelated; /* CSS4 (Chrome 41+) and FireFox 49+ */
+}
+
+.moveFrameDown{
+    width: 30px;
+    height: 30px;
+    background-color: rgb(100, 100, 100);
+    top: 60px;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    display: none;
+    position: absolute;
+}
+
+.moveFrameUp{
+    width: 30px;
+    height: 30px;
+    background-color: rgb(100, 100, 100);
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    display: none;
 }
 
 .frameOptions{

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { BG_COLORS, CANVAS_SIZE, ERASING, UPDATE_PREVIEW_FRAMES } from '../utils/constants';
 import './preview.css';
 import { Frame, Pixel, drawOnSideBarCanvasType } from '../types';
@@ -9,6 +9,8 @@ export function Preview(){
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const previewInterval = useRef<number>(0);
+
+    const [counter,setCounter] = useState(0);
 
     const frameRate = store((store : StoreType) => store.frameRate);
     const setFrameRate = store((store : StoreType) => store.setFrameRate);
@@ -26,6 +28,7 @@ export function Preview(){
 
     
     const startPreview = useCallback(()=>{
+        counter;
         previewInterval.current = setInterval(()=>{
             redrawPreview();
             currentIndex.current++;
@@ -34,9 +37,8 @@ export function Preview(){
                 currentIndex.current = 0;
             }
         },frameDuration);
-    },[frameDuration]);
+    },[frameDuration,counter]);
 
-    //this is probably inefficient ¯\_(ツ)_/¯
     function redrawPreview()
     {
         const ctx = canvas.current!.getContext('2d')!;
@@ -74,7 +76,7 @@ export function Preview(){
     function calculateBgTileSize()
     {
         const factors = [];
-        for(let i = 1;i<=CANVAS_SIZE;i++)
+        for(let i = 1;i<=CANVAS_SIZE;i++)//CANVAS_SIZE is at most 500
         {
             if(CANVAS_SIZE%i === 0)factors.push(i);
         }
@@ -130,6 +132,7 @@ export function Preview(){
     {
 
         frames.current = _frames;
+        setCounter(counter=>counter+1);
 
 
     }

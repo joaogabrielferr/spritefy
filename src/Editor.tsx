@@ -13,7 +13,8 @@ SELECT_FRAME,
 DELETE_FRAME,
 UPDATE_PREVIEW_FRAMES,
 COPY_FRAME,
-ERASING
+ERASING,
+SWAP_FRAMES
 }
  from './utils/constants';
 import Mouse from './scene/Mouse';
@@ -319,56 +320,33 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : newFrame.name,pixelMatrix:frames.current[currentFrameIndex].scene.pixels});
         },500);
 
-        
-        // const newFrameName = `frame${Date.now()}`;
-
-        // const newFramesList = [...framesList];
-
-        // const insertIndex = newFramesList.findIndex((frame) => frame === _frame);
-
-        // const newFrame = createNewFrame();
-        // newFrame.name = newFrameName;
-
-        // if(insertIndex === newFramesList.length - 1)
-        // {
-        //     newFramesList.push(newFrameName);
-        //     newFrame.scene.copyPixelMatrix(frames.current[insertIndex].scene.pixels);
-
-        //     frames.current.push(newFrame);
-
-        //     currentFrameIndex = frames.current.length - 1;
-
-        // }else
-        // {
-        //     newFramesList.splice(insertIndex + 1,0,newFrameName);
-
-        //     newFrame.scene.copyPixelMatrix(frames.current[insertIndex].scene.pixels);
-
-        //     frames.current.splice(insertIndex + 1,0,newFrame);
-
-        //     currentFrameIndex = insertIndex + 1;
-            
-            
-        // }
-        
-        // setCurrentFrame(newFrame.name);
-        
-        // setFramesList(newFramesList);
-        
-        // resetCanvasPosition();
-        
-        // draw(bgTileSize);
-        
-        // //the end justifies the means
-        // setTimeout(()=>{
-        //     EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : newFrame.name,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
-        // },500);
-        // EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
-        
-
-
 
     },[framesList, setCurrentFrame, setFramesList]);
+
+
+    const swapFrames = useCallback(({frame1,frame2} : {frame1:string,frame2:string})=>
+    {
+        const frame1index = frames.current.findIndex((frame)=>frame.name === frame1);
+        const frame2index = frames.current.findIndex((frame)=>frame.name === frame2);
+
+        if(frame1index < 0 || frame2index < 0)return;
+
+        const aux = frames.current[frame1index];
+        frames.current[frame1index] = frames.current[frame2index];
+        frames.current[frame2index] = aux;
+
+        const newFramesList = [...framesList];
+
+        const aux2 = newFramesList[frame1index];
+        newFramesList[frame1index] = newFramesList[frame2index];
+        newFramesList[frame2index] = aux2;
+
+        EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
+
+        setFramesList(newFramesList);
+
+    },[framesList, setFramesList]);
+
 
     useEffect(()=>{
 
@@ -377,6 +355,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         const createNewFrameSubscription = EventBus.getInstance().subscribe(CREATE_NEW_FRAME,addNewFrame);
         const deleteFrameSubscription = EventBus.getInstance().subscribe(DELETE_FRAME,deleteFrame);
         const copyFrameSubscription = EventBus.getInstance().subscribe(COPY_FRAME,copyFrame);
+        const swapFramesSubscription = EventBus.getInstance().subscribe(SWAP_FRAMES,swapFrames);
 
         draw(bgTileSize);
 
@@ -408,10 +387,11 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             createNewFrameSubscription.unsubscribe();
             deleteFrameSubscription.unsubscribe();
             copyFrameSubscription.unsubscribe();
+            swapFramesSubscription.unsubscribe();
             document.removeEventListener('keydown',checkKeyCombinations);
         }
 
-    },[addNewFrame, copyFrame, currentFrame, deleteFrame, selectFrame]);
+    },[addNewFrame, copyFrame, currentFrame, deleteFrame, selectFrame, swapFrames]);
 
 
     function draw(bgTileSize : number){
@@ -778,7 +758,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                             removeDraw(topCtx,[frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!,...frames.current[currentFrameIndex].scene.previousNeighborsWhileMovingMouse],pixel_size);
                         }
                         // topCtx.fillStyle = selectedColor;
-                        topCtx.fillStyle = 'rgb(196, 193, 206,0.5)';
+                        topCtx.fillStyle = 'rgba(59, 98, 255, 0.2)';
                         topCtx.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
                         let neighbors : Pixel[] = frames.current[currentFrameIndex].scene.findNeighbors(newPixel,penSize);
                         
@@ -786,7 +766,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                         {
                             for(let n of neighbors)
                             {
-                                topCtx.fillStyle = 'rgb(196, 193, 206,0.5)';
+                                topCtx.fillStyle = 'rgba(59, 98, 255, 0.2)';
                                 topCtx.fillRect(n.x1,n.y1,pixel_size,pixel_size);                                            
                             }
                         }

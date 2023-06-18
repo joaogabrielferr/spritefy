@@ -20,3 +20,4 @@ export const CREATE_NEW_FRAME = 'create-new-frame';
 export const DELETE_FRAME = 'delete-frame';
 export const UPDATE_PREVIEW_FRAMES = 'update-preview-frames';
 export const COPY_FRAME = 'copy-frame';
+export const SWAP_FRAMES = 'swap-frames';
