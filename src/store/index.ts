@@ -14,6 +14,7 @@ export type StoreType = {
     currentFrame : string;
     backgroundTileSize : number;
     frameRate : number;
+    erasingRightButton : boolean;
 
     setSelectedColor : (color : string) => void,
     setSelectedTool : (tool : toolsType) => void,
@@ -26,6 +27,7 @@ export type StoreType = {
     setFramesList : (newFrames : string[]) => void,
     setBackgroundTileSize : (newSize : number) => void,
     setFrameRate : (newFrameRate : number) => void,
+    toogleErasingRightButton : () => void
 
 }
 
@@ -42,6 +44,7 @@ export const store = create<StoreType>()((set)=>({
     currentFrame : 'frame1',
     backgroundTileSize : 1,
     frameRate: 6,
+    erasingRightButton : false,
     setSelectedColor : (color : string) => set(()=> ({selectedColor : color})),
     setSelectedTool : (tool : toolsType) => set(()=> ({selectedTool : tool})),
     setPenSize : (size : number) => set(() => ({penSize : size,previousPenSize : size})),
@@ -53,5 +56,6 @@ export const store = create<StoreType>()((set)=>({
     setFramesList : (newFrames : string[]) => set(() => ({framesList : newFrames})),
     setBackgroundTileSize : (newSize : number) => set(() => ({backgroundTileSize : newSize})),
     setFrameRate : (newFrameRate : number) => set(() => ({frameRate : newFrameRate})),
+    toogleErasingRightButton : () => set((state : StoreType) => ({erasingRightButton : !state.erasingRightButton}))
 
 }));

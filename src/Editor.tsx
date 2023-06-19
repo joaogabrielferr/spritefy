@@ -102,6 +102,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     const oneToOneRatioElipse = store((state : StoreType) => state.oneToOneRatioElipse);
     const xMirror = store((state : StoreType) => state.xMirror);
     const yMirror = store((state : StoreType) => state.yMirror);
+    const erasingRightButton = store((state : StoreType) => state.erasingRightButton);
 
 
     const framesList = store((state : StoreType) => state.framesList);
@@ -439,22 +440,31 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
 
 
-    function handleFirstClick(){
+    function handleFirstClick(event : MouseEvent){
 
+        if(event.button === 0)
+        {
+            mouse.isLeftButtonClicked = true;
+            mouse.isRightButtonClicked = false;
+        }else if(event.button === 2)
+        {
+            mouse.isRightButtonClicked = true;
+            mouse.isLeftButtonClicked = false;
+        }
         mouse.isPressed = true;
-        if (selectedTool === 'pencil'){
+        if (selectedTool === 'pencil' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))){
             frames.current[currentFrameIndex].scene.currentDraw.push(Pencil('mousedown', frames.current[currentFrameIndex].scene, mouse,pixel_size, display_size,ctx, penSize,selectedColor,xMirror,yMirror));
-        }else if (selectedTool === 'eraser')
+        }else if (selectedTool === 'eraser' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && erasingRightButton)))
         {
             frames.current[currentFrameIndex].scene.currentDraw.push(Eraser('mousedown', mouse, frames.current[currentFrameIndex].scene, pixel_size, display_size, ctx, penSize));
-        }else if (selectedTool === 'paintBucket')
+        }else if (selectedTool === 'paintBucket' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton)))
         {
             frames.current[currentFrameIndex].scene.currentDraw.push(PaintBucket(frames.current[currentFrameIndex].scene,mouse,pixel_size,display_size,ctx,penSize,CANVAS_SIZE,selectedColor));
-        }else if(selectedTool === 'dropper')
+        }else if(selectedTool === 'dropper' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton)))
         {
             const color : string | undefined | null = Dropper(frames.current[currentFrameIndex].scene,mouse,pixel_size);
             if(color)setSelectedColor(color);
-        }else if(selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse')
+        }else if((selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse') && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton)))
         {
             frames.current[currentFrameIndex].scene.lineFirstPixel = frames.current[currentFrameIndex].scene.findPixel(mouse.x,mouse.y,pixel_size);
         }
@@ -573,26 +583,26 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             }
             return;
         }
-
-        if (selectedTool === 'pencil' && mouse.isPressed) {
-            frames.current[currentFrameIndex].scene.currentDraw.push(Pencil("mousemove", frames.current[currentFrameIndex].scene, mouse,pixel_size, display_size,ctx, penSize,selectedColor,xMirror,yMirror));
-        }else if(selectedTool === 'eraser' && mouse.isPressed)
-        {
+        if( (selectedTool === 'eraser' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && erasingRightButton))) || (selectedTool !== 'eraser' && mouse.isRightButtonClicked && erasingRightButton)){
             frames.current[currentFrameIndex].scene.currentDraw.push(Eraser("mousemove", mouse, frames.current[currentFrameIndex].scene, pixel_size, display_size, ctx, penSize));
-        }else if(selectedTool === 'line' && mouse.isPressed)
+
+        }else if (selectedTool === 'pencil' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))) {
+            frames.current[currentFrameIndex].scene.currentDraw.push(Pencil("mousemove", frames.current[currentFrameIndex].scene, mouse,pixel_size, display_size,ctx, penSize,selectedColor,xMirror,yMirror));
+        }
+        else if(selectedTool === 'line' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton)))
         {
             //remove draw from the top canvas
             removeDraw(topCtx,cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas),penSize);
             frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
             frames.current[currentFrameIndex].scene.currentPixelsMousePressed = new Map();
             frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(Line(frames.current[currentFrameIndex].scene,topCtx,mouse,pixel_size,frames.current[currentFrameIndex].scene.lineFirstPixel!,selectedColor,penSize));
-        }else if(selectedTool === 'rectangle' && mouse.isPressed)
+        }else if(selectedTool === 'rectangle' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton)))
         {
             //remove draw from the top canvas
             removeDraw(topCtx,cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas),pixel_size);
             frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
             frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(Rectangle(frames.current[currentFrameIndex].scene,topCtx,mouse,pixel_size,frames.current[currentFrameIndex].scene.lineFirstPixel!,selectedColor,penSize));
-        }else if(selectedTool === 'elipse' && mouse.isPressed)
+        }else if(selectedTool === 'elipse' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton)))
         {
             //remove draw from the top canvas
             removeDraw(topCtx,cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas),pixel_size);
@@ -1056,8 +1066,10 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
 
         isPinching = false;
-
         mouse.isPressed = false;
+        mouse.isLeftButtonClicked = false;
+        mouse.isRightButtonClicked = false;
+
         frames.current[currentFrameIndex].scene.lastPixel = null;
         frames.current[currentFrameIndex].scene.lastPixelXMirror = null;
         frames.current[currentFrameIndex].scene.lastPixelYMirror = null;

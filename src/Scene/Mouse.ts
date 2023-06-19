@@ -5,6 +5,8 @@ export default class Mouse{
     originX : number;
     originY : number;
     isPressed : boolean;
+    isLeftButtonClicked : boolean;
+    isRightButtonClicked : boolean;
     zoomed : boolean;
 
     mouseMoveLastPos : {x : number,y : number} | null;
@@ -17,6 +19,8 @@ export default class Mouse{
         this.originX = 0;
         this.originY = 0;
         this.isPressed = false;
+        this.isLeftButtonClicked = false;
+        this.isRightButtonClicked = false;
         this.zoomed = false;
         this.history = [];
         this.mouseMoveLastPos = null;

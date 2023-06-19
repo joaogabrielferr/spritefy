@@ -43,7 +43,7 @@ export function Frames(){
 
     function drawBackground(frame : string)
     {
-        const ctx = (document.getElementById(`${frame}@sidebar`)as HTMLCanvasElement).getContext('2d')!;
+        const ctx = (document.getElementById(`${frame}background@sidebar`)as HTMLCanvasElement).getContext('2d')!;
         
         ctx.clearRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
 
@@ -74,21 +74,6 @@ export function Frames(){
         
         ctx.clearRect(0,0,CANVAS_SIZE,CANVAS_SIZE);
 
-        let firstInRow = 1;
-        let a = firstInRow;
-
-         //draw background
-         for (let i = 0; i <= CANVAS_SIZE; i += bgTileSize) {
-            if (firstInRow) a = 0;
-            else a = 1;
-            firstInRow = firstInRow ? 0 : 1;
-            for (let j = 0; j <= CANVAS_SIZE; j += bgTileSize) {
-                ctx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
-                ctx.fillRect(i, j, bgTileSize, bgTileSize);
-                a = a ? 0 : 1;
-            }
-        }
-
         for (let i = 0; i < pixelMatrix.length; i++) {
             for (let j = 0; j < pixelMatrix[i].length; j++) {
                 if (!pixelMatrix[i][j].colorStack.isEmpty()) {
@@ -107,7 +92,7 @@ export function Frames(){
                 }
             }
         }
-    },[bgTileSize]);
+    },[]);
     
     useEffect(()=>{
 

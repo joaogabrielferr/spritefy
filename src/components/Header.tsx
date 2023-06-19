@@ -35,8 +35,9 @@ export function Header({isMobile} : {isMobile : boolean}){
 
             const gif = new GIF({
                 workers: 2,
-                workerScript: '/public/gif.worker.js', 
+                workerScript: '/public/gif.worker.js',
             });
+
 
 
             let imagesProcessed = 0;
@@ -46,7 +47,6 @@ export function Header({isMobile} : {isMobile : boolean}){
                 const image = new Image();
                 image.src = imageDataURL;
                 image.onload = () =>{
-                    console.log("framerate:",frameRate);
                     const canvas = document.createElement('canvas');
                     canvas.width = image.width;
                     canvas.height = image.height;
@@ -64,7 +64,7 @@ export function Header({isMobile} : {isMobile : boolean}){
                             if(images.length === 1)
                             {
                                 link.href = images[0];
-                                link.download = "pixeldrawing.png";
+                                link.download = "viewwit-drawing.png";
                                 
 
                             }else
@@ -118,7 +118,7 @@ export function Header({isMobile} : {isMobile : boolean}){
                         <a href="https://github.com/joaogabrielferr/pixel-art-editor" target="_blank"><Github></Github></a>
                     </div>
                     {!isMobile && <div style = {{fontWeight:'bold'}}><Logo></Logo></div>}
-                    <button ref = {downloadButton} className = "downloadButton">DOWNLOAD DRAWING</button>
+                    <button ref = {downloadButton} className = "downloadButton">SAVE DRAWING</button>
                 </div>
         </header>
 

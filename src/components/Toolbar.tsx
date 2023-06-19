@@ -21,6 +21,10 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
     const XMirror = store((state : StoreType) => state.xMirror);
     const toogleYMirror = store((state : StoreType)=> state.toogleYMirror);
     const YMirror = store((state : StoreType) => state.yMirror);
+    const erasingRightButton = store((state : StoreType) => state.erasingRightButton);
+
+    const toogleErasingRightButton = store((state : StoreType) => state.toogleErasingRightButton);
+
     
     useEffect(()=>{
         
@@ -124,7 +128,7 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
                         (['eraser'].find((tool)=>tool === selectedTool)) && !isMobile && <div>
                             <label className="checkbox">
                             Enable right click erase 
-                            <input type="checkbox" id = "MirrorXAxis"/>
+                            <input type="checkbox" id = "MirrorXAxis" checked = {erasingRightButton} onChange = {()=>toogleErasingRightButton()}/>
                             <span className="checkmark"></span>
                             </label>
                         </div>

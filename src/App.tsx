@@ -35,7 +35,8 @@ const ToolButtons = [
 ] as ToolButton[];
 
 
-//TODO: fix downloaded gif not having correct frame rate
+//TODO: right now im saving the gifs with a white background because i couldnt figure out how to create transparent gifs with gif.js,
+        //probably look for another library that supports transparent bg (or keep it white, pixilart also saves gifs with white bg so transparent bg may not be easy to achieve)
 //TODO: add pixel_size and display_size as global states (and stop using CANVAS_SIZE)
 //TODO: add eslint to project
 //TODO: add styled components
@@ -96,6 +97,7 @@ function App() {
       else setCssCanvasSize(window.innerHeight - 50 - 30)
 
       window.addEventListener('resize',handleWindowResize)
+      window.addEventListener("contextmenu", e => e.preventDefault());
 
       return function(){
         window.removeEventListener('resize',handleWindowResize);

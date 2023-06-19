@@ -115,7 +115,7 @@ export function Preview(){
     
     useEffect(()=>{
         
-        drawBackground()
+        drawBackground();
         
         EventBus.getInstance().subscribe(UPDATE_PREVIEW_FRAMES,updateFramesOnPreview);
 

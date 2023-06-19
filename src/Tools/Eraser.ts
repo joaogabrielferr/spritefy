@@ -6,7 +6,7 @@ import { ERASING } from "../utils/constants";
 
 export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_size : number, display_size : number, ctx : CanvasRenderingContext2D, penSize : number){
   
-  if(!mouse.isPressed)return [];
+  // if(!mouse.isPressed)return [];
 
 
   const draw : Pixel[] = []; //pixels changed in this function are stored here
