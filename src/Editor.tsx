@@ -14,7 +14,9 @@ DELETE_FRAME,
 UPDATE_PREVIEW_FRAMES,
 COPY_FRAME,
 ERASING,
-SWAP_FRAMES
+SWAP_FRAMES,
+UNDO_LAST_DRAW,
+REDO_LAST_DRAW
 }
  from './utils/constants';
 import Mouse from './scene/Mouse';
@@ -124,7 +126,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         pixel_size = 1;
         display_size = CANVAS_SIZE;
 
-        //TODO: allow user to toggle the option to have a bg tile for every pixel (backgroundTileSize === 1)
         const factors = [];
         for(let i = 1;i<=CANVAS_SIZE;i++)
         {
@@ -348,6 +349,22 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
     },[framesList, setFramesList]);
 
+    const handleUndoLastDraw = useCallback(()=>
+    {
+        undoLastDraw(pixel_size,ctx,frames.current[currentFrameIndex]);
+        EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+
+        EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
+    },[currentFrame]);
+
+    const handleRedoLastDraw = useCallback(()=>
+    {
+        redoLastDraw(ctx,pixel_size,frames.current[currentFrameIndex]);
+        EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
+
+        EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
+    },[currentFrame]);
+
 
     useEffect(()=>{
 
@@ -357,6 +374,8 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         const deleteFrameSubscription = EventBus.getInstance().subscribe(DELETE_FRAME,deleteFrame);
         const copyFrameSubscription = EventBus.getInstance().subscribe(COPY_FRAME,copyFrame);
         const swapFramesSubscription = EventBus.getInstance().subscribe(SWAP_FRAMES,swapFrames);
+        const handleUndoLastDrawSubscription = EventBus.getInstance().subscribe(UNDO_LAST_DRAW,handleUndoLastDraw);
+        const handleRedoLastDrawSubscription = EventBus.getInstance().subscribe(REDO_LAST_DRAW,handleRedoLastDraw);
 
         draw(bgTileSize);
 
@@ -364,19 +383,11 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         {
             if(event.ctrlKey && event.code === 'KeyZ')
             {   
-                undoLastDraw(pixel_size,ctx,frames.current[currentFrameIndex]);
-                EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
-
-                EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
-    
+                handleUndoLastDraw();
 
             }else if(event.ctrlKey && event.code === 'KeyY')
             {
-                redoLastDraw(ctx,pixel_size,frames.current[currentFrameIndex]);
-                EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix : frames.current[currentFrameIndex].scene.pixels});
-
-                EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES,frames.current);
-
+                handleRedoLastDraw();
             }
         }
 
@@ -389,10 +400,12 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             deleteFrameSubscription.unsubscribe();
             copyFrameSubscription.unsubscribe();
             swapFramesSubscription.unsubscribe();
+            handleUndoLastDrawSubscription.unsubscribe();
+            handleRedoLastDrawSubscription.unsubscribe();
             document.removeEventListener('keydown',checkKeyCombinations);
         }
 
-    },[addNewFrame, copyFrame, currentFrame, deleteFrame, selectFrame, swapFrames]);
+    },[addNewFrame, copyFrame, currentFrame, deleteFrame, handleRedoLastDraw, handleUndoLastDraw, selectFrame, swapFrames]);
 
 
     function draw(bgTileSize : number){
@@ -437,8 +450,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }
  
     }
-
-
 
     function handleFirstClick(event : MouseEvent){
 

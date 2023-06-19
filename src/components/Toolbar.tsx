@@ -2,6 +2,10 @@ import React, { useEffect } from "react";
 import { ToolButton } from "../types";
 import './toolbar.css';
 import { store,StoreType } from "../store";
+import { LeftArrow } from "../svg/LeftArrow";
+import { RightArrow } from "../svg/RightArrow";
+import { EventBus } from "../EventBus";
+import { REDO_LAST_DRAW, RESET_CANVAS_POSITION, UNDO_LAST_DRAW } from "../utils/constants";
 
 
 interface ToolbarProps{
@@ -107,7 +111,7 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
                         </div>
                     }
                     {
-                        (['pencil','eraser'].find((tool)=>tool === selectedTool)) && <div>
+                        (['pencil'].find((tool)=>tool === selectedTool)) && <div>
                             <label className="checkbox">
                             Mirror X axis
                             <input type="checkbox" id = "MirrorXAxis" checked = {XMirror} onChange = {()=>toogleXMirror()}/>
@@ -116,7 +120,7 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
                         </div>
                     }
                     {
-                        (['pencil','eraser'].find((tool)=>tool === selectedTool)) && <div>
+                        (['pencil'].find((tool)=>tool === selectedTool)) && <div>
                             <label className="checkbox">
                             Mirror Y axis
                             <input type="checkbox" id = "MirrorXAxis" checked = {YMirror} onChange = {()=>toogleYMirror()}/>
@@ -136,6 +140,12 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
 
                 </ToolOptions>
                     
+            </div>
+
+            <div className="toolbarItem">
+                <button onClick = {()=>{EventBus.getInstance().publish(UNDO_LAST_DRAW)}} className="extraOptionsButton"><LeftArrow/>UNDO</button>
+                <button onClick = {()=>{EventBus.getInstance().publish(REDO_LAST_DRAW)}} className="extraOptionsButton"><RightArrow/>REDO</button>
+                <button onClick = {()=>{EventBus.getInstance().publish(RESET_CANVAS_POSITION)}} className="extraOptionsButton">RESET CANVAS POSITION</button>
             </div>
         
             </div>

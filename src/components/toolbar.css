@@ -22,6 +22,30 @@
     background-color: rgb(77, 77, 77);
 }
 
+.extraOptionsButton{
+  border-style: none;
+  color:#abbbc7;
+  background-color: #333333;
+  height: 90%;
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 10px;
+  font-weight: bold;
+  width: 90%;
+  margin: 0 auto;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  height: 25px;
+  border-radius: 3px;
+  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.extraOptionsButton:hover{
+  background-color: #383838;
+}
 
 .toolButton{
     border-style: none;
