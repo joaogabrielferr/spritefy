@@ -3,6 +3,12 @@
     height: 230px;
 }
 
+.PreviewTitle{
+    margin: 0 auto;
+    width: 180px;
+    color: #abbbc7;
+}
+
 .PreviewCanvasWrapper{
     width: 180px;
     height: 180px;

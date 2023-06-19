@@ -28,6 +28,7 @@
     font-size: 12px;
     background-color: rgb(54, 54, 54);
     margin-top: 5px;
+    border-radius: 3px;
 }
 
 .createNewFrameWrapper:hover{
@@ -53,7 +54,8 @@
     justify-content: flex-start;
     align-items: center;
     margin-top:5px;
-    background-color: rgb(121, 121, 121);    
+    background-color: rgb(121, 121, 121);  
+    border-radius: 3px;  
 }
 
 .frameCanvasWrapper{
