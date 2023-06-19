@@ -9,7 +9,6 @@ export const BACKGROUND_CANVAS = {canvas:'backgroundCanvas',visible:true,blocked
 
 export const BG_COLORS = ['#757474','#a1a1a1'];
 
-
 //pub sub events
 export const RESET_CANVAS_POSITION = 'reset-canvas-position';
 export const DRAW_ON_SIDEBAR_CANVAS = 'draw-on-sidebar-canvas';

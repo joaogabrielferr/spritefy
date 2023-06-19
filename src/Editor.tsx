@@ -167,7 +167,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         }
 
         draw(bgTileSize);
-        //EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS,{frame : currentFrame,pixelMatrix:frames.current[currentFrameIndex].scene.pixels});
 
     
     //eslint-disable-next-line react-hooks/exhaustive-deps

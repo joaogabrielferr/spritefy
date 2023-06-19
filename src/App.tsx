@@ -78,7 +78,7 @@ function App() {
   function handleWindowResize(){
     
 
-    setCssCanvasSize(window.innerHeight - 30 - 30)
+    setCssCanvasSize(window.innerHeight - 50 - 30)
 
     EventBus.getInstance().publish(RESET_CANVAS_POSITION);
     
@@ -128,11 +128,10 @@ function App() {
                   <div style = {{width:'95%'}}>
                     <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
                   </div>
-                    <Palettes></Palettes>
+                    {/* <Palettes></Palettes> */}
                 </Sidebar>}
                 
                 <div style = {{width:'100%',height:cssCanvasSize}}>
-                  {/* extra bar TODO:CREATE A COMPONENT FOR THIS EXTRA BAR*/}
                 <div style = {{width:'100%',height:'30px',backgroundColor:'rgb(46, 46, 49)',display:'flex',justifyContent:'flex-start',alignItems:'center'}}>
                   <span id = "coordinates" style = {{color:'white',fontSize:'12px',marginRight:'20px',width:'60px',userSelect:'none'}}>{"[X:0,Y:0]"}</span>
                 </div>
