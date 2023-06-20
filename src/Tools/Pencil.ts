@@ -40,7 +40,6 @@ Pencil(eventName : string,
       const pixelYMirror : Pixel | null = scene.findPixel(xs,display_size/2 + (display_size/2 - ys),pixel_size);
       const pixelXYMirror : Pixel | null = scene.findPixel(display_size/2 + (display_size/2 - xs),display_size/2 + (display_size/2 - ys),pixel_size);
 
-      //if this pixel is in currentPixelsMousePressed, that means it was already painted in the current pen stroke, no need to paint it twice
       if (pixel != null) {
           
             if(!isPixelAlreadyPaintedInCurrentDraw(pixel, scene))

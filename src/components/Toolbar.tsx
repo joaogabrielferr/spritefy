@@ -2,10 +2,10 @@ import React, { useEffect } from "react";
 import { ToolButton } from "../types";
 import './toolbar.css';
 import { store,StoreType } from "../store";
-import { LeftArrow } from "../svg/LeftArrow";
-import { RightArrow } from "../svg/RightArrow";
 import { EventBus } from "../EventBus";
 import { REDO_LAST_DRAW, RESET_CANVAS_POSITION, UNDO_LAST_DRAW } from "../utils/constants";
+import { faArrowRotateLeft, faRotateRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 
 interface ToolbarProps{
@@ -93,14 +93,14 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
                     <div style = {{marginTop:'5px',fontSize:'12px',fontWeight:'bold'}}>{selectedTool.toUpperCase()}</div>
                     {
                     (['pencil','eraser','line','rectangle','elipse'].find((tool)=>tool === selectedTool)) && <div>
-                        <div style = {{marginTop:'5px',fontSize:'12px'}}>PEN SIZE</div>
+                        <div style = {{marginTop:'5px',fontSize:'12px'}}>PIXEL SIZE</div>
                         <PenSizeSlider/>
                     </div>
                     }
                     {
                         selectedTool === 'elipse' && <div className = "checkboxWrapper">
                             <label className="checkbox">
-                            Keep 1 to 1 ratio
+                            KEEP 1 TO 1 RATIO
                             <input type="checkbox" id = "OneToOneRatioElipse" checked = {oneToOneRatioElipse} onChange = {()=>toogleOneToOneRatioElipse()}/>
                             <span className="checkmark"></span>
                             </label>
@@ -139,8 +139,8 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
             </div>
 
             <div className="toolbarItem">
-                <button onClick = {()=>{EventBus.getInstance().publish(UNDO_LAST_DRAW)}} className="extraOptionsButton"><LeftArrow/>UNDO</button>
-                <button onClick = {()=>{EventBus.getInstance().publish(REDO_LAST_DRAW)}} className="extraOptionsButton"><RightArrow/>REDO</button>
+                <button onClick = {()=>{EventBus.getInstance().publish(UNDO_LAST_DRAW)}} className="extraOptionsButton"><FontAwesomeIcon size="lg" color="#abbbc7" icon={faArrowRotateLeft} />UNDO</button>
+                <button onClick = {()=>{EventBus.getInstance().publish(REDO_LAST_DRAW)}} className="extraOptionsButton"><FontAwesomeIcon size="lg" color="#abbbc7" icon={faRotateRight} />REDO</button>
                 <button onClick = {()=>{EventBus.getInstance().publish(RESET_CANVAS_POSITION)}} className="extraOptionsButton">RESET CANVAS POSITION</button>
             </div>
         

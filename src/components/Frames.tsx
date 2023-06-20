@@ -4,10 +4,8 @@ import { StoreType, store } from "../store"
 import {drawOnSideBarCanvasType } from "../types";
 import { BG_COLORS, CANVAS_SIZE, COPY_FRAME, CREATE_NEW_FRAME, DELETE_FRAME, DRAW_ON_SIDEBAR_CANVAS, ERASING, SELECT_FRAME, SWAP_FRAMES} from "../utils/constants";
 import './frames.css';
-import { Trash } from "../svg/Trash";
-import { Copy } from "../svg/Copy";
-import { UpArrow } from "../svg/UpArrow";
-import { DownArrow } from "../svg/DownArrow";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClone, faDownLong, faTrashCan, faUpLong } from "@fortawesome/free-solid-svg-icons";
 
 
 
@@ -151,43 +149,37 @@ export function Frames(){
             FRAMES
         </div> */}
         {
-            framesList.map((frame,index)=>{
-
-                return <div className = "frameWrapper" key = {frame} style = {{height:'90px',width:'95%',border:frame === currentFrame ? `3px solid #000000` : undefined}}>
-                    <div 
-                    className = "frameCanvasWrapper" 
-                    onClick = {()=>changeCurrentFrame(frame)}
-                    >
-                    <canvas className = "frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id = {`${frame}@sidebar`} style = {{width:'100%',height:'100%',zIndex:1}}></canvas>
-                    <canvas className = "frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id = {`${frame}background@sidebar`} style = {{width:'100%',height:'100%',zIndex:0}}></canvas>
+            framesList.map((frame,index)=><div className="frameWrapper" key={frame} style={{ height: '90px', width: '95%', border: frame === currentFrame ? `3px solid #000000` : undefined }}>
+                <div
+                    className="frameCanvasWrapper"
+                    onClick={() => changeCurrentFrame(frame)}
+                >
+                    <canvas className="frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id={`${frame}@sidebar`} style={{ width: '100%', height: '100%', zIndex: 1 }}></canvas>
+                    <canvas className="frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id={`${frame}background@sidebar`} style={{ width: '100%', height: '100%', zIndex: 0 }}></canvas>
                     {framesList.length > 1 && index != 0 && <div className="moveFrameUp">
-                        <button onClick = {()=>swapFrames(framesList[index-1],frame)} style = {{backgroundColor:'transparent',borderStyle:'none',color:'white',cursor:'pointer',width:'100%',height:'100%',margin:'0 auto',display:'flex',justifyContent:'center',alignItems:'center'}}>
-                            <UpArrow/>
+                        <button onClick={() => swapFrames(framesList[index - 1], frame)} style={{ backgroundColor: 'transparent', borderStyle: 'none', color: 'white', cursor: 'pointer', width: '100%', height: '100%', margin: '0 auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <FontAwesomeIcon size="lg" color="white"  icon={faUpLong} />
                         </button>
-                    </div>
-                    }
+                    </div>}
                     {framesList.length > 1 && index != framesList.length - 1 && <div className="moveFrameDown">
-                        <button onClick = {()=>swapFrames(frame,framesList[index+1])} style = {{backgroundColor:'transparent',borderStyle:'none',color:'white',cursor:'pointer',width:'100%',height:'100%',margin:'0 auto',display:'flex',justifyContent:'center',alignItems:'center'}}>
-                            <DownArrow/>
+                        <button onClick={() => swapFrames(frame, framesList[index + 1])} style={{ backgroundColor: 'transparent', borderStyle: 'none', color: 'white', cursor: 'pointer', width: '100%', height: '100%', margin: '0 auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <FontAwesomeIcon size="lg" color="white" icon={faDownLong} />
                         </button>
-                    </div>
-                    }
-                    </div>
-                    <div className="frameOptions">
-                        <div>FRAME {index + 1}</div>
-                        <div style = {{width:'100%',display:'flex',justifyContent:'space-between'}}>
-                        <div><button onClick = {()=>copyFrame(frame)}><Copy/></button></div>
-                        {framesList.length > 1 && <div>
-                            <button onClick = {()=>deleteFrame(frame)}><Trash/></button>
-                        </div>}
-                        </div>
-                       {/* <span>
-                        <button onClick ={()=>toogleframeVisibility(frame)}>{layer.visible ? <Eye/> : <EyeOff/>}</button>
-                       </span> */}
-                    </div>
+                    </div>}
                 </div>
-
-            })
+                <div className="frameOptions">
+                    <div>FRAME {index + 1}</div>
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+                        <div><button onClick={() => copyFrame(frame)}><FontAwesomeIcon size="lg" color="#abbbc7" icon={faClone} /></button></div>
+                        {framesList.length > 1 && <div>
+                            <button onClick={() => deleteFrame(frame)}><FontAwesomeIcon size="lg" color="#abbbc7" icon={faTrashCan} /></button>
+                        </div>}
+                    </div>
+                    {/* <span>
+     <button onClick ={()=>toogleframeVisibility(frame)}>{layer.visible ? <Eye/> : <EyeOff/>}</button>
+    </span> */}
+                </div>
+            </div>)
         }
         <div className="createNewFrameWrapper">
             <button className = "createNewFrameButton" onClick = {createNewFrameHandler}>

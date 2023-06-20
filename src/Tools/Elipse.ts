@@ -1,5 +1,6 @@
-import { drawElipse } from "../scene/BuildPath";
+
 import Scene from "../scene/Scene";
+import { drawElipse } from "../scene/buildPath";
 import { Pixel } from "../types";
 
 //ctx is the context of top canvas, drawing is made first on top canvas and after mouse up event the draw is translated to main canvas, since the draw change dinamically

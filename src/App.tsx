@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import Editor from "./Editor";
 import './index.css';
 import {ColorResult, CustomPicker} from 'react-color';
-import { Pencil } from "./svg/Pencil";
-import { Eraser } from "./svg/Eraser";
 import { PaintBucket } from "./svg/PaintBucket";
-import { Dropper } from "./svg/Dropper";
 import { Line } from "./svg/Line";
 import { Square } from "./svg/Square";
 import { Sidebar } from "./components/Sidebar";
@@ -21,14 +18,16 @@ import { RESET_CANVAS_POSITION } from "./utils/constants";
 import { store,StoreType } from "./store";
 import { Frames } from "./components/Frames";
 import { Preview } from "./components/Preview";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {faEraser, faEyeDropper, faPencil} from "@fortawesome/free-solid-svg-icons";
 
 
 
 const ToolButtons = [
-  {tool:'pencil',svg: <Pencil/>,tooltip:'Pen tool(P or 1)'},
-  {tool:'eraser',svg: <Eraser/>,tooltip:'Eraser tool(E or 2)'},
+  {tool:'pencil',svg: <FontAwesomeIcon size="xl" color="#abbbc7" icon={faPencil} />,tooltip:'Pen tool(P or 1)'},
+  {tool:'eraser',svg: <FontAwesomeIcon size="xl" color="#abbbc7" icon={faEraser} />,tooltip:'Eraser tool(E or 2)'},
   {tool:'paintBucket',svg: <PaintBucket/>,tooltip: 'Paint bucket(B or 3)'},
-  {tool:'dropper',svg: <Dropper/>,tooltip:'Color picker(D or 4)'},
+  {tool:'dropper',svg: <FontAwesomeIcon  size="xl" color="#abbbc7" icon={faEyeDropper} />,tooltip:'Color picker(D or 4)'},
   {tool:'line',svg: <Line/>,tooltip:'Pencil stroke line(L or 5)'},
   {tool: 'rectangle',svg : <Square/>,tooltip:'Rectangle tool(R or 6)'},
   {tool: 'elipse',svg : <Circle/>,tooltip:'Circle tool(C or 7)'},
@@ -123,7 +122,7 @@ function App() {
 
                 {/* left sidebar */}
                 {!isMobile && 
-                <Sidebar width={'230px'} height={cssCanvasSize} marginTop={'30px'}>
+                <Sidebar width={'240px'} height={cssCanvasSize} marginTop={'30px'}>
                     <Toolbar toolButtons={ToolButtons} isMobile = {isMobile}/>
                   <div style = {{width:'95%'}}>
                     <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>

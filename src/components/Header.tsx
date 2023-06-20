@@ -52,7 +52,10 @@ export function Header({isMobile} : {isMobile : boolean}){
 
 
 
-            const img : string = canvas.toDataURL("image/png");
+            const img : string = framesList.length > 1 ? 
+            canvas.toDataURL("image/png") : (document.getElementById(`${framesList[0]}@sidebar`) as HTMLCanvasElement).toDataURL("image/png");
+
+
 
             const link = document.createElement("a");
             link.href = img;

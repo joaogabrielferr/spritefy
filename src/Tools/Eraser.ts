@@ -24,7 +24,6 @@ export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_s
     const pixel : Pixel | null = scene.findPixel(x,y,pixel_size);
 
     //if this pixel is in currentPixelsMousePressed, that means it was already painted in the current pen stroke, no need to paint it twice
-    //if pixel is empty (not painted) dont do anything
     if (pixel != null) {
 
           if(!isPixelAlreadyPaintedInCurrentDraw(pixel, scene) && !empty(pixel))

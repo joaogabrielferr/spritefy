@@ -49,7 +49,7 @@
 
 .toolbarButtons{
     width: 100%;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     display: grid;
     margin: 0 auto;
     row-gap: 5px;
@@ -60,15 +60,15 @@
 
 .toolButton{
     border-style: none;
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     border-radius: 5px;
     cursor: pointer;
     color: rgb(226, 226, 226);
     background-color: transparent;
-    display: grid;
+    display: flex;
+    justify-content: center;
     align-items: center;
-    justify-items: center;
 }
 
 .toolButton:hover{
@@ -258,7 +258,23 @@
   background-color: #634cb8;
 }
 
-  
+@media screen and (max-width:1600px) {
+
+  .toolButton{
+    width: 35px;
+    height: 35px;
+  }
+
+}
+
+
+@media screen and (max-width:1500px) {
+
+  .toolbarButtons{
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+}
 
 @media screen and (max-width:768px) {
     .toolbar{
