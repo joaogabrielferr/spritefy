@@ -80,7 +80,7 @@ export function Frames(){
                     {
 
                         ctx.fillStyle = pixelMatrix[i][j].bgColor;
-                        ctx.fillRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
+                        ctx.clearRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
                     
                     }else
                     {
