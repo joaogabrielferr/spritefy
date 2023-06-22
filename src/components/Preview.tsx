@@ -138,7 +138,7 @@ export function Preview(){
     }
 
     return <div className="Preview">
-            <div className = "PreviewTitle">ANIMATION PREVIEW</div>
+            <div className = "PreviewTitle">PREVIEW</div>
             <div className="PreviewCanvasWrapper">
                 <canvas width={CANVAS_SIZE} ref = {canvas} height={CANVAS_SIZE} className = "canvasPreview" id = "previewTop" style = {{width:'180px',height:'180px',zIndex:1}}></canvas>
                 <canvas width={CANVAS_SIZE} height={CANVAS_SIZE} className = "canvasPreview" id = "previewBG" style = {{width:'180px',height:'180px',zIndex:0}}></canvas>

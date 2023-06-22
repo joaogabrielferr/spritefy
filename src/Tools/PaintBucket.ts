@@ -87,7 +87,8 @@ export function PaintBucket(scene : Scene,
   }
   
   function canVisitNeighbor(neighbor : Pixel, visited : boolean[], startColor : string) {
-    return visited[neighbor.id] === false && (neighbor.colorStack.top() === startColor || neighbor.colorStack.top() === ERASING || (BG_COLORS.includes(startColor) && neighbor.colorStack.isEmpty()));
+    //return visited[neighbor.id] === false && (neighbor.colorStack.top() === startColor || neighbor.colorStack.top() === ERASING || (BG_COLORS.includes(startColor) && neighbor.colorStack.isEmpty()) || (startColor === ERASING && neighbor.colorStack.isEmpty() ));
+    return !visited[neighbor.id] && (neighbor.colorStack.top() === startColor || (BG_COLORS.includes(startColor) && (neighbor.colorStack.isEmpty() || neighbor.colorStack.top() === ERASING || (neighbor.colorStack.top() && BG_COLORS.includes(neighbor.colorStack.top()!))) || (startColor === ERASING && (neighbor.colorStack.isEmpty() || (neighbor.colorStack.top() && BG_COLORS.includes(neighbor.colorStack.top()!)))) ));
 }
 
 

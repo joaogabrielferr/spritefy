@@ -37,9 +37,10 @@ const ToolButtons = [
 //TODO: right now im saving the gifs with a white background because i couldnt figure out how to create transparent gifs with gif.js,
         //probably look for another library that supports transparent bg (or keep it white, pixilart also saves gifs with white bg so transparent bg may not be easy to achieve)
 //TODO: add pixel_size and display_size as global states (and stop using CANVAS_SIZE)
+//TODO: add layers functionality (maybe have a list 'layers' in a scene and each layer has a pixel matrix)
 //TODO: add eslint to project
 //TODO: add styled components
-//TODO: save image (check if its possible to save pixel matrix, if not generate an image and save it)
+//TODO: Add onion skin
 //TODO: Add tutorial if opened for the first time
 //TODO: Add license page to add licenses of libs used (tabler-icon)
 
@@ -124,10 +125,12 @@ function App() {
                 {!isMobile && 
                 <Sidebar width={'240px'} height={cssCanvasSize} marginTop={'30px'}>
                     <Toolbar toolButtons={ToolButtons} isMobile = {isMobile}/>
-                  <div style = {{width:'95%'}}>
+                  <div className = "sideBarItem">
                     <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
                   </div>
-                    {/* <Palettes></Palettes> */}
+                  <div className = "sideBarItem">
+                    <Palettes></Palettes>
+                  </div>
                 </Sidebar>}
                 
                 <div style = {{width:'100%',height:cssCanvasSize}}>
@@ -160,10 +163,13 @@ function App() {
               
              
           </section>
-          {/* {
+          {
             !isMobile && <Tooltip id="my-tooltip" place="bottom" style={{zIndex:9999,backgroundColor:'#634cb8'}}/>
           }
           {
+            !isMobile && <Tooltip id="my-tooltip-extra-options" place="right" style={{zIndex:9999,backgroundColor:'#634cb8'}}/>
+          }
+          {/* {
             !isMobile && <Tooltip id="my-tooltip-layers" place="left" style={{zIndex:9999,backgroundColor:'#634cb8'}}/>
           } */}
           <div className = "footer">

@@ -10,18 +10,6 @@
     /* margin-top: 30px; */
 }
 
-.toolbarItem{
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 90%;
-    border: 1px solid #555555;
-    border-radius: 2px;
-    background-color: rgb(77, 77, 77);
-}
-
 .extraOptionsButton{
   border-style: none;
   color:#abbbc7;

@@ -69,7 +69,7 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
 
 
     return <div className = "toolbar">
-            <div className = "toolbarItem">
+            <div className = "sideBarItem">
             <div className = "toolbarButtons">
 
                     {
@@ -88,7 +88,7 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
             </div>
             </div>
 
-            <div className="toolbarItem">
+            <div className="sideBarItem">
                 <ToolOptions>
                     <div style = {{marginTop:'5px',fontSize:'12px',fontWeight:'bold'}}>{selectedTool.toUpperCase()}</div>
                     {
@@ -138,10 +138,10 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
                     
             </div>
 
-            <div className="toolbarItem">
-                <button onClick = {()=>{EventBus.getInstance().publish(UNDO_LAST_DRAW)}} className="extraOptionsButton"><FontAwesomeIcon size="lg" color="#abbbc7" icon={faArrowRotateLeft} />UNDO</button>
-                <button onClick = {()=>{EventBus.getInstance().publish(REDO_LAST_DRAW)}} className="extraOptionsButton"><FontAwesomeIcon size="lg" color="#abbbc7" icon={faRotateRight} />REDO</button>
-                <button onClick = {()=>{EventBus.getInstance().publish(RESET_CANVAS_POSITION)}} className="extraOptionsButton">RESET CANVAS POSITION</button>
+            <div className="sideBarItem">
+                <button data-tooltip-id="my-tooltip-extra-options" data-tooltip-content="Ctrl + Z" onClick = {()=>{EventBus.getInstance().publish(UNDO_LAST_DRAW)}} className="extraOptionsButton"><FontAwesomeIcon size="lg" color="#abbbc7" icon={faArrowRotateLeft} />UNDO</button>
+                <button data-tooltip-id="my-tooltip-extra-options" data-tooltip-content="Ctrl + Y" onClick = {()=>{EventBus.getInstance().publish(REDO_LAST_DRAW)}} className="extraOptionsButton"><FontAwesomeIcon size="lg" color="#abbbc7" icon={faRotateRight} />REDO</button>
+                <button data-tooltip-id="my-tooltip-extra-options" data-tooltip-content="Ctrl + X" onClick = {()=>{EventBus.getInstance().publish(RESET_CANVAS_POSITION)}} className="extraOptionsButton">RESET CANVAS POSITION</button>
             </div>
         
             </div>

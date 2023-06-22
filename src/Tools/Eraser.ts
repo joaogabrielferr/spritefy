@@ -25,7 +25,7 @@ export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_s
 
     //if this pixel is in currentPixelsMousePressed, that means it was already painted in the current pen stroke, no need to paint it twice
     if (pixel != null) {
-
+      
           if(!isPixelAlreadyPaintedInCurrentDraw(pixel, scene) && !empty(pixel))
           {
               pixel.colorStack.push(ERASING);
@@ -46,9 +46,10 @@ export function Eraser(eventName : string, mouse : Mouse, scene : Scene, pixel_s
           const path = bresenhamsAlgorithm(scene, scene.lastPixel, pixel,pixel_size);
           for (let p of path) {
               if (!isPixelAlreadyPaintedInCurrentDraw(p, scene) && !empty(p)) {
-                  p.colorStack.push(p.bgColor);
+                  p.colorStack.push(ERASING);
                   scene.currentPixelsMousePressed.set(p.id, true);
                   draw.push(p);
+                  console.log("limpando rect");
                   ctx.clearRect(p.x1, p.y1, pixel_size, pixel_size);
               }
               

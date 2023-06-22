@@ -387,6 +387,9 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             }else if(event.ctrlKey && event.code === 'KeyY')
             {
                 handleRedoLastDraw();
+            }else if(event.ctrlKey && event.code === 'KeyX')
+            {
+                resetCanvasPosition();
             }
         }
 
@@ -778,7 +781,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                             removeDraw(topCtx,[frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!,...frames.current[currentFrameIndex].scene.previousNeighborsWhileMovingMouse],pixel_size);
                         }
                         // topCtx.fillStyle = selectedColor;
-                        topCtx.fillStyle = 'rgba(59, 98, 255, 0.2)';
+                        topCtx.fillStyle = selectedColor;
                         topCtx.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
                         let neighbors : Pixel[] = frames.current[currentFrameIndex].scene.findNeighbors(newPixel,penSize);
                         
@@ -786,7 +789,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                         {
                             for(let n of neighbors)
                             {
-                                topCtx.fillStyle = 'rgba(59, 98, 255, 0.2)';
+                                topCtx.fillStyle = selectedColor;
                                 topCtx.fillRect(n.x1,n.y1,pixel_size,pixel_size);                                            
                             }
                         }
@@ -1073,8 +1076,6 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         clearTimeout(pinchTouchStartTimeOut);
         
-
-
         isPinching = false;
         mouse.isPressed = false;
         mouse.isLeftButtonClicked = false;

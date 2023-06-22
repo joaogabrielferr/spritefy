@@ -1,7 +1,8 @@
 
 .editor{
   /* width: 100%; */
-  background-color: #3f3e3e;
+  /* background-color: #3f3e3e; */
+  background-color: rgb(44, 43, 43);;
   /* background-color: #681abd; */
   display: flex;
   justify-content: center;
@@ -10,6 +11,8 @@
   overflow: hidden;
   z-index: 1;
   touch-action: none;
+  cursor: crosshair;
+  /* cursor : url('/public/crosshair.png') 16 16,auto; */
   /* border: 1px solid rgb(134, 134, 134); */
 }
 
@@ -19,7 +22,7 @@
     top: 45%;
     left: 45%;
     transform: translate(-45%, -45%);
-    /* border: 0.1rem solid black; */
+    border: 0.1rem solid black;
 
     /* cursor:crosshair; */
     /* cursor: url('../svg/pencil.svg'),auto; */
