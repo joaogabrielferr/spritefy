@@ -136,8 +136,8 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         bgTileSize = factors[mid];
 
         //if CANVAS_SIZE is a prime number
-        if(backgroundTileSize === CANVAS_SIZE)
-        bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
+        if(bgTileSize === CANVAS_SIZE)
+            bgTileSize = 10;
 
         outerDiv = outerDivRef.current!;
 
@@ -188,16 +188,16 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             originalCanvasWidth = cssCanvasSize - 100;
         }else
         {
-            canvas.style.width = `${cssCanvasSize - 150}px`;
-            canvas.style.height = `${cssCanvasSize - 150}px`;
+            canvas.style.width = `${cssCanvasSize - 500}px`;
+            canvas.style.height = `${cssCanvasSize - 500}px`;
 
-            topCanvas.style.width = `${cssCanvasSize - 150}px`;
-            topCanvas.style.height = `${cssCanvasSize - 150}px`;
+            topCanvas.style.width = `${cssCanvasSize - 500}px`;
+            topCanvas.style.height = `${cssCanvasSize - 500}px`;
             
-            backgroundCanvas.style.width = `${cssCanvasSize - 150}px`;
-            backgroundCanvas.style.height = `${cssCanvasSize - 150}px`;
+            backgroundCanvas.style.width = `${cssCanvasSize - 500}px`;
+            backgroundCanvas.style.height = `${cssCanvasSize - 500}px`;
             
-            originalCanvasWidth = cssCanvasSize - 150;
+            originalCanvasWidth = cssCanvasSize - 500;
         }
 
         resetCanvasPosition();
@@ -327,8 +327,8 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
     const swapFrames = useCallback(({frame1,frame2} : {frame1:string,frame2:string})=>
     {
-        const frame1index = frames.current.findIndex((frame)=>frame.name === frame1);
-        const frame2index = frames.current.findIndex((frame)=>frame.name === frame2);
+        let frame1index = frames.current.findIndex((frame)=>frame.name === frame1);
+        let frame2index = frames.current.findIndex((frame)=>frame.name === frame2);
 
         if(frame1index < 0 || frame2index < 0)return;
 
@@ -337,6 +337,9 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
         frames.current[frame2index] = aux;
 
         const newFramesList = [...framesList];
+
+        frame1index = framesList.findIndex((frame)=>frame === frame1);
+        frame2index = framesList.findIndex((frame)=>frame === frame2);
 
         const aux2 = newFramesList[frame1index];
         newFramesList[frame1index] = newFramesList[frame2index];
@@ -781,7 +784,13 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                             removeDraw(topCtx,[frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!,...frames.current[currentFrameIndex].scene.previousNeighborsWhileMovingMouse],pixel_size);
                         }
                         // topCtx.fillStyle = selectedColor;
-                        topCtx.fillStyle = selectedColor;
+                        if(selectedTool === 'paintBucket' || selectedTool === 'dropper' || selectedTool === 'eraser')
+                        {
+                            topCtx.fillStyle = "rgba(58, 73, 96, 0.42)";
+                        }else
+                        {
+                            topCtx.fillStyle = selectedColor;
+                        }
                         topCtx.fillRect(newPixel.x1,newPixel.y1,pixel_size,pixel_size);
                         let neighbors : Pixel[] = frames.current[currentFrameIndex].scene.findNeighbors(newPixel,penSize);
                         
@@ -789,8 +798,11 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                         {
                             for(let n of neighbors)
                             {
-                                topCtx.fillStyle = selectedColor;
-                                topCtx.fillRect(n.x1,n.y1,pixel_size,pixel_size);                                            
+                                if(selectedTool === 'eraser')
+                                    topCtx.fillStyle = "rgba(58, 73, 96, 0.42)";
+                                else
+                                    topCtx.fillStyle = selectedColor;                           
+                                 topCtx.fillRect(n.x1,n.y1,pixel_size,pixel_size);                                            
                             }
                         }
 

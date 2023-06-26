@@ -177,7 +177,7 @@ export function Header({isMobile} : {isMobile : boolean}){
                     <div style={{width: isMobile ? '20%' : '80px',height:'90%',display:'flex',justifyContent: isMobile ? 'flex-start' : 'space-between',alignItems:'center'}}>
                         <a href="https://github.com/joaogabrielferr/pixel-art-editor" target="_blank"><Github></Github></a>
                     </div>
-                    {!isMobile && <div style = {{fontWeight:'bold'}}><Logo></Logo></div>}
+                    {!isMobile && <div style = {{fontWeight:'bold'}}>SPRITEFY</div>}
                     <button ref = {downloadButton} className = "downloadButton">SAVE DRAWING</button>
                 </div>
         </header>

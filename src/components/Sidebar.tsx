@@ -2,14 +2,13 @@ import './sideBar.css';
 
 interface SidebarProps{
     children: React.ReactNode;
-    width : number | string;
     height : number;
-    marginTop? : number | string;
+    width: number;
 }
 
-export function Sidebar({children,width,height,marginTop} : SidebarProps){
+export function Sidebar({children,height,width} : SidebarProps){
 
-    return <div className = "sideBar" style = {{height:height,width:width,marginTop:marginTop}}>
+    return <div style = {{width:width,height:height,display:'flex',justifyContent:'flex-start',alignItems:'center',flexDirection:'column',backgroundColor:'rgb(38, 45, 61)'}}>
         {children}
     </div>
 

@@ -2,7 +2,8 @@
 .editor{
   /* width: 100%; */
   /* background-color: #3f3e3e; */
-  background-color: rgb(44, 43, 43);;
+  background-color: rgb(199, 199, 199);
+
   /* background-color: #681abd; */
   display: flex;
   justify-content: center;
@@ -12,7 +13,7 @@
   z-index: 1;
   touch-action: none;
   cursor: crosshair;
-  /* cursor : url('/public/crosshair.png') 16 16,auto; */
+  cursor : url('/public/crosshair.png') 16 16,auto;
   /* border: 1px solid rgb(134, 134, 134); */
 }
 
@@ -48,4 +49,13 @@
 
 #backgroundCanvas{
   z-index: 0;
+} */
+
+/* @media screen and (max-width:768px)
+{
+  .canvases{
+    top: 50%;
+    left: 50%;
+  }
+
 } */

@@ -36,7 +36,7 @@ export function Frames(){
     
         //if CANVAS_SIZE is a prime number
         if(bgTileSize === CANVAS_SIZE)
-        bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
+            bgTileSize = 10;
     }
 
     function drawBackground(frame : string)
@@ -149,13 +149,13 @@ export function Frames(){
             FRAMES
         </div> */}
         {
-            framesList.map((frame,index)=><div className="frameWrapper" key={frame} style={{ height: '90px', width: '95%', border: frame === currentFrame ? `3px solid #000000` : undefined }}>
+            framesList.map((frame,index)=><div className="frameWrapper" key={frame} style={{ width: '95%', border: frame === currentFrame ? `5px solid #000000` : undefined }}>
                 <div
                     className="frameCanvasWrapper"
                     onClick={() => changeCurrentFrame(frame)}
                 >
-                    <canvas className="frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id={`${frame}@sidebar`} style={{ width: '100%', height: '100%', zIndex: 1 }}></canvas>
-                    <canvas className="frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id={`${frame}background@sidebar`} style={{ width: '100%', height: '100%', zIndex: 0 }}></canvas>
+                    <canvas className="frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id={`${frame}@sidebar`} style={{zIndex: 1 }}></canvas>
+                    <canvas className="frameCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE} id={`${frame}background@sidebar`} style={{zIndex: 0 }}></canvas>
                     {framesList.length > 1 && index != 0 && <div className="moveFrameUp">
                         <button onClick={() => swapFrames(framesList[index - 1], frame)} style={{ backgroundColor: 'transparent', borderStyle: 'none', color: 'white', cursor: 'pointer', width: '100%', height: '100%', margin: '0 auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                             <FontAwesomeIcon size="lg" color="white"  icon={faUpLong} />

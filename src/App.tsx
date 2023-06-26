@@ -40,6 +40,7 @@ const ToolButtons = [
 //TODO: add layers functionality (maybe have a list 'layers' in a scene and each layer has a pixel matrix)
 //TODO: add eslint to project
 //TODO: add styled components
+//TODO: save drawing locally by retrieving the image from canvases with getImageData 
 //TODO: Add onion skin
 //TODO: Add tutorial if opened for the first time
 //TODO: Add license page to add licenses of libs used (tabler-icon)
@@ -78,7 +79,7 @@ function App() {
   function handleWindowResize(){
     
 
-    setCssCanvasSize(window.innerHeight - 50 - 30)
+    setCssCanvasSize(window.innerHeight - 20)
 
     EventBus.getInstance().publish(RESET_CANVAS_POSITION);
     
@@ -94,7 +95,7 @@ function App() {
 
 
       if(isMobile)setCssCanvasSize(window.innerWidth);
-      else setCssCanvasSize(window.innerHeight - 50 - 30)
+      else setCssCanvasSize(window.innerHeight - 20)
 
       window.addEventListener('resize',handleWindowResize)
       window.addEventListener("contextmenu", e => e.preventDefault());
@@ -123,20 +124,21 @@ function App() {
 
                 {/* left sidebar */}
                 {!isMobile && 
-                <Sidebar width={'240px'} height={cssCanvasSize} marginTop={'30px'}>
+                <Sidebar width={240} height={cssCanvasSize}>
                     <Toolbar toolButtons={ToolButtons} isMobile = {isMobile}/>
-                  <div className = "sideBarItem">
-                    <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
-                  </div>
-                  <div className = "sideBarItem">
-                    <Palettes></Palettes>
-                  </div>
-                </Sidebar>}
+                    <div className = "sideBarItem">
+                      <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/>
+                    </div>
+                    <div className = "sideBarItem">
+                      <Palettes></Palettes>
+                    </div>
+                </Sidebar>
+              }
                 
                 <div style = {{width:'100%',height:cssCanvasSize}}>
-                <div style = {{width:'100%',height:'30px',backgroundColor:'rgb(46, 46, 49)',display:'flex',justifyContent:'flex-start',alignItems:'center'}}>
+                {/* <div style = {{width:'100%',height:'30px',backgroundColor:'rgb(46, 46, 49)',display:'flex',justifyContent:'flex-start',alignItems:'center'}}>
                   <span id = "coordinates" style = {{color:'white',fontSize:'12px',marginRight:'20px',width:'60px',userSelect:'none'}}>{"[X:0,Y:0]"}</span>
-                </div>
+                </div> */}
 
                 {/* main editor */}
                   <Editor 
@@ -148,9 +150,11 @@ function App() {
 
                  {/* right sidebar */}
                 {!isMobile && 
-                  <Sidebar width={'250px'} height={cssCanvasSize} marginTop={'30px'}>
+                  <Sidebar width={260} height={cssCanvasSize}>
+        
                     <Preview/>
                     <Frames/>
+
                   </Sidebar>
                 }
 

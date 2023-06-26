@@ -1,13 +1,9 @@
 .sideBar{
-    width: 15%;
-    /* background-color: #333; */
     display: flex;
     justify-content: flex-start;
     align-items: center;
     flex-direction: column;
     overflow-y:auto;
-    /* background-color: rgb(46, 46, 49); */
-    /* border: 1px solid gray; */
     border-radius: 3px;
     background-color: rgb(38, 45, 61);
 }

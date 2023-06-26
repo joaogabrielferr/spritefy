@@ -55,7 +55,7 @@ export function Preview(){
                     {
 
                         ctx.fillStyle = frames.current[currentIndex.current].scene.pixels[i][j].bgColor;
-                        ctx.fillRect(frames.current[currentIndex.current].scene.pixels[i][j].x1, frames.current[currentIndex.current].scene.pixels[i][j].y1, 1, 1);
+                        ctx.clearRect(frames.current[currentIndex.current].scene.pixels[i][j].x1, frames.current[currentIndex.current].scene.pixels[i][j].y1, 1, 1);
                     
                     }else
                     {
@@ -86,7 +86,7 @@ export function Preview(){
     
         //if CANVAS_SIZE is a prime number
         if(bgTileSize === CANVAS_SIZE)
-        bgTileSize = CANVAS_SIZE <= 100 ? 1 : 10;
+            bgTileSize = 10;
     }
 
     calculateBgTileSize();
