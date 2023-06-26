@@ -59,7 +59,7 @@ export function Header({isMobile} : {isMobile : boolean}){
 
             const link = document.createElement("a");
             link.href = img;
-            link.download = "viewwit-drawing.png";
+            link.download = "spritefy-drawing.png";
 
             link.dispatchEvent(
                 new MouseEvent('click', { 
@@ -122,7 +122,7 @@ export function Header({isMobile} : {isMobile : boolean}){
         //                     if(images.length === 1)
         //                     {
         //                         link.href = images[0];
-        //                         link.download = "viewwit-drawing.png";
+        //                         link.download = "spritefy-drawing.png";
                                 
 
         //                     }else

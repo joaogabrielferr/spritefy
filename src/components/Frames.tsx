@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { EventBus } from "../EventBus";
 import { StoreType, store } from "../store"
 import {drawOnSideBarCanvasType } from "../types";
@@ -17,7 +17,10 @@ export function Frames(){
     const [touched,setTouched] = useState<{[frameName : string] : boolean}>({});
     
     const currentFrame = store((state : StoreType) => state.currentFrame);
-    // const setCurrentFrame = store((state : StoreType) => state.setCurrentFrame);
+    // const setCurrentFrame = store((state : StoreType) => state.setCurrentFrame);]
+
+    const framesDivRef = useRef<HTMLDivElement | null>(null);
+
 
     let bgTileSize = 1;
 
@@ -104,6 +107,12 @@ export function Frames(){
 
     
     useEffect(()=>{
+
+        if(framesDivRef.current)
+        {
+            framesDivRef.current.scrollTop = framesDivRef.current.scrollHeight;
+        }
+
         framesList.forEach((frame)=>{
             if(!touched[frame])
             {
@@ -144,7 +153,19 @@ export function Frames(){
     }
 
 
-    return <div className = "frames">
+    return <>
+            <div className="createNewFrameWrapper">
+            <button className = "createNewFrameButton" onClick = {createNewFrameHandler}>
+                ADD NEW FRAME
+                <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-square-rounded-plus" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M9 12h6"></path>
+                    <path d="M12 9v6"></path>
+                    <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z"></path>
+                </svg>
+            </button>
+        </div>
+    <div className = "frames" ref = {framesDivRef}>
         {/* <div className="framesTitle">
             FRAMES
         </div> */}
@@ -168,7 +189,7 @@ export function Frames(){
                     </div>}
                 </div>
                 <div className="frameOptions">
-                    <div>FRAME {index + 1}</div>
+                    <div style = {{textAlign:'right'}}>FRAME {index + 1}</div>
                     <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
                         <div><button onClick={() => copyFrame(frame)}><FontAwesomeIcon size="lg" color="#abbbc7" icon={faClone} /></button></div>
                         {framesList.length > 1 && <div>
@@ -181,17 +202,7 @@ export function Frames(){
                 </div>
             </div>)
         }
-        <div className="createNewFrameWrapper">
-            <button className = "createNewFrameButton" onClick = {createNewFrameHandler}>
-                ADD NEW FRAME
-                <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-square-rounded-plus" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M9 12h6"></path>
-                    <path d="M12 9v6"></path>
-                    <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z"></path>
-                </svg>
-            </button>
-        </div>
     </div>
+    </>
 
 }
