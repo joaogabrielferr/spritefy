@@ -119,15 +119,7 @@ export function Frames(){
         
     });
 
-    useEffect(()=>{
-        //scroll frames list to the bottom when new fram is added
-        if(framesDivRef.current)
-        {
-            framesDivRef.current.scrollTop = framesDivRef.current.scrollHeight;
-        }
-    },[framesList]);
-    
-    
+      
     function changeCurrentFrame(frame : string)
     {
         EventBus.getInstance().publish<string>(SELECT_FRAME,frame);
@@ -137,6 +129,15 @@ export function Frames(){
     function createNewFrameHandler()
     {
         EventBus.getInstance().publish(CREATE_NEW_FRAME);
+        
+        setTimeout(() => {
+            //scroll frames list to the bottom when new fram is added
+            if(framesDivRef.current)
+            {
+                framesDivRef.current.scrollTop = framesDivRef.current.scrollHeight;
+            }
+        }, 100);
+
     }
 
     function deleteFrame(frame : string)

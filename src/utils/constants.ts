@@ -4,6 +4,8 @@ export const SCALE_FACTOR = 0.15;
 export const MAX_ZOOM_AMOUNT = 40;
 export const CIRCLE_RADIUS_INCREASE_FACTOR = 0.3;
 export const ERASING = 'erasing';
+export const EDITOR_SIZE_OFFSET = 350;
+export const EDITOR_SIZE_OFFSET_MOBILE = 100;
 export const TOP_CANVAS = {canvas:'topCanvas',visible:true,blocked:false};
 export const BACKGROUND_CANVAS = {canvas:'backgroundCanvas',visible:true,blocked:false};
 

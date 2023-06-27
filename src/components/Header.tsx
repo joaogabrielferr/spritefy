@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { Logo } from "../svg/Logo";
 import './header.css';
 import { Github } from "../svg/Github";
 import { StoreType, store } from "../store";

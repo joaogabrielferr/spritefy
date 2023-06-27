@@ -16,7 +16,9 @@ COPY_FRAME,
 ERASING,
 SWAP_FRAMES,
 UNDO_LAST_DRAW,
-REDO_LAST_DRAW
+REDO_LAST_DRAW,
+EDITOR_SIZE_OFFSET,
+EDITOR_SIZE_OFFSET_MOBILE
 }
  from './utils/constants';
 import Mouse from './scene/Mouse';
@@ -176,28 +178,28 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
    
         if(isMobile)
         {
-            canvas.style.width = `${cssCanvasSize - 100}px`;
-            canvas.style.height = `${cssCanvasSize - 100}px`;
+            canvas.style.width = `${cssCanvasSize - EDITOR_SIZE_OFFSET_MOBILE}px`;
+            canvas.style.height = `${cssCanvasSize - EDITOR_SIZE_OFFSET_MOBILE}px`;
 
-            topCanvas.style.width = `${cssCanvasSize - 100}px`;
-            topCanvas.style.height = `${cssCanvasSize - 100}px`;
+            topCanvas.style.width = `${cssCanvasSize - EDITOR_SIZE_OFFSET_MOBILE}px`;
+            topCanvas.style.height = `${cssCanvasSize - EDITOR_SIZE_OFFSET_MOBILE}px`;
             
-            backgroundCanvas.style.width = `${cssCanvasSize - 100}px`;
-            backgroundCanvas.style.height = `${cssCanvasSize - 100}px`;
+            backgroundCanvas.style.width = `${cssCanvasSize - EDITOR_SIZE_OFFSET_MOBILE}px`;
+            backgroundCanvas.style.height = `${cssCanvasSize - EDITOR_SIZE_OFFSET_MOBILE}px`;
             
-            originalCanvasWidth = cssCanvasSize - 100;
+            originalCanvasWidth = cssCanvasSize - EDITOR_SIZE_OFFSET_MOBILE;
         }else
         {
-            canvas.style.width = `${cssCanvasSize - 500}px`;
-            canvas.style.height = `${cssCanvasSize - 500}px`;
+            canvas.style.width = `${cssCanvasSize - EDITOR_SIZE_OFFSET}px`;
+            canvas.style.height = `${cssCanvasSize - EDITOR_SIZE_OFFSET}px`;
 
-            topCanvas.style.width = `${cssCanvasSize - 500}px`;
-            topCanvas.style.height = `${cssCanvasSize - 500}px`;
+            topCanvas.style.width = `${cssCanvasSize - EDITOR_SIZE_OFFSET}px`;
+            topCanvas.style.height = `${cssCanvasSize - EDITOR_SIZE_OFFSET}px`;
             
-            backgroundCanvas.style.width = `${cssCanvasSize - 500}px`;
-            backgroundCanvas.style.height = `${cssCanvasSize - 500}px`;
+            backgroundCanvas.style.width = `${cssCanvasSize - EDITOR_SIZE_OFFSET}px`;
+            backgroundCanvas.style.height = `${cssCanvasSize - EDITOR_SIZE_OFFSET}px`;
             
-            originalCanvasWidth = cssCanvasSize - 500;
+            originalCanvasWidth = cssCanvasSize - EDITOR_SIZE_OFFSET;
         }
 
         resetCanvasPosition();
