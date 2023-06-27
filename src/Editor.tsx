@@ -390,7 +390,7 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
             }else if(event.ctrlKey && event.code === 'KeyY')
             {
                 handleRedoLastDraw();
-            }else if(event.ctrlKey && event.code === 'KeyX')
+            }else if(event.ctrlKey && event.code === 'Space')
             {
                 resetCanvasPosition();
             }

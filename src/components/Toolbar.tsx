@@ -141,7 +141,7 @@ export function Toolbar({toolButtons,isMobile} : ToolbarProps){
             <div className="sideBarItem">
                 <button data-tooltip-id="my-tooltip-extra-options" data-tooltip-content="Ctrl + Z" onClick = {()=>{EventBus.getInstance().publish(UNDO_LAST_DRAW)}} className="extraOptionsButton"><FontAwesomeIcon size="lg" color="#abbbc7" icon={faArrowRotateLeft} />UNDO</button>
                 <button data-tooltip-id="my-tooltip-extra-options" data-tooltip-content="Ctrl + Y" onClick = {()=>{EventBus.getInstance().publish(REDO_LAST_DRAW)}} className="extraOptionsButton"><FontAwesomeIcon size="lg" color="#abbbc7" icon={faRotateRight} />REDO</button>
-                <button data-tooltip-id="my-tooltip-extra-options" data-tooltip-content="Ctrl + X" onClick = {()=>{EventBus.getInstance().publish(RESET_CANVAS_POSITION)}} className="extraOptionsButton">RESET CANVAS POSITION</button>
+                <button data-tooltip-id="my-tooltip-extra-options" data-tooltip-content="Ctrl + Space" onClick = {()=>{EventBus.getInstance().publish(RESET_CANVAS_POSITION)}} className="extraOptionsButton">RESET CANVAS POSITION</button>
             </div>
         
             </div>

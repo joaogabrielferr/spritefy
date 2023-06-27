@@ -108,11 +108,6 @@ export function Frames(){
     
     useEffect(()=>{
 
-        if(framesDivRef.current)
-        {
-            framesDivRef.current.scrollTop = framesDivRef.current.scrollHeight;
-        }
-
         framesList.forEach((frame)=>{
             if(!touched[frame])
             {
@@ -124,6 +119,13 @@ export function Frames(){
         
     });
 
+    useEffect(()=>{
+        //scroll frames list to the bottom when new fram is added
+        if(framesDivRef.current)
+        {
+            framesDivRef.current.scrollTop = framesDivRef.current.scrollHeight;
+        }
+    },[framesList]);
     
     
     function changeCurrentFrame(frame : string)
