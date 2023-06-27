@@ -1,28 +1,28 @@
-
-import { useContext} from 'react';
-import { selectedColorContext } from '../contexts/selectedColor/selectedColorContext';
 import { PaletteType } from '../types';
 import './palettes.css';
+import { StoreType, store } from '../store';
 
-interface PaletteInterface{
-    palette : PaletteType;
+interface PaletteInterface {
+  palette: PaletteType;
 }
 
-export function Palette({palette} : PaletteInterface){
+export function Palette({ palette }: PaletteInterface) {
+  const setSelectedColor = store((store: StoreType) => store.setSelectedColor);
 
-    const {setSelectedColor} = useContext(selectedColorContext);
+  const uniqueColors = palette.colors.filter((color, index) => {
+    return palette.colors.indexOf(color) === index;
+  });
 
-    const uniqueColors = palette.colors.filter((color,index)=>{return palette.colors.indexOf(color) === index;})
-
-
-    return <div className = "palette">
-
-        
-        {
-            uniqueColors.map((color)=><button className = "paletteButton" style = {{backgroundColor:color}} key = {color} onClick = {()=>setSelectedColor(color)}></button>)
-        }
-
-
+  return (
+    <div className="palette">
+      {uniqueColors.map((color) => (
+        <button
+          className="paletteButton"
+          style={{ backgroundColor: color }}
+          key={color}
+          onClick={() => setSelectedColor(color)}
+        ></button>
+      ))}
     </div>
-
+  );
 }

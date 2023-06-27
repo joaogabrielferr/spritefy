@@ -6,10 +6,10 @@ export const CIRCLE_RADIUS_INCREASE_FACTOR = 0.3;
 export const ERASING = 'erasing';
 export const EDITOR_SIZE_OFFSET = 350;
 export const EDITOR_SIZE_OFFSET_MOBILE = 100;
-export const TOP_CANVAS = {canvas:'topCanvas',visible:true,blocked:false};
-export const BACKGROUND_CANVAS = {canvas:'backgroundCanvas',visible:true,blocked:false};
+export const TOP_CANVAS = { canvas: 'topCanvas', visible: true, blocked: false };
+export const BACKGROUND_CANVAS = { canvas: 'backgroundCanvas', visible: true, blocked: false };
 
-export const BG_COLORS = ['#757474','#a1a1a1'];
+export const BG_COLORS = ['#757474', '#a1a1a1'];
 
 //pub sub events
 export const RESET_CANVAS_POSITION = 'reset-canvas-position';
