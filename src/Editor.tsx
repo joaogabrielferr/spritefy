@@ -560,16 +560,11 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
     }
 
 
-    function handleMouseMove(event : MouseEvent ){
-
-        if(!canvas)return;
-
-
-
-        //TODO: maybe decouple mouse listeners from tool function calls, functions can be called a super high number of times depending on device config and mouse type i guess
+    function mouseToWorldCoordinates(clientX : number,clientY : number)
+    {
         const bounding = canvas.getBoundingClientRect();
-        mouse.x = event.clientX - bounding.left;
-        mouse.y = event.clientY - bounding.top;
+        mouse.x = clientX - bounding.left;
+        mouse.y = clientY - bounding.top;
 
         const canvasWidth = parseFloat(canvas.style.width); 
         const canvasHeight = parseFloat(canvas.style.height);
@@ -580,6 +575,15 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
         mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
         mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
+
+    }
+
+
+    function handleMouseMove(event : MouseEvent ){
+
+        if(!canvas)return;
+
+        mouseToWorldCoordinates(event.clientX,event.clientY);
 
         if(coordinatesElement && mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size)
         {
@@ -965,7 +969,9 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 backgroundCanvas.style.width = `${newSize}px`;
                 backgroundCanvas.style.height = `${newSize}px`;
 
-
+                //paint pixel in top canvas relative to mouse position
+                mouseToWorldCoordinates(e.clientX,e.clientY);
+                paintMousePosition();
                 
 
             }else 
@@ -1003,6 +1009,9 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
                 // Store the mouse position in the history
                 mouse.history.push({ x: mouseX, y: mouseY });
+                //paint pixel in top canvas relative to mouse position
+                mouseToWorldCoordinates(e.clientX,e.clientY);
+                paintMousePosition();
         }
 
     }else if (delta > 0) {
@@ -1037,6 +1046,10 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
                 backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
                 backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft + dx}px`;
                 backgroundCanvas.style.top = `${backgroundCanvas.offsetTop + dy}px`;
+        
+                //paint pixel in top canvas relative to mouse position
+                mouseToWorldCoordinates(e.clientX,e.clientY);
+                paintMousePosition();
 
             }   
         }
@@ -1053,6 +1066,9 @@ export default function Editor({cssCanvasSize,isMobile} : IEditor) : JSX.Element
 
             currentScale -= SCALE_FACTOR;
 
+            //paint pixel in top canvas relative to mouse position
+            mouseToWorldCoordinates(e.clientX,e.clientY);
+            paintMousePosition();
 
 
         }
