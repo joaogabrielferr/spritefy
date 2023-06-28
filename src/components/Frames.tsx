@@ -154,8 +154,7 @@ export function Frames() {
             stroke="currentColor"
             fill="none"
             strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+            strokeLinejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
             <path d="M9 12h6"></path>
             <path d="M12 9v6"></path>
@@ -174,23 +173,20 @@ export function Frames() {
             style={{
               width: '95%',
               border: frame === currentFrame ? `5px solid #000000` : undefined
-            }}
-          >
+            }}>
             <div className="frameCanvasWrapper" onClick={() => changeCurrentFrame(frame)}>
               <canvas
                 className="frameCanvas"
                 width={CANVAS_SIZE}
                 height={CANVAS_SIZE}
                 id={`${frame}@sidebar`}
-                style={{ zIndex: 1 }}
-              ></canvas>
+                style={{ zIndex: 1 }}></canvas>
               <canvas
                 className="frameCanvas"
                 width={CANVAS_SIZE}
                 height={CANVAS_SIZE}
                 id={`${frame}background@sidebar`}
-                style={{ zIndex: 0 }}
-              ></canvas>
+                style={{ zIndex: 0 }}></canvas>
               {framesList.length > 1 && index != 0 && (
                 <div className="moveFrameUp">
                   <button
@@ -206,8 +202,7 @@ export function Frames() {
                       display: 'flex',
                       justifyContent: 'center',
                       alignItems: 'center'
-                    }}
-                  >
+                    }}>
                     <FontAwesomeIcon size="lg" color="white" icon={faUpLong} />
                   </button>
                 </div>
@@ -227,16 +222,15 @@ export function Frames() {
                       display: 'flex',
                       justifyContent: 'center',
                       alignItems: 'center'
-                    }}
-                  >
+                    }}>
                     <FontAwesomeIcon size="lg" color="white" icon={faDownLong} />
                   </button>
                 </div>
               )}
             </div>
             <div className="frameOptions">
-              <div style={{ textAlign: 'right' }}>FRAME {index + 1}</div>
-              <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ textAlign: 'right', fontSize: '12px' }}>FRAME {index + 1}</div>
+              <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
                 <div>
                   <button onClick={() => copyFrame(frame)}>
                     <FontAwesomeIcon size="lg" color="#abbbc7" icon={faClone} />
@@ -250,9 +244,6 @@ export function Frames() {
                   </div>
                 )}
               </div>
-              {/* <span>
-     <button onClick ={()=>toogleframeVisibility(frame)}>{layer.visible ? <Eye/> : <EyeOff/>}</button>
-    </span> */}
             </div>
           </div>
         ))}

@@ -1,24 +1,21 @@
-.sideBar{
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: column;
-    overflow-y:auto;
-    border-radius: 3px;
-    background-color: rgb(38, 45, 61);
+.sideBar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+  overflow-y: auto;
+  border-radius: 3px;
+  background-color: rgb(46, 94, 206);
 }
 
-.sideBarItem{
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 90%;
-    border: 1px solid #555555;
-    border-radius: 2px;
-    background-color: rgb(77, 77, 77);
+.sideBarItem {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 90%;
+  border: 1px solid #555555;
+  border-radius: 2px;
+  background-color: rgb(77, 77, 77);
 }
-
-
-

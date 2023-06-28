@@ -113,7 +113,27 @@ function App() {
 
           <div style={{ width: '100%', height: cssCanvasSize }}>
             {/* main editor */}
-            <Editor cssCanvasSize={cssCanvasSize} isMobile={isMobile}></Editor>
+            <Editor cssCanvasSize={cssCanvasSize - 40} isMobile={isMobile}></Editor>
+            <div
+              style={{
+                backgroundColor: 'rgb(28, 34, 48)',
+                height: '40px',
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+                fontSize: '15px'
+              }}>
+              <span
+                id="coordinates"
+                style={{
+                  height: '100%',
+                  color: 'white',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}></span>
+            </div>
           </div>
 
           {/* right sidebar */}

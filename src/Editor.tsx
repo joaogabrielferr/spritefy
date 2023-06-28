@@ -149,7 +149,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     backgroundCanvas.width = display_size;
     backgroundCanvas.height = display_size;
 
-    coordinatesElement = document.getElementById('coordinates') as HTMLParagraphElement;
+    coordinatesElement = document.getElementById('coordinates') as HTMLSpanElement;
 
     if (!firstInit.current) {
       frames.current[currentFrameIndex].scene.initializePixelMatrix(
@@ -1384,16 +1384,14 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       onMouseUp={handleFinishDraw}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
-      onTouchEnd={handleFinishDraw}
-    >
+      onTouchEnd={handleFinishDraw}>
       <canvas className="canvases" id="topCanvas" style={{ zIndex: 2 }} ref={topCanvasRef}></canvas>
       <canvas className="canvases" id="canvas" style={{ zIndex: 1 }} ref={canvasRef}></canvas>
       <canvas
         className="canvases"
         id="backgroundCanvas"
         style={{ zIndex: 0 }}
-        ref={backgroundCanvasRef}
-      ></canvas>
+        ref={backgroundCanvasRef}></canvas>
     </div>
   );
 }
