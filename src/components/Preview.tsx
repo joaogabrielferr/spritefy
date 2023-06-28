@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { BG_COLORS, CANVAS_SIZE, ERASING, UPDATE_PREVIEW_FRAMES } from '../utils/constants';
 import './preview.css';
 import { Frame, Pixel, drawOnSideBarCanvasType } from '../types';
 import { EventBus } from '../EventBus';
 import { StoreType, store } from '../store';
+import { Slider, SliderRange, SliderWrapper } from '../index.styled';
 
 export function Preview() {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -138,32 +139,29 @@ export function Preview() {
           height={CANVAS_SIZE}
           className="canvasPreview"
           id="previewTop"
-          style={{ width: '180px', height: '180px', zIndex: 1 }}
-        ></canvas>
+          style={{ width: '180px', height: '180px', zIndex: 1 }}></canvas>
         <canvas
           width={CANVAS_SIZE}
           height={CANVAS_SIZE}
           className="canvasPreview"
           id="previewBG"
-          style={{ width: '180px', height: '180px', zIndex: 0 }}
-        ></canvas>
+          style={{ width: '180px', height: '180px', zIndex: 0 }}></canvas>
       </div>
       <div>
         <div style={{ width: '180px', margin: '0 auto', display: 'flex' }}>
           <div style={{ color: 'white', fontSize: '12px', width: '30%' }}>{frameRate} FPS</div>
-          <div className="SliderWrapper">
-            <div className="SliderRange">
-              <input
-                className="Slider"
+          <SliderWrapper>
+            <SliderRange>
+              <Slider
                 type="range"
                 min={1}
                 max={12}
                 value={frameRate}
-                onChange={(e) => setFrameRate(+e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setFrameRate(+e.target.value)}
                 id="range"
               />
-            </div>
-          </div>
+            </SliderRange>
+          </SliderWrapper>
         </div>
       </div>
     </div>

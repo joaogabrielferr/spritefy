@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { ChangeEvent, useEffect } from 'react';
 import { ToolButton } from '../types';
 import './toolbar.css';
 import { store, StoreType } from '../store';
@@ -6,6 +6,7 @@ import { EventBus } from '../EventBus';
 import { REDO_LAST_DRAW, RESET_CANVAS_POSITION, UNDO_LAST_DRAW } from '../utils/constants';
 import { faArrowRotateLeft, faRotateRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Slider, SliderRange, SliderValue, SliderWrapper } from '../index.styled';
 
 interface ToolbarProps {
   toolButtons: ToolButton[];
@@ -63,9 +64,12 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
                 onClick={() => setSelectedTool(button.tool)}
                 key={button.tool}
                 data-tooltip-id="my-tooltip"
-                data-tooltip-content={button.tooltip}
-              >
-                {button.svg}
+                data-tooltip-content={button.tooltip}>
+                {button.svg ? (
+                  button.svg
+                ) : (
+                  <img height={24} src={`./public/${button.tool}.png`}></img>
+                )}
               </button>
             );
           })}
@@ -151,8 +155,7 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
           onClick={() => {
             EventBus.getInstance().publish(UNDO_LAST_DRAW);
           }}
-          className="extraOptionsButton"
-        >
+          className="extraOptionsButton">
           <FontAwesomeIcon size="lg" color="#abbbc7" icon={faArrowRotateLeft} />
           UNDO
         </button>
@@ -162,8 +165,7 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
           onClick={() => {
             EventBus.getInstance().publish(REDO_LAST_DRAW);
           }}
-          className="extraOptionsButton"
-        >
+          className="extraOptionsButton">
           <FontAwesomeIcon size="lg" color="#abbbc7" icon={faRotateRight} />
           REDO
         </button>
@@ -173,8 +175,7 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
           onClick={() => {
             EventBus.getInstance().publish(RESET_CANVAS_POSITION);
           }}
-          className="extraOptionsButton"
-        >
+          className="extraOptionsButton">
           RESET CANVAS POSITION
         </button>
       </div>
@@ -188,20 +189,19 @@ function PenSizeSlider() {
 
   return (
     <>
-      <div className="SliderWrapper">
-        <div className="SliderRange">
-          <input
-            className="Slider"
+      <SliderWrapper>
+        <SliderRange>
+          <Slider
             type="range"
             min={1}
             max={10}
             value={penSize}
-            onChange={(e) => setPenSize(+e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setPenSize(+e.target.value)}
             id="range"
           />
-        </div>
-        <div className="SliderValue">{penSize}</div>
-      </div>
+        </SliderRange>
+        <SliderValue>{penSize}</SliderValue>
+      </SliderWrapper>
     </>
   );
 }

@@ -16,9 +16,8 @@ export function Sidebar({ children, height, width }: SidebarProps) {
         justifyContent: 'flex-start',
         alignItems: 'center',
         flexDirection: 'column',
-        backgroundColor: 'rgb(38, 45, 61)'
-      }}
-    >
+        backgroundColor: 'rgb(28, 34, 48)'
+      }}>
       {children}
     </div>
   );
