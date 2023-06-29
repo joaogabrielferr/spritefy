@@ -57,8 +57,9 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
         <div className="toolbar-buttons">
           {toolButtons.map((button: ToolButtonType) => {
             return (
-              <div
-                className={`tool-button ${selectedTool === button.tool ? 'selected' : ''}`}
+              <button
+                className="tool-button"
+                style={{ backgroundColor: selectedTool === button.tool ? '#634cb8' : '' }}
                 onClick={() => setSelectedTool(button.tool)}
                 key={button.tool}
                 data-tooltip-id="my-tooltip"
@@ -68,7 +69,7 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
                 ) : (
                   <img height={24} src={`./public/${button.tool}.png`} alt={button.tool} />
                 )}
-              </div>
+              </button>
             );
           })}
         </div>

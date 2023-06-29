@@ -114,6 +114,10 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   const firstInit = useRef(false); //for development
 
+  const latestFrameCreated = useRef('');
+
+  const shouldUpdateSideBarCanvas = useRef(false);
+
   //TODO: refactor this shit
   useEffect(() => {
     pixel_size = 1;
@@ -262,20 +266,24 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     (_frame: string) => {
       const newFrame = createNewFrame();
 
-      frames.current.push(newFrame);
+      latestFrameCreated.current = newFrame.name;
 
-      currentFrameIndex = frames.current.length - 1;
+      //true only when copiyng a frame
+      shouldUpdateSideBarCanvas.current = true;
 
       const frameCopiedIndex = frames.current.findIndex((frame) => frame.name === _frame);
 
       if (frameCopiedIndex < 0) return;
 
-      // frames.current[currentFrameIndex].scene.initializePixelMatrix(display_size,pixel_size,backgroundTileSize);
-      frames.current[currentFrameIndex].scene.copyPixelMatrix(
+      frames.current.splice(frameCopiedIndex + 1, 0, newFrame);
+
+      const newFrameIndex = frames.current.findIndex((frame) => frame.name === newFrame.name);
+
+      frames.current[newFrameIndex].scene.copyPixelMatrix(
         frames.current[frameCopiedIndex].scene.pixels
       );
 
-      if (frameCopiedIndex === frames.current.length - 1) {
+      if (newFrameIndex === frames.current.length - 1) {
         setFramesList([...framesList, newFrame.name]);
       } else {
         const newFramesList = [...framesList];
@@ -290,23 +298,29 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       draw(bgTileSize);
 
       EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES, frames.current);
-
-      //the end justifies the means
-      setTimeout(() => {
-        EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
-          frame: newFrame.name,
-          pixelMatrix: frames.current[currentFrameIndex].scene.pixels
-        });
-      }, 500);
     },
     [framesList, setCurrentFrame, setFramesList]
   );
+
+  //lol
+  function updateSideBarCanvasAfterChangingFramesList(frameName: string) {
+    if (!shouldUpdateSideBarCanvas.current || frameName === '' || frameName.length <= 1) return;
+
+    const frameIndex = frames.current.findIndex((frame) => frame.name === frameName);
+
+    EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+      frame: frameName,
+      pixelMatrix: frames.current[frameIndex].scene.pixels
+    });
+
+    //true only when copiyng a frame
+    shouldUpdateSideBarCanvas.current = false;
+  }
 
   const swapFrames = useCallback(
     ({ frame1, frame2 }: { frame1: string; frame2: string }) => {
       let frame1index = frames.current.findIndex((frame) => frame.name === frame1);
       let frame2index = frames.current.findIndex((frame) => frame.name === frame2);
-      console.log('swapping ', frame1index + 1, ' and ', frame2index + 1);
 
       if (frame1index < 0 || frame2index < 0) return;
 
@@ -407,6 +421,12 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     selectFrame,
     swapFrames
   ]);
+
+  useEffect(() => {
+    //updating sidebar canvas when a new frame is copied, putting it here so that i can garantee that it only updates after framesList changes
+    //in other situations where sidebar canvas is updated (frame created, deleted, or draw finished) this is not necessary
+    updateSideBarCanvasAfterChangingFramesList(latestFrameCreated.current);
+  }, [framesList]);
 
   function draw(bgTileSize: number) {
     let firstInRow = 1;
