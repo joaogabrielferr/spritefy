@@ -1,19 +1,17 @@
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { BG_COLORS, CANVAS_SIZE, ERASING, UPDATE_PREVIEW_FRAMES } from '../utils/constants';
-import './preview.css';
-import { Frame, Pixel, drawOnSideBarCanvasType } from '../types';
-import { EventBus } from '../EventBus';
-import { StoreType, store } from '../store';
-import { Slider, SliderRange, SliderWrapper } from '../index.styled';
+import { BG_COLORS, CANVAS_SIZE, ERASING, UPDATE_PREVIEW_FRAMES } from '../../utils/constants';
+import './preview.scss';
+import { Frame, Pixel, drawOnSideBarCanvasType } from '../../types';
+import { EventBus } from '../../EventBus';
+import { StoreType, store } from '../../store';
 
 export function Preview() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const previewInterval = useRef<number>(0);
 
-  const [counter, setCounter] = useState(0);
-
   const frameRate = store((store: StoreType) => store.frameRate);
   const setFrameRate = store((store: StoreType) => store.setFrameRate);
+  const framesList = store((store: StoreType) => store.framesList);
 
   const frameDuration = 1000 / frameRate;
 
@@ -25,7 +23,6 @@ export function Preview() {
   const frames = useRef<Frame[]>([]);
 
   const startPreview = useCallback(() => {
-    counter;
     previewInterval.current = setInterval(() => {
       redrawPreview();
       currentIndex.current++;
@@ -33,7 +30,8 @@ export function Preview() {
         currentIndex.current = 0;
       }
     }, frameDuration);
-  }, [frameDuration, counter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frameDuration, framesList]);
 
   function redrawPreview() {
     const ctx = canvas.current!.getContext('2d')!;
@@ -126,33 +124,33 @@ export function Preview() {
 
   function updateFramesOnPreview(_frames: Frame[]) {
     frames.current = _frames;
-    setCounter((counter) => counter + 1);
   }
 
   return (
-    <div className="Preview">
-      <div className="PreviewTitle">PREVIEW</div>
-      <div className="PreviewCanvasWrapper">
+    <div className="preview">
+      <div className="preview-title">PREVIEW</div>
+      <div className="preview-canvas-wrapper">
         <canvas
           width={CANVAS_SIZE}
           ref={canvas}
           height={CANVAS_SIZE}
-          className="canvasPreview"
+          className="preview-canvas"
           id="previewTop"
           style={{ width: '180px', height: '180px', zIndex: 1 }}></canvas>
         <canvas
           width={CANVAS_SIZE}
           height={CANVAS_SIZE}
-          className="canvasPreview"
+          className="preview-canvas"
           id="previewBG"
           style={{ width: '180px', height: '180px', zIndex: 0 }}></canvas>
       </div>
       <div>
         <div style={{ width: '180px', margin: '0 auto', display: 'flex' }}>
           <div style={{ color: 'white', fontSize: '12px', width: '30%' }}>{frameRate} FPS</div>
-          <SliderWrapper>
-            <SliderRange>
-              <Slider
+          <div className="slider-wrapper">
+            <div className="slider-range">
+              <input
+                className="slider"
                 type="range"
                 min={1}
                 max={12}
@@ -160,8 +158,8 @@ export function Preview() {
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setFrameRate(+e.target.value)}
                 id="range"
               />
-            </SliderRange>
-          </SliderWrapper>
+            </div>
+          </div>
         </div>
       </div>
     </div>

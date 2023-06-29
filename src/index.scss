@@ -1,25 +1,32 @@
-import styled, { css } from 'styled-components';
+body {
+  margin: 0;
+  padding: 0;
+  /* background-color: rgb(46, 46, 51); */
+  background-color: rgb(51, 59, 63);
+  overflow: hidden;
+  font-family: 'Roboto', sans-serif;
+}
 
-export const centralize = css`
+@mixin centralize {
   display: flex;
   justify-content: center;
   align-items: center;
-`;
+}
 
-export const MainSection = styled.div`
+.main-section {
   width: 100%;
-  ${centralize}
+  @include centralize;
   margin: 0 auto;
   overflow: hidden;
   flex-direction: column;
-`;
+}
 
-export const EditorWrapper = styled.div`
+.main-inner-wrapper {
   width: 100%;
-  ${centralize};
-`;
+  @include centralize;
+}
 
-export const MobileOptions = styled.div`
+.mobile-options {
   width: 100%;
   height: 100%;
   display: flex;
@@ -29,23 +36,23 @@ export const MobileOptions = styled.div`
   margin-top: 50px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-`;
+}
 
-//slider//
-export const SliderWrapper = styled.div`
+// Slider //
+.slider-wrapper {
   width: 100%;
   display: flex;
   justify-content: space-between;
   position: relative;
   align-items: center;
-`;
+}
 
-export const SliderRange = styled.div`
+.slider-range {
   display: flex;
   width: 100%;
-`;
+}
 
-export const SliderValue = styled.div`
+.slider-value {
   font-size: 12px;
   width: 10%;
   display: flex;
@@ -61,9 +68,9 @@ export const SliderValue = styled.div`
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-`;
+}
 
-export const Slider = styled.input`
+.slider {
   /* removing default appearance */
   -webkit-appearance: none;
   appearance: none;
@@ -73,8 +80,8 @@ export const Slider = styled.input`
   outline: none;
   cursor: grab;
   border: 1px solid rgb(20, 20, 20);
-  border-radius: 2px;
-  /*  slider progress trick  */
+  /* border-radius: 2px; */
+  /* slider progress trick */
   overflow: hidden;
   margin: 0;
 
@@ -106,7 +113,7 @@ export const Slider = styled.input`
     width: 15px;
     background-color: #634cb8;
     border: 2px solid #634cb8;
-    /*  slider progress trick  */
+    /* slider progress trick */
     box-shadow: -407px 0 0 400px #634cb8;
   }
 
@@ -116,7 +123,33 @@ export const Slider = styled.input`
     width: 15px;
     background-color: #634cb8;
     border: 1px solid #634cb8;
-    /*  slider progress trick  */
+    /* slider progress trick */
     box-shadow: -407px 0 0 400px #634cb8;
   }
-`;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #3a3737;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+@media screen and (max-width: 768px) {
+  .main-section {
+    margin-top: 30px;
+  }
+}

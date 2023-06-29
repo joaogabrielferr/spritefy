@@ -1,15 +1,14 @@
 import React, { ChangeEvent, useEffect } from 'react';
-import { ToolButton } from '../types';
-import './toolbar.css';
-import { store, StoreType } from '../store';
-import { EventBus } from '../EventBus';
-import { REDO_LAST_DRAW, RESET_CANVAS_POSITION, UNDO_LAST_DRAW } from '../utils/constants';
+import { ToolButtonType } from '../../types';
+import './toolbar.scss';
+import { store, StoreType } from '../../store';
+import { EventBus } from '../../EventBus';
+import { REDO_LAST_DRAW, RESET_CANVAS_POSITION, UNDO_LAST_DRAW } from '../../utils/constants';
 import { faArrowRotateLeft, faRotateRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Slider, SliderRange, SliderValue, SliderWrapper } from '../index.styled';
 
 interface ToolbarProps {
-  toolButtons: ToolButton[];
+  toolButtons: ToolButtonType[];
   isMobile?: boolean;
 }
 
@@ -53,14 +52,13 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
   }, [setSelectedTool]);
 
   return (
-    <div className="toolbar">
-      <div className="sideBarItem">
-        <div className="toolbarButtons">
-          {toolButtons.map((button: ToolButton) => {
+    <div className="toolbar-wrapper">
+      <div className="sidebar-item">
+        <div className="toolbar-buttons">
+          {toolButtons.map((button: ToolButtonType) => {
             return (
-              <button
-                className="toolButton"
-                style={{ backgroundColor: selectedTool === button.tool ? '#634cb8' : '' }}
+              <div
+                className={`tool-button ${selectedTool === button.tool ? 'selected' : ''}`}
                 onClick={() => setSelectedTool(button.tool)}
                 key={button.tool}
                 data-tooltip-id="my-tooltip"
@@ -68,15 +66,15 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
                 {button.svg ? (
                   button.svg
                 ) : (
-                  <img height={24} src={`./public/${button.tool}.png`}></img>
+                  <img height={24} src={`./public/${button.tool}.png`} alt={button.tool} />
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
       </div>
 
-      <div className="sideBarItem">
+      <div className="sidebar-item">
         <ToolOptions>
           <div style={{ marginTop: '5px', fontSize: '12px', fontWeight: 'bold' }}>
             {selectedTool.toUpperCase()}
@@ -90,7 +88,7 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
             </div>
           )}
           {selectedTool === 'elipse' && (
-            <div className="checkboxWrapper">
+            <div className="checkbox-wrapper">
               <label className="checkbox">
                 KEEP 1 TO 1 RATIO
                 <input
@@ -104,7 +102,7 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
             </div>
           )}
           {['pencil'].find((tool) => tool === selectedTool) && (
-            <div className="checkboxWrapper">
+            <div className="checkbox-wrapper">
               <label className="checkbox">
                 MIRROR X AXIS
                 <input
@@ -118,7 +116,7 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
             </div>
           )}
           {['pencil'].find((tool) => tool === selectedTool) && (
-            <div className="checkboxWrapper">
+            <div className="checkbox-wrapper">
               <label className="checkbox">
                 MIRROR Y AXIS
                 <input
@@ -132,7 +130,7 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
             </div>
           )}
           {['eraser'].find((tool) => tool === selectedTool) && !isMobile && (
-            <div className="checkboxWrapper">
+            <div className="checkbox-wrapper">
               <label className="checkbox">
                 ERASE ON RIGHT CLICK
                 <input
@@ -148,14 +146,14 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
         </ToolOptions>
       </div>
 
-      <div className="sideBarItem">
+      <div className="sidebar-item">
         <button
           data-tooltip-id="my-tooltip-extra-options"
           data-tooltip-content="Ctrl + Z"
           onClick={() => {
             EventBus.getInstance().publish(UNDO_LAST_DRAW);
           }}
-          className="extraOptionsButton">
+          className="extra-options-button">
           <FontAwesomeIcon size="lg" color="#abbbc7" icon={faArrowRotateLeft} />
           UNDO
         </button>
@@ -165,7 +163,7 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
           onClick={() => {
             EventBus.getInstance().publish(REDO_LAST_DRAW);
           }}
-          className="extraOptionsButton">
+          className="extra-options-button">
           <FontAwesomeIcon size="lg" color="#abbbc7" icon={faRotateRight} />
           REDO
         </button>
@@ -175,7 +173,7 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
           onClick={() => {
             EventBus.getInstance().publish(RESET_CANVAS_POSITION);
           }}
-          className="extraOptionsButton">
+          className="extra-options-button">
           RESET CANVAS POSITION
         </button>
       </div>
@@ -189,9 +187,10 @@ function PenSizeSlider() {
 
   return (
     <>
-      <SliderWrapper>
-        <SliderRange>
-          <Slider
+      <div className="slider-wrapper">
+        <div className="slider-range">
+          <input
+            className="slider"
             type="range"
             min={1}
             max={10}
@@ -199,17 +198,21 @@ function PenSizeSlider() {
             onChange={(e: ChangeEvent<HTMLInputElement>) => setPenSize(+e.target.value)}
             id="range"
           />
-        </SliderRange>
-        <SliderValue>{penSize}</SliderValue>
-      </SliderWrapper>
+        </div>
+        <div className="slider-value">{penSize}</div>
+      </div>
     </>
   );
 }
 
 function ToolOptions({ children }: { children: React.ReactNode }) {
   return (
-    <div className="ToolOptions">
-      <div className="InnerToolOptions">{children}</div>
+    <div className="tool-options">
+      <div
+        className="inner-tool-options
+      ">
+        {children}
+      </div>
     </div>
   );
 }

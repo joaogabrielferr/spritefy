@@ -1,5 +1,5 @@
 import { useEffect, useRef, WheelEvent, MouseEvent, TouchEvent, Touch, useCallback } from 'react';
-import './editor.css';
+import './editor.scss';
 import {
   CANVAS_SIZE,
   MAX_ZOOM_AMOUNT,
@@ -306,6 +306,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     ({ frame1, frame2 }: { frame1: string; frame2: string }) => {
       let frame1index = frames.current.findIndex((frame) => frame.name === frame1);
       let frame2index = frames.current.findIndex((frame) => frame.name === frame2);
+      console.log('swapping ', frame1index + 1, ' and ', frame2index + 1);
 
       if (frame1index < 0 || frame2index < 0) return;
 
@@ -1371,7 +1372,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   return (
     <div
-      className="editor"
+      className="editor-wrapper"
       style={
         !isMobile
           ? { height: cssCanvasSize, width: '100%' }
@@ -1385,10 +1386,10 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleFinishDraw}>
-      <canvas className="canvases" id="topCanvas" style={{ zIndex: 2 }} ref={topCanvasRef}></canvas>
-      <canvas className="canvases" id="canvas" style={{ zIndex: 1 }} ref={canvasRef}></canvas>
+      <canvas className="canvas" id="topCanvas" style={{ zIndex: 2 }} ref={topCanvasRef}></canvas>
+      <canvas className="canvas" id="canvas" style={{ zIndex: 1 }} ref={canvasRef}></canvas>
       <canvas
-        className="canvases"
+        className="canvas"
         id="backgroundCanvas"
         style={{ zIndex: 0 }}
         ref={backgroundCanvasRef}></canvas>

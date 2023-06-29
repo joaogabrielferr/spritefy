@@ -1,7 +1,7 @@
 import { ChangeEvent } from 'react';
-import './palettes.css';
-import { PaletteType } from '../types';
-import { StoreType, store } from '../store';
+import './palettes.scss';
+import { PaletteType } from '../../types';
+import { StoreType, store } from '../../store';
 
 const palettes = [
   {
@@ -151,7 +151,7 @@ export function Palettes() {
 
   return (
     <div className="palettes">
-      <div className="palettesTitle">COLOR PALETTES</div>
+      <div className="palettes-title">COLOR PALETTES</div>
       {/* <div className = "selectPaletteWrapper">
                 <select  className = "selectPalette" name="" id="" onChange={handleChangePalette}>
                     {
@@ -166,11 +166,10 @@ export function Palettes() {
           <div className="palette">
             {palette.colors.map((color, index) => (
               <button
-                className="paletteButton"
+                className="palette-button"
                 style={{ backgroundColor: color }}
                 key={color + index}
-                onClick={() => setSelectedColor(color)}
-              ></button>
+                onClick={() => setSelectedColor(color)}></button>
             ))}
           </div>
         </div>

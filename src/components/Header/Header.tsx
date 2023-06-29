@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
-import './header.css';
-import { Github } from '../svg/Github';
-import { StoreType, store } from '../store';
+import './header.scss';
+import { Github } from '../../svg/Github';
+import { StoreType, store } from '../../store';
 import GIF from 'gif.js';
-import { CANVAS_SIZE } from '../utils/constants';
+import { CANVAS_SIZE } from '../../utils/constants';
 
 export function Header({ isMobile }: { isMobile: boolean }) {
   const downloadButton = useRef<HTMLButtonElement | null>(null);
@@ -158,7 +158,7 @@ export function Header({ isMobile }: { isMobile: boolean }) {
 
   return (
     <header className="header">
-      <div className="innerHeader">
+      <div className="inner-header">
         <div
           style={{
             width: isMobile ? '20%' : '80px',
@@ -166,14 +166,13 @@ export function Header({ isMobile }: { isMobile: boolean }) {
             display: 'flex',
             justifyContent: isMobile ? 'flex-start' : 'space-between',
             alignItems: 'center'
-          }}
-        >
+          }}>
           <a href="https://github.com/joaogabrielferr/pixel-art-editor" target="_blank">
             <Github></Github>
           </a>
         </div>
         {!isMobile && <div style={{ fontWeight: 'bold' }}>SPRITEFY</div>}
-        <button ref={downloadButton} className="downloadButton">
+        <button ref={downloadButton} className="download-button">
           SAVE DRAWING
         </button>
       </div>

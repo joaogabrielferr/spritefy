@@ -22,7 +22,7 @@ export type toolsType =
   | 'undo'
   | 'redo';
 
-export type ToolButton = {
+export type ToolButtonType = {
   tool: toolsType;
   svg: JSX.Element;
   tooltip: string;

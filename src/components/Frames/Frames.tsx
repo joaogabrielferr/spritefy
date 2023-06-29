@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { EventBus } from '../EventBus';
-import { StoreType, store } from '../store';
-import { drawOnSideBarCanvasType } from '../types';
+import { EventBus } from '../../EventBus';
+import { StoreType, store } from '../../store';
+import { drawOnSideBarCanvasType } from '../../types';
 import {
   BG_COLORS,
   CANVAS_SIZE,
@@ -12,8 +12,8 @@ import {
   ERASING,
   SELECT_FRAME,
   SWAP_FRAMES
-} from '../utils/constants';
-import './frames.css';
+} from '../../utils/constants';
+import './frames.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClone, faDownLong, faTrashCan, faUpLong } from '@fortawesome/free-solid-svg-icons';
 
@@ -141,8 +141,8 @@ export function Frames() {
 
   return (
     <>
-      <div className="createNewFrameWrapper">
-        <button className="createNewFrameButton" onClick={createNewFrameHandler}>
+      <div className="create-new-frame-wrapper">
+        <button className="create-new-frame-button" onClick={createNewFrameHandler}>
           ADD NEW FRAME
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -168,27 +168,27 @@ export function Frames() {
         </div> */}
         {framesList.map((frame, index) => (
           <div
-            className="frameWrapper"
+            className="frame-wrapper"
             key={frame}
             style={{
               width: '95%',
               border: frame === currentFrame ? `5px solid #000000` : undefined
             }}>
-            <div className="frameCanvasWrapper" onClick={() => changeCurrentFrame(frame)}>
+            <div className="frame-canvas-wrapper" onClick={() => changeCurrentFrame(frame)}>
               <canvas
-                className="frameCanvas"
+                className="frame-canvas"
                 width={CANVAS_SIZE}
                 height={CANVAS_SIZE}
                 id={`${frame}@sidebar`}
                 style={{ zIndex: 1 }}></canvas>
               <canvas
-                className="frameCanvas"
+                className="frame-canvas"
                 width={CANVAS_SIZE}
                 height={CANVAS_SIZE}
                 id={`${frame}background@sidebar`}
                 style={{ zIndex: 0 }}></canvas>
               {framesList.length > 1 && index != 0 && (
-                <div className="moveFrameUp">
+                <div className="move-frame-up">
                   <button
                     onClick={() => swapFrames(framesList[index - 1], frame)}
                     style={{
@@ -208,7 +208,7 @@ export function Frames() {
                 </div>
               )}
               {framesList.length > 1 && index != framesList.length - 1 && (
-                <div className="moveFrameDown">
+                <div className="move-frame-down">
                   <button
                     onClick={() => swapFrames(frame, framesList[index + 1])}
                     style={{
@@ -228,7 +228,7 @@ export function Frames() {
                 </div>
               )}
             </div>
-            <div className="frameOptions">
+            <div className="frame-options">
               <div style={{ textAlign: 'right', fontSize: '12px' }}>FRAME {index + 1}</div>
               <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
                 <div>

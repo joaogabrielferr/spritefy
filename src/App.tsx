@@ -1,20 +1,19 @@
 import { useEffect, useState } from 'react';
 import Editor from './Editor';
-import './index.css';
+import './index.scss';
 import { ColorResult, CustomPicker } from 'react-color';
-import { Sidebar } from './components/Sidebar';
-import { ToolButton } from './types';
-import { Toolbar } from './components/Toolbar';
-import { Palettes } from './components/Palettes';
-import { Header } from './components/Header';
+import { Sidebar } from './components/Sidebar/Sidebar';
+import { ToolButtonType } from './types';
+import { Toolbar } from './components/Toolbar/Toolbar';
+import { Palettes } from './components/Palettes/Palettes';
+import { Header } from './components/Header/Header';
 import { Tooltip } from 'react-tooltip';
-import CustomColorPicker from './components/ColorPicker';
+import CustomColorPicker from './components/ColorPicker/ColorPicker';
 import { EventBus } from './EventBus';
 import { RESET_CANVAS_POSITION } from './utils/constants';
 import { store, StoreType } from './store';
-import { Frames } from './components/Frames';
-import { Preview } from './components/Preview';
-import { MainSection, EditorWrapper, MobileOptions } from './index.styled';
+import { Frames } from './components/Frames/Frames';
+import { Preview } from './components/Preview/Preview';
 
 const ToolButtons = [
   {
@@ -33,7 +32,7 @@ const ToolButtons = [
   { tool: 'line', tooltip: 'Pencil stroke line(L or 5)' },
   { tool: 'rectangle', tooltip: 'Rectangle tool(R or 6)' },
   { tool: 'elipse', tooltip: 'Circle tool(C or 7)' }
-] as ToolButton[];
+] as ToolButtonType[];
 
 //TODO: right now im saving the gifs with a white background because i couldnt figure out how to create transparent gifs with gif.js,
 //probably look for another library that supports transparent bg (or keep it white, pixilart also saves gifs with white bg so transparent bg may not be easy to achieve)
@@ -96,16 +95,16 @@ function App() {
   return (
     <main>
       <Header isMobile={isMobile} />
-      <MainSection>
-        <EditorWrapper>
+      <section className="main-section">
+        <div className="main-inner-wrapper">
           {/* left sidebar */}
           {!isMobile && (
             <Sidebar width={240} height={cssCanvasSize}>
               <Toolbar toolButtons={ToolButtons} isMobile={isMobile} />
-              <div className="sideBarItem">
+              <div className="sidebar-item">
                 <ColorPicker color={selectedColor} onChange={handleChangeSelectedColor} />
               </div>
-              <div className="sideBarItem">
+              <div className="sidebar-item">
                 <Palettes></Palettes>
               </div>
             </Sidebar>
@@ -138,20 +137,20 @@ function App() {
 
           {/* right sidebar */}
           {!isMobile && (
-            <Sidebar width={260} height={cssCanvasSize}>
+            <Sidebar width={300} height={cssCanvasSize}>
               <Preview />
               <Frames />
             </Sidebar>
           )}
-        </EditorWrapper>
+        </div>
 
         {isMobile && (
-          <MobileOptions>
+          <div className="mobile-options">
             {/* <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/> */}
             <Toolbar toolButtons={ToolButtons}></Toolbar>
-          </MobileOptions>
+          </div>
         )}
-      </MainSection>
+      </section>
       {!isMobile && (
         <Tooltip
           id="my-tooltip"

@@ -1,0 +1,27 @@
+.editor-wrapper {
+  background-color: #d0d4d7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  touch-action: none;
+  cursor: crosshair;
+  cursor: url('/public/crosshair.png') 16 16, auto;
+}
+
+.canvas {
+  position: absolute;
+  top: 45%;
+  left: 45%;
+  transform: translate(-45%, -45%);
+  border: 0.1rem solid black;
+  image-rendering: optimizeSpeed; /* Older browsers */
+  image-rendering: -moz-crisp-edges; /* Firefox */
+  image-rendering: -o-crisp-edges; /* Opera */
+  image-rendering: -webkit-optimize-contrast; /* Webkit (Safari) */
+  image-rendering: optimize-contrast; /* CSS3 Proposed */
+  -ms-interpolation-mode: nearest-neighbor; /* IE8+ */
+  image-rendering: pixelated; /* CSS4 (Chrome 41+) and FireFox 49+ */
+}
