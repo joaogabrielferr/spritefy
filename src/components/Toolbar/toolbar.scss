@@ -172,6 +172,13 @@
         border: 2px solid #111;
         background-color: #292929;
       }
+
+      &:hover input ~ .checkmark {
+        background-color: rgb(65, 65, 65);
+      }
+      input:checked ~ .checkmark {
+        background-color: #634cb8;
+      }
     }
   }
 

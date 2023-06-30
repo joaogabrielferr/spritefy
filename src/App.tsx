@@ -115,7 +115,7 @@ function App() {
             <Editor cssCanvasSize={cssCanvasSize - 40} isMobile={isMobile}></Editor>
             <div
               style={{
-                backgroundColor: 'rgb(28, 34, 48)',
+                backgroundColor: 'rgb(51, 59, 63)',
                 height: '40px',
                 width: '100%',
                 display: 'flex',

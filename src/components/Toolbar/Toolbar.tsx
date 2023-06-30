@@ -12,6 +12,8 @@ interface ToolbarProps {
   isMobile?: boolean;
 }
 
+//TODO: refactor this component
+
 export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
   const selectedTool = store((state: StoreType) => state.selectedTool);
   const setSelectedTool = store((state: StoreType) => state.setSelectedTool);
