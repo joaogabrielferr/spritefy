@@ -14,6 +14,7 @@ import { RESET_CANVAS_POSITION } from './utils/constants';
 import { store, StoreType } from './store';
 import { Frames } from './components/Frames/Frames';
 import { Preview } from './components/Preview/Preview';
+import { WelcomeModal } from './components/WelcomeModal/WelcomeModal';
 
 const ToolButtons = [
   {
@@ -36,14 +37,13 @@ const ToolButtons = [
 
 //TODO: right now im saving the gifs with a white background because i couldnt figure out how to create transparent gifs with gif.js,
 //probably look for another library that supports transparent bg (or keep it white, pixilart also saves gifs with white bg so transparent bg may not be easy to achieve)
-//TODO: add pixel_size and display_size as global states (and stop using CANVAS_SIZE)
+
+//TODO: refactor code by removing useCallbacks, so need for that since no function is passed to children components
 //TODO: add layers functionality (maybe have a list 'layers' in a scene and each layer has a pixel matrix)
-//TODO: add eslint to project
-//TODO: add styled components
 //TODO: save drawing locally by retrieving the image from canvases with getImageData
+//TODO: add option to save drawing on users computer (create a json file and store all necessary info to redraw elements, save it as .spritefy)
 //TODO: Add onion skin
 //TODO: Add tutorial if opened for the first time
-//TODO: Add license page to add licenses of libs used (tabler-icon)
 
 // paint bucket:
 // diagonal neighbors
@@ -58,9 +58,13 @@ function App() {
   const selectedColor = store((state: StoreType) => state.selectedColor);
   const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
 
+  const setDisplaySize = store((state: StoreType) => state.setDisplaySize);
+
   const [cssCanvasSize, setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize
 
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768); //TODO:this may be two simple, search for a better way to detect a mobile device
+
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(true);
 
   function handleWindowResize() {
     setCssCanvasSize(window.innerHeight - 20);
@@ -72,6 +76,11 @@ function App() {
     }
 
     setIsMobile(window.innerWidth <= 768);
+  }
+
+  function handleOnCloseWelcomeModal(displaySize: number) {
+    setDisplaySize(displaySize);
+    setIsWelcomeModalOpen(false);
   }
 
   useEffect(() => {
@@ -93,79 +102,72 @@ function App() {
   const ColorPicker = CustomPicker(CustomColorPicker);
 
   return (
-    <main>
-      <Header isMobile={isMobile} />
-      <section className="main-section">
-        <div className="main-inner-wrapper">
-          {/* left sidebar */}
-          {!isMobile && (
-            <Sidebar width={240} height={cssCanvasSize}>
-              <Toolbar toolButtons={ToolButtons} isMobile={isMobile} />
-              <div className="sidebar-item">
-                <ColorPicker color={selectedColor} onChange={handleChangeSelectedColor} />
-              </div>
-              <div className="sidebar-item">
-                <Palettes></Palettes>
-              </div>
-            </Sidebar>
-          )}
+    <>
+      <main>
+        <Header isMobile={isMobile} />
+        <section className="main-section">
+          <div className="main-inner-wrapper">
+            {/* left sidebar */}
+            {!isMobile && (
+              <Sidebar width={350} height={cssCanvasSize}>
+                <Toolbar toolButtons={ToolButtons} isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
+                <div className="sidebar-item">
+                  <ColorPicker color={selectedColor} onChange={handleChangeSelectedColor} />
+                </div>
+                <div className="sidebar-item">
+                  <Palettes></Palettes>
+                </div>
+              </Sidebar>
+            )}
 
-          <div style={{ width: '100%', height: cssCanvasSize }}>
-            {/* main editor */}
-            <Editor cssCanvasSize={cssCanvasSize - 40} isMobile={isMobile}></Editor>
-            <div
-              style={{
-                backgroundColor: 'rgb(51, 59, 63)',
-                height: '40px',
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-start',
-                fontSize: '15px'
-              }}>
-              <span
-                id="coordinates"
+            <div style={{ width: '100%', height: cssCanvasSize }}>
+              {/* main editor */}
+              <Editor cssCanvasSize={cssCanvasSize - 40} isMobile={isMobile}></Editor>
+              <div
                 style={{
-                  height: '100%',
-                  color: 'white',
+                  backgroundColor: 'rgb(51, 59, 63)',
+                  height: '40px',
+                  width: '100%',
                   display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}></span>
+                  alignItems: 'center',
+                  justifyContent: 'flex-start',
+                  fontSize: '15px'
+                }}>
+                <span
+                  id="coordinates"
+                  style={{
+                    height: '100%',
+                    color: 'white',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}></span>
+              </div>
             </div>
+
+            {/* right sidebar */}
+            {!isMobile && (
+              <Sidebar width={300} height={cssCanvasSize}>
+                <Preview />
+                <Frames />
+              </Sidebar>
+            )}
           </div>
 
-          {/* right sidebar */}
-          {!isMobile && (
-            <Sidebar width={300} height={cssCanvasSize}>
-              <Preview />
-              <Frames />
-            </Sidebar>
+          {isMobile && (
+            <div className="mobile-options">
+              {/* <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/> */}
+              <Toolbar toolButtons={ToolButtons} isWelcomeModalOpen={isWelcomeModalOpen}></Toolbar>
+            </div>
           )}
-        </div>
-
-        {isMobile && (
-          <div className="mobile-options">
-            {/* <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/> */}
-            <Toolbar toolButtons={ToolButtons}></Toolbar>
-          </div>
+        </section>
+        {!isMobile && <Tooltip id="my-tooltip" place="bottom" style={{ zIndex: 9999, backgroundColor: '#634cb8' }} />}
+        {!isMobile && (
+          <Tooltip id="my-tooltip-extra-options" place="right" style={{ zIndex: 9999, backgroundColor: '#634cb8' }} />
         )}
-      </section>
-      {!isMobile && (
-        <Tooltip
-          id="my-tooltip"
-          place="bottom"
-          style={{ zIndex: 9999, backgroundColor: '#634cb8' }}
-        />
-      )}
-      {!isMobile && (
-        <Tooltip
-          id="my-tooltip-extra-options"
-          place="right"
-          style={{ zIndex: 9999, backgroundColor: '#634cb8' }}
-        />
-      )}
-    </main>
+      </main>
+      {isWelcomeModalOpen && <WelcomeModal onCloseModal={handleOnCloseWelcomeModal}></WelcomeModal>}
+    </>
   );
 }
 

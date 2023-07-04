@@ -1,7 +1,6 @@
 import { useEffect, useRef, WheelEvent, MouseEvent, TouchEvent, Touch, useCallback } from 'react';
 import './editor.scss';
 import {
-  CANVAS_SIZE,
   MAX_ZOOM_AMOUNT,
   BG_COLORS,
   SCALE_FACTOR,
@@ -46,17 +45,13 @@ interface IEditor {
 //////////////////////////////////////////////////////////
 
 let canvas: HTMLCanvasElement, topCanvas: HTMLCanvasElement, backgroundCanvas: HTMLCanvasElement;
-let ctx: CanvasRenderingContext2D,
-  topCtx: CanvasRenderingContext2D,
-  bgCtx: CanvasRenderingContext2D;
+let ctx: CanvasRenderingContext2D, topCtx: CanvasRenderingContext2D, bgCtx: CanvasRenderingContext2D;
 
 let outerDiv: HTMLDivElement;
 
 const mouse = new Mouse();
 
 let pixel_size: number;
-
-let display_size: number;
 
 let currentScale = 1;
 
@@ -93,6 +88,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     }
   ]);
 
+  const displaySize = store((state: StoreType) => state.displaySize);
+
   const selectedColor = store((state: StoreType) => state.selectedColor);
   const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
   const selectedTool = store((state: StoreType) => state.selectedTool);
@@ -108,8 +105,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   const currentFrame = store((state: StoreType) => state.currentFrame);
   const setCurrentFrame = store((state: StoreType) => state.setCurrentFrame);
 
-  const backgroundTileSize = store((state: StoreType) => state.backgroundTileSize);
-
   const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvas
 
   const firstInit = useRef(false); //for development
@@ -118,21 +113,70 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   const shouldUpdateSideBarCanvas = useRef(false);
 
+  const draw = useCallback(
+    (bgTileSize: number) => {
+      let firstInRow = 1;
+      let a = firstInRow;
+      //draw background
+      for (let i = 0; i <= displaySize; i += pixel_size * bgTileSize) {
+        if (firstInRow) a = 0;
+        else a = 1;
+        firstInRow = firstInRow ? 0 : 1;
+        for (let j = 0; j <= displaySize; j += pixel_size * bgTileSize) {
+          bgCtx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
+          bgCtx.fillRect(i, j, pixel_size * bgTileSize, pixel_size * bgTileSize);
+          a = a ? 0 : 1;
+        }
+      }
+
+      ctx.clearRect(0, 0, displaySize, displaySize);
+
+      //draw pixel matrix
+      for (let i = 0; i < frames.current[currentFrameIndex].scene.pixels.length; i++) {
+        for (let j = 0; j < frames.current[currentFrameIndex].scene.pixels[i].length; j++) {
+          if (!frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.isEmpty()) {
+            const color = frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.top();
+            if (!color || color === ERASING) {
+              ctx.fillStyle = frames.current[currentFrameIndex].scene.pixels[i][j].bgColor;
+              ctx.fillRect(
+                frames.current[currentFrameIndex].scene.pixels[i][j].x1,
+                frames.current[currentFrameIndex].scene.pixels[i][j].y1,
+                1,
+                1
+              );
+            } else {
+              ctx.fillStyle = color;
+              ctx.fillRect(
+                frames.current[currentFrameIndex].scene.pixels[i][j].x1,
+                frames.current[currentFrameIndex].scene.pixels[i][j].y1,
+                1,
+                1
+              );
+            }
+          }
+        }
+      }
+    },
+    [displaySize]
+  );
+
   //TODO: refactor this shit
   useEffect(() => {
     pixel_size = 1;
-    display_size = CANVAS_SIZE;
+    //displaySize = displaySize;
 
     const factors = [];
-    for (let i = 1; i <= CANVAS_SIZE; i++) {
-      if (CANVAS_SIZE % i === 0) factors.push(i);
+    for (let i = 1; i <= displaySize; i++) {
+      if (displaySize % i === 0) factors.push(i);
     }
 
     const mid = Math.floor(factors.length / 2);
     bgTileSize = factors[mid];
 
-    //if CANVAS_SIZE is a prime number
-    if (bgTileSize === CANVAS_SIZE) bgTileSize = 10;
+    //if displaySize is a prime number
+    if (bgTileSize === displaySize) bgTileSize = 10;
+
+    bgTileSize = 16;
 
     outerDiv = outerDivRef.current!;
 
@@ -144,30 +188,24 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     topCtx = topCanvas.getContext('2d')!;
     bgCtx = backgroundCanvas.getContext('2d')!;
 
-    canvas.width = display_size;
-    canvas.height = display_size;
+    canvas.width = displaySize;
+    canvas.height = displaySize;
 
-    topCanvas.width = display_size;
-    topCanvas.height = display_size;
+    topCanvas.width = displaySize;
+    topCanvas.height = displaySize;
 
-    backgroundCanvas.width = display_size;
-    backgroundCanvas.height = display_size;
+    backgroundCanvas.width = displaySize;
+    backgroundCanvas.height = displaySize;
 
     coordinatesElement = document.getElementById('coordinates') as HTMLSpanElement;
 
-    if (!firstInit.current) {
-      frames.current[currentFrameIndex].scene.initializePixelMatrix(
-        display_size,
-        pixel_size,
-        bgTileSize
-      );
-      firstInit.current = true;
-    }
+    // if (!firstInit.current) {
+    frames.current[currentFrameIndex].scene.initializePixelMatrix(displaySize, pixel_size, bgTileSize);
+    //   firstInit.current = true;
+    // }
 
     draw(bgTileSize);
-
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [displaySize, draw]);
 
   useEffect(() => {
     if (isMobile) {
@@ -212,11 +250,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     currentFrameIndex = frames.current.length - 1;
 
-    frames.current[currentFrameIndex].scene.initializePixelMatrix(
-      display_size,
-      pixel_size,
-      bgTileSize
-    );
+    frames.current[currentFrameIndex].scene.initializePixelMatrix(displaySize, pixel_size, bgTileSize);
     EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES, frames.current);
 
     setCurrentFrame(newFrame.name);
@@ -226,7 +260,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     resetCanvasPosition();
 
     draw(bgTileSize);
-  }, [framesList, setCurrentFrame, setFramesList]);
+  }, [displaySize, draw, framesList, setCurrentFrame, setFramesList]);
 
   const selectFrame = useCallback(
     (_frame: string) => {
@@ -279,9 +313,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
       const newFrameIndex = frames.current.findIndex((frame) => frame.name === newFrame.name);
 
-      frames.current[newFrameIndex].scene.copyPixelMatrix(
-        frames.current[frameCopiedIndex].scene.pixels
-      );
+      frames.current[newFrameIndex].scene.copyPixelMatrix(frames.current[frameCopiedIndex].scene.pixels);
 
       if (newFrameIndex === frames.current.length - 1) {
         setFramesList([...framesList, newFrame.name]);
@@ -299,7 +331,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
       EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES, frames.current);
     },
-    [framesList, setCurrentFrame, setFramesList]
+    [draw, framesList, setCurrentFrame, setFramesList]
   );
 
   //lol
@@ -310,7 +342,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
       frame: frameName,
-      pixelMatrix: frames.current[frameIndex].scene.pixels
+      pixelMatrix: frames.current[frameIndex].scene.pixels,
+      frames: frames.current
     });
 
     //true only when copiyng a frame
@@ -348,7 +381,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     undoLastDraw(pixel_size, ctx, frames.current[currentFrameIndex]);
     EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
       frame: currentFrame,
-      pixelMatrix: frames.current[currentFrameIndex].scene.pixels
+      pixelMatrix: frames.current[currentFrameIndex].scene.pixels,
+      frames: frames.current
     });
 
     EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES, frames.current);
@@ -358,33 +392,22 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     redoLastDraw(ctx, pixel_size, frames.current[currentFrameIndex]);
     EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
       frame: currentFrame,
-      pixelMatrix: frames.current[currentFrameIndex].scene.pixels
+      pixelMatrix: frames.current[currentFrameIndex].scene.pixels,
+      frames: frames.current
     });
 
     EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES, frames.current);
   }, [currentFrame]);
 
   useEffect(() => {
-    const resetCanvasSubscription = EventBus.getInstance().subscribe(
-      RESET_CANVAS_POSITION,
-      resetCanvasPosition
-    );
+    const resetCanvasSubscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION, resetCanvasPosition);
     const selectFrameSubscription = EventBus.getInstance().subscribe(SELECT_FRAME, selectFrame);
-    const createNewFrameSubscription = EventBus.getInstance().subscribe(
-      CREATE_NEW_FRAME,
-      addNewFrame
-    );
+    const createNewFrameSubscription = EventBus.getInstance().subscribe(CREATE_NEW_FRAME, addNewFrame);
     const deleteFrameSubscription = EventBus.getInstance().subscribe(DELETE_FRAME, deleteFrame);
     const copyFrameSubscription = EventBus.getInstance().subscribe(COPY_FRAME, copyFrame);
     const swapFramesSubscription = EventBus.getInstance().subscribe(SWAP_FRAMES, swapFrames);
-    const handleUndoLastDrawSubscription = EventBus.getInstance().subscribe(
-      UNDO_LAST_DRAW,
-      handleUndoLastDraw
-    );
-    const handleRedoLastDrawSubscription = EventBus.getInstance().subscribe(
-      REDO_LAST_DRAW,
-      handleRedoLastDraw
-    );
+    const handleUndoLastDrawSubscription = EventBus.getInstance().subscribe(UNDO_LAST_DRAW, handleUndoLastDraw);
+    const handleRedoLastDrawSubscription = EventBus.getInstance().subscribe(REDO_LAST_DRAW, handleRedoLastDraw);
 
     draw(bgTileSize);
 
@@ -419,7 +442,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     handleRedoLastDraw,
     handleUndoLastDraw,
     selectFrame,
-    swapFrames
+    swapFrames,
+    draw
   ]);
 
   useEffect(() => {
@@ -427,51 +451,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     //in other situations where sidebar canvas is updated (frame created, deleted, or draw finished) this is not necessary
     updateSideBarCanvasAfterChangingFramesList(latestFrameCreated.current);
   }, [framesList]);
-
-  function draw(bgTileSize: number) {
-    let firstInRow = 1;
-    let a = firstInRow;
-
-    //draw background
-    for (let i = 0; i <= display_size; i += pixel_size * bgTileSize) {
-      if (firstInRow) a = 0;
-      else a = 1;
-      firstInRow = firstInRow ? 0 : 1;
-      for (let j = 0; j <= display_size; j += pixel_size * bgTileSize) {
-        bgCtx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
-        bgCtx.fillRect(i, j, pixel_size * bgTileSize, pixel_size * bgTileSize);
-        a = a ? 0 : 1;
-      }
-    }
-
-    ctx.clearRect(0, 0, display_size, display_size);
-
-    //draw pixel matrix
-    for (let i = 0; i < frames.current[currentFrameIndex].scene.pixels.length; i++) {
-      for (let j = 0; j < frames.current[currentFrameIndex].scene.pixels[i].length; j++) {
-        if (!frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.isEmpty()) {
-          const color = frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.top();
-          if (!color || color === ERASING) {
-            ctx.fillStyle = frames.current[currentFrameIndex].scene.pixels[i][j].bgColor;
-            ctx.fillRect(
-              frames.current[currentFrameIndex].scene.pixels[i][j].x1,
-              frames.current[currentFrameIndex].scene.pixels[i][j].y1,
-              1,
-              1
-            );
-          } else {
-            ctx.fillStyle = color;
-            ctx.fillRect(
-              frames.current[currentFrameIndex].scene.pixels[i][j].x1,
-              frames.current[currentFrameIndex].scene.pixels[i][j].y1,
-              1,
-              1
-            );
-          }
-        }
-      }
-    }
-  }
 
   function handleFirstClick(event: MouseEvent) {
     if (event.button === 0) {
@@ -492,7 +471,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           frames.current[currentFrameIndex].scene,
           mouse,
           pixel_size,
-          display_size,
+          displaySize,
           ctx,
           penSize,
           selectedColor,
@@ -505,15 +484,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && erasingRightButton))
     ) {
       frames.current[currentFrameIndex].scene.currentDraw.push(
-        Eraser(
-          'mousedown',
-          mouse,
-          frames.current[currentFrameIndex].scene,
-          pixel_size,
-          display_size,
-          ctx,
-          penSize
-        )
+        Eraser('mousedown', mouse, frames.current[currentFrameIndex].scene, pixel_size, displaySize, ctx, penSize)
       );
     } else if (
       selectedTool === 'paintBucket' &&
@@ -524,10 +495,10 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           frames.current[currentFrameIndex].scene,
           mouse,
           pixel_size,
-          display_size,
+          displaySize,
           ctx,
           penSize,
-          CANVAS_SIZE,
+          displaySize,
           selectedColor
         )
       );
@@ -535,19 +506,17 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       selectedTool === 'dropper' &&
       (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
     ) {
-      const color: string | undefined | null = Dropper(
-        frames.current[currentFrameIndex].scene,
-        mouse,
-        pixel_size
-      );
+      const color: string | undefined | null = Dropper(frames.current[currentFrameIndex].scene, mouse, pixel_size);
       if (color) setSelectedColor(color);
     } else if (
       (selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse') &&
       (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
     ) {
-      frames.current[currentFrameIndex].scene.lineFirstPixel = frames.current[
-        currentFrameIndex
-      ].scene.findPixel(mouse.x, mouse.y, pixel_size);
+      frames.current[currentFrameIndex].scene.lineFirstPixel = frames.current[currentFrameIndex].scene.findPixel(
+        mouse.x,
+        mouse.y,
+        pixel_size
+      );
     }
   }
 
@@ -581,8 +550,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
         const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
 
-        mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
-        mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas
+        mouse.x = (mouse.x - offsetX) * (displaySize / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
+        mouse.y = (mouse.y - offsetY) * (displaySize / canvasHeight); // Transform the mouse Y-coordinate to canvas
 
         mouse.isPressed = true;
 
@@ -593,7 +562,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
               frames.current[currentFrameIndex].scene,
               mouse,
               pixel_size,
-              display_size,
+              displaySize,
               ctx,
               penSize,
               selectedColor,
@@ -603,15 +572,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           );
         } else if (selectedTool === 'eraser') {
           frames.current[currentFrameIndex].scene.currentDraw.push(
-            Eraser(
-              'mousedown',
-              mouse,
-              frames.current[currentFrameIndex].scene,
-              pixel_size,
-              display_size,
-              ctx,
-              penSize
-            )
+            Eraser('mousedown', mouse, frames.current[currentFrameIndex].scene, pixel_size, displaySize, ctx, penSize)
           );
         } else if (selectedTool === 'paintBucket') {
           frames.current[currentFrameIndex].scene.currentDraw.push(
@@ -619,28 +580,22 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
               frames.current[currentFrameIndex].scene,
               mouse,
               pixel_size,
-              display_size,
+              displaySize,
               ctx,
               penSize,
-              CANVAS_SIZE,
+              displaySize,
               selectedColor
             )
           );
         } else if (selectedTool === 'dropper') {
-          const color: string | undefined | null = Dropper(
-            frames.current[currentFrameIndex].scene,
-            mouse,
+          const color: string | undefined | null = Dropper(frames.current[currentFrameIndex].scene, mouse, pixel_size);
+          if (color) setSelectedColor(color);
+        } else if (selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse') {
+          frames.current[currentFrameIndex].scene.lineFirstPixel = frames.current[currentFrameIndex].scene.findPixel(
+            mouse.x,
+            mouse.y,
             pixel_size
           );
-          if (color) setSelectedColor(color);
-        } else if (
-          selectedTool === 'line' ||
-          selectedTool === 'rectangle' ||
-          selectedTool === 'elipse'
-        ) {
-          frames.current[currentFrameIndex].scene.lineFirstPixel = frames.current[
-            currentFrameIndex
-          ].scene.findPixel(mouse.x, mouse.y, pixel_size);
         }
       }
     }, 100);
@@ -657,8 +612,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
     const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
 
-    mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
-    mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
+    mouse.x = (mouse.x - offsetX) * (displaySize / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
+    mouse.y = (mouse.y - offsetY) * (displaySize / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
   }
 
   function handleMouseMove(event: MouseEvent) {
@@ -666,17 +621,11 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     mouseToWorldCoordinates(event.clientX, event.clientY);
 
-    if (
-      coordinatesElement &&
-      mouse.x >= 0 &&
-      mouse.x <= display_size &&
-      mouse.y >= 0 &&
-      mouse.y <= display_size
-    ) {
+    if (coordinatesElement && mouse.x >= 0 && mouse.x <= displaySize && mouse.y >= 0 && mouse.y <= displaySize) {
       coordinatesElement.innerHTML = `[X:${Math.floor(mouse.x) + 1},Y:${Math.floor(mouse.y) + 1}]`;
     }
 
-    if (!(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size)) {
+    if (!(mouse.x >= 0 && mouse.x <= displaySize && mouse.y >= 0 && mouse.y <= displaySize)) {
       //out of canvas
       frames.current[currentFrameIndex].scene.lastPixel = null;
       frames.current[currentFrameIndex].scene.lastPixelXMirror = null;
@@ -700,15 +649,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       (selectedTool !== 'eraser' && mouse.isRightButtonClicked && erasingRightButton)
     ) {
       frames.current[currentFrameIndex].scene.currentDraw.push(
-        Eraser(
-          'mousemove',
-          mouse,
-          frames.current[currentFrameIndex].scene,
-          pixel_size,
-          display_size,
-          ctx,
-          penSize
-        )
+        Eraser('mousemove', mouse, frames.current[currentFrameIndex].scene, pixel_size, displaySize, ctx, penSize)
       );
     } else if (
       selectedTool === 'pencil' &&
@@ -720,7 +661,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           frames.current[currentFrameIndex].scene,
           mouse,
           pixel_size,
-          display_size,
+          displaySize,
           ctx,
           penSize,
           selectedColor,
@@ -733,11 +674,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
     ) {
       //remove draw from the top canvas
-      removeDraw(
-        topCtx,
-        cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas),
-        penSize
-      );
+      removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), penSize);
       frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
       frames.current[currentFrameIndex].scene.currentPixelsMousePressed = new Map();
       frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(
@@ -756,11 +693,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
     ) {
       //remove draw from the top canvas
-      removeDraw(
-        topCtx,
-        cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas),
-        pixel_size
-      );
+      removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), pixel_size);
       frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
       frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(
         Rectangle(
@@ -778,20 +711,12 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
     ) {
       //remove draw from the top canvas
-      removeDraw(
-        topCtx,
-        cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas),
-        pixel_size
-      );
+      removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), pixel_size);
       frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
 
       if (frames.current[currentFrameIndex].scene.lineFirstPixel) {
-        const majorRadius = Math.abs(
-          frames.current[currentFrameIndex].scene.lineFirstPixel!.x1 - mouse.x
-        );
-        const minorRadius = Math.abs(
-          frames.current[currentFrameIndex].scene.lineFirstPixel!.y1 - mouse.y
-        );
+        const majorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.x1 - mouse.x);
+        const minorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.y1 - mouse.y);
 
         if (oneToOneRatioElipse) {
           frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(
@@ -879,20 +804,14 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
     const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
 
-    mouse.x = (mouse.x - offsetX) * (display_size / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
-    mouse.y = (mouse.y - offsetY) * (display_size / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
+    mouse.x = (mouse.x - offsetX) * (displaySize / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
+    mouse.y = (mouse.y - offsetY) * (displaySize / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
 
-    if (
-      coordinatesElement &&
-      mouse.x >= 0 &&
-      mouse.x <= display_size &&
-      mouse.y >= 0 &&
-      mouse.y <= display_size
-    ) {
+    if (coordinatesElement && mouse.x >= 0 && mouse.x <= displaySize && mouse.y >= 0 && mouse.y <= displaySize) {
       coordinatesElement.innerHTML = `[X:${Math.floor(mouse.x) + 1},Y:${Math.floor(mouse.y) + 1}]`;
     }
 
-    if (!(mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size)) {
+    if (!(mouse.x >= 0 && mouse.x <= displaySize && mouse.y >= 0 && mouse.y <= displaySize)) {
       //out of canvas
       frames.current[currentFrameIndex].scene.lastPixel = null;
       frames.current[currentFrameIndex].scene.lastPixelXMirror = null;
@@ -918,7 +837,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           frames.current[currentFrameIndex].scene,
           mouse,
           pixel_size,
-          display_size,
+          displaySize,
           ctx,
           penSize,
           selectedColor,
@@ -928,23 +847,11 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       );
     } else if (selectedTool === 'eraser' && mouse.isPressed) {
       frames.current[currentFrameIndex].scene.currentDraw.push(
-        Eraser(
-          'mousemove',
-          mouse,
-          frames.current[currentFrameIndex].scene,
-          pixel_size,
-          display_size,
-          ctx,
-          penSize
-        )
+        Eraser('mousemove', mouse, frames.current[currentFrameIndex].scene, pixel_size, displaySize, ctx, penSize)
       );
     } else if (selectedTool === 'line' && mouse.isPressed) {
       //remove draw from the top canvas
-      removeDraw(
-        topCtx,
-        cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas),
-        penSize
-      );
+      removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), penSize);
       frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
       frames.current[currentFrameIndex].scene.currentPixelsMousePressed = new Map();
       frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(
@@ -960,11 +867,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       );
     } else if (selectedTool === 'rectangle' && mouse.isPressed) {
       //remove draw from the top canvas
-      removeDraw(
-        topCtx,
-        cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas),
-        pixel_size
-      );
+      removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), pixel_size);
       frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
       frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(
         Rectangle(
@@ -979,20 +882,12 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       );
     } else if (selectedTool === 'elipse' && mouse.isPressed) {
       //remove draw from the top canvas
-      removeDraw(
-        topCtx,
-        cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas),
-        pixel_size
-      );
+      removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), pixel_size);
       frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
 
       if (frames.current[currentFrameIndex].scene.lineFirstPixel) {
-        const majorRadius = Math.abs(
-          frames.current[currentFrameIndex].scene.lineFirstPixel!.x1 - mouse.x
-        );
-        const minorRadius = Math.abs(
-          frames.current[currentFrameIndex].scene.lineFirstPixel!.y1 - mouse.y
-        );
+        const majorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.x1 - mouse.x);
+        const minorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.y1 - mouse.y);
 
         frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(
           Elipse(
@@ -1013,12 +908,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   }
 
   function paintMousePosition() {
-    if (mouse.x >= 0 && mouse.x <= display_size && mouse.y >= 0 && mouse.y <= display_size) {
-      const newPixel = frames.current[currentFrameIndex].scene.findPixel(
-        mouse.x,
-        mouse.y,
-        pixel_size
-      );
+    if (mouse.x >= 0 && mouse.x <= displaySize && mouse.y >= 0 && mouse.y <= displaySize) {
+      const newPixel = frames.current[currentFrameIndex].scene.findPixel(mouse.x, mouse.y, pixel_size);
       if (newPixel) {
         if (frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse) {
           removeDraw(
@@ -1031,20 +922,13 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           );
         }
         // topCtx.fillStyle = selectedColor;
-        if (
-          selectedTool === 'paintBucket' ||
-          selectedTool === 'dropper' ||
-          selectedTool === 'eraser'
-        ) {
+        if (selectedTool === 'paintBucket' || selectedTool === 'dropper' || selectedTool === 'eraser') {
           topCtx.fillStyle = 'rgba(58, 73, 96, 0.42)';
         } else {
           topCtx.fillStyle = selectedColor;
         }
         topCtx.fillRect(newPixel.x1, newPixel.y1, pixel_size, pixel_size);
-        let neighbors: Pixel[] = frames.current[currentFrameIndex].scene.findNeighbors(
-          newPixel,
-          penSize
-        );
+        let neighbors: Pixel[] = frames.current[currentFrameIndex].scene.findNeighbors(newPixel, penSize);
 
         if (selectedTool !== 'dropper' && selectedTool !== 'paintBucket') {
           for (let n of neighbors) {
@@ -1090,9 +974,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       const touch2Y = touch2.clientY - rect.top;
 
       // Calculate the distance between the two touch points
-      const touchDistance = Math.sqrt(
-        Math.pow(touch2X - touch1X, 2) + Math.pow(touch2Y - touch1Y, 2)
-      );
+      const touchDistance = Math.sqrt(Math.pow(touch2X - touch1X, 2) + Math.pow(touch2Y - touch1Y, 2));
 
       const mouseX = (touch1X + touch2X) / 2;
       const mouseY = (touch1Y + touch2Y) / 2;
@@ -1161,9 +1043,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             topCanvas.style.top = `${topCanvas.offsetTop + dy}px`;
 
             backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
-            backgroundCanvas.style.height = `${
-              backgroundCanvas.offsetHeight * scaleChangeFactor
-            }px`;
+            backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
             backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft + dx}px`;
             backgroundCanvas.style.top = `${backgroundCanvas.offsetTop + dy}px`;
           }
@@ -1272,8 +1152,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           mouseToWorldCoordinates(e.clientX, e.clientY);
           paintMousePosition();
         }
-      } else if (parseFloat(canvas.style.width) > display_size) {
-        const newSize = Math.max(parseFloat(canvas.style.width) - 100, display_size);
+      } else if (parseFloat(canvas.style.width) > displaySize) {
+        const newSize = Math.max(parseFloat(canvas.style.width) - 100, displaySize);
 
         canvas.style.width = `${newSize}px`;
         canvas.style.height = `${newSize}px`;
@@ -1332,12 +1212,11 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         }
       }
       if (!empty) {
-        frames.current[currentFrameIndex].undoStack.push(
-          frames.current[currentFrameIndex].scene.currentDraw
-        );
+        frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDraw);
         EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
           frame: currentFrame,
-          pixelMatrix: frames.current[currentFrameIndex].scene.pixels
+          pixelMatrix: frames.current[currentFrameIndex].scene.pixels,
+          frames: frames.current
         });
         EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES, frames.current);
         frames.current[currentFrameIndex].redoStack.clear();
@@ -1346,9 +1225,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     //here the draws made with Line, Rectangle or Elipse tool are put in main canvas
     if (frames.current[currentFrameIndex].scene.currentDrawTopCanvas.length > 0) {
-      const clean: Pixel[] = cleanDraw(
-        frames.current[currentFrameIndex].scene.currentDrawTopCanvas
-      );
+      const clean: Pixel[] = cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
       translateDrawToMainCanvas(
         clean,
         ctx,
@@ -1359,21 +1236,16 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       );
       EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
         frame: currentFrame,
-        pixelMatrix: frames.current[currentFrameIndex].scene.pixels
+        pixelMatrix: frames.current[currentFrameIndex].scene.pixels,
+        frames: frames.current
       });
       EventBus.getInstance().publish<Frame[]>(UPDATE_PREVIEW_FRAMES, frames.current);
-      frames.current[currentFrameIndex].undoStack.push(
-        frames.current[currentFrameIndex].scene.currentDrawTopCanvas
-      );
+      frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
       frames.current[currentFrameIndex].redoStack.clear();
     }
 
     frames.current[currentFrameIndex].scene.currentDraw = [];
-    removeDraw(
-      topCtx,
-      cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas),
-      pixel_size
-    );
+    removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), pixel_size);
     frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
 
     frames.current[currentFrameIndex].scene.currentPixelsMousePressed = new Map();
@@ -1393,11 +1265,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   return (
     <div
       className="editor-wrapper"
-      style={
-        !isMobile
-          ? { height: cssCanvasSize, width: '100%' }
-          : { width: '100%', height: cssCanvasSize }
-      }
+      style={!isMobile ? { height: cssCanvasSize, width: '100%' } : { width: '100%', height: cssCanvasSize }}
       ref={outerDivRef}
       onWheel={handleZoom}
       onMouseDown={handleFirstClick}
@@ -1408,11 +1276,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       onTouchEnd={handleFinishDraw}>
       <canvas className="canvas" id="topCanvas" style={{ zIndex: 2 }} ref={topCanvasRef}></canvas>
       <canvas className="canvas" id="canvas" style={{ zIndex: 1 }} ref={canvasRef}></canvas>
-      <canvas
-        className="canvas"
-        id="backgroundCanvas"
-        style={{ zIndex: 0 }}
-        ref={backgroundCanvasRef}></canvas>
+      <canvas className="canvas" id="backgroundCanvas" style={{ zIndex: 0 }} ref={backgroundCanvasRef}></canvas>
     </div>
   );
 }

@@ -1,7 +1,7 @@
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { BG_COLORS, CANVAS_SIZE, ERASING, UPDATE_PREVIEW_FRAMES } from '../../utils/constants';
+import { ChangeEvent, useCallback, useEffect, useRef } from 'react';
+import { BG_COLORS, ERASING, UPDATE_PREVIEW_FRAMES } from '../../utils/constants';
 import './preview.scss';
-import { Frame, Pixel, drawOnSideBarCanvasType } from '../../types';
+import { Frame } from '../../types';
 import { EventBus } from '../../EventBus';
 import { StoreType, store } from '../../store';
 
@@ -9,9 +9,10 @@ export function Preview() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const previewInterval = useRef<number>(0);
 
+  const displaySize = store((store: StoreType) => store.displaySize);
+
   const frameRate = store((store: StoreType) => store.frameRate);
   const setFrameRate = store((store: StoreType) => store.setFrameRate);
-  const framesList = store((store: StoreType) => store.framesList);
 
   const frameDuration = 1000 / frameRate;
 
@@ -19,24 +20,13 @@ export function Preview() {
 
   let bgTileSize = 1;
 
-  //pixel matrices are passed by reference and are the same pixel matrices of editor
+  //pixel matrices are passed by reference
   const frames = useRef<Frame[]>([]);
 
-  const startPreview = useCallback(() => {
-    previewInterval.current = setInterval(() => {
-      redrawPreview();
-      currentIndex.current++;
-      if (currentIndex.current >= frames.current.length) {
-        currentIndex.current = 0;
-      }
-    }, frameDuration);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [frameDuration, framesList]);
-
-  function redrawPreview() {
+  const redrawPreview = useCallback(() => {
     const ctx = canvas.current!.getContext('2d')!;
 
-    ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    ctx.clearRect(0, 0, displaySize, displaySize);
 
     if (!frames.current[currentIndex.current]) return;
 
@@ -64,7 +54,17 @@ export function Preview() {
         }
       }
     }
-  }
+  }, [displaySize]);
+
+  const startPreview = useCallback(() => {
+    previewInterval.current = setInterval(() => {
+      redrawPreview();
+      currentIndex.current++;
+      if (currentIndex.current >= frames.current.length) {
+        currentIndex.current = 0;
+      }
+    }, frameDuration);
+  }, [frameDuration, redrawPreview]);
 
   function finishPreview() {
     clearInterval(previewInterval.current);
@@ -72,19 +72,16 @@ export function Preview() {
 
   function calculateBgTileSize() {
     const factors = [];
-    for (
-      let i = 1;
-      i <= CANVAS_SIZE;
-      i++ //CANVAS_SIZE is at most 500
-    ) {
-      if (CANVAS_SIZE % i === 0) factors.push(i);
+    for (let i = 1; i <= displaySize; i++) {
+      //displaySize is at most 500
+      if (displaySize % i === 0) factors.push(i);
     }
-
     const mid = Math.floor(factors.length / 2);
     bgTileSize = factors[mid];
 
-    //if CANVAS_SIZE is a prime number
-    if (bgTileSize === CANVAS_SIZE) bgTileSize = 10;
+    //if displaySize is a prime number
+    if (bgTileSize === displaySize) bgTileSize = 10;
+    bgTileSize = 16;
   }
 
   calculateBgTileSize();
@@ -92,23 +89,23 @@ export function Preview() {
   const drawBackground = useCallback(() => {
     const ctx = (document.getElementById('previewBG') as HTMLCanvasElement).getContext('2d')!;
 
-    ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    ctx.clearRect(0, 0, displaySize, displaySize);
 
     let firstInRow = 1;
     let a = firstInRow;
 
     //draw background
-    for (let i = 0; i <= CANVAS_SIZE; i += bgTileSize) {
+    for (let i = 0; i <= displaySize; i += bgTileSize) {
       if (firstInRow) a = 0;
       else a = 1;
       firstInRow = firstInRow ? 0 : 1;
-      for (let j = 0; j <= CANVAS_SIZE; j += bgTileSize) {
+      for (let j = 0; j <= displaySize; j += bgTileSize) {
         ctx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
         ctx.fillRect(i, j, bgTileSize, bgTileSize);
         a = a ? 0 : 1;
       }
     }
-  }, [bgTileSize]);
+  }, [bgTileSize, displaySize]);
 
   useEffect(() => {
     drawBackground();
@@ -131,15 +128,15 @@ export function Preview() {
       <div className="preview-title">PREVIEW</div>
       <div className="preview-canvas-wrapper">
         <canvas
-          width={CANVAS_SIZE}
+          width={displaySize}
           ref={canvas}
-          height={CANVAS_SIZE}
+          height={displaySize}
           className="preview-canvas"
           id="previewTop"
           style={{ width: '180px', height: '180px', zIndex: 1 }}></canvas>
         <canvas
-          width={CANVAS_SIZE}
-          height={CANVAS_SIZE}
+          width={displaySize}
+          height={displaySize}
           className="preview-canvas"
           id="previewBG"
           style={{ width: '180px', height: '180px', zIndex: 0 }}></canvas>

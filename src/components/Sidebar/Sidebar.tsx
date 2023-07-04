@@ -7,10 +7,15 @@ interface SidebarProps {
 }
 
 export function Sidebar({ children, height, width }: SidebarProps) {
+  function foo() {
+    //
+  }
+
   return (
     <div
       style={{
-        height: height
+        height: height,
+        width: width
       }}
       className="sidebar">
       {children}

@@ -10,11 +10,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 interface ToolbarProps {
   toolButtons: ToolButtonType[];
   isMobile?: boolean;
+  isWelcomeModalOpen: boolean;
 }
 
 //TODO: refactor this component
 
-export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
+export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarProps) {
   const selectedTool = store((state: StoreType) => state.selectedTool);
   const setSelectedTool = store((state: StoreType) => state.setSelectedTool);
   const oneToOneRatioElipse = store((state: StoreType) => state.oneToOneRatioElipse);
@@ -29,20 +30,22 @@ export function Toolbar({ toolButtons, isMobile }: ToolbarProps) {
 
   useEffect(() => {
     function checkKeys(event: KeyboardEvent) {
-      if (['p', 'P', '1'].indexOf(event.key) > -1) {
-        setSelectedTool('pencil');
-      } else if (['e', 'E', '2'].indexOf(event.key) > -1) {
-        setSelectedTool('eraser');
-      } else if (['b', 'B', '3'].indexOf(event.key) > -1) {
-        setSelectedTool('paintBucket');
-      } else if (['d', 'D', '4'].indexOf(event.key) > -1) {
-        setSelectedTool('dropper');
-      } else if (['l', 'L', '5'].indexOf(event.key) > -1) {
-        setSelectedTool('line');
-      } else if (['r', 'R', '6'].indexOf(event.key) > -1) {
-        setSelectedTool('rectangle');
-      } else if (['c', 'C', '7'].indexOf(event.key) > -1) {
-        setSelectedTool('elipse');
+      if (!isWelcomeModalOpen) {
+        if (['p', 'P', '1'].indexOf(event.key) > -1) {
+          setSelectedTool('pencil');
+        } else if (['e', 'E', '2'].indexOf(event.key) > -1) {
+          setSelectedTool('eraser');
+        } else if (['b', 'B', '3'].indexOf(event.key) > -1) {
+          setSelectedTool('paintBucket');
+        } else if (['d', 'D', '4'].indexOf(event.key) > -1) {
+          setSelectedTool('dropper');
+        } else if (['l', 'L', '5'].indexOf(event.key) > -1) {
+          setSelectedTool('line');
+        } else if (['r', 'R', '6'].indexOf(event.key) > -1) {
+          setSelectedTool('rectangle');
+        } else if (['c', 'C', '7'].indexOf(event.key) > -1) {
+          setSelectedTool('elipse');
+        }
       }
     }
 

@@ -53,7 +53,6 @@ export function Eraser(
           p.colorStack.push(ERASING);
           scene.currentPixelsMousePressed.set(p.id, true);
           draw.push(p);
-          console.log('limpando rect');
           ctx.clearRect(p.x1, p.y1, pixel_size, pixel_size);
         }
 

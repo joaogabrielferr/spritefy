@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { EventBus } from '../../EventBus';
 import { StoreType, store } from '../../store';
-import { drawOnSideBarCanvasType } from '../../types';
+import { Frame, drawOnSideBarCanvasType } from '../../types';
 import {
   BG_COLORS,
-  CANVAS_SIZE,
   COPY_FRAME,
   CREATE_NEW_FRAME,
   DELETE_FRAME,
@@ -21,12 +20,16 @@ export function Frames() {
   // const layers = store((state : StoreType) => state.layers);
   const framesList = store((state: StoreType) => state.framesList);
 
+  const displaySize = store((state: StoreType) => state.displaySize);
+
   const [touched, setTouched] = useState<{ [frameName: string]: boolean }>({});
 
   const currentFrame = store((state: StoreType) => state.currentFrame);
-  // const setCurrentFrame = store((state : StoreType) => state.setCurrentFrame);]
 
   const framesDivRef = useRef<HTMLDivElement | null>(null);
+
+  //pixel matrices are passed by reference
+  const frames = useRef<Frame[]>([]);
 
   let bgTileSize = 1;
 
@@ -34,65 +37,75 @@ export function Frames() {
 
   function calculateBgTileSize() {
     const factors = [];
-    for (let i = 1; i <= CANVAS_SIZE; i++) {
-      if (CANVAS_SIZE % i === 0) factors.push(i);
+    for (let i = 1; i <= displaySize; i++) {
+      if (displaySize % i === 0) factors.push(i);
     }
 
     const mid = Math.floor(factors.length / 2);
     bgTileSize = factors[mid];
 
-    //if CANVAS_SIZE is a prime number
-    if (bgTileSize === CANVAS_SIZE) bgTileSize = 10;
+    //if displaySize is a prime number
+    if (bgTileSize === displaySize) bgTileSize = 10;
+    bgTileSize = 16;
   }
 
-  function drawBackground(frame: string) {
-    const ctx = (
-      document.getElementById(`${frame}background@sidebar`) as HTMLCanvasElement
-    ).getContext('2d')!;
+  const drawBackground = useCallback(
+    (frame: string) => {
+      const ctx = (document.getElementById(`${frame}background@sidebar`) as HTMLCanvasElement).getContext('2d')!;
 
-    ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+      ctx.clearRect(0, 0, displaySize, displaySize);
 
-    let firstInRow = 1;
-    let a = firstInRow;
+      let firstInRow = 1;
+      let a = firstInRow;
 
-    //draw background
-    for (let i = 0; i <= CANVAS_SIZE; i += bgTileSize) {
-      if (firstInRow) a = 0;
-      else a = 1;
-      firstInRow = firstInRow ? 0 : 1;
-      for (let j = 0; j <= CANVAS_SIZE; j += bgTileSize) {
-        ctx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
-        ctx.fillRect(i, j, bgTileSize, bgTileSize);
-        a = a ? 0 : 1;
+      //draw background
+      for (let i = 0; i <= displaySize; i += bgTileSize) {
+        if (firstInRow) a = 0;
+        else a = 1;
+        firstInRow = firstInRow ? 0 : 1;
+        for (let j = 0; j <= displaySize; j += bgTileSize) {
+          ctx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
+          ctx.fillRect(i, j, bgTileSize, bgTileSize);
+          a = a ? 0 : 1;
+        }
       }
-    }
-  }
+    },
+    [bgTileSize, displaySize]
+  );
 
-  const drawOnCanvas = useCallback((args: drawOnSideBarCanvasType) => {
-    const { frame, pixelMatrix } = args;
+  const drawOnCanvas = useCallback(
+    (args: drawOnSideBarCanvasType) => {
+      const { frame, pixelMatrix } = args;
 
-    if (!frame || !pixelMatrix) return;
-    const canvas = document.getElementById(`${frame}@sidebar`) as HTMLCanvasElement;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d')!;
+      if (args.frames) {
+        frames.current = args.frames;
+      }
 
-    ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+      if (!frame || !pixelMatrix) return;
 
-    for (let i = 0; i < pixelMatrix.length; i++) {
-      for (let j = 0; j < pixelMatrix[i].length; j++) {
-        if (!pixelMatrix[i][j].colorStack.isEmpty()) {
-          const color = pixelMatrix[i][j].colorStack.top();
-          if (!color || color === ERASING) {
-            ctx.fillStyle = pixelMatrix[i][j].bgColor;
-            ctx.clearRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
-          } else {
-            ctx.fillStyle = color;
-            ctx.fillRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
+      const canvas = document.getElementById(`${frame}@sidebar`) as HTMLCanvasElement;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d')!;
+
+      ctx.clearRect(0, 0, displaySize, displaySize);
+
+      for (let i = 0; i < pixelMatrix.length; i++) {
+        for (let j = 0; j < pixelMatrix[i].length; j++) {
+          if (!pixelMatrix[i][j].colorStack.isEmpty()) {
+            const color = pixelMatrix[i][j].colorStack.top();
+            if (!color || color === ERASING) {
+              ctx.fillStyle = pixelMatrix[i][j].bgColor;
+              ctx.clearRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
+            } else {
+              ctx.fillStyle = color;
+              ctx.fillRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
+            }
           }
         }
       }
-    }
-  }, []);
+    },
+    [displaySize]
+  );
 
   useEffect(() => {
     const subscription = EventBus.getInstance().subscribe(DRAW_ON_SIDEBAR_CANVAS, drawOnCanvas);
@@ -111,6 +124,17 @@ export function Frames() {
       }
     });
   });
+
+  useEffect(() => {
+    frames.current.forEach((frame) => {
+      drawBackground(frame.name);
+      drawOnCanvas({ frame: frame.name, pixelMatrix: frame.scene.pixels });
+    });
+  }, [displaySize, drawBackground, drawOnCanvas]);
+
+  function updateFrames(_frames: Frame[]) {
+    frames.current = _frames;
+  }
 
   function changeCurrentFrame(frame: string) {
     EventBus.getInstance().publish<string>(SELECT_FRAME, frame);
@@ -177,14 +201,14 @@ export function Frames() {
             <div className="frame-canvas-wrapper" onClick={() => changeCurrentFrame(frame)}>
               <canvas
                 className="frame-canvas"
-                width={CANVAS_SIZE}
-                height={CANVAS_SIZE}
+                width={displaySize}
+                height={displaySize}
                 id={`${frame}@sidebar`}
                 style={{ zIndex: 1 }}></canvas>
               <canvas
                 className="frame-canvas"
-                width={CANVAS_SIZE}
-                height={CANVAS_SIZE}
+                width={displaySize}
+                height={displaySize}
                 id={`${frame}background@sidebar`}
                 style={{ zIndex: 0 }}></canvas>
               {framesList.length > 1 && index != 0 && (
