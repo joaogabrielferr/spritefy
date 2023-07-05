@@ -68,22 +68,21 @@ export function Frames() {
       const canvas = document.getElementById(`${frame}@sidebar`) as HTMLCanvasElement;
       if (!canvas) return;
       const ctx = canvas.getContext('2d')!;
-      console.log('redrawing ', pixelMatrix);
       ctx.clearRect(0, 0, displaySize, displaySize);
 
       for (let i = 0; i < pixelMatrix.length; i++) {
         for (let j = 0; j < pixelMatrix[i].length; j++) {
-          if (!pixelMatrix[i][j].colorStack.isEmpty()) {
-            const color = pixelMatrix[i][j].colorStack.top();
-            if (!color || color === ERASING) {
-              ctx.fillStyle = pixelMatrix[i][j].bgColor;
-              ctx.clearRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
-            } else {
-              ctx.fillStyle = color;
-              ctx.fillRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
-            }
+          //if (!pixelMatrix[i][j].colorStack.isEmpty()) {
+          const color = pixelMatrix[i][j].colorStack.top();
+          if (!color || color === ERASING) {
+            ctx.fillStyle = pixelMatrix[i][j].bgColor;
+            ctx.clearRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
+          } else {
+            ctx.fillStyle = color;
+            ctx.fillRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
           }
         }
+        // }
       }
     },
     [displaySize]

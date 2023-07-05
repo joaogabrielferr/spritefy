@@ -223,6 +223,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   //     }
   // }
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////
   const addNewFrame = useCallback(() => {
     const newFrame = createNewFrame();
 
@@ -244,6 +245,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     draw();
   }, [displaySize, draw, framesList, setCurrentFrame, setFramesList]);
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
   const selectFrame = useCallback(
     (_frame: string) => {
       currentFrameIndex = frames.current.findIndex((frame) => frame.name === _frame);
@@ -254,6 +257,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     },
     [setCurrentFrame]
   );
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   const deleteFrame = useCallback(
     (_frame: string) => {
@@ -278,6 +283,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     },
     [framesList, setCurrentFrame, setFramesList]
   );
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   const copyFrame = useCallback(
     (_frame: string) => {
@@ -318,7 +325,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     [draw, framesList, setCurrentFrame, setFramesList]
   );
 
-  //lol
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
   function updateSideBarCanvasAfterChangingFramesList(frameName: string) {
     if (!shouldUpdateSideBarCanvas.current || frameName === '' || frameName.length <= 1) return;
 
@@ -333,6 +341,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     //true only when copiyng a frame
     shouldUpdateSideBarCanvas.current = false;
   }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   const swapFrames = useCallback(
     ({ frame1, frame2 }: { frame1: string; frame2: string }) => {
@@ -361,6 +371,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     [framesList, setFramesList]
   );
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
   const handleUndoLastDraw = useCallback(() => {
     undoLastDraw(pixel_size, ctx, frames.current[currentFrameIndex]);
 
@@ -373,6 +385,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
   }, [currentFrame]);
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
   const handleRedoLastDraw = useCallback(() => {
     redoLastDraw(ctx, pixel_size, frames.current[currentFrameIndex]);
     EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
@@ -383,6 +397,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
   }, [currentFrame]);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   useEffect(() => {
     const resetCanvasSubscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION, resetCanvasPosition);
@@ -426,6 +442,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     //in other situations where sidebar canvas is updated (frame created, deleted, or draw finished) this is not necessary
     updateSideBarCanvasAfterChangingFramesList(latestFrameCreated.current);
   }, [framesList]);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   function handleFirstClick(event: MouseEvent) {
     if (event.button === 0) {
@@ -486,16 +504,19 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     }
   }
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
   function getTouchDistanceBetweenTwoTouches(touch1: Touch, touch2: Touch) {
     const dx = touch1.clientX - touch2.clientX;
     const dy = touch1.clientY - touch2.clientY;
     return Math.sqrt(dx * dx + dy * dy);
   }
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
   function handleTouchStart(e: TouchEvent) {
     //in some mobile devices, when pinching, the touchstart listener is called with e.touches.length === 1, and only then it is called again with e.touches.length === 2
     clearTimeout(pinchTouchStartTimeOut);
-
     pinchTouchStartTimeOut = setTimeout(() => {
       if (e.touches.length === 2) {
         isPinching = true;
@@ -567,6 +588,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     }, 100);
   }
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
   function mouseToWorldCoordinates(clientX: number, clientY: number) {
     const bounding = canvas.getBoundingClientRect();
     mouse.x = clientX - bounding.left;
@@ -581,6 +604,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     mouse.x = (mouse.x - offsetX) * (displaySize / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
     mouse.y = (mouse.y - offsetY) * (displaySize / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
   }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   function handleMouseMove(event: MouseEvent) {
     if (!canvas) return;
@@ -702,37 +727,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           );
         }
       }
-
-      /////////////1 TO 1 RATIO CIRCLE////////////////////////////
-      //remove draw from the top canvas
-      // removeDraw(topCtx,cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas),pixel_size);
-      // frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
-
-      // //increase or decrease circle radius based on mouse movement
-      // if(mouse.mouseMoveLastPos && frames.current[currentFrameIndex].scene.lineFirstPixel){
-      //     if(
-      //         ((mouse.x > frames.current[currentFrameIndex].scene.lineFirstPixel.x1 && mouse.x > mouse.mouseMoveLastPos.x) ||
-      //         (mouse.y > frames.current[currentFrameIndex].scene.lineFirstPixel.y1 && mouse.y > mouse.mouseMoveLastPos.y)) ||
-      //     ( (mouse.x < frames.current[currentFrameIndex].scene.lineFirstPixel.x1 && mouse.x < mouse.mouseMoveLastPos.x) ||
-      //     (mouse.y < frames.current[currentFrameIndex].scene.lineFirstPixel.y1 && mouse.y < mouse.mouseMoveLastPos.y)))
-      //     {
-      //         //mouse is going away from middle point (from left or right), increase radius
-      //         frames.current[currentFrameIndex].scene.circleRadius+=CIRCLE_RADIUS_INCREASE_FACTOR;
-      //     }else
-      //     {
-      //         //mouse is moving toward middle point, decrase radius
-      //         if(frames.current[currentFrameIndex].scene.circleRadius - CIRCLE_RADIUS_INCREASE_FACTOR <= 1)
-      //         {
-      //             frames.current[currentFrameIndex].scene.circleRadius = 1;
-      //         }else
-      //         {
-      //             frames.current[currentFrameIndex].scene.circleRadius-=CIRCLE_RADIUS_INCREASE_FACTOR;
-      //         }
-      //     }
-      // }
-
-      // frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(Elipse(frames.current[currentFrameIndex].scene,topCtx,pixel_size,frames.current[currentFrameIndex].scene.lineFirstPixel!,selectedColor,penSize));
-      // /////////////////////////////////////
     }
 
     //paint pixel in top canvas relative to mouse position
@@ -740,6 +734,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     mouse.mouseMoveLastPos = { x: mouse.x, y: mouse.y };
   }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   function handleTouchMove(event: TouchEvent) {
     if (!canvas) return;
@@ -749,7 +745,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       return;
     }
 
-    //TODO: maybe decouple mouse listeners from tool function calls, functions can be called a super high number of times depending on device config and mouse type i guess
     const bounding = canvas.getBoundingClientRect();
     mouse.x = event.touches[0].clientX - bounding.left;
     mouse.y = event.touches[0].clientY - bounding.top;
@@ -863,6 +858,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     mouse.mouseMoveLastPos = { x: mouse.x, y: mouse.y };
   }
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
   function paintMousePosition() {
     if (mouse.x >= 0 && mouse.x <= displaySize && mouse.y >= 0 && mouse.y <= displaySize) {
       const newPixel = frames.current[currentFrameIndex].scene.findPixel(mouse.x, mouse.y, pixel_size);
@@ -911,6 +908,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       }
     }
   }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   function handleZoomMobile(e: TouchEvent) {
     if (!outerDiv) return;
@@ -1007,6 +1006,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       }
     }
   }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   function handleZoom(e: WheelEvent) {
     if (!outerDiv) return;
@@ -1127,6 +1128,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     }
   }
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
   function resetCanvasPosition() {
     canvas.style.width = `${originalCanvasWidth}px`;
     canvas.style.height = `${originalCanvasWidth}px`;
@@ -1144,6 +1147,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     currentScale = 1;
     frames.current[currentFrameIndex].scene.zoomAmount = 0;
   }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   function handleFinishDraw(e: TouchEvent | MouseEvent | undefined) {
     if (e) e.preventDefault();
@@ -1202,6 +1207,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     frames.current[currentFrameIndex].scene.circleRadius = 0;
   }
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
   function createNewFrame() {
     return {
       name: `frame${Date.now()}`,
@@ -1214,7 +1221,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   return (
     <div
       className="editor-wrapper"
-      style={!isMobile ? { height: cssCanvasSize, width: '100%' } : { width: '100%', height: cssCanvasSize }}
+      style={{ height: cssCanvasSize, width: '100%' }}
       ref={outerDivRef}
       onWheel={handleZoom}
       onMouseDown={handleFirstClick}
