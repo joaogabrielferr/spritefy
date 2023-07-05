@@ -4,13 +4,15 @@ import { StoreType, store } from '../../store';
 import { Frame, drawOnSideBarCanvasType } from '../../types';
 import {
   BG_COLORS,
+  BG_TILE_SIZE,
   COPY_FRAME,
   CREATE_NEW_FRAME,
   DELETE_FRAME,
   DRAW_ON_SIDEBAR_CANVAS,
   ERASING,
   SELECT_FRAME,
-  SWAP_FRAMES
+  SWAP_FRAMES,
+  UPDATE_FRAMES_REF_ON_FRAMES_LIST_BAR
 } from '../../utils/constants';
 import './frames.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -28,55 +30,35 @@ export function Frames() {
 
   const framesDivRef = useRef<HTMLDivElement | null>(null);
 
-  //pixel matrices are passed by reference
   const frames = useRef<Frame[]>([]);
 
-  let bgTileSize = 1;
-
-  calculateBgTileSize();
-
-  function calculateBgTileSize() {
-    const factors = [];
-    for (let i = 1; i <= displaySize; i++) {
-      if (displaySize % i === 0) factors.push(i);
-    }
-
-    const mid = Math.floor(factors.length / 2);
-    bgTileSize = factors[mid];
-
-    //if displaySize is a prime number
-    if (bgTileSize === displaySize) bgTileSize = 10;
-    bgTileSize = 16;
-  }
-
-  const drawBackground = useCallback(
+  const drawFrameBackground = useCallback(
     (frame: string) => {
       const ctx = (document.getElementById(`${frame}background@sidebar`) as HTMLCanvasElement).getContext('2d')!;
-
+      console.log(displaySize);
       ctx.clearRect(0, 0, displaySize, displaySize);
 
       let firstInRow = 1;
       let a = firstInRow;
 
       //draw background
-      for (let i = 0; i <= displaySize; i += bgTileSize) {
+      for (let i = 0; i <= displaySize; i += BG_TILE_SIZE) {
         if (firstInRow) a = 0;
         else a = 1;
         firstInRow = firstInRow ? 0 : 1;
-        for (let j = 0; j <= displaySize; j += bgTileSize) {
+        for (let j = 0; j <= displaySize; j += BG_TILE_SIZE) {
           ctx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
-          ctx.fillRect(i, j, bgTileSize, bgTileSize);
+          ctx.fillRect(i, j, BG_TILE_SIZE, BG_TILE_SIZE);
           a = a ? 0 : 1;
         }
       }
     },
-    [bgTileSize, displaySize]
+    [displaySize]
   );
 
-  const drawOnCanvas = useCallback(
+  const drawFrame = useCallback(
     (args: drawOnSideBarCanvasType) => {
       const { frame, pixelMatrix } = args;
-
       if (args.frames) {
         frames.current = args.frames;
       }
@@ -86,7 +68,7 @@ export function Frames() {
       const canvas = document.getElementById(`${frame}@sidebar`) as HTMLCanvasElement;
       if (!canvas) return;
       const ctx = canvas.getContext('2d')!;
-
+      console.log('redrawing ', pixelMatrix);
       ctx.clearRect(0, 0, displaySize, displaySize);
 
       for (let i = 0; i < pixelMatrix.length; i++) {
@@ -108,29 +90,32 @@ export function Frames() {
   );
 
   useEffect(() => {
-    const subscription = EventBus.getInstance().subscribe(DRAW_ON_SIDEBAR_CANVAS, drawOnCanvas);
+    const DrawOnSideBarCanvassubscription = EventBus.getInstance().subscribe(DRAW_ON_SIDEBAR_CANVAS, drawFrame);
+    const updateFramesOnFramesList = EventBus.getInstance().subscribe(UPDATE_FRAMES_REF_ON_FRAMES_LIST_BAR, updateFrames);
 
     return () => {
-      subscription.unsubscribe();
+      DrawOnSideBarCanvassubscription.unsubscribe();
+      updateFramesOnFramesList.unsubscribe();
     };
-  }, [drawOnCanvas]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     framesList.forEach((frame) => {
       if (!touched[frame]) {
         //drawing background when a new canvas is added
         setTouched({ ...touched, [frame]: true });
-        drawBackground(frame);
+        drawFrameBackground(frame);
       }
     });
   });
 
   useEffect(() => {
     frames.current.forEach((frame) => {
-      drawBackground(frame.name);
-      drawOnCanvas({ frame: frame.name, pixelMatrix: frame.scene.pixels });
+      drawFrameBackground(frame.name);
+      drawFrame({ frame: frame.name, pixelMatrix: frame.scene.pixels });
     });
-  }, [displaySize, drawBackground, drawOnCanvas]);
+  }, [displaySize, drawFrameBackground, drawFrame]);
 
   function updateFrames(_frames: Frame[]) {
     frames.current = _frames;

@@ -6,6 +6,7 @@ export const CIRCLE_RADIUS_INCREASE_FACTOR = 0.3;
 export const ERASING = 'erasing';
 export const EDITOR_SIZE_OFFSET = 350;
 export const EDITOR_SIZE_OFFSET_MOBILE = 100;
+export const BG_TILE_SIZE = 16;
 export const TOP_CANVAS = { canvas: 'topCanvas', visible: true, blocked: false };
 export const BACKGROUND_CANVAS = { canvas: 'backgroundCanvas', visible: true, blocked: false };
 
@@ -17,7 +18,8 @@ export const DRAW_ON_SIDEBAR_CANVAS = 'draw-on-sidebar-canvas';
 export const SELECT_FRAME = 'select-layer';
 export const CREATE_NEW_FRAME = 'create-new-frame';
 export const DELETE_FRAME = 'delete-frame';
-export const UPDATE_PREVIEW_FRAMES = 'update-preview-frames';
+export const UPDATE_FRAMES_REF_ON_FRAMES_LIST_BAR = 'update-frames-list-frame';
+export const UPDATE_FRAMES_REF_ON_PREVIEW = 'update-preview-frames';
 export const COPY_FRAME = 'copy-frame';
 export const SWAP_FRAMES = 'swap-frames';
 export const UNDO_LAST_DRAW = 'undo-last-draw';

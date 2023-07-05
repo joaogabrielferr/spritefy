@@ -1,4 +1,4 @@
-import { BG_COLORS } from '../utils/constants';
+import { BG_COLORS, BG_TILE_SIZE } from '../utils/constants';
 import { Pixel } from '../types';
 import { Stack } from '../utils/Stack';
 
@@ -51,14 +51,14 @@ export default class Scene {
     this.initialized = false;
   }
 
-  initializePixelMatrix(display_size: number, pixel_size: number, bgTileSize: number) {
+  initializePixelMatrix(display_size: number, pixel_size: number) {
     this.pixels = [];
 
     //TODO: i need to save current drawing on browser
     //problem: for big drawing sizes like 500x500 its impractical to save it on local storage, and even on indexedDB
     //possible solution: save canvas as png, store it on indexedDB, then after page load, get the image and parse it using some library and store info on this.pixels(lol)
 
-    //bgTileSize = size of background tile, define pixel bg color based on bg tile color
+    //BG_TILE_SIZE = size of background tile, define pixel bg color based on bg tile color
     let rowCounter = 0;
     let columnCounter = 0;
 
@@ -70,7 +70,7 @@ export default class Scene {
     let a = 0;
     for (let i = 0; i < display_size; i += pixel_size) {
       const row: Pixel[] = [];
-      if (columnCounter % bgTileSize === 0) {
+      if (columnCounter % BG_TILE_SIZE === 0) {
         currentBgColor = currentBgColor === BG_COLORS[0] ? BG_COLORS[1] : BG_COLORS[0];
       }
       columnCounter++;
@@ -90,7 +90,7 @@ export default class Scene {
         idxj++;
         a = a ? 0 : 1;
         rowCounter++;
-        if (rowCounter % bgTileSize === 0) {
+        if (rowCounter % BG_TILE_SIZE === 0) {
           currentBgColor = currentBgColor === BG_COLORS[0] ? BG_COLORS[1] : BG_COLORS[0];
         }
       }

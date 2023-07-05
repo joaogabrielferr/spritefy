@@ -38,7 +38,6 @@ const ToolButtons = [
 //TODO: right now im saving the gifs with a white background because i couldnt figure out how to create transparent gifs with gif.js,
 //probably look for another library that supports transparent bg (or keep it white, pixilart also saves gifs with white bg so transparent bg may not be easy to achieve)
 
-//TODO: refactor code by removing useCallbacks, so need for that since no function is passed to children components
 //TODO: add layers functionality (maybe have a list 'layers' in a scene and each layer has a pixel matrix)
 //TODO: save drawing locally by retrieving the image from canvases with getImageData
 //TODO: add option to save drawing on users computer (create a json file and store all necessary info to redraw elements, save it as .spritefy)

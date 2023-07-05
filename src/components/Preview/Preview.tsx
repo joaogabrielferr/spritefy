@@ -1,5 +1,5 @@
 import { ChangeEvent, useCallback, useEffect, useRef } from 'react';
-import { BG_COLORS, ERASING, UPDATE_PREVIEW_FRAMES } from '../../utils/constants';
+import { BG_COLORS, BG_TILE_SIZE, ERASING, UPDATE_FRAMES_REF_ON_PREVIEW } from '../../utils/constants';
 import './preview.scss';
 import { Frame } from '../../types';
 import { EventBus } from '../../EventBus';
@@ -18,17 +18,15 @@ export function Preview() {
 
   const currentIndex = useRef<number>(0);
 
-  let bgTileSize = 1;
-
   //pixel matrices are passed by reference
   const frames = useRef<Frame[]>([]);
 
   const redrawPreview = useCallback(() => {
     const ctx = canvas.current!.getContext('2d')!;
 
-    ctx.clearRect(0, 0, displaySize, displaySize);
+    if (!frames.current || !frames.current[currentIndex.current]) return;
 
-    if (!frames.current[currentIndex.current]) return;
+    ctx.clearRect(0, 0, displaySize, displaySize);
 
     for (let i = 0; i < frames.current[currentIndex.current].scene.pixels.length; i++) {
       for (let j = 0; j < frames.current[currentIndex.current].scene.pixels[i].length; j++) {
@@ -70,22 +68,6 @@ export function Preview() {
     clearInterval(previewInterval.current);
   }
 
-  function calculateBgTileSize() {
-    const factors = [];
-    for (let i = 1; i <= displaySize; i++) {
-      //displaySize is at most 500
-      if (displaySize % i === 0) factors.push(i);
-    }
-    const mid = Math.floor(factors.length / 2);
-    bgTileSize = factors[mid];
-
-    //if displaySize is a prime number
-    if (bgTileSize === displaySize) bgTileSize = 10;
-    bgTileSize = 16;
-  }
-
-  calculateBgTileSize();
-
   const drawBackground = useCallback(() => {
     const ctx = (document.getElementById('previewBG') as HTMLCanvasElement).getContext('2d')!;
 
@@ -95,22 +77,22 @@ export function Preview() {
     let a = firstInRow;
 
     //draw background
-    for (let i = 0; i <= displaySize; i += bgTileSize) {
+    for (let i = 0; i <= displaySize; i += BG_TILE_SIZE) {
       if (firstInRow) a = 0;
       else a = 1;
       firstInRow = firstInRow ? 0 : 1;
-      for (let j = 0; j <= displaySize; j += bgTileSize) {
+      for (let j = 0; j <= displaySize; j += BG_TILE_SIZE) {
         ctx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
-        ctx.fillRect(i, j, bgTileSize, bgTileSize);
+        ctx.fillRect(i, j, BG_TILE_SIZE, BG_TILE_SIZE);
         a = a ? 0 : 1;
       }
     }
-  }, [bgTileSize, displaySize]);
+  }, [displaySize]);
 
   useEffect(() => {
     drawBackground();
 
-    EventBus.getInstance().subscribe(UPDATE_PREVIEW_FRAMES, updateFramesOnPreview);
+    EventBus.getInstance().subscribe(UPDATE_FRAMES_REF_ON_PREVIEW, updateFramesOnPreview);
 
     startPreview();
 
