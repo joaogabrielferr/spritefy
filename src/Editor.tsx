@@ -928,6 +928,9 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       const touch2X = touch2.clientX - rect.left;
       const touch2Y = touch2.clientY - rect.top;
 
+      //zooming in mobile the same way it's done in desktop but its not great
+      //TODO: implement zooming in another way for mobile
+
       // Calculate the distance between the two touch points
       const touchDistance = Math.sqrt(Math.pow(touch2X - touch1X, 2) + Math.pow(touch2Y - touch1Y, 2));
 
@@ -949,7 +952,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           const dy = (mouseY - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
 
           currentScale += SCALE_FACTOR;
-          currentScale = Math.max(currentScale, 0.15); // Set a minimum scale value
+          currentScale = Math.max(currentScale, 0.1); // Set a minimum scale value
 
           const scaleChangeFactor = currentScale / (currentScale - SCALE_FACTOR); //calculate current scale factor
 
@@ -991,7 +994,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
             canvas.style.left = `${canvas.offsetLeft + dx}px`;
             canvas.style.top = `${canvas.offsetTop + dy}px`;
-
             topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
             topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
             topCanvas.style.left = `${topCanvas.offsetLeft + dx}px`;
@@ -1002,6 +1004,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft + dx}px`;
             backgroundCanvas.style.top = `${backgroundCanvas.offsetTop + dy}px`;
           }
+        } else {
+          resetCanvasPosition();
         }
       }
     }

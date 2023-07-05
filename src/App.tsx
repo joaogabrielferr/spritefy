@@ -35,6 +35,8 @@ const ToolButtons = [
   { tool: 'elipse', tooltip: 'Circle tool(C or 7)' }
 ] as ToolButtonType[];
 
+//TODO: implement a more precise zoom for mobile
+
 //TODO: right now im saving the gifs with a white background because i couldnt figure out how to create transparent gifs with gif.js,
 //probably look for another library that supports transparent bg (or keep it white, pixilart also saves gifs with white bg so transparent bg may not be easy to achieve)
 
