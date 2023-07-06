@@ -1,3 +1,5 @@
+@use '../../styles/variables';
+
 .create-new-frame-wrapper {
   display: flex;
   justify-content: flex-start;
@@ -15,7 +17,7 @@
   .create-new-frame-button {
     border-style: none;
     background-color: rgb(77, 77, 77);
-    color: #abbbc7;
+    color: variables.$secondary-font-color;
     cursor: pointer;
     width: 95%;
     height: 90%;

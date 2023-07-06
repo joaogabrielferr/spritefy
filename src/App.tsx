@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import Editor from './Editor';
-import './index.scss';
+import './styles/index.scss';
 import { ColorResult, CustomPicker } from 'react-color';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { ToolButtonType } from './types';
@@ -17,46 +17,43 @@ import { Preview } from './components/Preview/Preview';
 import { WelcomeModal } from './components/WelcomeModal/WelcomeModal';
 
 const ToolButtons = [
-  {
-    tool: 'pencil',
-    tooltip: 'Pen tool(P or 1)'
-  },
-  {
-    tool: 'eraser',
-    tooltip: 'Eraser tool(E or 2)'
-  },
+  { tool: 'pencil', tooltip: 'Pen tool(P or 1)' },
+  { tool: 'eraser', tooltip: 'Eraser tool(E or 2)' },
   { tool: 'paintBucket', tooltip: 'Paint bucket(B or 3)' },
-  {
-    tool: 'dropper',
-    tooltip: 'Color picker(D or 4)'
-  },
+  { tool: 'dropper', tooltip: 'Color picker(D or 4)' },
   { tool: 'line', tooltip: 'Pencil stroke line(L or 5)' },
   { tool: 'rectangle', tooltip: 'Rectangle tool(R or 6)' },
   { tool: 'elipse', tooltip: 'Circle tool(C or 7)' }
 ] as ToolButtonType[];
 
+//TODO: Draw better tool icons
+//TODO: Add a 'file' option in header and add option to create new drawing
+//TODO: allow for different width and height when creating a new canvas
+//TODO: Fix frames and preview disappearing after changing to mobile
 //TODO: implement a more precise zoom for mobile
-
 //TODO: right now im saving the gifs with a white background because i couldnt figure out how to create transparent gifs with gif.js,
 //probably look for another library that supports transparent bg (or keep it white, pixilart also saves gifs with white bg so transparent bg may not be easy to achieve)
 
 //TODO: add layers functionality (maybe have a list 'layers' in a scene and each layer has a pixel matrix)
-//TODO: save drawing locally by retrieving the image from canvases with getImageData
+//TODO: save drawing locally (maybe by retrieving the image from canvases with getImageData? )
 //TODO: add option to save drawing on users computer (create a json file and store all necessary info to redraw elements, save it as .spritefy)
 //TODO: Add onion skin
 //TODO: Add tutorial if opened for the first time
 
-// paint bucket:
-// diagonal neighbors
+//TODO:create option to select palettes and switch between them
+
+//TODO: add new options for paint bucket:
+// paint diagonal neighbors
 //erase pixels instead of painting
 //change color of all pixels with the start colors
 
-// color picker:
-// choose as current color
+//TODO: add new options for color picker:
+// choose as current color (default)
 // add to palette
 
 function App() {
   const selectedColor = store((state: StoreType) => state.selectedColor);
+
   const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
 
   const setDisplaySize = store((state: StoreType) => state.setDisplaySize);
@@ -68,12 +65,12 @@ function App() {
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(true);
 
   function handleWindowResize() {
-    setCssCanvasSize(window.innerHeight - 20);
-
     EventBus.getInstance().publish(RESET_CANVAS_POSITION);
 
     if (window.innerWidth <= 768) {
       setCssCanvasSize(window.innerWidth);
+    } else {
+      setCssCanvasSize(window.innerHeight - 20);
     }
 
     setIsMobile(window.innerWidth <= 768);

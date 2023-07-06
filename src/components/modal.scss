@@ -1,3 +1,5 @@
+@use '../styles/variables';
+
 $mobile: 768px;
 
 .modal-backdrop {
@@ -61,7 +63,7 @@ $mobile: 768px;
           justify-content: center;
           align-items: center;
           border-style: none;
-          color: #abbbc7;
+          color: variables.$secondary-font-color;
         }
       }
     }

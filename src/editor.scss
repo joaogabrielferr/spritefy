@@ -1,5 +1,7 @@
+@use './styles/variables';
+
 .editor-wrapper {
-  background-color: #d3d4d8;
+  background-color: variables.$editor-background-color;
   display: flex;
   justify-content: center;
   align-items: center;

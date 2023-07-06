@@ -54,11 +54,12 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
     return function () {
       document.removeEventListener('keydown', checkKeys);
     };
-  }, [setSelectedTool]);
+  }, [isWelcomeModalOpen, setSelectedTool]);
 
   return (
     <div className="toolbar-wrapper">
       <div className="sidebar-item">
+        <div style={{ marginTop: '5px', fontSize: '12px', fontWeight: 'bold', width: '95%' }}>TOOLS</div>
         <div className="toolbar-buttons">
           {toolButtons.map((button: ToolButtonType) => {
             return (
@@ -72,7 +73,12 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
                 {button.svg ? (
                   button.svg
                 ) : (
-                  <img height={24} src={`./public/${button.tool}.png`} alt={button.tool} />
+                  <img
+                    height={'24px'}
+                    style={{ imageRendering: 'pixelated' }}
+                    src={`./public/${button.tool}.png`}
+                    alt={button.tool}
+                  />
                 )}
               </button>
             );
@@ -82,12 +88,8 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
 
       <div className="sidebar-item">
         <ToolOptions>
-          <div style={{ marginTop: '5px', fontSize: '12px', fontWeight: 'bold' }}>
-            {selectedTool.toUpperCase()}
-          </div>
-          {['pencil', 'eraser', 'line', 'rectangle', 'elipse'].find(
-            (tool) => tool === selectedTool
-          ) && (
+          <div style={{ marginTop: '5px', fontSize: '12px', fontWeight: 'bold' }}>{selectedTool.toUpperCase()}</div>
+          {['pencil', 'eraser', 'line', 'rectangle', 'elipse'].find((tool) => tool === selectedTool) && (
             <div>
               <div style={{ marginTop: '5px', fontSize: '12px' }}>PIXEL SIZE</div>
               <PenSizeSlider />
@@ -111,12 +113,7 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
             <div className="checkbox-wrapper">
               <label className="checkbox">
                 MIRROR X AXIS
-                <input
-                  type="checkbox"
-                  id="MirrorXAxis"
-                  checked={XMirror}
-                  onChange={() => toogleXMirror()}
-                />
+                <input type="checkbox" id="MirrorXAxis" checked={XMirror} onChange={() => toogleXMirror()} />
                 <span className="checkmark"></span>
               </label>
             </div>
@@ -125,12 +122,7 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
             <div className="checkbox-wrapper">
               <label className="checkbox">
                 MIRROR Y AXIS
-                <input
-                  type="checkbox"
-                  id="MirrorXAxis"
-                  checked={YMirror}
-                  onChange={() => toogleYMirror()}
-                />
+                <input type="checkbox" id="MirrorXAxis" checked={YMirror} onChange={() => toogleYMirror()} />
                 <span className="checkmark"></span>
               </label>
             </div>

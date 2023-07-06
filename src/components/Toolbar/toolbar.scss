@@ -1,3 +1,5 @@
+@use '../../styles/variables';
+
 .toolbar-wrapper {
   height: auto;
   width: 100%;
@@ -10,7 +12,7 @@
 
   .extra-options-button {
     border-style: none;
-    color: #abbbc7;
+    color: variables.$secondary-font-color;
     background-color: #333333;
     height: 90%;
     cursor: pointer;
