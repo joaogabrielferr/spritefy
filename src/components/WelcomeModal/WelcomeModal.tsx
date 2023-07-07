@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import '../modal.scss';
 
 interface WelcomeModalProps {
@@ -12,14 +12,6 @@ const presets = [16, 32, 64, 100, 128, 256];
 export function WelcomeModal({ onCloseModal }: WelcomeModalProps) {
   const [size, setSize] = useState(32);
   const [inputError, setInputError] = useState(false);
-
-  useEffect(() => {
-    // document.body.style.overflow = 'hidden';
-
-    return () => {
-      //   document.body.style.overflow = 'visible';
-    };
-  }, []);
 
   function handleSetSize(value: string | number) {
     if (!isNaN(Number(value))) {
@@ -40,9 +32,7 @@ export function WelcomeModal({ onCloseModal }: WelcomeModalProps) {
         </div>
         <div className="modal-body">
           <p>
-            <code>
-              To start a new drawing, enter the width and height for the drawing canvas or select a preset size
-            </code>
+            <code>To start a new drawing, enter the width and height for the drawing canvas or select a preset size</code>
           </p>
           <div className="modal-section">
             <div>

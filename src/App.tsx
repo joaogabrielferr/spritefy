@@ -26,6 +26,8 @@ const ToolButtons = [
   { tool: 'elipse', tooltip: 'Circle tool(C or 7)' }
 ] as ToolButtonType[];
 
+//TODO: finish ui on mobile
+//TODO: create save drawing modal where user can choose to download sprite as png or as gif
 //TODO: Draw better tool icons
 //TODO: Add a 'file' option in header and add option to create new drawing
 //TODO: allow for different width and height when creating a new canvas
