@@ -315,6 +315,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
       setCurrentFrame(newFrame.name);
 
+      currentFrameIndex = newFrameIndex;
+
       resetCanvasPosition();
 
       draw();
