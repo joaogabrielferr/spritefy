@@ -11,16 +11,7 @@ export type Pixel = {
   bgColor: string;
 };
 
-export type toolsType =
-  | 'pencil'
-  | 'eraser'
-  | 'paintBucket'
-  | 'dropper'
-  | 'line'
-  | 'rectangle'
-  | 'elipse'
-  | 'undo'
-  | 'redo';
+export type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper' | 'line' | 'rectangle' | 'elipse' | 'undo' | 'redo';
 
 export type ToolButtonType = {
   tool: toolsType;
@@ -61,8 +52,10 @@ export type drawOnSideBarCanvasType = {
 export type Frame = {
   name: string;
   scene: Scene;
-  undoStack: Stack<Pixel[][]>;
-  redoStack: Stack<[Pixel, string | undefined][]>;
+  undoStack: Stack<Uint8ClampedArray>;
+  redoStack: Stack<Uint8ClampedArray>;
+  // undoStack: Stack<Pixel[][]>;
+  // redoStack: Stack<[Pixel, string | undefined][]>;
 };
 
 export type Layer = {

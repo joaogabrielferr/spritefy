@@ -34,7 +34,7 @@ export type StoreType = {
 
 export const store = create<StoreType>()((set) => ({
   selectedTool: 'pencil',
-  selectedColor: 'black',
+  selectedColor: '#000',
   penSize: 1,
   oneToOneRatioElipse: false,
   oneToOneRatioRectangle: false,
@@ -49,17 +49,14 @@ export const store = create<StoreType>()((set) => ({
   setSelectedColor: (color: string) => set(() => ({ selectedColor: color })),
   setSelectedTool: (tool: toolsType) => set(() => ({ selectedTool: tool })),
   setPenSize: (size: number) => set(() => ({ penSize: size, previousPenSize: size })),
-  toogleOneToOneRatioElipse: () =>
-    set((state: StoreType) => ({ oneToOneRatioElipse: !state.oneToOneRatioElipse })),
-  toogleOneToOneRatioRectangle: () =>
-    set((state: StoreType) => ({ oneToOneRatioRectangle: !state.oneToOneRatioRectangle })),
+  toogleOneToOneRatioElipse: () => set((state: StoreType) => ({ oneToOneRatioElipse: !state.oneToOneRatioElipse })),
+  toogleOneToOneRatioRectangle: () => set((state: StoreType) => ({ oneToOneRatioRectangle: !state.oneToOneRatioRectangle })),
   toogleXMirror: () => set((state: StoreType) => ({ xMirror: !state.xMirror })),
   toogleYMirror: () => set((state: StoreType) => ({ yMirror: !state.yMirror })),
   setCurrentFrame: (newFrame: string) => set(() => ({ currentFrame: newFrame })),
   setFramesList: (newFrames: string[]) => set(() => ({ framesList: newFrames })),
   setBackgroundTileSize: (newSize: number) => set(() => ({ backgroundTileSize: newSize })),
   setFrameRate: (newFrameRate: number) => set(() => ({ frameRate: newFrameRate })),
-  toogleErasingRightButton: () =>
-    set((state: StoreType) => ({ erasingRightButton: !state.erasingRightButton })),
+  toogleErasingRightButton: () => set((state: StoreType) => ({ erasingRightButton: !state.erasingRightButton })),
   setDisplaySize: (newDisplaySize: number) => set(() => ({ displaySize: newDisplaySize }))
 }));

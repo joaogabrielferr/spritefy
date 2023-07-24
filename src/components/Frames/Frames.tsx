@@ -35,7 +35,6 @@ export function Frames() {
   const drawFrameBackground = useCallback(
     (frame: string) => {
       const ctx = (document.getElementById(`${frame}background@sidebar`) as HTMLCanvasElement).getContext('2d')!;
-      console.log(displaySize);
       ctx.clearRect(0, 0, displaySize, displaySize);
 
       let firstInRow = 1;

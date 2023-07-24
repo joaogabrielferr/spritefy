@@ -4,77 +4,44 @@
 //if i press ctrz + y, select the pixels at the top of the redo stack, and add then to the canvas
 //after that, i put these pixels in the undo stack
 
-import { Frame, Pixel } from '../types';
-import { ERASING } from '../utils/constants';
-import { cleanDraw } from '../helpers/CleanDraw';
+import { Frame } from '../types';
 
-export function undoLastDraw(pixel_size: number, ctx: CanvasRenderingContext2D, frame: Frame) {
+export function undoLastDraw(pixel_size: number, ctx: CanvasRenderingContext2D, frame: Frame, display_size: number) {
   if (frame.undoStack.isEmpty()) return;
-
-  const draw = frame.undoStack.top();
-  if (!draw) return;
+  const mostRecentDraw = frame.undoStack.top();
+  if (!mostRecentDraw) return;
   frame.undoStack.pop();
-  const clean = cleanDraw(draw);
 
-  const redo: [Pixel, string | undefined][] = [];
+  console.log('undoing, taking the most recent draw and putting it in redo stack, size:', mostRecentDraw.length);
 
-  for (let pixel of clean) {
-    //const currPixel = frame.pixels[pixel.i][pixel.j];
+  frame.redoStack.push(mostRecentDraw);
 
-    redo.push([pixel, pixel.colorStack.top()]);
+  const drawToUse = frame.undoStack.top();
 
-    pixel.colorStack.pop();
-
-    const previousColor = pixel.colorStack.top();
-
-    // if(!previousColor)return;
-    //   pixel.color = previousColor;
-    if (!previousColor || previousColor === ERASING) {
-      // ctx.fillStyle = previousColor;
-      ctx.clearRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
-    } else {
-      ctx.fillStyle = previousColor;
-      ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
-    }
-    // if(pixel.colorStack.isEmpty())
-    // {
-    //     ctx.fillStyle = pixel.bgColor;
-    //     ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
-    // }
-    // }
+  if (drawToUse) {
+    const imageData = new ImageData(new Uint8ClampedArray(drawToUse), display_size, display_size);
+    ctx.putImageData(imageData, 0, 0);
+    frame.scene.pixels = ctx.getImageData(0, 0, display_size, display_size).data;
+  } else {
+    ctx.clearRect(0, 0, display_size, display_size);
+    frame.scene.pixels = ctx.getImageData(0, 0, display_size, display_size).data;
   }
-
-  frame.redoStack.push(redo);
 }
 
-export function redoLastDraw(ctx: CanvasRenderingContext2D, pixel_size: number, frame: Frame) {
-  const draw = frame.redoStack.top();
-  if (!draw) return;
-
+export function redoLastDraw(ctx: CanvasRenderingContext2D, pixel_size: number, frame: Frame, display_size: number) {
+  const mostRecentDraw = frame.redoStack.top();
+  if (!mostRecentDraw) return;
   frame.redoStack.pop();
+  // console.log('mostRecent draw:', mostRecentDraw);
 
-  const undo: Pixel[] = [];
+  const newArray = new Uint8ClampedArray(4 * display_size * display_size);
 
-  for (let d of draw) {
-    let [pixel, color] = d;
-    if (!color || color === ERASING) color = pixel.bgColor;
-
-    undo.push(pixel);
-
-    if (!color || color === ERASING) {
-      ctx.clearRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
-      if (color) pixel.colorStack.push(color);
-    } else {
-      ctx.fillStyle = color;
-      ctx.fillRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
-      pixel.colorStack.push(color);
-    }
+  for (let i = 0; i < mostRecentDraw.length; i++) {
+    newArray[i] = mostRecentDraw[i];
   }
 
-  frame.undoStack.push([undo]);
+  const imageData = new ImageData(newArray, display_size, display_size);
+  ctx.putImageData(imageData, 0, 0);
+  frame.scene.pixels = ctx.getImageData(0, 0, display_size, display_size).data;
+  frame.undoStack.push(newArray);
 }
-
-// export const undoStack = new Stack<Pixel[][]>();
-
-// //storing the draw and the color used for each pixel in the draw
-// export const redoStack = new Stack<[Pixel,string | undefined][]>();

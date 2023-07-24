@@ -1,4 +1,4 @@
-import { completeSquare } from '../scene/BuildPath';
+import { completeSquare } from '../scene/buildPath';
 import Mouse from '../scene/Mouse';
 import Scene from '../scene/Scene';
 import { Pixel } from '../types';
@@ -16,7 +16,8 @@ export function Rectangle(
   const draw: Pixel[] = [];
 
   const end: Pixel | null = scene.findPixel(mouse.x, mouse.y, pixel_size);
-  if (!end) return draw;
+
+  if (!end || !start) return draw;
 
   const path: Pixel[] = completeSquare(scene, start, end, pixel_size);
 
@@ -46,7 +47,7 @@ function paintNeighbors(
   penSize: number,
   pixel_size: number
 ) {
-  let neighbors: Pixel[] = scene.findNeighbors(pixel, penSize);
+  let neighbors: Pixel[] = scene.findNeighbors(pixel, penSize, display_size);
 
   for (let n of neighbors) {
     scene.currentPixelsMousePressed.set(n.id, true);

@@ -5,15 +5,21 @@ import Scene from './Scene';
 
 //algorithm for finding the necessary points to create a close approximation of a straight line between two points
 //used in Line tool, also used to close gaps in Pencil tool and eraser tool(mousemove event handler doenst fire fast enough when moving the mouse to fast, leaving some gaps)
-export function bresenhamsAlgorithm(scene: Scene, start: Pixel, end: Pixel, pixel_size: number) {
+export function bresenhamsAlgorithm(
+  scene: Scene,
+  start: { x: number; y: number },
+  end: { x: number; y: number },
+  pixel_size: number,
+  display_size: number
+) {
   if (!start || !end) return [];
-  const path: Pixel[] = [];
+  const path: { x: number; y: number }[] = [];
   const m = new Map<number, boolean>();
 
-  let x0 = start.x1;
-  let y0 = start.y1;
-  let x1 = end.x1;
-  let y1 = end.y1;
+  let x0 = start.x;
+  let y0 = start.y;
+  let x1 = end.x;
+  let y1 = end.y;
 
   let dx = Math.abs(x1 - x0);
   let dy = Math.abs(y1 - y0);
@@ -23,12 +29,16 @@ export function bresenhamsAlgorithm(scene: Scene, start: Pixel, end: Pixel, pixe
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    const p = scene.findPixel(x0, y0, pixel_size);
-    if (!p) break;
-    if (!m.get(p.id)) {
-      path.push(p);
-      m.set(p.id, true);
+    //const p = scene.findPixel(x0, y0, pixel_size);
+    if (x0 < 0 || y0 < 0 || x0 >= display_size || y0 >= display_size) {
+      break;
     }
+    // if (!p) break;
+    // if (!m.get(p.id)) {
+    //   path.push(p);
+    //   m.set(p.id, true);
+    // }
+    path.push({ x: x0, y: y0 });
 
     if (x0 == x1 && y0 == y1) break;
     let e2 = 2 * E;
@@ -83,13 +93,7 @@ export function completeSquare(scene: Scene, start: Pixel, end: Pixel, pixel_siz
 }
 
 //function to find all necessary points to draw an elipse given its middle point and the major and minor radius
-export function drawElipse(
-  midPoint: Pixel,
-  majorRadius: number,
-  minorRadius: number,
-  scene: Scene,
-  pixel_size: number
-) {
+export function drawElipse(midPoint: Pixel, majorRadius: number, minorRadius: number, scene: Scene, pixel_size: number) {
   const path: Pixel[] = [];
 
   let rx = majorRadius;

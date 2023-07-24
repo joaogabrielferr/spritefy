@@ -1,6 +1,7 @@
 import Mouse from '../scene/Mouse';
 import Scene from '../scene/Scene';
 import { Pixel } from '../types';
+import { toHex, toRGB } from '../utils/colorConverters';
 import { BG_COLORS, ERASING } from '../utils/constants';
 
 export function PaintBucket(
@@ -10,104 +11,122 @@ export function PaintBucket(
   display_size: number,
   ctx: CanvasRenderingContext2D,
   penSize: number,
-  CANVAS_SIZE: number,
+  a: number,
   selectedColor: string
 ) {
-  if (!mouse.isPressed) return [];
+  if (!mouse.isPressed) return;
 
   const draw: Pixel[] = [];
 
   // const [x,y] = mouse.toWorldCoordinates(currentScale);
-  const x = mouse.x;
-  const y = mouse.y;
+  const x = Math.floor(mouse.x);
+  const y = Math.floor(mouse.y);
 
   if (x > pixel_size * display_size || x < 0 || y > pixel_size * display_size || y < 0) return [];
 
-  let pixel: Pixel | null = scene.findPixel(x, y, pixel_size);
+  // const data = ctx.getImageData(0, 0, display_size, display_size);
 
-  if (pixel != null) {
-    const numPixels = display_size * display_size + 1;
-    const visited: boolean[] = [];
-    for (let i = 0; i <= numPixels; i++) visited.push(false);
-    bfs(
-      scene.pixels,
-      pixel,
-      visited,
-      selectedColor,
-      pixel.colorStack.top() || pixel.bgColor,
-      pixel_size,
-      ctx,
-      draw,
-      CANVAS_SIZE
-    );
+  // for (let i = 0; i < data.data.length; i += 4) {
+  //   data.data[i] = 0; //r
+  //   data.data[i + 1] = 0; //g
+  //   data.data[i + 2] = 0; //b
+  //   data.data[i + 3] = 255; //a
+  // }
+
+  // ctx.putImageData(data, 0, 0);
+
+  // return [];
+
+  // let pixel: Pixel | null = scene.findPixel(x, y, pixel_size);
+
+  // if (pixel != null) {
+
+  const index = (x + display_size * y) * 4;
+
+  let startColor = undefined;
+  if (scene.pixels[index + 3]) {
+    startColor = toHex([scene.pixels[index], scene.pixels[index + 1], scene.pixels[index + 2]]);
   }
 
-  return draw;
+  const numPixels = display_size * display_size + 1;
+  const visited: boolean[] = [];
+  for (let i = 0; i <= numPixels; i++) visited.push(false);
+  bfs(scene, { x, y }, visited, selectedColor, startColor, pixel_size, ctx, draw, display_size);
+
+  const imageData = new ImageData(scene.pixels, display_size, display_size);
+  ctx.putImageData(imageData, 0, 0);
 }
 
 //breadth first search
 function bfs(
-  pixels: Pixel[][],
-  u: Pixel,
+  scene: Scene,
+  u: { x: number; y: number },
   visited: boolean[],
   selectedColor: string,
-  startColor: string,
+  startColor: string | undefined,
   pixel_size: number,
   ctx: CanvasRenderingContext2D,
   draw: Pixel[],
-  CANVAS_SIZE: number
+  display_size: number
 ) {
-  visited[u.id] = true;
+  //visited have only one position per pixel, no need to multiply by 4
+  const visitedIndex = u.x + display_size * u.y;
+  visited[visitedIndex] = true;
 
-  const queue: Pixel[] = [];
+  const rgb = toRGB(selectedColor);
+
+  const queue: { x: number; y: number }[] = [];
   queue.push(u);
   while (queue.length > 0) {
     u = queue.shift()!;
-    ctx.fillStyle = selectedColor;
-    ctx.fillRect(u.x1, u.y1, pixel_size, pixel_size);
+    const index = (u.x + display_size * u.y) * 4;
 
-    //   u.color = selectedColor.value;
-    u.colorStack.push(selectedColor);
-    //   u.numOfPaints++;
-    draw.push(u);
+    scene.pixels[index] = rgb[0];
+    scene.pixels[index + 1] = rgb[1];
+    scene.pixels[index + 2] = rgb[2];
+    scene.pixels[index + 3] = 255;
 
     for (let a = -1; a <= 1; a++) {
-      let n;
-      if (a == 0) continue;
-      if (u.j + a >= 0 && u.j + a < CANVAS_SIZE) {
-        n = pixels[u.i][u.j + a];
-        if (n) {
-          if (canVisitNeighbor(n, visited, startColor)) {
-            visited[n.id] = true;
-            queue.push(n);
-          }
+      if (a === 0) continue;
+
+      if (u.x + a >= 0 && u.x + a < display_size) {
+        const neighborIndex = (u.x + a + display_size * u.y) * 4;
+        if (neighborIndex <= display_size * display_size * 4 && canVisitNeighbor(neighborIndex, visited, startColor, scene)) {
+          queue.push({ x: u.x + a, y: u.y });
+          visited[neighborIndex / 4] = true;
         }
       }
 
-      if (u.i + a >= 0 && u.i + a < CANVAS_SIZE) {
-        n = pixels[u.i + a][u.j];
-        if (n) {
-          if (canVisitNeighbor(n, visited, startColor)) {
-            visited[n.id] = true;
-            queue.push(n);
-          }
+      if (u.y + a >= 0 && u.y + a < display_size) {
+        const neighborIndex = (u.x + display_size * (u.y + a)) * 4;
+        if (neighborIndex <= display_size * display_size * 4 && canVisitNeighbor(neighborIndex, visited, startColor, scene)) {
+          queue.push({ x: u.x, y: u.y + a });
+          visited[neighborIndex / 4] = true;
         }
       }
     }
   }
 }
 
-function canVisitNeighbor(neighbor: Pixel, visited: boolean[], startColor: string) {
+function canVisitNeighbor(neighborIndex: number, visited: boolean[], startColor: string | undefined, scene: Scene) {
   //return visited[neighbor.id] === false && (neighbor.colorStack.top() === startColor || neighbor.colorStack.top() === ERASING || (BG_COLORS.includes(startColor) && neighbor.colorStack.isEmpty()) || (startColor === ERASING && neighbor.colorStack.isEmpty() ));
-  return (
-    !visited[neighbor.id] &&
-    (neighbor.colorStack.top() === startColor ||
-      (BG_COLORS.includes(startColor) &&
-        (neighbor.colorStack.isEmpty() ||
-          neighbor.colorStack.top() === ERASING ||
-          (neighbor.colorStack.top() && BG_COLORS.includes(neighbor.colorStack.top()!)))) ||
-      (startColor === ERASING &&
-        (neighbor.colorStack.isEmpty() ||
-          (neighbor.colorStack.top() && BG_COLORS.includes(neighbor.colorStack.top()!)))))
-  );
+
+  const neighborColor = toHex([scene.pixels[neighborIndex], scene.pixels[neighborIndex + 1], scene.pixels[neighborIndex + 2]]);
+
+  const notPainted = scene.pixels[neighborIndex + 3] === 0;
+
+  return !visited[neighborIndex / 4] && (neighborColor === startColor || notPainted);
+
+  return false;
+
+  // return (
+  //   !visited[neighbor.id] &&
+  //   (neighbor.colorStack.top() === startColor ||
+  //     (BG_COLORS.includes(startColor) &&
+  //       (neighbor.colorStack.isEmpty() ||
+  //         neighbor.colorStack.top() === ERASING ||
+  //         (neighbor.colorStack.top() && BG_COLORS.includes(neighbor.colorStack.top()!)))) ||
+  //     (startColor === ERASING &&
+  //       (neighbor.colorStack.isEmpty() || (neighbor.colorStack.top() && BG_COLORS.includes(neighbor.colorStack.top()!)))))
+  // );
 }
