@@ -7,8 +7,31 @@
   flex-direction: column;
   overflow-y: auto;
   background-color: variables.$body-background-color;
+  user-select: none;
+  width: 380px;
+}
+
+.sidebar-mobile {
+  position: absolute;
+  top: 45px;
+  left: 0;
+  z-index: 9999999;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+  overflow-y: auto;
+  background-color: variables.$body-background-color;
   margin-top: 5px;
   user-select: none;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+
+  width: 100%;
+
+  &.open {
+    transform: translateX(0);
+  }
 }
 
 .sidebar-item {

@@ -25,6 +25,7 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
   const toogleYMirror = store((state: StoreType) => state.toogleYMirror);
   const YMirror = store((state: StoreType) => state.yMirror);
   const erasingRightButton = store((state: StoreType) => state.erasingRightButton);
+  const penSize = store((state: StoreType) => state.penSize);
 
   const toogleErasingRightButton = store((state: StoreType) => state.toogleErasingRightButton);
 
@@ -91,7 +92,16 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
           <div style={{ marginTop: '5px', fontSize: '12px', fontWeight: 'bold' }}>{selectedTool.toUpperCase()}</div>
           {['pencil', 'eraser', 'line', 'rectangle', 'elipse'].find((tool) => tool === selectedTool) && (
             <div>
-              <div style={{ marginTop: '5px', fontSize: '12px' }}>PIXEL SIZE</div>
+              <div
+                style={{
+                  marginTop: '5px',
+                  fontSize: '12px',
+                  display: 'flex',
+                  justifyContent: 'space-between'
+                }}>
+                <span>PIXEL SIZE</span>
+                <span>{penSize}</span>
+              </div>
               <PenSizeSlider />
             </div>
           )}
@@ -197,7 +207,6 @@ function PenSizeSlider() {
             id="range"
           />
         </div>
-        <div className="slider-value">{penSize}</div>
       </div>
     </>
   );

@@ -4,7 +4,6 @@ body {
   margin: 0;
   padding: 0;
   background-color: variables.$body-background-color;
-  overflow: hidden;
   font-family: 'Roboto', sans-serif;
 }
 
@@ -24,7 +23,9 @@ body {
 
 .main-inner-wrapper {
   width: 100%;
-  @include centralize;
+  // @include centralize;
+  display: flex;
+  // position: relative;
 }
 
 .mobile-options {
@@ -37,6 +38,7 @@ body {
   margin-top: 50px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  background-color: red;
 }
 
 // Slider //
@@ -88,7 +90,10 @@ body {
 
   &:active {
     cursor: grabbing;
-    border-style: none;
+  }
+
+  &:focus {
+    outline: none;
   }
 
   /* Track: webkit browsers */

@@ -26,6 +26,11 @@ const ToolButtons = [
   { tool: 'elipse', tooltip: 'Circle tool(C or 7)' }
 ] as ToolButtonType[];
 
+//TODO: Try to redraw all canvas instead of painting pixels when undoing and redoing (update pixel matrix and then call draw())
+//TODO: try the same thing with paint bucket (update pixel matrix and then call draw())
+
+//TODO: add option to flip drawing in X and Y axis
+//TODO: add option to rotate drawing in clockwise or counter clockwise
 //TODO: finish ui on mobile
 //TODO: create save drawing modal where user can choose to download sprite as png or as gif
 //TODO: Draw better tool icons
@@ -54,6 +59,8 @@ const ToolButtons = [
 // add to palette
 
 function App() {
+  const selectedTool = store((state: StoreType) => state.selectedTool);
+
   const selectedColor = store((state: StoreType) => state.selectedColor);
 
   const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
@@ -66,13 +73,16 @@ function App() {
 
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(true);
 
+  const [isLeftSidebarMobileOpen, setIsLeftSidebarMobileOpen] = useState(false);
+  const [isRightSidebarMobileOpen, setIsRightSidebarMobileOpen] = useState(false);
+
   function handleWindowResize() {
     EventBus.getInstance().publish(RESET_CANVAS_POSITION);
 
     if (window.innerWidth <= 768) {
       setCssCanvasSize(window.innerWidth);
     } else {
-      setCssCanvasSize(window.innerHeight - 20);
+      setCssCanvasSize(window.innerHeight - 52);
     }
 
     setIsMobile(window.innerWidth <= 768);
@@ -85,7 +95,7 @@ function App() {
 
   useEffect(() => {
     if (isMobile) setCssCanvasSize(window.innerWidth);
-    else setCssCanvasSize(window.innerHeight - 20);
+    else setCssCanvasSize(window.innerHeight - 52);
 
     window.addEventListener('resize', handleWindowResize);
     window.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -105,11 +115,16 @@ function App() {
     <>
       <main>
         <Header isMobile={isMobile} />
+        <div style={{ width: '100%', height: '20px', backgroundColor: 'rgb(77, 77, 77)' }}>teste</div>
         <section className="main-section">
           <div className="main-inner-wrapper">
             {/* left sidebar */}
-            {!isMobile && (
-              <Sidebar width={350} height={cssCanvasSize}>
+            {
+              <Sidebar
+                isMobile={isMobile}
+                height={cssCanvasSize + 38}
+                isOpen={isLeftSidebarMobileOpen}
+                toogleSidebarOnMobile={setIsLeftSidebarMobileOpen}>
                 <Toolbar toolButtons={ToolButtons} isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
                 <div className="sidebar-item">
                   <ColorPicker color={selectedColor} onChange={handleChangeSelectedColor} />
@@ -118,36 +133,52 @@ function App() {
                   <Palettes></Palettes>
                 </div>
               </Sidebar>
-            )}
+            }
 
-            <div style={{ width: '100%', height: cssCanvasSize }}>
+            <div
+              style={
+                !isMobile ? { height: cssCanvasSize, width: '100%', position: 'relative' } : { height: '50vh', width: '100%' }
+              }>
               {/* main editor */}
-              <Editor cssCanvasSize={cssCanvasSize - 40} isMobile={isMobile}></Editor>
-              <div
-                style={{
-                  backgroundColor: 'rgb(51, 59, 63)',
-                  height: '40px',
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'flex-start',
-                  fontSize: '15px'
-                }}>
-                <span
-                  id="coordinates"
+              <Editor cssCanvasSize={cssCanvasSize} isMobile={isMobile}></Editor>
+              {!isMobile && (
+                <div
                   style={{
-                    height: '100%',
-                    color: 'white',
+                    backgroundColor: 'transparent',
+                    position: 'absolute',
+                    top: 0,
+                    left: 10,
+                    height: '40px',
+                    width: '100%',
                     display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                  }}></span>
-              </div>
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    fontSize: '15px',
+                    fontWeight: 'bold',
+                    zIndex: 10000000
+                  }}>
+                  <span
+                    id="coordinates"
+                    style={{
+                      height: '100%',
+                      color: 'white',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center'
+                    }}>
+                    {'[X:0,Y:0]'}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* right sidebar */}
             {!isMobile && (
-              <Sidebar width={300} height={cssCanvasSize}>
+              <Sidebar
+                isMobile={isMobile}
+                height={cssCanvasSize + 38}
+                isOpen={isRightSidebarMobileOpen}
+                toogleSidebarOnMobile={setIsRightSidebarMobileOpen}>
                 <Preview />
                 <Frames />
               </Sidebar>
@@ -156,8 +187,20 @@ function App() {
 
           {isMobile && (
             <div className="mobile-options">
-              {/* <ColorPicker color = {selectedColor} onChange ={handleChangeSelectedColor}/> */}
-              <Toolbar toolButtons={ToolButtons} isWelcomeModalOpen={isWelcomeModalOpen}></Toolbar>
+              <div style={{ display: 'flex', justifyContent: 'space-evenly', width: '100%' }}>
+                <button style={{ width: '80px', height: '50px' }} onClick={() => setIsLeftSidebarMobileOpen((prev) => !prev)}>
+                  {selectedTool}
+                </button>
+                <button style={{ width: '80px', height: '50px' }}>
+                  <span style={{ backgroundColor: selectedColor, padding: '10px', width: '100%', height: '100%' }}>teste</span>
+                </button>
+                <button style={{ width: '80px', height: '50px' }}>FRAMES</button>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-evenly', width: '100%' }}>
+                <button>UNDO</button>
+                <button>REDO</button>
+                <button>RESET POSITION</button>
+              </div>
             </div>
           )}
         </section>

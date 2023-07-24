@@ -15,7 +15,7 @@ export function WelcomeModal({ onCloseModal }: WelcomeModalProps) {
 
   function handleSetSize(value: string | number) {
     if (!isNaN(Number(value))) {
-      if (+value < 10 || +value > 500) {
+      if (+value < 10 || +value > 700) {
         setInputError(true);
       } else {
         setInputError(false);
@@ -58,7 +58,7 @@ export function WelcomeModal({ onCloseModal }: WelcomeModalProps) {
               </div>
               {inputError ? (
                 <span style={{ color: 'red' }}>
-                  <code>the width and height has to be at least 10px and at most 500px</code>
+                  <code>the width and height has to be at least 10px and at most 700px</code>
                 </span>
               ) : (
                 ''
