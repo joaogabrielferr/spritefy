@@ -6,7 +6,6 @@ import Scene from './Scene';
 //algorithm for finding the necessary points to create a close approximation of a straight line between two points
 //used in Line tool, also used to close gaps in Pencil tool and eraser tool(mousemove event handler doenst fire fast enough when moving the mouse to fast, leaving some gaps)
 export function bresenhamsAlgorithm(
-  scene: Scene,
   start: { x: number; y: number },
   end: { x: number; y: number },
   pixel_size: number,
@@ -18,13 +17,13 @@ export function bresenhamsAlgorithm(
 
   let x0 = start.x;
   let y0 = start.y;
-  let x1 = end.x;
-  let y1 = end.y;
+  let x = end.x;
+  let y = end.y;
 
-  let dx = Math.abs(x1 - x0);
-  let dy = Math.abs(y1 - y0);
-  let sx = x0 < x1 ? 1 : -1;
-  let sy = y0 < y1 ? 1 : -1;
+  let dx = Math.abs(x - x0);
+  let dy = Math.abs(y - y0);
+  let sx = x0 < x ? 1 : -1;
+  let sy = y0 < y ? 1 : -1;
   let E = dx - dy;
 
   // eslint-disable-next-line no-constant-condition
@@ -40,7 +39,7 @@ export function bresenhamsAlgorithm(
     // }
     path.push({ x: x0, y: y0 });
 
-    if (x0 == x1 && y0 == y1) break;
+    if (x0 == x && y0 == y) break;
     let e2 = 2 * E;
 
     if (e2 > -dy) {
@@ -58,34 +57,39 @@ export function bresenhamsAlgorithm(
 }
 
 //given a start and a end pixel, find all necessary pixels to draw a ractangule box
-export function completeSquare(scene: Scene, start: Pixel, end: Pixel, pixel_size: number) {
-  const path: Pixel[] = [];
+export function completeSquare(
+  start: { x: number; y: number },
+  end: { x: number; y: number },
+  pixel_size: number,
+  display_size: number
+) {
+  const path: { x: number; y: number }[] = [];
 
-  if (start.x1 <= end.x1) {
-    for (let i = start.x1; i <= end.x1; i += pixel_size) {
-      findAndPush(i, start.y1, scene, pixel_size, path);
-      findAndPush(i, end.y1, scene, pixel_size, path);
+  if (start.x <= end.x) {
+    for (let i = start.x; i <= end.x; i += pixel_size) {
+      findAndPush(i, start.y, pixel_size, path, display_size);
+      findAndPush(i, end.y, pixel_size, path, display_size);
     }
   }
 
-  if (start.x1 > end.x1) {
-    for (let i = end.x1; i <= start.x1; i += pixel_size) {
-      findAndPush(i, start.y1, scene, pixel_size, path);
-      findAndPush(i, end.y1, scene, pixel_size, path);
+  if (start.x > end.x) {
+    for (let i = end.x; i <= start.x; i += pixel_size) {
+      findAndPush(i, start.y, pixel_size, path, display_size);
+      findAndPush(i, end.y, pixel_size, path, display_size);
     }
   }
 
-  if (start.y1 <= end.y1) {
-    for (let i = start.y1; i <= end.y1; i += pixel_size) {
-      findAndPush(start.x1, i, scene, pixel_size, path);
-      findAndPush(end.x1, i, scene, pixel_size, path);
+  if (start.y <= end.y) {
+    for (let i = start.y; i <= end.y; i += pixel_size) {
+      findAndPush(start.x, i, pixel_size, path, display_size);
+      findAndPush(end.x, i, pixel_size, path, display_size);
     }
   }
 
-  if (start.y1 > end.y1) {
-    for (let i = end.y1; i <= start.y1; i += pixel_size) {
-      findAndPush(start.x1, i, scene, pixel_size, path);
-      findAndPush(end.x1, i, scene, pixel_size, path);
+  if (start.y > end.y) {
+    for (let i = end.y; i <= start.y; i += pixel_size) {
+      findAndPush(start.x, i, pixel_size, path, display_size);
+      findAndPush(end.x, i, pixel_size, path, display_size);
     }
   }
 
@@ -93,13 +97,20 @@ export function completeSquare(scene: Scene, start: Pixel, end: Pixel, pixel_siz
 }
 
 //function to find all necessary points to draw an elipse given its middle point and the major and minor radius
-export function drawElipse(midPoint: Pixel, majorRadius: number, minorRadius: number, scene: Scene, pixel_size: number) {
-  const path: Pixel[] = [];
+export function drawElipse(
+  midPoint: { x: number; y: number },
+  majorRadius: number,
+  minorRadius: number,
+  scene: Scene,
+  pixel_size: number,
+  display_size: number
+) {
+  const path: { x: number; y: number }[] = [];
 
   let rx = majorRadius;
   let ry = minorRadius;
-  let xc = midPoint.x1;
-  let yc = midPoint.y1;
+  let xc = midPoint.x;
+  let yc = midPoint.y;
 
   let dx, dy, d1, d2, x, y;
 
@@ -112,10 +123,10 @@ export function drawElipse(midPoint: Pixel, majorRadius: number, minorRadius: nu
 
   while (dx < dy) {
     // Print points based on 4-way symmetry
-    findAndPush(x + xc, y + yc, scene, pixel_size, path);
-    findAndPush(-x + xc, y + yc, scene, pixel_size, path);
-    findAndPush(x + xc, -y + yc, scene, pixel_size, path);
-    findAndPush(-x + xc, -y + yc, scene, pixel_size, path);
+    findAndPush(x + xc, y + yc, pixel_size, path, display_size);
+    findAndPush(-x + xc, y + yc, pixel_size, path, display_size);
+    findAndPush(x + xc, -y + yc, pixel_size, path, display_size);
+    findAndPush(-x + xc, -y + yc, pixel_size, path, display_size);
 
     if (d1 < 0) {
       x++;
@@ -134,10 +145,10 @@ export function drawElipse(midPoint: Pixel, majorRadius: number, minorRadius: nu
 
   while (y >= 0) {
     // Print points based on 4-way symmetry
-    findAndPush(x + xc, y + yc, scene, pixel_size, path);
-    findAndPush(-x + xc, y + yc, scene, pixel_size, path);
-    findAndPush(x + xc, -y + yc, scene, pixel_size, path);
-    findAndPush(-x + xc, -y + yc, scene, pixel_size, path);
+    findAndPush(x + xc, y + yc, pixel_size, path, display_size);
+    findAndPush(-x + xc, y + yc, pixel_size, path, display_size);
+    findAndPush(x + xc, -y + yc, pixel_size, path, display_size);
+    findAndPush(-x + xc, -y + yc, pixel_size, path, display_size);
 
     if (d2 > 0) {
       y--;
@@ -155,9 +166,13 @@ export function drawElipse(midPoint: Pixel, majorRadius: number, minorRadius: nu
   return path;
 }
 
-function findAndPush(a: number, b: number, scene: Scene, pixel_size: number, path: Pixel[]) {
-  const pixel = scene.findPixel(a, b, pixel_size);
-  if (pixel) {
-    path.push(pixel);
+function findAndPush(a: number, b: number, pixel_size: number, path: { x: number; y: number }[], display_size: number) {
+  if (a >= 0 && a < display_size && b >= 0 && b < display_size) {
+    path.push({ x: Math.floor(a), y: Math.floor(b) });
   }
+
+  // const pixel = scene.findPixel(a, b, pixel_size);
+  // if (pixel) {
+  //   path.push(pixel);
+  // }
 }

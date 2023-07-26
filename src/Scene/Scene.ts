@@ -11,7 +11,7 @@ export default class Scene {
 
   currentDrawTopCanvas: Pixel[][]; //current draw in top canvas while mouse is pressed;
 
-  lastPixel: Pixel | null; //last pixel painted in the canvas
+  lastPixel: { x: number; y: number } | null; //last pixel painted in the canvas
 
   lastPixelXMirror: { x: number; y: number } | null; //last pixel painted in the canvas
 
@@ -25,7 +25,7 @@ export default class Scene {
 
   previousNeighborsWhileMovingMouse: { x: number; y: number }[];
 
-  lineFirstPixel: Pixel | null; //start pixel for drawing a line, square or circle
+  lineFirstPixel: { x: number; y: number } | null; //start pixel for drawing a line, square or circle
 
   circleRadius: number;
 
@@ -34,8 +34,6 @@ export default class Scene {
   keyMap: Map<string, boolean>;
 
   initialized: boolean;
-
-  lastPixel2: { x: number; y: number } | null;
 
   constructor() {
     //this.pixels = [];
@@ -54,7 +52,6 @@ export default class Scene {
     this.circleRadius = 1;
     this.keyMap = new Map();
     this.initialized = false;
-    this.lastPixel2 = null;
   }
 
   initializePixelMatrix(display_size: number, pixel_size: number) {

@@ -171,7 +171,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     backgroundCanvas = backgroundCanvasRef.current!;
 
     ctx = canvas.getContext('2d', { willReadFrequently: true })!;
-    topCtx = topCanvas.getContext('2d')!;
+    topCtx = topCanvas.getContext('2d', { willReadFrequently: true })!;
     bgCtx = backgroundCanvas.getContext('2d')!;
 
     canvas.width = displaySize;
@@ -496,11 +496,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       (selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse') &&
       (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
     ) {
-      frames.current[currentFrameIndex].scene.lineFirstPixel = frames.current[currentFrameIndex].scene.findPixel(
-        mouse.x,
-        mouse.y,
-        pixel_size
-      );
+      frames.current[currentFrameIndex].scene.lineFirstPixel = { x: Math.floor(mouse.x), y: Math.floor(mouse.y) };
     }
   }
 
@@ -577,11 +573,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           );
           if (color) setSelectedColor(color);
         } else if (selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse') {
-          frames.current[currentFrameIndex].scene.lineFirstPixel = frames.current[currentFrameIndex].scene.findPixel(
-            mouse.x,
-            mouse.y,
-            pixel_size
-          );
+          frames.current[currentFrameIndex].scene.lineFirstPixel = { x: Math.floor(mouse.x), y: Math.floor(mouse.y) };
         }
       }
     }, 100);
@@ -606,8 +598,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  let counter = 0;
-
   function handleMouseMove(event: MouseEvent) {
     window.requestAnimationFrame(() => {
       if (!canvas) return;
@@ -620,19 +610,10 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       if (!(mouse.x >= 0 && mouse.x <= displaySize && mouse.y >= 0 && mouse.y <= displaySize)) {
         //out of canvas
         frames.current[currentFrameIndex].scene.lastPixel = null;
-        frames.current[currentFrameIndex].scene.lastPixel2 = null;
         frames.current[currentFrameIndex].scene.lastPixelXMirror = null;
         frames.current[currentFrameIndex].scene.lastPixelYMirror = null;
         frames.current[currentFrameIndex].scene.lastPixelXYMirror = null;
         if (frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse) {
-          // removeDraw(
-          //   topCtx,
-          //   [
-          //     frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!,
-          //     ...frames.current[currentFrameIndex].scene.previousNeighborsWhileMovingMouse
-          //   ],
-          //   pixel_size
-          // );
           topCtx.clearRect(
             frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!.x,
             frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!.y,
@@ -668,76 +649,69 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           yMirror
         );
       } else if (selectedTool === 'line' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))) {
-        //remove draw from the top canvas
-        removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), penSize);
-        frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
+        topCtx.clearRect(0, 0, displaySize, displaySize);
         frames.current[currentFrameIndex].scene.currentPixelsMousePressed = new Map();
-        frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(
-          Line(
-            frames.current[currentFrameIndex].scene,
-            topCtx,
-            mouse,
-            pixel_size,
-            frames.current[currentFrameIndex].scene.lineFirstPixel!,
-            selectedColor,
-            penSize
-          )
+        Line(
+          frames.current[currentFrameIndex].scene,
+          topCtx,
+          mouse,
+          pixel_size,
+          frames.current[currentFrameIndex].scene.lineFirstPixel!,
+          selectedColor,
+          penSize,
+          displaySize
         );
       } else if (
         selectedTool === 'rectangle' &&
         (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
       ) {
         //remove draw from the top canvas
-        removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), pixel_size);
-        frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
-        frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(
-          Rectangle(
-            frames.current[currentFrameIndex].scene,
-            topCtx,
-            mouse,
-            pixel_size,
-            frames.current[currentFrameIndex].scene.lineFirstPixel!,
-            selectedColor,
-            penSize
-          )
+        topCtx.clearRect(0, 0, displaySize, displaySize);
+        Rectangle(
+          frames.current[currentFrameIndex].scene,
+          topCtx,
+          mouse,
+          pixel_size,
+          frames.current[currentFrameIndex].scene.lineFirstPixel!,
+          selectedColor,
+          penSize,
+          displaySize
         );
       } else if (
         selectedTool === 'elipse' &&
         (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
       ) {
         //remove draw from the top canvas
-        removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), pixel_size);
-        frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
 
+        topCtx.clearRect(0, 0, displaySize, displaySize);
+        console.log('cleared');
         if (frames.current[currentFrameIndex].scene.lineFirstPixel) {
-          const majorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.x1 - mouse.x);
-          const minorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.y1 - mouse.y);
+          const majorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.x - mouse.x);
+          const minorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.y - mouse.y);
 
           if (oneToOneRatioElipse) {
-            frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(
-              Elipse(
-                frames.current[currentFrameIndex].scene,
-                topCtx,
-                pixel_size,
-                frames.current[currentFrameIndex].scene.lineFirstPixel!,
-                selectedColor,
-                penSize,
-                majorRadius,
-                majorRadius
-              )
+            Elipse(
+              frames.current[currentFrameIndex].scene,
+              topCtx,
+              pixel_size,
+              frames.current[currentFrameIndex].scene.lineFirstPixel!,
+              selectedColor,
+              penSize,
+              majorRadius,
+              majorRadius,
+              displaySize
             );
           } else {
-            frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(
-              Elipse(
-                frames.current[currentFrameIndex].scene,
-                topCtx,
-                pixel_size,
-                frames.current[currentFrameIndex].scene.lineFirstPixel!,
-                selectedColor,
-                penSize,
-                majorRadius,
-                minorRadius
-              )
+            Elipse(
+              frames.current[currentFrameIndex].scene,
+              topCtx,
+              pixel_size,
+              frames.current[currentFrameIndex].scene.lineFirstPixel!,
+              selectedColor,
+              penSize,
+              majorRadius,
+              minorRadius,
+              displaySize
             );
           }
         }
@@ -780,7 +754,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     if (!(mouse.x >= 0 && mouse.x <= displaySize && mouse.y >= 0 && mouse.y <= displaySize)) {
       //out of canvas
       frames.current[currentFrameIndex].scene.lastPixel = null;
-      frames.current[currentFrameIndex].scene.lastPixel2 = null;
       frames.current[currentFrameIndex].scene.lastPixelXMirror = null;
       frames.current[currentFrameIndex].scene.lastPixelYMirror = null;
       frames.current[currentFrameIndex].scene.lastPixelXYMirror = null;
@@ -814,45 +787,40 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       Eraser('mousemove', mouse, frames.current[currentFrameIndex].scene, pixel_size, displaySize, ctx, penSize);
     } else if (selectedTool === 'line' && mouse.isPressed) {
       //remove draw from the top canvas
-      removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), penSize);
-      frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
+      topCtx.clearRect(0, 0, displaySize, displaySize);
       frames.current[currentFrameIndex].scene.currentPixelsMousePressed = new Map();
-      frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(
-        Line(
-          frames.current[currentFrameIndex].scene,
-          topCtx,
-          mouse,
-          pixel_size,
-          frames.current[currentFrameIndex].scene.lineFirstPixel!,
-          selectedColor,
-          penSize
-        )
+      Line(
+        frames.current[currentFrameIndex].scene,
+        topCtx,
+        mouse,
+        pixel_size,
+        frames.current[currentFrameIndex].scene.lineFirstPixel!,
+        selectedColor,
+        penSize,
+        displaySize
       );
     } else if (selectedTool === 'rectangle' && mouse.isPressed) {
       //remove draw from the top canvas
-      removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), pixel_size);
-      frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
-      frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(
-        Rectangle(
-          frames.current[currentFrameIndex].scene,
-          topCtx,
-          mouse,
-          pixel_size,
-          frames.current[currentFrameIndex].scene.lineFirstPixel!,
-          selectedColor,
-          penSize
-        )
+      topCtx.clearRect(0, 0, displaySize, displaySize);
+      Rectangle(
+        frames.current[currentFrameIndex].scene,
+        topCtx,
+        mouse,
+        pixel_size,
+        frames.current[currentFrameIndex].scene.lineFirstPixel!,
+        selectedColor,
+        penSize,
+        displaySize
       );
     } else if (selectedTool === 'elipse' && mouse.isPressed) {
       //remove draw from the top canvas
-      removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), pixel_size);
-      frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
+      topCtx.clearRect(0, 0, displaySize, displaySize);
 
       if (frames.current[currentFrameIndex].scene.lineFirstPixel) {
-        const majorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.x1 - mouse.x);
-        const minorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.y1 - mouse.y);
+        const majorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.x - mouse.x);
+        const minorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.y - mouse.y);
 
-        frames.current[currentFrameIndex].scene.currentDrawTopCanvas.push(
+        if (oneToOneRatioElipse) {
           Elipse(
             frames.current[currentFrameIndex].scene,
             topCtx,
@@ -861,9 +829,22 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             selectedColor,
             penSize,
             majorRadius,
-            minorRadius
-          )
-        );
+            majorRadius,
+            displaySize
+          );
+        } else {
+          Elipse(
+            frames.current[currentFrameIndex].scene,
+            topCtx,
+            pixel_size,
+            frames.current[currentFrameIndex].scene.lineFirstPixel!,
+            selectedColor,
+            penSize,
+            majorRadius,
+            minorRadius,
+            displaySize
+          );
+        }
       }
     }
 
@@ -1203,15 +1184,12 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     mouse.isRightButtonClicked = false;
 
     frames.current[currentFrameIndex].scene.lastPixel = null;
-    frames.current[currentFrameIndex].scene.lastPixel2 = null;
     frames.current[currentFrameIndex].scene.lastPixelXMirror = null;
     frames.current[currentFrameIndex].scene.lastPixelYMirror = null;
     frames.current[currentFrameIndex].scene.lastPixelXYMirror = null;
 
     // const array = ctx.getImageData(0, 0, displaySize, displaySize).data.slice();
     // console.log('pushing to undo stack:', array);
-
-    frames.current[currentFrameIndex].undoStack.push(ctx.getImageData(0, 0, displaySize, displaySize).data);
 
     // if (!empty) {
     //   frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDraw);
@@ -1226,15 +1204,21 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     //}
 
     //here the draws made with Line, Rectangle or Elipse tool are put in main canvas
+    if (selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse') {
+      topCanvasToMainCanvas();
+
+      topCtx.clearRect(0, 0, displaySize, displaySize);
+    }
+
     if (frames.current[currentFrameIndex].scene.currentDrawTopCanvas.length > 0) {
-      const clean: Pixel[] = cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
-      translateDrawToMainCanvas(clean, ctx, pixel_size, selectedColor, penSize, frames.current[currentFrameIndex].scene);
-      // EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
-      //   frame: currentFrame,
-      //   pixelMatrix: frames.current[currentFrameIndex].scene.pixels,
-      //   frames: frames.current
-      // });
-      EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
+      // const clean: Pixel[] = cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
+      // translateDrawToMainCanvas(clean, ctx, pixel_size, selectedColor, penSize, frames.current[currentFrameIndex].scene);
+      // // EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+      // //   frame: currentFrame,
+      // //   pixelMatrix: frames.current[currentFrameIndex].scene.pixels,
+      // //   frames: frames.current
+      // // });
+      // EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
       // frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
       //frames.current[currentFrameIndex].redoStack.clear();
     }
@@ -1245,6 +1229,31 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     frames.current[currentFrameIndex].scene.currentPixelsMousePressed = new Map();
 
     frames.current[currentFrameIndex].scene.circleRadius = 0;
+
+    if (selectedTool !== 'dropper') {
+      frames.current[currentFrameIndex].undoStack.push(ctx.getImageData(0, 0, displaySize, displaySize).data);
+    }
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
+  function topCanvasToMainCanvas() {
+    const topData = topCtx.getImageData(0, 0, displaySize, displaySize).data;
+
+    for (let i = 0; i < topData.length; i += 4) {
+      if (topData[i + 3] !== 0) {
+        frames.current[currentFrameIndex].scene.pixels[i] = topData[i];
+        frames.current[currentFrameIndex].scene.pixels[i + 1] = topData[i + 1];
+        frames.current[currentFrameIndex].scene.pixels[i + 2] = topData[i + 2];
+        frames.current[currentFrameIndex].scene.pixels[i + 3] = topData[i + 3];
+      }
+    }
+
+    const imageData = new ImageData(frames.current[currentFrameIndex].scene.pixels, displaySize, displaySize);
+
+    ctx.putImageData(imageData, 0, 0);
+
+    // frames.current[currentFrameIndex].undoStack.push(ctx.getImageData(0, 0, displaySize, displaySize).data);
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////

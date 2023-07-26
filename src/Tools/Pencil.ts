@@ -40,8 +40,8 @@ export function Pencil(
   paintNeighbors(index, scene, ctx, penSize, selectedColor, pixel_size, display_size);
 
   //build path from last pixel to current pixel
-  if (scene.lastPixel2 != null) {
-    let path = bresenhamsAlgorithm(scene, scene.lastPixel2!, { x: xs, y: ys }, pixel_size, display_size);
+  if (scene.lastPixel != null) {
+    let path = bresenhamsAlgorithm(scene.lastPixel!, { x: xs, y: ys }, pixel_size, display_size);
     for (let p of path) {
       const index = (p.x + display_size * p.y) * 4;
       scene.pixels[index] = rgb[0];
@@ -65,7 +65,7 @@ export function Pencil(
     paintXYMirror(xs, ys, scene, pixel_size, display_size, selectedColor, ctx, penSize);
   }
 
-  scene.lastPixel2 = { x: xs, y: ys };
+  scene.lastPixel = { x: xs, y: ys };
 
   const imageData = new ImageData(scene.pixels, display_size, display_size);
 
@@ -124,7 +124,6 @@ function paintXMirror(
   //build path from last pixel to current pixel
   if (scene.lastPixelXMirror != null) {
     let path = bresenhamsAlgorithm(
-      scene,
       scene.lastPixelXMirror!,
       { x: display_size / 2 + (display_size / 2 - x), y: y },
       pixel_size,
@@ -175,7 +174,7 @@ function paintYMirror(
 
   //build path from last pixel to current pixel
   if (scene.lastPixelYMirror != null) {
-    let path = bresenhamsAlgorithm(scene, scene.lastPixelYMirror!, { x, y: yy }, pixel_size, display_size);
+    let path = bresenhamsAlgorithm(scene.lastPixelYMirror!, { x, y: yy }, pixel_size, display_size);
     for (let p of path) {
       const index = (p.x + display_size * p.y) * 4;
       scene.pixels[index] = rgb[0];
@@ -220,7 +219,7 @@ function paintXYMirror(
 
   //build path from last pixel to current pixel
   if (scene.lastPixelXYMirror != null) {
-    let path = bresenhamsAlgorithm(scene, scene.lastPixelXYMirror!, { x: xx, y: yy }, pixel_size, display_size);
+    let path = bresenhamsAlgorithm(scene.lastPixelXYMirror!, { x: xx, y: yy }, pixel_size, display_size);
     for (let p of path) {
       const index = (p.x + display_size * p.y) * 4;
       scene.pixels[index] = rgb[0];

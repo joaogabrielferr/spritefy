@@ -54,9 +54,9 @@ export function Eraser(
   //   scene.lastPixel.id !== pixel.id &&
   //   (eventName == 'mousemove' || 'touchmove')
   // ) {
-  if (scene.lastPixel2 !== null) {
+  if (scene.lastPixel !== null) {
     //build path from last pixel to current pixel
-    const path = bresenhamsAlgorithm(scene, scene.lastPixel2!, { x, y }, pixel_size, display_size);
+    const path = bresenhamsAlgorithm(scene.lastPixel!, { x, y }, pixel_size, display_size);
     for (let p of path) {
       // if (!isPixelAlreadyPaintedInCurrentDraw(p, scene) && !empty(p)) {
       //   p.colorStack.push(ERASING);
@@ -75,7 +75,7 @@ export function Eraser(
     }
   }
 
-  scene.lastPixel2 = { x, y };
+  scene.lastPixel = { x, y };
   //}
 
   const imageData = new ImageData(scene.pixels, display_size, display_size);
