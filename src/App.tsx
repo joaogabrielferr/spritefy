@@ -76,18 +76,6 @@ function App() {
   const [isLeftSidebarMobileOpen, setIsLeftSidebarMobileOpen] = useState(false);
   const [isRightSidebarMobileOpen, setIsRightSidebarMobileOpen] = useState(false);
 
-  function handleWindowResize() {
-    EventBus.getInstance().publish(RESET_CANVAS_POSITION);
-
-    if (window.innerWidth <= 768) {
-      setCssCanvasSize(window.innerWidth);
-    } else {
-      setCssCanvasSize(window.innerHeight - 52);
-    }
-
-    setIsMobile(window.innerWidth <= 768);
-  }
-
   function handleOnCloseWelcomeModal(displaySize: number) {
     setDisplaySize(displaySize);
     setIsWelcomeModalOpen(false);
@@ -95,7 +83,13 @@ function App() {
 
   useEffect(() => {
     if (isMobile) setCssCanvasSize(window.innerWidth);
-    else setCssCanvasSize(window.innerHeight - 52);
+
+    function handleWindowResize() {
+      console.log(window.innerHeight);
+      EventBus.getInstance().publish(RESET_CANVAS_POSITION);
+
+      setIsMobile(window.innerWidth <= 768);
+    }
 
     window.addEventListener('resize', handleWindowResize);
     window.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -103,7 +97,7 @@ function App() {
     return function () {
       window.removeEventListener('resize', handleWindowResize);
     };
-  }, [isMobile]);
+  }, [cssCanvasSize, isMobile]);
 
   function handleChangeSelectedColor(color: ColorResult) {
     setSelectedColor(color.hex);
@@ -115,16 +109,12 @@ function App() {
     <>
       <main>
         <Header isMobile={isMobile} />
-        <div style={{ width: '100%', height: '20px', backgroundColor: 'rgb(77, 77, 77)' }}>teste</div>
+        {/* <div style={{ width: '100%', height: '20px', backgroundColor: 'rgb(77, 77, 77)' }}>teste</div> */}
         <section className="main-section">
           <div className="main-inner-wrapper">
             {/* left sidebar */}
             {
-              <Sidebar
-                isMobile={isMobile}
-                height={cssCanvasSize + 38}
-                isOpen={isLeftSidebarMobileOpen}
-                toogleSidebarOnMobile={setIsLeftSidebarMobileOpen}>
+              <Sidebar isMobile={isMobile} isOpen={isLeftSidebarMobileOpen} toogleSidebarOnMobile={setIsLeftSidebarMobileOpen}>
                 <Toolbar toolButtons={ToolButtons} isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
                 <div className="sidebar-item">
                   <ColorPicker color={selectedColor} onChange={handleChangeSelectedColor} />
@@ -137,7 +127,9 @@ function App() {
 
             <div
               style={
-                !isMobile ? { height: cssCanvasSize, width: '100%', position: 'relative' } : { height: '50vh', width: '100%' }
+                !isMobile
+                  ? { height: 'calc(100vh - 50px)', width: '100%', position: 'relative' }
+                  : { height: '50vh', width: '100%' }
               }>
               {/* main editor */}
               <Editor cssCanvasSize={cssCanvasSize} isMobile={isMobile}></Editor>
@@ -174,11 +166,7 @@ function App() {
 
             {/* right sidebar */}
             {!isMobile && (
-              <Sidebar
-                isMobile={isMobile}
-                height={cssCanvasSize + 38}
-                isOpen={isRightSidebarMobileOpen}
-                toogleSidebarOnMobile={setIsRightSidebarMobileOpen}>
+              <Sidebar isMobile={isMobile} isOpen={isRightSidebarMobileOpen} toogleSidebarOnMobile={setIsRightSidebarMobileOpen}>
                 <Preview />
                 <Frames />
               </Sidebar>

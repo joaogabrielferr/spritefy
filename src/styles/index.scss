@@ -5,6 +5,11 @@ body {
   padding: 0;
   background-color: variables.$body-background-color;
   font-family: 'Roboto', sans-serif;
+  overflow: hidden;
+
+  @media screen and (max-width: variables.$mobile) {
+    overflow: auto;
+  }
 }
 
 @mixin centralize {
@@ -17,7 +22,6 @@ body {
   width: 100%;
   @include centralize;
   margin: 0 auto;
-  overflow: hidden;
   flex-direction: column;
 }
 
