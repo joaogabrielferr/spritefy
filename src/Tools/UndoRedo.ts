@@ -12,8 +12,6 @@ export function undoLastDraw(pixel_size: number, ctx: CanvasRenderingContext2D, 
   if (!mostRecentDraw) return;
   frame.undoStack.pop();
 
-  console.log('undoing, taking the most recent draw and putting it in redo stack, size:', mostRecentDraw.length);
-
   frame.redoStack.push(mostRecentDraw);
 
   const drawToUse = frame.undoStack.top();
@@ -32,7 +30,6 @@ export function redoLastDraw(ctx: CanvasRenderingContext2D, pixel_size: number, 
   const mostRecentDraw = frame.redoStack.top();
   if (!mostRecentDraw) return;
   frame.redoStack.pop();
-  // console.log('mostRecent draw:', mostRecentDraw);
 
   const newArray = new Uint8ClampedArray(4 * display_size * display_size);
 

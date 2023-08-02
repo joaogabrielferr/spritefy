@@ -11,7 +11,17 @@ export type Pixel = {
   bgColor: string;
 };
 
-export type toolsType = 'pencil' | 'eraser' | 'paintBucket' | 'dropper' | 'line' | 'rectangle' | 'elipse' | 'undo' | 'redo';
+export type toolsType =
+  | 'pencil'
+  | 'eraser'
+  | 'paintBucket'
+  | 'dropper'
+  | 'line'
+  | 'rectangle'
+  | 'elipse'
+  | 'undo'
+  | 'redo'
+  | 'selection';
 
 export type ToolButtonType = {
   tool: toolsType;

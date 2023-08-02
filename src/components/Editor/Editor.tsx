@@ -5,43 +5,37 @@ import {
   BG_COLORS,
   SCALE_FACTOR,
   RESET_CANVAS_POSITION,
-  DRAW_ON_SIDEBAR_CANVAS,
   CREATE_NEW_FRAME,
   SELECT_FRAME,
   DELETE_FRAME,
   UPDATE_FRAMES_REF_ON_PREVIEW,
   COPY_FRAME,
-  ERASING,
   SWAP_FRAMES,
   UNDO_LAST_DRAW,
   REDO_LAST_DRAW,
   EDITOR_SIZE_OFFSET,
   EDITOR_SIZE_OFFSET_MOBILE,
   UPDATE_FRAMES_REF_ON_FRAMES_LIST_BAR,
-  BG_TILE_SIZE
-} from './utils/constants';
-import Mouse from './scene/Mouse';
-import Scene from './scene/Scene';
-import { Pencil } from './Tools/Pencil';
-import { Eraser } from './Tools/Eraser';
-import { redoLastDraw, undoLastDraw } from './Tools/UndoRedo';
-import { PaintBucket } from './Tools/PaintBucket';
-import { Dropper } from './Tools/Dropper';
-import { Line } from './Tools/Line';
-import { Frame, Pixel, drawOnSideBarCanvasType } from './types';
-import { removeDraw } from './helpers/RemoveDraw';
-import { cleanDraw } from './helpers/CleanDraw';
-import { translateDrawToMainCanvas } from './helpers/TranslateDrawToMainCanvas';
-import { Rectangle } from './Tools/Rectangle';
-import { Elipse } from './Tools/Elipse';
-import { EventBus } from './EventBus';
-import { store, StoreType } from './store';
-import { Stack } from './utils/Stack';
+  BG_TILE_SIZE,
+  CLEAR_TOP_CANVAS
+} from '../../utils/constants';
+import Mouse from '../../scene/Mouse';
+import Scene from '../../scene/Scene';
+import { Pencil, Eraser, Dropper, PaintBucket, Elipse, Line, Rectangle, undoLastDraw, redoLastDraw } from '../../Tools';
+import { Frame } from '../../types';
+import { removeDraw } from '../../helpers/RemoveDraw';
+import { cleanDraw } from '../../helpers/CleanDraw';
+import { EventBus } from '../../EventBus';
+import { store, StoreType } from '../../store';
+import { Stack } from '../../utils/Stack';
+import { Selection } from '../../Tools/Selection';
 
 interface IEditor {
   cssCanvasSize: number;
   isMobile: boolean;
 }
+
+type point = { x: number; y: number };
 
 //////////////////////////////////////////////////////////
 
@@ -68,6 +62,23 @@ let pinchTouchStartTimeOut: number | undefined = undefined;
 
 let currentFrameIndex = 0;
 
+let selection:
+  | {
+      topLeft: point;
+      bottomRight: point;
+    }
+  | undefined;
+
+let initialTopLeft: point | undefined;
+let initialBottomRight: point | undefined;
+
+let movingSelectedArea = false;
+
+let mouseSelectionOffsetTopLeftX = 0;
+let mouseSelectionOffsetTopLeftY = 0;
+let mouseSelectionOffsetBottomRightX = 0;
+let mouseSelectionOffsetBottomRightY = 0;
+
 //////////////////////////////////////////////////////////
 
 export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Element {
@@ -84,8 +95,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       scene: new Scene(),
       undoStack: new Stack<Uint8ClampedArray>(),
       redoStack: new Stack<Uint8ClampedArray>()
-      // undoStack: new Stack<Pixel[][]>(),
-      // redoStack: new Stack<[Pixel, string | undefined][]>()
     }
   ]);
 
@@ -129,34 +138,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           }
         }
       }
-
-      // ctx.clearRect(0, 0, displaySize, displaySize);
-
-      // //draw pixel matrix
-      // for (let i = 0; i < frames.current[currentFrameIndex].scene.pixels.length; i++) {
-      //   for (let j = 0; j < frames.current[currentFrameIndex].scene.pixels[i].length; j++) {
-      //     if (!frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.isEmpty()) {
-      //       const color = frames.current[currentFrameIndex].scene.pixels[i][j].colorStack.top();
-      //       if (!color || color === ERASING) {
-      //         ctx.fillStyle = frames.current[currentFrameIndex].scene.pixels[i][j].bgColor;
-      //         ctx.fillRect(
-      //           frames.current[currentFrameIndex].scene.pixels[i][j].x1,
-      //           frames.current[currentFrameIndex].scene.pixels[i][j].y1,
-      //           1,
-      //           1
-      //         );
-      //       } else {
-      //         ctx.fillStyle = color;
-      //         ctx.fillRect(
-      //           frames.current[currentFrameIndex].scene.pixels[i][j].x1,
-      //           frames.current[currentFrameIndex].scene.pixels[i][j].y1,
-      //           1,
-      //           1
-      //         );
-      //       }
-      //     }
-      //   }
-      // }
     },
     [displaySize]
   );
@@ -183,7 +164,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     backgroundCanvas.width = displaySize;
     backgroundCanvas.height = displaySize;
 
-    //TODO: if i decide to add option to edit display size for a draw, create function that updates pixel matrix for all frames and use it here
     frames.current[currentFrameIndex].scene.initializePixelMatrix(displaySize, pixel_size);
 
     //update frames ref on frames component in sidebar
@@ -233,22 +213,15 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   ///////////////////////////////////////////////////////////////////////////////////////////////
   const addNewFrame = useCallback(() => {
     const newFrame = createNewFrame();
-
     frames.current.push(newFrame);
-
     currentFrameIndex = frames.current.length - 1;
-
     frames.current[currentFrameIndex].scene.initializePixelMatrix(displaySize, pixel_size);
 
     //update frames ref on preview component
     EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
-
     setCurrentFrame(newFrame.name);
-
     setFramesList([...framesList, newFrame.name]);
-
     resetCanvasPosition();
-
     draw();
   }, [displaySize, draw, framesList, setCurrentFrame, setFramesList]);
 
@@ -257,9 +230,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   const selectFrame = useCallback(
     (_frame: string) => {
       currentFrameIndex = frames.current.findIndex((frame) => frame.name === _frame);
-
       resetCanvasPosition();
-
       setCurrentFrame(_frame);
     },
     [setCurrentFrame]
@@ -270,11 +241,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   const deleteFrame = useCallback(
     (_frame: string) => {
       const newFramesList = framesList.filter((frame) => frame !== _frame);
-
       const frameToRemoveIndex = frames.current.findIndex((frame) => frame.name === _frame);
-
       frames.current.splice(frameToRemoveIndex, 1);
-
       if (currentFrameIndex === frameToRemoveIndex) {
         currentFrameIndex = 0;
         setCurrentFrame(frames.current[currentFrameIndex].name);
@@ -282,7 +250,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         currentFrameIndex = frames.current.length - 1;
         setCurrentFrame(frames.current[frames.current.length - 1].name);
       }
-
       setFramesList(newFramesList);
 
       //update frames ref on preview component
@@ -296,21 +263,15 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   const copyFrame = useCallback(
     (_frame: string) => {
       const newFrame = createNewFrame();
-
       latestFrameCreated.current = newFrame.name;
 
       //true only when copiyng a frame
       shouldUpdateSideBarCanvas.current = true;
-
       const frameCopiedIndex = frames.current.findIndex((frame) => frame.name === _frame);
-
       if (frameCopiedIndex < 0) return;
-
       frames.current.splice(frameCopiedIndex + 1, 0, newFrame);
       const newFrameIndex = frames.current.findIndex((frame) => frame.name === newFrame.name);
-
       frames.current[newFrameIndex].scene.copyPixelMatrix(frames.current[frameCopiedIndex].scene.pixels);
-
       if (newFrameIndex === frames.current.length - 1) {
         setFramesList([...framesList, newFrame.name]);
       } else {
@@ -318,13 +279,9 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         newFramesList.splice(frameCopiedIndex + 1, 0, newFrame.name);
         setFramesList(newFramesList);
       }
-
       setCurrentFrame(newFrame.name);
-
       currentFrameIndex = newFrameIndex;
-
       resetCanvasPosition();
-
       draw();
 
       //update frames ref on preview component
@@ -406,8 +363,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
   }, [displaySize]);
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////
-
   useEffect(() => {
     const resetCanvasSubscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION, resetCanvasPosition);
     const selectFrameSubscription = EventBus.getInstance().subscribe(SELECT_FRAME, selectFrame);
@@ -418,6 +373,12 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     const handleUndoLastDrawSubscription = EventBus.getInstance().subscribe(UNDO_LAST_DRAW, handleUndoLastDraw);
     const handleRedoLastDrawSubscription = EventBus.getInstance().subscribe(REDO_LAST_DRAW, handleRedoLastDraw);
 
+    function clearTopCanvas() {
+      topCtx.clearRect(0, 0, displaySize, displaySize);
+    }
+
+    const handleClearTopCanvas = EventBus.getInstance().subscribe(CLEAR_TOP_CANVAS, clearTopCanvas);
+
     function checkKeyCombinations(event: KeyboardEvent) {
       if (event.ctrlKey && event.code === 'KeyZ') {
         handleUndoLastDraw();
@@ -425,6 +386,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         handleRedoLastDraw();
       } else if (event.ctrlKey && event.code === 'Space') {
         resetCanvasPosition();
+      } else if (event.ctrlKey && event.code === 'KeyC') {
+        copyDrawToSelectedArea();
       }
     }
 
@@ -439,15 +402,31 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       swapFramesSubscription.unsubscribe();
       handleUndoLastDrawSubscription.unsubscribe();
       handleRedoLastDrawSubscription.unsubscribe();
+      handleClearTopCanvas.unsubscribe();
       document.removeEventListener('keydown', checkKeyCombinations);
     };
-  }, [addNewFrame, copyFrame, currentFrame, deleteFrame, handleRedoLastDraw, handleUndoLastDraw, selectFrame, swapFrames, draw]);
+  }, [
+    addNewFrame,
+    copyFrame,
+    currentFrame,
+    deleteFrame,
+    handleRedoLastDraw,
+    handleUndoLastDraw,
+    selectFrame,
+    swapFrames,
+    draw,
+    displaySize
+  ]);
 
   useEffect(() => {
     //updating sidebar canvas when a new frame is copied, putting it here so that i can garantee that it only updates after framesList changes
     //in other situations where sidebar canvas is updated (frame created, deleted, or draw finished) this is not necessary
     updateSideBarCanvasAfterChangingFramesList(latestFrameCreated.current);
   }, [framesList]);
+
+  function copyDrawToSelectedArea() {
+    if (!selection) return;
+  }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -459,7 +438,37 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       mouse.isRightButtonClicked = true;
       mouse.isLeftButtonClicked = false;
     }
+
     mouse.isPressed = true;
+
+    if (selectedTool === 'selection') {
+      if (selection) {
+        const { x, y } = mouse.getPosition();
+        if (
+          x >= selection.topLeft.x &&
+          x <= selection.bottomRight.x &&
+          y >= selection.topLeft.y &&
+          y <= selection.bottomRight.y
+        ) {
+          //mouse inside selection
+          movingSelectedArea = true;
+          mouseSelectionOffsetTopLeftX = mouse.x - selection.topLeft.x;
+          mouseSelectionOffsetTopLeftY = mouse.y - selection.topLeft.y;
+          mouseSelectionOffsetBottomRightX = selection.bottomRight.x - mouse.x;
+          mouseSelectionOffsetBottomRightY = selection.bottomRight.y - mouse.y;
+        } else {
+          //a new selection will be created
+          selection = undefined;
+          movingSelectedArea = false;
+          topCtx.clearRect(0, 0, displaySize, displaySize);
+        }
+      } else {
+        //a new selection will be created
+        movingSelectedArea = false;
+        topCtx.clearRect(0, 0, displaySize, displaySize);
+      }
+    }
+
     if (selectedTool === 'pencil' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))) {
       Pencil(
         'mousedown',
@@ -497,6 +506,13 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
     ) {
       frames.current[currentFrameIndex].scene.lineFirstPixel = { x: Math.floor(mouse.x), y: Math.floor(mouse.y) };
+    } else if (
+      selectedTool === 'selection' &&
+      (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
+    ) {
+      if (!movingSelectedArea) {
+        frames.current[currentFrameIndex].scene.selectionFirstPixel = { x: Math.floor(mouse.x), y: Math.floor(mouse.y) };
+      }
     }
   }
 
@@ -574,6 +590,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           if (color) setSelectedColor(color);
         } else if (selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse') {
           frames.current[currentFrameIndex].scene.lineFirstPixel = { x: Math.floor(mouse.x), y: Math.floor(mouse.y) };
+        } else if (selectedTool === 'selection') {
+          frames.current[currentFrameIndex].scene.selectionFirstPixel = { x: Math.floor(mouse.x), y: Math.floor(mouse.y) };
         }
       }
     }, 100);
@@ -613,16 +631,20 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         frames.current[currentFrameIndex].scene.lastPixelXMirror = null;
         frames.current[currentFrameIndex].scene.lastPixelYMirror = null;
         frames.current[currentFrameIndex].scene.lastPixelXYMirror = null;
-        if (frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse) {
-          topCtx.clearRect(
-            frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!.x,
-            frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!.y,
-            pixel_size,
-            pixel_size
-          );
+        frames.current[currentFrameIndex].scene.selectionLastPixel = null;
 
-          for (let n of frames.current[currentFrameIndex].scene.previousNeighborsWhileMovingMouse) {
-            topCtx.clearRect(n.x, n.y, pixel_size, pixel_size);
+        if (selectedTool !== 'selection') {
+          if (frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse) {
+            topCtx.clearRect(
+              frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!.x,
+              frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!.y,
+              pixel_size,
+              pixel_size
+            );
+
+            for (let n of frames.current[currentFrameIndex].scene.previousNeighborsWhileMovingMouse) {
+              topCtx.clearRect(n.x, n.y, pixel_size, pixel_size);
+            }
           }
         }
         return;
@@ -684,7 +706,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         //remove draw from the top canvas
 
         topCtx.clearRect(0, 0, displaySize, displaySize);
-        console.log('cleared');
         if (frames.current[currentFrameIndex].scene.lineFirstPixel) {
           const majorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.x - mouse.x);
           const minorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.y - mouse.y);
@@ -714,6 +735,52 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
               displaySize
             );
           }
+        }
+      } else if (
+        selectedTool === 'selection' &&
+        (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
+      ) {
+        if (!movingSelectedArea) {
+          //creating new selection
+          topCtx.clearRect(0, 0, displaySize, displaySize);
+          Selection(
+            frames.current[currentFrameIndex].scene,
+            frames.current[currentFrameIndex].scene.selectionFirstPixel!,
+            { x: Math.floor(mouse.x), y: Math.floor(mouse.y) },
+            mouse,
+            topCtx,
+            displaySize,
+            pixel_size
+          );
+        } else {
+          //currently moving selected area
+          //check if mouse is inside selection
+
+          const { x, y } = mouse.getPosition();
+
+          const topLeft = {
+            x: x - mouseSelectionOffsetTopLeftX,
+            y: y - mouseSelectionOffsetTopLeftY
+          };
+
+          const bottomRight = {
+            x: mouse.x + mouseSelectionOffsetBottomRightX,
+            y: mouse.y + mouseSelectionOffsetBottomRightY
+          };
+
+          selection = { topLeft, bottomRight };
+
+          topCtx.clearRect(0, 0, displaySize, displaySize);
+          Selection(
+            frames.current[currentFrameIndex].scene,
+            selection.topLeft,
+            selection.bottomRight,
+            mouse,
+            topCtx,
+            displaySize,
+            pixel_size,
+            true
+          );
         }
       }
 
@@ -854,18 +921,13 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   function paintMousePosition() {
+    if (selectedTool === 'selection') return;
+
     const x = Math.floor(mouse.x);
     const y = Math.floor(mouse.y);
+
     if (x >= 0 && x <= displaySize && y >= 0 && y <= displaySize) {
       if (frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse) {
-        // removeDraw(
-        //   topCtx,
-        //   [
-        //     frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!,
-        //     ...frames.current[currentFrameIndex].scene.previousNeighborsWhileMovingMouse
-        //   ],
-        //   pixel_size
-        // );
         topCtx.clearRect(
           frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!.x,
           frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!.y,
@@ -877,32 +939,34 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           topCtx.clearRect(n.x, n.y, pixel_size, pixel_size);
         }
       }
-      // topCtx.fillStyle = selectedColor;
       if (selectedTool === 'paintBucket' || selectedTool === 'dropper' || selectedTool === 'eraser') {
         topCtx.fillStyle = 'rgba(58, 73, 96, 0.42)';
       } else {
         topCtx.fillStyle = selectedColor;
       }
-      topCtx.fillRect(x, y, pixel_size, pixel_size);
 
-      let neighbors: { x: number; y: number }[] = frames.current[currentFrameIndex].scene.findNeighborsMatrix(
-        x,
-        y,
-        penSize,
-        displaySize
-      );
+      if (!movingSelectedArea) {
+        topCtx.fillRect(x, y, pixel_size, pixel_size);
 
-      if (selectedTool !== 'dropper' && selectedTool !== 'paintBucket') {
-        for (let n of neighbors) {
-          if (selectedTool === 'eraser') topCtx.fillStyle = 'rgba(58, 73, 96, 0.42)';
-          else topCtx.fillStyle = selectedColor;
-          topCtx.fillRect(n.x, n.y, pixel_size, pixel_size);
+        let neighbors: { x: number; y: number }[] = frames.current[currentFrameIndex].scene.findNeighborsMatrix(
+          x,
+          y,
+          penSize,
+          displaySize
+        );
+
+        if (selectedTool !== 'dropper' && selectedTool !== 'paintBucket') {
+          for (let n of neighbors) {
+            if (selectedTool === 'eraser') topCtx.fillStyle = 'rgba(58, 73, 96, 0.42)';
+            else topCtx.fillStyle = selectedColor;
+            topCtx.fillRect(n.x, n.y, pixel_size, pixel_size);
+          }
         }
+
+        frames.current[currentFrameIndex].scene.previousNeighborsWhileMovingMouse = neighbors;
+
+        frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse = { x, y };
       }
-
-      frames.current[currentFrameIndex].scene.previousNeighborsWhileMovingMouse = neighbors;
-
-      frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse = { x, y };
     } else {
       if (frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse) {
         // removeDraw(
@@ -1189,7 +1253,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     frames.current[currentFrameIndex].scene.lastPixelXYMirror = null;
 
     // const array = ctx.getImageData(0, 0, displaySize, displaySize).data.slice();
-    // console.log('pushing to undo stack:', array);
 
     // if (!empty) {
     //   frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDraw);
@@ -1210,28 +1273,66 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       topCtx.clearRect(0, 0, displaySize, displaySize);
     }
 
-    if (frames.current[currentFrameIndex].scene.currentDrawTopCanvas.length > 0) {
-      // const clean: Pixel[] = cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
-      // translateDrawToMainCanvas(clean, ctx, pixel_size, selectedColor, penSize, frames.current[currentFrameIndex].scene);
-      // // EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
-      // //   frame: currentFrame,
-      // //   pixelMatrix: frames.current[currentFrameIndex].scene.pixels,
-      // //   frames: frames.current
-      // // });
-      // EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
-      // frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
-      //frames.current[currentFrameIndex].redoStack.clear();
+    //if (frames.current[currentFrameIndex].scene.currentDrawTopCanvas.length > 0) {
+    // const clean: Pixel[] = cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
+    // translateDrawToMainCanvas(clean, ctx, pixel_size, selectedColor, penSize, frames.current[currentFrameIndex].scene);
+    // // EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+    // //   frame: currentFrame,
+    // //   pixelMatrix: frames.current[currentFrameIndex].scene.pixels,
+    // //   frames: frames.current
+    // // });
+    // EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
+    // frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
+    //frames.current[currentFrameIndex].redoStack.clear();
+    //}
+
+    //removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), pixel_size);
+    //frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
+
+    //frames.current[currentFrameIndex].scene.currentPixelsMousePressed = new Map();
+
+    //frames.current[currentFrameIndex].scene.circleRadius = 0;
+
+    if (selectedTool !== 'dropper' && selectedTool != 'selection') {
+      frames.current[currentFrameIndex].undoStack.push(ctx.getImageData(0, 0, displaySize, displaySize).data);
     }
 
-    removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), pixel_size);
-    frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
+    if (selectedTool === 'selection') {
+      if (
+        !movingSelectedArea &&
+        frames.current[currentFrameIndex].scene.selectionFirstPixel &&
+        frames.current[currentFrameIndex].scene.selectionLastPixel
+      ) {
+        const topLeft = {
+          x: Math.min(
+            frames.current[currentFrameIndex].scene.selectionFirstPixel!.x,
+            frames.current[currentFrameIndex].scene.selectionLastPixel!.x
+          ),
+          y: Math.min(
+            frames.current[currentFrameIndex].scene.selectionFirstPixel!.y,
+            frames.current[currentFrameIndex].scene.selectionLastPixel!.y
+          )
+        };
 
-    frames.current[currentFrameIndex].scene.currentPixelsMousePressed = new Map();
+        const bottomRight = {
+          x: Math.max(
+            frames.current[currentFrameIndex].scene.selectionFirstPixel!.x,
+            frames.current[currentFrameIndex].scene.selectionLastPixel!.x
+          ),
+          y: Math.max(
+            frames.current[currentFrameIndex].scene.selectionFirstPixel!.y,
+            frames.current[currentFrameIndex].scene.selectionLastPixel!.y
+          )
+        };
 
-    frames.current[currentFrameIndex].scene.circleRadius = 0;
+        selection = { topLeft, bottomRight };
 
-    if (selectedTool !== 'dropper') {
-      frames.current[currentFrameIndex].undoStack.push(ctx.getImageData(0, 0, displaySize, displaySize).data);
+        //originalSelection = [Math.min(a.x, b.x), Math.min(a.y, b.y), Math.max(a.x, b.x), Math.max(a.y, b.y)];
+        //topCtx.clearRect(0, 0, displaySize, displaySize);
+      } else {
+        //move selected drawing to main canvas
+        //selection = undefined;
+      }
     }
   }
 

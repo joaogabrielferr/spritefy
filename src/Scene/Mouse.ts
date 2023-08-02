@@ -31,4 +31,8 @@ export default class Mouse {
   //     let ys = Math.floor((this.y - this.originY) / currentScale);
   //     return [xs,ys];
   // }
+
+  getPosition() {
+    return { x: Math.floor(this.x), y: Math.floor(this.y) };
+  }
 }

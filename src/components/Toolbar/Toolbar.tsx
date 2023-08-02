@@ -1,9 +1,9 @@
 import React, { ChangeEvent, useEffect } from 'react';
-import { ToolButtonType } from '../../types';
+import { ToolButtonType, toolsType } from '../../types';
 import './toolbar.scss';
 import { store, StoreType } from '../../store';
 import { EventBus } from '../../EventBus';
-import { REDO_LAST_DRAW, RESET_CANVAS_POSITION, UNDO_LAST_DRAW } from '../../utils/constants';
+import { CLEAR_TOP_CANVAS, REDO_LAST_DRAW, RESET_CANVAS_POSITION, UNDO_LAST_DRAW } from '../../utils/constants';
 import { faArrowRotateLeft, faRotateRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -33,20 +33,23 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
     function checkKeys(event: KeyboardEvent) {
       if (!isWelcomeModalOpen) {
         if (['p', 'P', '1'].indexOf(event.key) > -1) {
-          setSelectedTool('pencil');
+          handleSetSelectedTool('pencil');
         } else if (['e', 'E', '2'].indexOf(event.key) > -1) {
-          setSelectedTool('eraser');
+          handleSetSelectedTool('eraser');
         } else if (['b', 'B', '3'].indexOf(event.key) > -1) {
-          setSelectedTool('paintBucket');
+          handleSetSelectedTool('paintBucket');
         } else if (['d', 'D', '4'].indexOf(event.key) > -1) {
-          setSelectedTool('dropper');
+          handleSetSelectedTool('dropper');
         } else if (['l', 'L', '5'].indexOf(event.key) > -1) {
-          setSelectedTool('line');
+          handleSetSelectedTool('line');
         } else if (['r', 'R', '6'].indexOf(event.key) > -1) {
-          setSelectedTool('rectangle');
+          handleSetSelectedTool('rectangle');
         } else if (['c', 'C', '7'].indexOf(event.key) > -1) {
-          setSelectedTool('elipse');
+          handleSetSelectedTool('elipse');
+        } else if (['s', 'S', '8'].indexOf(event.key) > -1) {
+          handleSetSelectedTool('selection');
         }
+        console.log('hm kk');
       }
     }
 
@@ -56,6 +59,11 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
       document.removeEventListener('keydown', checkKeys);
     };
   }, [isWelcomeModalOpen, setSelectedTool]);
+
+  function handleSetSelectedTool(tool: toolsType) {
+    EventBus.getInstance().publish(CLEAR_TOP_CANVAS);
+    setSelectedTool(tool);
+  }
 
   return (
     <div className="toolbar-wrapper">
@@ -67,7 +75,7 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
               <button
                 className="tool-button"
                 style={{ backgroundColor: selectedTool === button.tool ? '#634cb8' : '' }}
-                onClick={() => setSelectedTool(button.tool)}
+                onClick={() => handleSetSelectedTool(button.tool)}
                 key={button.tool}
                 data-tooltip-id="my-tooltip"
                 data-tooltip-content={button.tooltip}>

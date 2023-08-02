@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import Editor from './Editor';
+import Editor from './components/Editor/Editor';
 import './styles/index.scss';
 import { ColorResult, CustomPicker } from 'react-color';
 import { Sidebar } from './components/Sidebar/Sidebar';
@@ -23,11 +23,9 @@ const ToolButtons = [
   { tool: 'dropper', tooltip: 'Color picker(D or 4)' },
   { tool: 'line', tooltip: 'Pencil stroke line(L or 5)' },
   { tool: 'rectangle', tooltip: 'Rectangle tool(R or 6)' },
-  { tool: 'elipse', tooltip: 'Circle tool(C or 7)' }
+  { tool: 'elipse', tooltip: 'Circle tool(C or 7)' },
+  { tool: 'selection', tooltip: 'Selection tool(S or 8)' }
 ] as ToolButtonType[];
-
-//TODO: Try to redraw all canvas instead of painting pixels when undoing and redoing (update pixel matrix and then call draw())
-//TODO: try the same thing with paint bucket (update pixel matrix and then call draw())
 
 //TODO: add option to flip drawing in X and Y axis
 //TODO: add option to rotate drawing in clockwise or counter clockwise
@@ -128,7 +126,7 @@ function App() {
             <div
               style={
                 !isMobile
-                  ? { height: 'calc(100vh - 50px)', width: '100%', position: 'relative' }
+                  ? { height: 'calc(100vh - 30px)', width: '100%', position: 'relative' }
                   : { height: '50vh', width: '100%' }
               }>
               {/* main editor */}

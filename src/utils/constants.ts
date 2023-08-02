@@ -24,3 +24,4 @@ export const COPY_FRAME = 'copy-frame';
 export const SWAP_FRAMES = 'swap-frames';
 export const UNDO_LAST_DRAW = 'undo-last-draw';
 export const REDO_LAST_DRAW = 'redo-last-draw';
+export const CLEAR_TOP_CANVAS = 'clear-top-canvas';

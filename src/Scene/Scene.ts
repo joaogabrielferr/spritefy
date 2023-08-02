@@ -27,6 +27,9 @@ export default class Scene {
 
   lineFirstPixel: { x: number; y: number } | null; //start pixel for drawing a line, square or circle
 
+  selectionFirstPixel: { x: number; y: number } | null; //start pixel selection
+
+  selectionLastPixel: { x: number; y: number } | null; //last pixel when drawing a selection rectangle
   circleRadius: number;
 
   zoomAmount: number;
@@ -49,6 +52,8 @@ export default class Scene {
     this.previousNeighborsWhileMovingMouse = [];
     this.zoomAmount = 0;
     this.lineFirstPixel = null;
+    this.selectionFirstPixel = null;
+    this.selectionLastPixel = null;
     this.circleRadius = 1;
     this.keyMap = new Map();
     this.initialized = false;
@@ -56,57 +61,6 @@ export default class Scene {
 
   initializePixelMatrix(display_size: number, pixel_size: number) {
     this.pixels = new Uint8ClampedArray(display_size * display_size * 4);
-    //TODO: i need to save current drawing on browser
-    //problem: for big drawing sizes like 500x500 its impractical to save it on local storage, and even on indexedDB
-    //possible solution: save canvas as png, store it on indexedDB, then after page load, get the image and parse it using some library and store info on this.pixels(lol)
-
-    //BG_TILE_SIZE = size of background tile, define pixel bg color based on bg tile color
-    // let rowCounter = 0;
-    // let columnCounter = 0;
-
-    // let currentBgColor = BG_COLORS[0];
-
-    // let pixelID = 1;
-    // let idxi = 0,
-    //   idxj = 0;
-    // let a = 0;
-    // for (let i = 0; i < display_size; i += pixel_size) {
-    //   const row: Pixel[] = [];
-    //   if (columnCounter % BG_TILE_SIZE === 0) {
-    //     currentBgColor = currentBgColor === BG_COLORS[0] ? BG_COLORS[1] : BG_COLORS[0];
-    //     if (display_size <= BG_TILE_SIZE) {
-    //       currentBgColor = BG_COLORS[1];
-    //     }
-    //   }
-    //   columnCounter++;
-    //   for (let j = 0; j < display_size; j += pixel_size) {
-    //     let x1 = i;
-    //     let y1 = j;
-    //     const pixel = {
-    //       bgColor: currentBgColor,
-    //       x1: x1,
-    //       y1: y1,
-    //       i: idxi,
-    //       j: idxj,
-    //       id: pixelID++,
-    //       colorStack: new Stack<string>()
-    //     } as Pixel;
-    //     row.push(pixel);
-    //     idxj++;
-    //     a = a ? 0 : 1;
-    //     rowCounter++;
-    //     if (rowCounter % BG_TILE_SIZE === 0) {
-    //       currentBgColor = currentBgColor === BG_COLORS[0] ? BG_COLORS[1] : BG_COLORS[0];
-    //       if (display_size <= BG_TILE_SIZE) {
-    //         currentBgColor = BG_COLORS[1];
-    //       }
-    //     }
-    //   }
-    //   idxi++;
-    //   idxj = 0;
-    //   this.pixels.push(row);
-    // }
-    // this.initialized = true;
   }
 
   //find pixel based on mouse position - xs and ys are already transformed to world coordinates

@@ -111,7 +111,7 @@ export function Frames() {
   useEffect(() => {
     frames.current.forEach((frame) => {
       drawFrameBackground(frame.name);
-      drawFrame({ frame: frame.name, pixelMatrix: frame.scene.pixels });
+      // drawFrame({ frame: frame.name, pixelMatrix: frame.scene.pixels });
     });
   }, [displaySize, drawFrameBackground, drawFrame]);
 
@@ -179,7 +179,7 @@ export function Frames() {
             key={frame}
             style={{
               width: '95%',
-              border: frame === currentFrame ? `5px solid #000000` : undefined
+              border: frame === currentFrame ? `2px solid #000000` : undefined
             }}>
             <div className="frame-canvas-wrapper" onClick={() => changeCurrentFrame(frame)}>
               <canvas
