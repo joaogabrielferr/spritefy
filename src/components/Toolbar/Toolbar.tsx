@@ -161,6 +161,21 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
               </label>
             </div>
           )}
+          {['selection'].find((tool) => tool === selectedTool) && (
+            <button data-tooltip-id="my-tooltip-extra-options" data-tooltip-content="Ctrl + C" className="extra-options-button">
+              COPY SELECTED DRAW
+            </button>
+          )}
+          {['selection'].find((tool) => tool === selectedTool) && (
+            <button data-tooltip-id="my-tooltip-extra-options" data-tooltip-content="Ctrl + V" className="extra-options-button">
+              PASTE SELECTED DRAW
+            </button>
+          )}
+          {['selection'].find((tool) => tool === selectedTool) && (
+            <button data-tooltip-id="my-tooltip-extra-options" data-tooltip-content="Del" className="extra-options-button">
+              DELETE SELECTED DRAW
+            </button>
+          )}
         </ToolOptions>
       </div>
 

@@ -397,6 +397,32 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     console.log(selectedDrawOriginalPosition);
   }, [displaySize]);
 
+  const pasteSelectedDraw = useCallback(() => {
+    if (!selection || !selectedDraw || !selectedDraw.length) return;
+
+    const data = ctx.getImageData(0, 0, displaySize, displaySize).data;
+
+    for (let pixel of selectedDraw) {
+      const x = Math.floor(selection.topLeft.x + pixel.offset.x);
+      const y = Math.floor(selection.topLeft.y + pixel.offset.y);
+
+      if (x < 0 || y < 0 || x >= displaySize || y >= displaySize) continue;
+
+      const index = (x + displaySize * y) * 4;
+
+      data[index] = pixel.color[0];
+      data[index + 1] = pixel.color[1];
+      data[index + 2] = pixel.color[1];
+      data[index + 3] = 255;
+    }
+
+    const imageData = new ImageData(data, displaySize, displaySize);
+
+    ctx.putImageData(imageData, 0, 0);
+
+    frames.current[currentFrameIndex].undoStack.push(data);
+  }, [displaySize]);
+
   useEffect(() => {
     const resetCanvasSubscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION, resetCanvasPosition);
     const selectFrameSubscription = EventBus.getInstance().subscribe(SELECT_FRAME, selectFrame);
@@ -415,15 +441,36 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     const handleClearTopCanvas = EventBus.getInstance().subscribe(CLEAR_TOP_CANVAS, clearTopCanvas);
 
     function checkKeyCombinations(event: KeyboardEvent) {
-      if (event.ctrlKey && event.code === 'KeyZ') {
-        handleUndoLastDraw();
-      } else if (event.ctrlKey && event.code === 'KeyY') {
-        handleRedoLastDraw();
-      } else if (event.ctrlKey && event.code === 'Space') {
-        resetCanvasPosition();
-      } else if (event.ctrlKey && event.code === 'KeyC') {
-        console.log('aqui');
-        copyDrawToSelectedArea();
+      // if (event.ctrlKey && event.code === 'KeyZ') {
+      //   handleUndoLastDraw();
+      // } else if (event.ctrlKey && event.code === 'KeyY') {
+      //   handleRedoLastDraw();
+      // } else if (event.ctrlKey && event.code === 'Space') {
+      //   resetCanvasPosition();
+      // } else if (event.ctrlKey && event.code === 'KeyC') {
+      //   copyDrawToSelectedArea();
+      // }
+
+      if (event.ctrlKey) {
+        switch (event.code) {
+          case 'KeyZ':
+            handleUndoLastDraw();
+            break;
+          case 'KeyY':
+            handleRedoLastDraw();
+            break;
+          case 'Space':
+            resetCanvasPosition();
+            break;
+          case 'KeyC':
+            copyDrawToSelectedArea();
+            break;
+          case 'KeyV':
+            pasteSelectedDraw();
+            break;
+          default:
+            break;
+        }
       }
     }
 
@@ -452,7 +499,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     swapFrames,
     draw,
     displaySize,
-    copyDrawToSelectedArea
+    copyDrawToSelectedArea,
+    pasteSelectedDraw
   ]);
 
   useEffect(() => {
@@ -493,6 +541,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           //a new selection will be created
           selection = undefined;
           movingSelectedArea = false;
+          selectedDraw = [];
+          selectedDrawOriginalPosition = [];
           topCtx.clearRect(0, 0, displaySize, displaySize);
         }
       } else {
@@ -1337,6 +1387,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         frames.current[currentFrameIndex].scene.selectionFirstPixel &&
         frames.current[currentFrameIndex].scene.selectionLastPixel
       ) {
+        //calculate the selected area
         const topLeft = {
           x: Math.min(
             frames.current[currentFrameIndex].scene.selectionFirstPixel!.x,
