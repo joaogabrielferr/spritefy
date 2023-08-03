@@ -5,7 +5,7 @@ interface WelcomeModalProps {
   onCloseModal: (displaySize: number) => void;
 }
 
-const presets = [16, 32, 64, 100, 128, 256];
+const presets = [16, 32, 64, 128, 256, 512];
 
 //TODO: add option to import saved drawing
 

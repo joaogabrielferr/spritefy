@@ -15,17 +15,17 @@ import {
   REDO_LAST_DRAW,
   EDITOR_SIZE_OFFSET,
   EDITOR_SIZE_OFFSET_MOBILE,
-  UPDATE_FRAMES_REF_ON_FRAMES_LIST_BAR,
   BG_TILE_SIZE,
   CLEAR_TOP_CANVAS,
   COPY_SELECTED_DRAW,
   PASTE_SELECTED_DRAW,
-  DELETE_SELECTED_DRAW
+  DELETE_SELECTED_DRAW,
+  DRAW_ON_SIDEBAR_CANVAS
 } from '../../utils/constants';
 import Mouse from '../../scene/Mouse';
 import Scene from '../../scene/Scene';
 import { Pencil, Eraser, Dropper, PaintBucket, Elipse, Line, Rectangle, undoLastDraw, redoLastDraw } from '../../Tools';
-import { Frame } from '../../types';
+import { Frame, drawOnSideBarCanvasType } from '../../types';
 import { EventBus } from '../../EventBus';
 import { store, StoreType } from '../../store';
 import { Stack } from '../../utils/Stack';
@@ -169,7 +169,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     frames.current[currentFrameIndex].scene.initializePixelMatrix(displaySize, pixel_size);
 
     //update frames ref on frames component in sidebar
-    EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_FRAMES_LIST_BAR, frames.current);
+    //EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_FRAMES_LIST_BAR, frames.current);
 
     draw(true);
   }, [displaySize, draw]);
@@ -343,27 +343,32 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   const handleUndoLastDraw = useCallback(() => {
     undoLastDraw(pixel_size, ctx, frames.current[currentFrameIndex], displaySize);
 
-    // EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
-    //   frame: currentFrame,
-    //   pixelMatrix: frames.current[currentFrameIndex].scene.pixels,
-    //   frames: frames.current
-    // });
+    //this updates the frame in the sidebar
+    //DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
+    EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+      frame: currentFrame,
+      pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
+    });
 
     EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
-  }, [displaySize]);
+  }, [currentFrame, displaySize]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   const handleRedoLastDraw = useCallback(() => {
     redoLastDraw(ctx, pixel_size, frames.current[currentFrameIndex], displaySize);
-    // EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
-    //   frame: currentFrame,
-    //   pixelMatrix: frames.current[currentFrameIndex].scene.pixels,
-    //   frames: frames.current
-    // });
+
+    //this updates the frame in the sidebar
+    //DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
+    EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+      frame: currentFrame,
+      pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
+    });
 
     EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
-  }, [displaySize]);
+  }, [currentFrame, displaySize]);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   const copyDrawToSelectedArea = useCallback(() => {
     if (!selection) return;
@@ -377,7 +382,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       //Uint8clampedArray index to canvas coordinate
       const x = Math.floor((i / 4) % displaySize);
       const y = Math.floor(i / 4 / displaySize);
-      // console.log('pos:', i, 'x,y', x, y);
       if (
         x >= selection.topLeft.x &&
         x <= selection.bottomRight.x &&
@@ -394,6 +398,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       }
     }
   }, [displaySize]);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   const pasteSelectedDraw = useCallback(() => {
     if (!selection || !selectedDraw || !selectedDraw.length) return;
@@ -419,7 +425,16 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     ctx.putImageData(imageData, 0, 0);
 
     frames.current[currentFrameIndex].undoStack.push(data);
-  }, [displaySize]);
+
+    //this updates the frame in the sidebar
+    //DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
+    EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+      frame: currentFrame,
+      pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
+    });
+  }, [currentFrame, displaySize]);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   const deleteSelectedDraw = useCallback(() => {
     if (!selection) return;
@@ -449,7 +464,16 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     ctx.putImageData(imageData, 0, 0);
 
     frames.current[currentFrameIndex].undoStack.push(data);
-  }, [displaySize]);
+
+    //this updates the frame in the sidebar
+    //DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
+    EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+      frame: currentFrame,
+      pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
+    });
+  }, [currentFrame, displaySize]);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   useEffect(() => {
     const resetCanvasSubscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION, resetCanvasPosition);
@@ -1364,49 +1388,23 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     frames.current[currentFrameIndex].scene.lastPixelYMirror = null;
     frames.current[currentFrameIndex].scene.lastPixelXYMirror = null;
 
-    // const array = ctx.getImageData(0, 0, displaySize, displaySize).data.slice();
-
-    // if (!empty) {
-    //   frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDraw);
-    //   EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
-    //     frame: currentFrame,
-    //     pixelMatrix: frames.current[currentFrameIndex].scene.pixels,
-    //     frames: frames.current
-    //   });
-    //   EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
     frames.current[currentFrameIndex].redoStack.clear();
-    // }
-    //}
 
-    //here the draws made with Line, Rectangle or Elipse tool are put in main canvas
+    //draws made with Line, Rectangle or Elipse tool are put in main canvas
     if (selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse') {
       topCanvasToMainCanvas();
 
       topCtx.clearRect(0, 0, displaySize, displaySize);
     }
 
-    //if (frames.current[currentFrameIndex].scene.currentDrawTopCanvas.length > 0) {
-    // const clean: Pixel[] = cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
-    // translateDrawToMainCanvas(clean, ctx, pixel_size, selectedColor, penSize, frames.current[currentFrameIndex].scene);
-    // // EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
-    // //   frame: currentFrame,
-    // //   pixelMatrix: frames.current[currentFrameIndex].scene.pixels,
-    // //   frames: frames.current
-    // // });
-    // EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
-    // frames.current[currentFrameIndex].undoStack.push(frames.current[currentFrameIndex].scene.currentDrawTopCanvas);
-    //frames.current[currentFrameIndex].redoStack.clear();
-    //}
-
-    //removeDraw(topCtx, cleanDraw(frames.current[currentFrameIndex].scene.currentDrawTopCanvas), pixel_size);
-    //frames.current[currentFrameIndex].scene.currentDrawTopCanvas = [];
-
-    //frames.current[currentFrameIndex].scene.currentPixelsMousePressed = new Map();
-
-    //frames.current[currentFrameIndex].scene.circleRadius = 0;
-
     if (selectedTool !== 'dropper' && selectedTool != 'selection') {
       frames.current[currentFrameIndex].undoStack.push(ctx.getImageData(0, 0, displaySize, displaySize).data);
+      //this updates the frame in the sidebar
+      //DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
+      EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+        frame: currentFrame,
+        pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
+      });
     }
 
     if (selectedTool === 'selection') {

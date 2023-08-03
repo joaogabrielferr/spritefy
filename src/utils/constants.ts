@@ -1,5 +1,5 @@
 export const SCALE_FACTOR = 0.15;
-export const MAX_ZOOM_AMOUNT = 40;
+export const MAX_ZOOM_AMOUNT = 70;
 export const CIRCLE_RADIUS_INCREASE_FACTOR = 0.3;
 export const ERASING = 'erasing';
 export const EDITOR_SIZE_OFFSET = 350;

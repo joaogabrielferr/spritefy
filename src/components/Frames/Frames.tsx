@@ -9,10 +9,8 @@ import {
   CREATE_NEW_FRAME,
   DELETE_FRAME,
   DRAW_ON_SIDEBAR_CANVAS,
-  ERASING,
   SELECT_FRAME,
-  SWAP_FRAMES,
-  UPDATE_FRAMES_REF_ON_FRAMES_LIST_BAR
+  SWAP_FRAMES
 } from '../../utils/constants';
 import './frames.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -24,13 +22,9 @@ export function Frames() {
 
   const displaySize = store((state: StoreType) => state.displaySize);
 
-  const [touched, setTouched] = useState<{ [frameName: string]: boolean }>({});
-
   const currentFrame = store((state: StoreType) => state.currentFrame);
 
   const framesDivRef = useRef<HTMLDivElement | null>(null);
-
-  const frames = useRef<Frame[]>([]);
 
   const drawFrameBackground = useCallback(
     (frame: string) => {
@@ -57,67 +51,46 @@ export function Frames() {
 
   const drawFrame = useCallback(
     (args: drawOnSideBarCanvasType) => {
-      const { frame, pixelMatrix } = args;
-      if (args.frames) {
-        frames.current = args.frames;
-      }
-
-      if (!frame || !pixelMatrix) return;
-
-      const canvas = document.getElementById(`${frame}@sidebar`) as HTMLCanvasElement;
+      const canvas = document.getElementById(`${args.frame}@sidebar`) as HTMLCanvasElement;
       if (!canvas) return;
       const ctx = canvas.getContext('2d')!;
       ctx.clearRect(0, 0, displaySize, displaySize);
 
-      for (let i = 0; i < pixelMatrix.length; i++) {
-        for (let j = 0; j < pixelMatrix[i].length; j++) {
-          //if (!pixelMatrix[i][j].colorStack.isEmpty()) {
-          const color = pixelMatrix[i][j].colorStack.top();
-          if (!color || color === ERASING) {
-            ctx.fillStyle = pixelMatrix[i][j].bgColor;
-            ctx.clearRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
-          } else {
-            ctx.fillStyle = color;
-            ctx.fillRect(pixelMatrix[i][j].x1, pixelMatrix[i][j].y1, 1, 1);
-          }
-        }
-        // }
-      }
+      ctx.putImageData(new ImageData(args.pixelArray, displaySize, displaySize), 0, 0);
     },
     [displaySize]
   );
 
   useEffect(() => {
     const DrawOnSideBarCanvassubscription = EventBus.getInstance().subscribe(DRAW_ON_SIDEBAR_CANVAS, drawFrame);
-    const updateFramesOnFramesList = EventBus.getInstance().subscribe(UPDATE_FRAMES_REF_ON_FRAMES_LIST_BAR, updateFrames);
+    //const updateFramesOnFramesList = EventBus.getInstance().subscribe(UPDATE_FRAMES_REF_ON_FRAMES_LIST_BAR, updateFrames);
 
     return () => {
       DrawOnSideBarCanvassubscription.unsubscribe();
-      updateFramesOnFramesList.unsubscribe();
+      //updateFramesOnFramesList.unsubscribe();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [drawFrame]);
 
   useEffect(() => {
-    framesList.forEach((frame) => {
-      if (!touched[frame]) {
-        //drawing background when a new canvas is added
-        setTouched({ ...touched, [frame]: true });
-        drawFrameBackground(frame);
-      }
-    });
-  });
+    framesList.forEach((frame) => drawFrameBackground(frame));
+  }, [drawFrameBackground, framesList]);
 
-  useEffect(() => {
-    frames.current.forEach((frame) => {
-      drawFrameBackground(frame.name);
-      // drawFrame({ frame: frame.name, pixelMatrix: frame.scene.pixels });
-    });
-  }, [displaySize, drawFrameBackground, drawFrame]);
+  // useEffect(() => {
+  //   framesList.forEach((frame) => {
+  //     if (!touched[frame]) {
+  //       //drawing background when a new canvas is added
+  //       setTouched({ ...touched, [frame]: true });
+  //       drawFrameBackground(frame);
+  //     }
+  //   });
+  // });
 
-  function updateFrames(_frames: Frame[]) {
-    frames.current = _frames;
-  }
+  // useEffect(() => {
+  //   frames.current.forEach((frame) => {
+  //     drawFrameBackground(frame.name);
+  //     // drawFrame({ frame: frame.name, pixelMatrix: frame.scene.pixels });
+  //   });
+  // }, [displaySize, drawFrameBackground, drawFrame]);
 
   function changeCurrentFrame(frame: string) {
     EventBus.getInstance().publish<string>(SELECT_FRAME, frame);

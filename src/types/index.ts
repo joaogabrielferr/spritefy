@@ -54,8 +54,7 @@ export type IEventBus = {
 
 export type drawOnSideBarCanvasType = {
   frame: string;
-  pixelMatrix: Pixel[][];
-  frames?: Frame[];
+  pixelArray: Uint8ClampedArray;
   op?: 'add' | 'update' | 'delete';
 };
 

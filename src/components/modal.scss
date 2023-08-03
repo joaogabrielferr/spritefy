@@ -14,7 +14,7 @@ $mobile: 768px;
 }
 
 .modal-container {
-  background: #1a1a1a;
+  background: #020202;
   border-radius: 5px;
   max-width: 100%;
   margin: 50px auto;
@@ -22,7 +22,7 @@ $mobile: 768px;
   padding-right: 15px;
   padding-bottom: 0px;
   width: 700px;
-  color: white;
+  color: rgb(219, 219, 219);
   //   height: 700px;
 
   .modal-header {
@@ -106,7 +106,7 @@ $mobile: 768px;
     background: rgb(38, 55, 80);
     border: 0;
     border-radius: 5px;
-    color: #fff;
+    color: rgb(219, 219, 219);
     cursor: pointer;
     font-size: 16px;
     font-weight: 600;

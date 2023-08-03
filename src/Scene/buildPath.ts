@@ -1,4 +1,3 @@
-import { Pixel } from '../types';
 import Scene from './Scene';
 
 //set of algorithms to complete a path given a start and an end point

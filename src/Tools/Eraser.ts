@@ -30,16 +30,6 @@ export function Eraser(
     return;
   }
 
-  //if this pixel is in currentPixelsMousePressed, that means it was already painted in the current pen stroke, no need to paint it twice
-  // if (pixel != null) {
-  //   if (!isPixelAlreadyPaintedInCurrentDraw(pixel, scene) && !empty(pixel)) {
-  //     pixel.colorStack.push(ERASING);
-  //     scene.currentPixelsMousePressed.set(pixel.id, true);
-  //     draw.push(pixel);
-  //     //   ctx.fillStyle = pixel.bgColor;
-  //     ctx.clearRect(pixel.x1, pixel.y1, pixel_size, pixel_size);
-  //   }
-
   scene.pixels[index] = 0;
   scene.pixels[index + 1] = 0;
   scene.pixels[index + 2] = 0;
@@ -48,22 +38,11 @@ export function Eraser(
   paintNeighbors(index, scene, ctx, penSize, pixel_size, display_size);
 
   //if there are gaps between the points, fill them with bresenham's algorithm (see scene/buildPath.ts)
-  // if (
-  //   scene.lastPixel !== null &&
-  //   mouse.isPressed &&
-  //   scene.lastPixel.id !== pixel.id &&
-  //   (eventName == 'mousemove' || 'touchmove')
-  // ) {
+
   if (scene.lastPixel !== null) {
     //build path from last pixel to current pixel
     const path = bresenhamsAlgorithm(scene.lastPixel!, { x, y }, pixel_size, display_size);
     for (let p of path) {
-      // if (!isPixelAlreadyPaintedInCurrentDraw(p, scene) && !empty(p)) {
-      //   p.colorStack.push(ERASING);
-      //   scene.currentPixelsMousePressed.set(p.id, true);
-      //   draw.push(p);
-      //   ctx.clearRect(p.x1, p.y1, pixel_size, pixel_size);
-      // }
       const index = (p.x + display_size * p.y) * 4;
 
       scene.pixels[index] = 0;
@@ -83,18 +62,6 @@ export function Eraser(
   ctx.putImageData(imageData, 0, 0);
 }
 
-function isPixelAlreadyPaintedInCurrentDraw(pixel: Pixel, scene: Scene) {
-  return scene.currentPixelsMousePressed.get(pixel.id);
-}
-
-//if pixel was never painted or it is already erased
-
-function empty(pixel: Pixel) {
-  const lastColor: string | undefined = pixel.colorStack.top();
-  if (!lastColor || (lastColor && lastColor === pixel.bgColor)) return true;
-  return false;
-}
-
 function paintNeighbors(
   index: number,
   scene: Scene,
@@ -105,21 +72,9 @@ function paintNeighbors(
 ) {
   let neighbors: number[] = scene.findNeighbors(index, penSize, display_size);
   for (let n of neighbors) {
-    // if (!isPixelAlreadyPaintedInCurrentDraw(n, scene)) {
-    //   scene.currentPixelsMousePressed.set(n.id, true);
-    //   draw.push(n);
-    //   n.colorStack.push(selectedColor);
-    // }
-
     scene.pixels[n] = 0;
     scene.pixels[n + 1] = 0;
     scene.pixels[n + 2] = 0;
     scene.pixels[n + 3] = 0;
-
-    // scene.pixels[n] = 0;
-    // scene.pixels[n + 1] = 0;
-    // scene.pixels[n + 2] = 0;
-    // scene.pixels[n + 3] = 255;
-    // ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
   }
 }
