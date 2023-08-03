@@ -37,9 +37,9 @@ interface IEditor {
 
 type point = { x: number; y: number };
 
-//////////////////////////////////////////////////////////
-
+//this ones dont have to be states
 let canvas: HTMLCanvasElement, topCanvas: HTMLCanvasElement, backgroundCanvas: HTMLCanvasElement;
+
 let ctx: CanvasRenderingContext2D, topCtx: CanvasRenderingContext2D, bgCtx: CanvasRenderingContext2D;
 
 let outerDiv: HTMLDivElement;
@@ -69,15 +69,16 @@ let selection:
     }
   | undefined;
 
-let initialTopLeft: point | undefined;
-let initialBottomRight: point | undefined;
-
 let movingSelectedArea = false;
 
 let mouseSelectionOffsetTopLeftX = 0;
 let mouseSelectionOffsetTopLeftY = 0;
 let mouseSelectionOffsetBottomRightX = 0;
 let mouseSelectionOffsetBottomRightY = 0;
+
+let selectedDraw: { offset: point; color: number[] }[] = [];
+
+let selectedDrawOriginalPosition: { point: point; color: number[] }[] = [];
 
 //////////////////////////////////////////////////////////
 
@@ -363,6 +364,39 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
   }, [displaySize]);
 
+  const copyDrawToSelectedArea = useCallback(() => {
+    if (!selection) return;
+    console.log('here');
+    selectedDraw = [];
+    selectedDrawOriginalPosition = [];
+
+    //copy draw inside selected area to top Canvas and move it along side selected area
+    const data = ctx.getImageData(0, 0, displaySize, displaySize).data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const x = Math.floor((i / 4) % displaySize);
+      const y = Math.floor(i / 4 / displaySize);
+      // console.log('pos:', i, 'x,y', x, y);
+      if (
+        x >= selection.topLeft.x &&
+        x <= selection.bottomRight.x &&
+        y >= selection.topLeft.y &&
+        y <= selection.bottomRight.y &&
+        data[i + 3] > 0
+      ) {
+        selectedDrawOriginalPosition.push({ point: { x, y }, color: [data[i], data[i + 2], data[i + 3]] });
+        //store offset of pixel to selection top Left point
+        selectedDraw.push({
+          offset: { x: Math.floor(x - selection.topLeft.x), y: Math.floor(y - selection.topLeft.y) },
+          color: [data[i], data[i + 2], data[i + 3]]
+        });
+      }
+    }
+
+    console.log(selectedDraw);
+    console.log(selectedDrawOriginalPosition);
+  }, [displaySize]);
+
   useEffect(() => {
     const resetCanvasSubscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION, resetCanvasPosition);
     const selectFrameSubscription = EventBus.getInstance().subscribe(SELECT_FRAME, selectFrame);
@@ -375,6 +409,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     function clearTopCanvas() {
       topCtx.clearRect(0, 0, displaySize, displaySize);
+      selection = undefined;
     }
 
     const handleClearTopCanvas = EventBus.getInstance().subscribe(CLEAR_TOP_CANVAS, clearTopCanvas);
@@ -387,6 +422,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       } else if (event.ctrlKey && event.code === 'Space') {
         resetCanvasPosition();
       } else if (event.ctrlKey && event.code === 'KeyC') {
+        console.log('aqui');
         copyDrawToSelectedArea();
       }
     }
@@ -415,7 +451,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     selectFrame,
     swapFrames,
     draw,
-    displaySize
+    displaySize,
+    copyDrawToSelectedArea
   ]);
 
   useEffect(() => {
@@ -423,10 +460,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     //in other situations where sidebar canvas is updated (frame created, deleted, or draw finished) this is not necessary
     updateSideBarCanvasAfterChangingFramesList(latestFrameCreated.current);
   }, [framesList]);
-
-  function copyDrawToSelectedArea() {
-    if (!selection) return;
-  }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -779,7 +812,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             topCtx,
             displaySize,
             pixel_size,
-            true
+            true,
+            selectedDraw
           );
         }
       }

@@ -23,7 +23,7 @@ const ToolButtons = [
   { tool: 'dropper', tooltip: 'Color picker(D or 4)' },
   { tool: 'line', tooltip: 'Pencil stroke line(L or 5)' },
   { tool: 'rectangle', tooltip: 'Rectangle tool(R or 6)' },
-  { tool: 'elipse', tooltip: 'Circle tool(C or 7)' },
+  { tool: 'elipse', tooltip: 'Circle tool(G or 7)' },
   { tool: 'selection', tooltip: 'Selection tool(S or 8)' }
 ] as ToolButtonType[];
 

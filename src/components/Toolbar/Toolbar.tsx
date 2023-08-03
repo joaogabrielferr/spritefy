@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect } from 'react';
+import React, { ChangeEvent, useCallback, useEffect } from 'react';
 import { ToolButtonType, toolsType } from '../../types';
 import './toolbar.scss';
 import { store, StoreType } from '../../store';
@@ -29,6 +29,14 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
 
   const toogleErasingRightButton = store((state: StoreType) => state.toogleErasingRightButton);
 
+  const handleSetSelectedTool = useCallback(
+    (tool: toolsType) => {
+      EventBus.getInstance().publish(CLEAR_TOP_CANVAS);
+      setSelectedTool(tool);
+    },
+    [setSelectedTool]
+  );
+
   useEffect(() => {
     function checkKeys(event: KeyboardEvent) {
       if (!isWelcomeModalOpen) {
@@ -44,12 +52,11 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
           handleSetSelectedTool('line');
         } else if (['r', 'R', '6'].indexOf(event.key) > -1) {
           handleSetSelectedTool('rectangle');
-        } else if (['c', 'C', '7'].indexOf(event.key) > -1) {
+        } else if (['g', 'G', '7'].indexOf(event.key) > -1) {
           handleSetSelectedTool('elipse');
         } else if (['s', 'S', '8'].indexOf(event.key) > -1) {
           handleSetSelectedTool('selection');
         }
-        console.log('hm kk');
       }
     }
 
@@ -58,12 +65,7 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
     return function () {
       document.removeEventListener('keydown', checkKeys);
     };
-  }, [isWelcomeModalOpen, setSelectedTool]);
-
-  function handleSetSelectedTool(tool: toolsType) {
-    EventBus.getInstance().publish(CLEAR_TOP_CANVAS);
-    setSelectedTool(tool);
-  }
+  }, [handleSetSelectedTool, isWelcomeModalOpen, setSelectedTool]);
 
   return (
     <div className="toolbar-wrapper">
