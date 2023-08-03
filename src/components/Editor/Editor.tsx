@@ -19,7 +19,8 @@ import {
   BG_TILE_SIZE,
   CLEAR_TOP_CANVAS,
   COPY_SELECTED_DRAW,
-  PASTE_SELECTED_DRAW
+  PASTE_SELECTED_DRAW,
+  DELETE_SELECTED_DRAW
 } from '../../utils/constants';
 import Mouse from '../../scene/Mouse';
 import Scene from '../../scene/Scene';
@@ -90,7 +91,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   //persisting frames between re renders
   //updating frames doesnt generate re renders
   const frames = useRef<Frame[]>([
-    //framesList is initialized with ['frame1']
+    //state framesList is initialized with ['frame1']
     {
       name: 'frame1',
       scene: new Scene(),
@@ -366,7 +367,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   const copyDrawToSelectedArea = useCallback(() => {
     if (!selection) return;
-    console.log('here');
     selectedDraw = [];
     selectedDrawOriginalPosition = [];
 
@@ -374,6 +374,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     const data = ctx.getImageData(0, 0, displaySize, displaySize).data;
 
     for (let i = 0; i < data.length; i += 4) {
+      //Uint8clampedArray index to canvas coordinate
       const x = Math.floor((i / 4) % displaySize);
       const y = Math.floor(i / 4 / displaySize);
       // console.log('pos:', i, 'x,y', x, y);
@@ -392,9 +393,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         });
       }
     }
-
-    console.log(selectedDraw);
-    console.log(selectedDrawOriginalPosition);
   }, [displaySize]);
 
   const pasteSelectedDraw = useCallback(() => {
@@ -423,6 +421,36 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     frames.current[currentFrameIndex].undoStack.push(data);
   }, [displaySize]);
 
+  const deleteSelectedDraw = useCallback(() => {
+    if (!selection) return;
+
+    const data = ctx.getImageData(0, 0, displaySize, displaySize).data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const x = Math.floor((i / 4) % displaySize);
+      const y = Math.floor(i / 4 / displaySize);
+      // console.log('pos:', i, 'x,y', x, y);
+      if (
+        x >= selection.topLeft.x &&
+        x <= selection.bottomRight.x &&
+        y >= selection.topLeft.y &&
+        y <= selection.bottomRight.y &&
+        data[i + 3] > 0
+      ) {
+        data[i] = 0;
+        data[i + 1] = 0;
+        data[i + 2] = 0;
+        data[i + 3] = 0;
+      }
+    }
+
+    const imageData = new ImageData(data, displaySize, displaySize);
+
+    ctx.putImageData(imageData, 0, 0);
+
+    frames.current[currentFrameIndex].undoStack.push(data);
+  }, [displaySize]);
+
   useEffect(() => {
     const resetCanvasSubscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION, resetCanvasPosition);
     const selectFrameSubscription = EventBus.getInstance().subscribe(SELECT_FRAME, selectFrame);
@@ -434,6 +462,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     const handleRedoLastDrawSubscription = EventBus.getInstance().subscribe(REDO_LAST_DRAW, handleRedoLastDraw);
     const handleCopySelectedDrawSubscription = EventBus.getInstance().subscribe(COPY_SELECTED_DRAW, copyDrawToSelectedArea);
     const handlePasteSelectedDrawSubscription = EventBus.getInstance().subscribe(PASTE_SELECTED_DRAW, pasteSelectedDraw);
+    const handleDeleteSelectedDrawSubscription = EventBus.getInstance().subscribe(DELETE_SELECTED_DRAW, deleteSelectedDraw);
 
     function clearTopCanvas() {
       topCtx.clearRect(0, 0, displaySize, displaySize);
@@ -443,16 +472,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     const handleClearTopCanvas = EventBus.getInstance().subscribe(CLEAR_TOP_CANVAS, clearTopCanvas);
 
     function checkKeyCombinations(event: KeyboardEvent) {
-      // if (event.ctrlKey && event.code === 'KeyZ') {
-      //   handleUndoLastDraw();
-      // } else if (event.ctrlKey && event.code === 'KeyY') {
-      //   handleRedoLastDraw();
-      // } else if (event.ctrlKey && event.code === 'Space') {
-      //   resetCanvasPosition();
-      // } else if (event.ctrlKey && event.code === 'KeyC') {
-      //   copyDrawToSelectedArea();
-      // }
-
       if (event.ctrlKey) {
         switch (event.code) {
           case 'KeyZ':
@@ -474,6 +493,9 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             break;
         }
       }
+      if (event.code === 'Delete') {
+        deleteSelectedDraw();
+      }
     }
 
     document.addEventListener('keydown', checkKeyCombinations);
@@ -490,6 +512,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       handleClearTopCanvas.unsubscribe();
       handleCopySelectedDrawSubscription.unsubscribe();
       handlePasteSelectedDrawSubscription.unsubscribe();
+      handleDeleteSelectedDrawSubscription.unsubscribe();
       document.removeEventListener('keydown', checkKeyCombinations);
     };
   }, [
@@ -504,7 +527,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     draw,
     displaySize,
     copyDrawToSelectedArea,
-    pasteSelectedDraw
+    pasteSelectedDraw,
+    deleteSelectedDraw
   ]);
 
   useEffect(() => {
@@ -1419,7 +1443,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         //originalSelection = [Math.min(a.x, b.x), Math.min(a.y, b.y), Math.max(a.x, b.x), Math.max(a.y, b.y)];
         //topCtx.clearRect(0, 0, displaySize, displaySize);
       } else {
-        //move selected drawing to main canvas
         //selection = undefined;
       }
     }

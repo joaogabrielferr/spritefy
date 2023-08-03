@@ -6,6 +6,7 @@ import { EventBus } from '../../EventBus';
 import {
   CLEAR_TOP_CANVAS,
   COPY_SELECTED_DRAW,
+  DELETE_SELECTED_DRAW,
   PASTE_SELECTED_DRAW,
   REDO_LAST_DRAW,
   RESET_CANVAS_POSITION,
@@ -191,7 +192,13 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
             </button>
           )}
           {['selection'].find((tool) => tool === selectedTool) && (
-            <button data-tooltip-id="my-tooltip-extra-options" data-tooltip-content="Del" className="extra-options-button">
+            <button
+              data-tooltip-id="my-tooltip-extra-options"
+              data-tooltip-content="Del"
+              className="extra-options-button"
+              onClick={() => {
+                EventBus.getInstance().publish(DELETE_SELECTED_DRAW);
+              }}>
               DELETE SELECTED DRAW
             </button>
           )}
