@@ -8,7 +8,8 @@ export function toRGB(hex: string) {
 
 export function toHex(rgb: number[]) {
   function valueToHex(value: number) {
-    return value.toString(16);
+    const hex = value.toString(16);
+    return hex.length == 1 ? '0' + hex : hex;
   }
 
   return valueToHex(rgb[0]) + valueToHex(rgb[1]) + valueToHex(rgb[2]);
