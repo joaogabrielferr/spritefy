@@ -49,8 +49,10 @@ export function PaintBucket(
   }
 
   const numPixels = display_size * display_size + 1;
-  const visited: boolean[] = [];
-  for (let i = 0; i <= numPixels; i++) visited.push(false);
+  // const visited: boolean[] = [];
+  // for (let i = 0; i <= numPixels; i++) visited.push(false);
+  const visited = new Array(numPixels).fill(false);
+  console.log('start color:', startColor);
   bfs(scene, { x, y }, visited, selectedColor, startColor, pixel_size, ctx, draw, display_size);
 
   const imageData = new ImageData(scene.pixels, display_size, display_size);
@@ -114,8 +116,7 @@ function canVisitNeighbor(neighborIndex: number, visited: boolean[], startColor:
   const neighborColor = toHex([scene.pixels[neighborIndex], scene.pixels[neighborIndex + 1], scene.pixels[neighborIndex + 2]]);
 
   const notPainted = scene.pixels[neighborIndex + 3] === 0;
-
-  return !visited[neighborIndex / 4] && (neighborColor === startColor || notPainted);
+  return !visited[neighborIndex / 4] && ((neighborColor === startColor && !notPainted) || (!startColor && notPainted));
 
   return false;
 
