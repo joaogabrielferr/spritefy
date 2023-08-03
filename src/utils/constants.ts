@@ -1,5 +1,3 @@
-//TODO: remove canvas_size from here, canvas size will be defined by the user
-export const CANVAS_SIZE = 64; //TODO: Set CANVAS_SIZE as state, if the value changes, update variables and pixel matrix
 export const SCALE_FACTOR = 0.15;
 export const MAX_ZOOM_AMOUNT = 40;
 export const CIRCLE_RADIUS_INCREASE_FACTOR = 0.3;
@@ -7,8 +5,8 @@ export const ERASING = 'erasing';
 export const EDITOR_SIZE_OFFSET = 350;
 export const EDITOR_SIZE_OFFSET_MOBILE = 100;
 export const BG_TILE_SIZE = 16;
-export const TOP_CANVAS = { canvas: 'topCanvas', visible: true, blocked: false };
-export const BACKGROUND_CANVAS = { canvas: 'backgroundCanvas', visible: true, blocked: false };
+// export const TOP_CANVAS = { canvas: 'topCanvas', visible: true, blocked: false };
+// export const BACKGROUND_CANVAS = { canvas: 'backgroundCanvas', visible: true, blocked: false };
 
 export const BG_COLORS = ['#757474', '#a1a1a1'];
 
@@ -25,3 +23,5 @@ export const SWAP_FRAMES = 'swap-frames';
 export const UNDO_LAST_DRAW = 'undo-last-draw';
 export const REDO_LAST_DRAW = 'redo-last-draw';
 export const CLEAR_TOP_CANVAS = 'clear-top-canvas';
+export const COPY_SELECTED_DRAW = 'copy-selected-draw';
+export const PASTE_SELECTED_DRAW = 'paste-selected-draw';

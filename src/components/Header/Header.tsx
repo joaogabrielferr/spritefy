@@ -3,7 +3,6 @@ import './header.scss';
 import { Github } from '../../svg/Github';
 import { StoreType, store } from '../../store';
 import GIF from 'gif.js';
-import { CANVAS_SIZE } from '../../utils/constants';
 
 export function Header({ isMobile }: { isMobile: boolean }) {
   const downloadButton = useRef<HTMLButtonElement | null>(null);
@@ -17,53 +16,44 @@ export function Header({ isMobile }: { isMobile: boolean }) {
       const refAux = downloadButton.current;
 
       function createOutputImage() {
-        const canvas = document.createElement('canvas');
-        const width = CANVAS_SIZE * 5; //TODO: allow user to specify how many frames will be in a row
-        const heigth = Math.ceil(framesList.length / 5) * CANVAS_SIZE;
-
-        canvas.width = width;
-        canvas.height = heigth;
-
-        const ctx = canvas.getContext('2d');
-
-        let destX = 0;
-        let destY = 0;
-
-        framesList.forEach((frame) => {
-          ctx?.drawImage(
-            document.getElementById(`${frame}@sidebar`)! as HTMLCanvasElement,
-            destY,
-            destX
-          );
-
-          if (destY + CANVAS_SIZE < CANVAS_SIZE * 5) {
-            destY += CANVAS_SIZE;
-          } else {
-            destX += CANVAS_SIZE;
-            destY = 0;
-          }
-        });
-
-        document.body.appendChild(canvas);
-
-        const img: string =
-          framesList.length > 1
-            ? canvas.toDataURL('image/png')
-            : (document.getElementById(`${framesList[0]}@sidebar`) as HTMLCanvasElement).toDataURL(
-                'image/png'
-              );
-
-        const link = document.createElement('a');
-        link.href = img;
-        link.download = 'spritefy-drawing.png';
-
-        link.dispatchEvent(
-          new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            view: window
-          })
-        );
+        // const canvas = document.createElement('canvas');
+        // const width = CANVAS_SIZE * 5; //TODO: allow user to specify how many frames will be in a row
+        // const heigth = Math.ceil(framesList.length / 5) * CANVAS_SIZE;
+        // canvas.width = width;
+        // canvas.height = heigth;
+        // const ctx = canvas.getContext('2d');
+        // let destX = 0;
+        // let destY = 0;
+        // framesList.forEach((frame) => {
+        //   ctx?.drawImage(
+        //     document.getElementById(`${frame}@sidebar`)! as HTMLCanvasElement,
+        //     destY,
+        //     destX
+        //   );
+        //   if (destY + CANVAS_SIZE < CANVAS_SIZE * 5) {
+        //     destY += CANVAS_SIZE;
+        //   } else {
+        //     destX += CANVAS_SIZE;
+        //     destY = 0;
+        //   }
+        // });
+        // document.body.appendChild(canvas);
+        // const img: string =
+        //   framesList.length > 1
+        //     ? canvas.toDataURL('image/png')
+        //     : (document.getElementById(`${framesList[0]}@sidebar`) as HTMLCanvasElement).toDataURL(
+        //         'image/png'
+        //       );
+        // const link = document.createElement('a');
+        // link.href = img;
+        // link.download = 'spritefy-drawing.png';
+        // link.dispatchEvent(
+        //   new MouseEvent('click', {
+        //     bubbles: true,
+        //     cancelable: true,
+        //     view: window
+        //   })
+        // );
       }
 
       //this lib has a problem when using images with transparent bg, search fow a new one

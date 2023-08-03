@@ -17,14 +17,14 @@ import {
   EDITOR_SIZE_OFFSET_MOBILE,
   UPDATE_FRAMES_REF_ON_FRAMES_LIST_BAR,
   BG_TILE_SIZE,
-  CLEAR_TOP_CANVAS
+  CLEAR_TOP_CANVAS,
+  COPY_SELECTED_DRAW,
+  PASTE_SELECTED_DRAW
 } from '../../utils/constants';
 import Mouse from '../../scene/Mouse';
 import Scene from '../../scene/Scene';
 import { Pencil, Eraser, Dropper, PaintBucket, Elipse, Line, Rectangle, undoLastDraw, redoLastDraw } from '../../Tools';
 import { Frame } from '../../types';
-import { removeDraw } from '../../helpers/RemoveDraw';
-import { cleanDraw } from '../../helpers/CleanDraw';
 import { EventBus } from '../../EventBus';
 import { store, StoreType } from '../../store';
 import { Stack } from '../../utils/Stack';
@@ -432,6 +432,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     const swapFramesSubscription = EventBus.getInstance().subscribe(SWAP_FRAMES, swapFrames);
     const handleUndoLastDrawSubscription = EventBus.getInstance().subscribe(UNDO_LAST_DRAW, handleUndoLastDraw);
     const handleRedoLastDrawSubscription = EventBus.getInstance().subscribe(REDO_LAST_DRAW, handleRedoLastDraw);
+    const handleCopySelectedDrawSubscription = EventBus.getInstance().subscribe(COPY_SELECTED_DRAW, copyDrawToSelectedArea);
+    const handlePasteSelectedDrawSubscription = EventBus.getInstance().subscribe(PASTE_SELECTED_DRAW, pasteSelectedDraw);
 
     function clearTopCanvas() {
       topCtx.clearRect(0, 0, displaySize, displaySize);
@@ -486,6 +488,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       handleUndoLastDrawSubscription.unsubscribe();
       handleRedoLastDrawSubscription.unsubscribe();
       handleClearTopCanvas.unsubscribe();
+      handleCopySelectedDrawSubscription.unsubscribe();
+      handlePasteSelectedDrawSubscription.unsubscribe();
       document.removeEventListener('keydown', checkKeyCombinations);
     };
   }, [

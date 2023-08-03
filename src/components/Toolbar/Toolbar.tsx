@@ -3,7 +3,14 @@ import { ToolButtonType, toolsType } from '../../types';
 import './toolbar.scss';
 import { store, StoreType } from '../../store';
 import { EventBus } from '../../EventBus';
-import { CLEAR_TOP_CANVAS, REDO_LAST_DRAW, RESET_CANVAS_POSITION, UNDO_LAST_DRAW } from '../../utils/constants';
+import {
+  CLEAR_TOP_CANVAS,
+  COPY_SELECTED_DRAW,
+  PASTE_SELECTED_DRAW,
+  REDO_LAST_DRAW,
+  RESET_CANVAS_POSITION,
+  UNDO_LAST_DRAW
+} from '../../utils/constants';
 import { faArrowRotateLeft, faRotateRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -162,12 +169,24 @@ export function Toolbar({ toolButtons, isMobile, isWelcomeModalOpen }: ToolbarPr
             </div>
           )}
           {['selection'].find((tool) => tool === selectedTool) && (
-            <button data-tooltip-id="my-tooltip-extra-options" data-tooltip-content="Ctrl + C" className="extra-options-button">
+            <button
+              data-tooltip-id="my-tooltip-extra-options"
+              data-tooltip-content="Ctrl + C"
+              className="extra-options-button"
+              onClick={() => {
+                EventBus.getInstance().publish(COPY_SELECTED_DRAW);
+              }}>
               COPY SELECTED DRAW
             </button>
           )}
           {['selection'].find((tool) => tool === selectedTool) && (
-            <button data-tooltip-id="my-tooltip-extra-options" data-tooltip-content="Ctrl + V" className="extra-options-button">
+            <button
+              data-tooltip-id="my-tooltip-extra-options"
+              data-tooltip-content="Ctrl + V"
+              className="extra-options-button"
+              onClick={() => {
+                EventBus.getInstance().publish(PASTE_SELECTED_DRAW);
+              }}>
               PASTE SELECTED DRAW
             </button>
           )}
