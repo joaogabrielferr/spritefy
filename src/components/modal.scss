@@ -3,7 +3,7 @@
 $mobile: 768px;
 
 .modal-backdrop {
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(134, 134, 134, 0.65);
   bottom: 0;
   left: 0;
   overflow: auto;
@@ -14,7 +14,7 @@ $mobile: 768px;
 }
 
 .modal-container {
-  background: #fff;
+  background: #1a1a1a;
   border-radius: 5px;
   max-width: 100%;
   margin: 50px auto;
@@ -22,6 +22,7 @@ $mobile: 768px;
   padding-right: 15px;
   padding-bottom: 0px;
   width: 700px;
+  color: white;
   //   height: 700px;
 
   .modal-header {

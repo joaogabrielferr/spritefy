@@ -69,7 +69,7 @@ export function WelcomeModal({ onCloseModal }: WelcomeModalProps) {
             <div className="modal-presets">
               {presets.map((preset) => {
                 return (
-                  <button key={preset} className="modal-presets-item" onClick={() => handleSetSize(preset)}>
+                  <button key={preset} className="modal-presets-item" onClick={() => onCloseModal(preset)}>
                     {preset}x{preset}
                   </button>
                 );

@@ -63,6 +63,8 @@ function App() {
 
   const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
 
+  const displaySize = store((state: StoreType) => state.displaySize);
+
   const setDisplaySize = store((state: StoreType) => state.setDisplaySize);
 
   const [cssCanvasSize, setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize
@@ -79,11 +81,16 @@ function App() {
     setIsWelcomeModalOpen(false);
   }
 
+  // useEffect(() => {
+  //   if (!isMobile) {
+  //     setCssCanvasSize(window.innerHeight - 200);
+  //   }
+  // }, [displaySize, isMobile]);
+
   useEffect(() => {
     if (isMobile) setCssCanvasSize(window.innerWidth);
 
     function handleWindowResize() {
-      console.log(window.innerHeight);
       EventBus.getInstance().publish(RESET_CANVAS_POSITION);
 
       setIsMobile(window.innerWidth <= 768);
@@ -95,7 +102,7 @@ function App() {
     return function () {
       window.removeEventListener('resize', handleWindowResize);
     };
-  }, [cssCanvasSize, isMobile]);
+  }, [isMobile]);
 
   function handleChangeSelectedColor(color: ColorResult) {
     setSelectedColor(color.hex);
