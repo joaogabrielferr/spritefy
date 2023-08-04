@@ -12,6 +12,7 @@ export function Preview() {
   const displaySize = store((store: StoreType) => store.displaySize);
 
   const frameRate = store((store: StoreType) => store.frameRate);
+
   const setFrameRate = store((store: StoreType) => store.setFrameRate);
 
   const frameDuration = 1000 / frameRate;

@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { EventBus } from '../../EventBus';
 import { StoreType, store } from '../../store';
-import { Frame, drawOnSideBarCanvasType } from '../../types';
+import { drawOnSideBarCanvasType } from '../../types';
 import {
   BG_COLORS,
   BG_TILE_SIZE,
@@ -13,7 +13,7 @@ import {
 } from '../../utils/constants';
 import './frames.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAdd, faClone, faTrashCan, faUpLong } from '@fortawesome/free-solid-svg-icons';
+import { faAdd, faClone, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 
 export function Frames() {
   // const layers = store((state : StoreType) => state.layers);
@@ -33,7 +33,6 @@ export function Frames() {
       let firstInRow = 1;
       let a = firstInRow;
 
-      //draw background
       for (let i = 0; i <= displaySize; i += BG_TILE_SIZE) {
         if (firstInRow) a = 0;
         else a = 1;
@@ -75,6 +74,7 @@ export function Frames() {
   }, [drawFrameBackground, framesList]);
 
   function changeCurrentFrame(frame: string) {
+    console.log('aqui frames changing');
     EventBus.getInstance().publish<string>(SELECT_FRAME, frame);
   }
 
@@ -94,7 +94,6 @@ export function Frames() {
   }
 
   function copyFrame(frame: string) {
-    console.log(frame);
     EventBus.getInstance().publish(COPY_FRAME, frame);
   }
 
@@ -115,9 +114,8 @@ export function Frames() {
             style={{
               width: '95%',
               border: frame === currentFrame ? `2px solid #000000` : undefined
-            }}
-            onClick={() => changeCurrentFrame(frame)}>
-            <div className="frame-canvas-wrapper">
+            }}>
+            <div className="frame-canvas-wrapper" onClick={() => changeCurrentFrame(frame)}>
               <canvas
                 className="frame-canvas"
                 width={displaySize}

@@ -200,7 +200,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     }
 
     coordinatesElement = document.getElementById('coordinates') as HTMLSpanElement;
-
+    console.log('aqui useEffect isMobile');
     resetCanvasPosition();
   }, [cssCanvasSize, isMobile]);
 
@@ -222,6 +222,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     setCurrentFrame(newFrame.name);
     setFramesList([...framesList, newFrame.name]);
+    console.log('aqui addnewframe');
     resetCanvasPosition();
 
     ctx.clearRect(0, 0, displaySize, displaySize);
@@ -231,7 +232,10 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   const selectFrame = useCallback(
     (_frame: string) => {
+      console.log('frame em selected frame:', _frame);
       currentFrameIndex = frames.current.findIndex((frame) => frame.name === _frame);
+      console.log('curr index:', currentFrameIndex);
+      console.log('aqui selectframe');
       resetCanvasPosition();
       setCurrentFrame(_frame);
 
@@ -249,18 +253,17 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       const frameToRemoveIndex = frames.current.findIndex((frame) => frame.name === _frame);
       frames.current.splice(frameToRemoveIndex, 1);
       if (currentFrameIndex === frameToRemoveIndex) {
-        currentFrameIndex = 0;
-        setCurrentFrame(frames.current[currentFrameIndex].name);
-      } else if (currentFrameIndex > frameToRemoveIndex) {
-        currentFrameIndex = frames.current.length - 1;
-        setCurrentFrame(frames.current[frames.current.length - 1].name);
+        selectFrame(frames.current[0].name);
+      } else {
+        selectFrame(currentFrame);
       }
+
       setFramesList(newFramesList);
 
       //update frames ref on preview component
-      EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
+      //EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
     },
-    [framesList, setCurrentFrame, setFramesList]
+    [currentFrame, framesList, selectFrame, setFramesList]
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -294,6 +297,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
       setCurrentFrame(newFrame.name);
       frames.current[currentFrameIndex].scene.copyPixelMatrix(frames.current[frameCopiedIndex].scene.pixels);
+      console.log('aqui copyframe');
       resetCanvasPosition();
 
       ctx.clearRect(0, 0, displaySize, displaySize);
@@ -482,6 +486,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             handleRedoLastDraw();
             break;
           case 'Space':
+            console.log('aqui space');
             resetCanvasPosition();
             break;
           case 'KeyC':
@@ -1193,6 +1198,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             backgroundCanvas.style.top = `${backgroundCanvas.offsetTop + dy}px`;
           }
         } else {
+          console.log('aqui zoom mobile');
+
           resetCanvasPosition();
         }
       }
