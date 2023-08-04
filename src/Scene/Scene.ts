@@ -1,10 +1,6 @@
-import { BG_COLORS, BG_TILE_SIZE } from '../utils/constants';
 import { Pixel } from '../types';
-import { Stack } from '../utils/Stack';
 
 export default class Scene {
-  //pixels: Pixel[][]; //all operations are recorded in this matrix
-
   pixels: Uint8ClampedArray;
 
   currentDraw: Pixel[][]; //current draw in main canvas while mouse is pressed
@@ -59,43 +55,8 @@ export default class Scene {
     this.initialized = false;
   }
 
-  initializePixelMatrix(display_size: number, pixel_size: number) {
+  initializePixelMatrix(display_size: number) {
     this.pixels = new Uint8ClampedArray(display_size * display_size * 4);
-  }
-
-  //find pixel based on mouse position - xs and ys are already transformed to world coordinates
-  findPixel(xs: number, ys: number, pixel_size: number): Pixel | null {
-    // if (this.pixels[Math.floor(xs)][Math.floor(ys)]) {
-    //   return this.pixels[Math.floor(xs)][Math.floor(ys)];
-    // }
-
-    // return null;
-
-    // let pixel: Pixel | null = null;
-
-    // //first find row, then binary search the pixel in that row
-
-    // const i = Math.floor(xs / pixel_size);
-
-    // if (!this.pixels || !this.pixels[i]) return null;
-
-    // let start = 0,
-    //   end = this.pixels[i].length;
-    // let mid = 0;
-
-    // while (start <= end) {
-    //   mid = Math.floor((start + end) / 2);
-    //   if (!this.pixels[i][mid]) break;
-    //   if (ys >= this.pixels[i][mid].y1 && ys < this.pixels[i][mid].y1 + pixel_size) {
-    //     pixel = this.pixels[i][mid];
-    //     break;
-    //   }
-
-    //   if (ys < this.pixels[i][mid].y1) end = mid - 1;
-    //   else if (ys >= this.pixels[i][mid].y1 + pixel_size) start = mid + 1;
-    // }
-    // return pixel;
-    return null;
   }
 
   //find neighbors in Uint8campledarray (canvas is represented as a array, not a matrix)

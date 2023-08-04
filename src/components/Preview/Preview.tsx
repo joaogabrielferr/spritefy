@@ -1,5 +1,5 @@
 import { ChangeEvent, useCallback, useEffect, useRef } from 'react';
-import { BG_COLORS, BG_TILE_SIZE, ERASING, UPDATE_FRAMES_REF_ON_PREVIEW } from '../../utils/constants';
+import { BG_COLORS, BG_TILE_SIZE, UPDATE_FRAMES_REF_ON_PREVIEW } from '../../utils/constants';
 import './preview.scss';
 import { Frame } from '../../types';
 import { EventBus } from '../../EventBus';
@@ -18,7 +18,7 @@ export function Preview() {
 
   const currentIndex = useRef<number>(0);
 
-  //pixel matrices are passed by reference
+  //frames passed by reference
   const frames = useRef<Frame[]>([]);
 
   const redrawPreview = useCallback(() => {
@@ -28,30 +28,9 @@ export function Preview() {
 
     ctx.clearRect(0, 0, displaySize, displaySize);
 
-    for (let i = 0; i < frames.current[currentIndex.current].scene.pixels.length; i++) {
-      for (let j = 0; j < frames.current[currentIndex.current].scene.pixels[i].length; j++) {
-        if (!frames.current[currentIndex.current].scene.pixels[i][j].colorStack.isEmpty()) {
-          const color = frames.current[currentIndex.current].scene.pixels[i][j].colorStack.top();
-          if (!color || color === ERASING) {
-            ctx.fillStyle = frames.current[currentIndex.current].scene.pixels[i][j].bgColor;
-            ctx.clearRect(
-              frames.current[currentIndex.current].scene.pixels[i][j].x1,
-              frames.current[currentIndex.current].scene.pixels[i][j].y1,
-              1,
-              1
-            );
-          } else {
-            ctx.fillStyle = color;
-            ctx.fillRect(
-              frames.current[currentIndex.current].scene.pixels[i][j].x1,
-              frames.current[currentIndex.current].scene.pixels[i][j].y1,
-              1,
-              1
-            );
-          }
-        }
-      }
-    }
+    const imageData = new ImageData(frames.current[currentIndex.current].scene.pixels, displaySize, displaySize);
+
+    ctx.putImageData(imageData, 0, 0);
   }, [displaySize]);
 
   const startPreview = useCallback(() => {

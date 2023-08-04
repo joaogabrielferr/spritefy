@@ -166,10 +166,12 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     backgroundCanvas.width = displaySize;
     backgroundCanvas.height = displaySize;
 
-    frames.current[currentFrameIndex].scene.initializePixelMatrix(displaySize, pixel_size);
+    frames.current[currentFrameIndex].scene.initializePixelMatrix(displaySize);
 
     //update frames ref on frames component in sidebar
     //EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_FRAMES_LIST_BAR, frames.current);
+
+    EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
 
     draw(true);
   }, [displaySize, draw]);
@@ -213,19 +215,21 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   // }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
+
   const addNewFrame = useCallback(() => {
     const newFrame = createNewFrame();
     frames.current.push(newFrame);
     currentFrameIndex = frames.current.length - 1;
-    frames.current[currentFrameIndex].scene.initializePixelMatrix(displaySize, pixel_size);
+    frames.current[currentFrameIndex].scene.initializePixelMatrix(displaySize);
 
     //update frames ref on preview component
-    EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
+    //EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
     setCurrentFrame(newFrame.name);
     setFramesList([...framesList, newFrame.name]);
     resetCanvasPosition();
-    draw();
-  }, [displaySize, draw, framesList, setCurrentFrame, setFramesList]);
+
+    ctx.clearRect(0, 0, displaySize, displaySize);
+  }, [displaySize, framesList, setCurrentFrame, setFramesList]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -420,6 +424,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       data[index + 3] = 255;
     }
 
+    frames.current[currentFrameIndex].scene.pixels = data;
+
     const imageData = new ImageData(data, displaySize, displaySize);
 
     ctx.putImageData(imageData, 0, 0);
@@ -458,6 +464,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         data[i + 3] = 0;
       }
     }
+
+    frames.current[currentFrameIndex].scene.pixels = data;
 
     const imageData = new ImageData(data, displaySize, displaySize);
 
@@ -1472,9 +1480,9 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   function createNewFrame() {
     return {
       name: `frame${Date.now()}`,
-      scene: new Scene()
-      // undoStack: new Stack<Pixel[][]>(),
-      // redoStack: new Stack<[Pixel, string | undefined][]>()
+      scene: new Scene(),
+      undoStack: new Stack<Uint8ClampedArray>(),
+      redoStack: new Stack<Uint8ClampedArray>()
     } as Frame;
   }
 
