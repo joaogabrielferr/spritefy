@@ -10,7 +10,6 @@ import {
   DELETE_FRAME,
   UPDATE_FRAMES_REF_ON_PREVIEW,
   COPY_FRAME,
-  SWAP_FRAMES,
   UNDO_LAST_DRAW,
   REDO_LAST_DRAW,
   EDITOR_SIZE_OFFSET,
@@ -315,35 +314,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  const swapFrames = useCallback(
-    ({ frame1, frame2 }: { frame1: string; frame2: string }) => {
-      let frame1index = frames.current.findIndex((frame) => frame.name === frame1);
-      let frame2index = frames.current.findIndex((frame) => frame.name === frame2);
-
-      if (frame1index < 0 || frame2index < 0) return;
-
-      const aux = frames.current[frame1index];
-      frames.current[frame1index] = frames.current[frame2index];
-      frames.current[frame2index] = aux;
-
-      const newFramesList = [...framesList];
-
-      frame1index = framesList.findIndex((frame) => frame === frame1);
-      frame2index = framesList.findIndex((frame) => frame === frame2);
-
-      const aux2 = newFramesList[frame1index];
-      newFramesList[frame1index] = newFramesList[frame2index];
-      newFramesList[frame2index] = aux2;
-
-      EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
-
-      setFramesList(newFramesList);
-    },
-    [framesList, setFramesList]
-  );
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////
-
   const handleUndoLastDraw = useCallback(() => {
     undoLastDraw(pixel_size, ctx, frames.current[currentFrameIndex], displaySize);
 
@@ -489,7 +459,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     const createNewFrameSubscription = EventBus.getInstance().subscribe(CREATE_NEW_FRAME, addNewFrame);
     const deleteFrameSubscription = EventBus.getInstance().subscribe(DELETE_FRAME, deleteFrame);
     const copyFrameSubscription = EventBus.getInstance().subscribe(COPY_FRAME, copyFrame);
-    const swapFramesSubscription = EventBus.getInstance().subscribe(SWAP_FRAMES, swapFrames);
     const handleUndoLastDrawSubscription = EventBus.getInstance().subscribe(UNDO_LAST_DRAW, handleUndoLastDraw);
     const handleRedoLastDrawSubscription = EventBus.getInstance().subscribe(REDO_LAST_DRAW, handleRedoLastDraw);
     const handleCopySelectedDrawSubscription = EventBus.getInstance().subscribe(COPY_SELECTED_DRAW, copyDrawToSelectedArea);
@@ -538,7 +507,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       createNewFrameSubscription.unsubscribe();
       deleteFrameSubscription.unsubscribe();
       copyFrameSubscription.unsubscribe();
-      swapFramesSubscription.unsubscribe();
       handleUndoLastDrawSubscription.unsubscribe();
       handleRedoLastDrawSubscription.unsubscribe();
       handleClearTopCanvas.unsubscribe();
@@ -555,7 +523,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     handleRedoLastDraw,
     handleUndoLastDraw,
     selectFrame,
-    swapFrames,
     draw,
     displaySize,
     copyDrawToSelectedArea,

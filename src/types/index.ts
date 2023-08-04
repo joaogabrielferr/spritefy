@@ -63,12 +63,10 @@ export type Frame = {
   scene: Scene;
   undoStack: Stack<Uint8ClampedArray>;
   redoStack: Stack<Uint8ClampedArray>;
-  // undoStack: Stack<Pixel[][]>;
-  // redoStack: Stack<[Pixel, string | undefined][]>;
 };
 
-export type Layer = {
-  canvas: string;
-  visible: boolean;
-  blocked: boolean;
-};
+// export type Layer = {
+//   canvas: string;
+//   visible: boolean;
+//   blocked: boolean;
+// };

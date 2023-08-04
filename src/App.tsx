@@ -50,7 +50,7 @@ const ToolButtons = [
 //TODO: add new options for paint bucket:
 // paint diagonal neighbors
 //erase pixels instead of painting
-//change color of all pixels with the start colors
+//change color of all pixels with the start color
 
 //TODO: add new options for color picker:
 // choose as current color (default)
@@ -62,8 +62,6 @@ function App() {
   const selectedColor = store((state: StoreType) => state.selectedColor);
 
   const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
-
-  const displaySize = store((state: StoreType) => state.displaySize);
 
   const setDisplaySize = store((state: StoreType) => state.setDisplaySize);
 

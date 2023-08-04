@@ -52,7 +52,6 @@ export function PaintBucket(
   // const visited: boolean[] = [];
   // for (let i = 0; i <= numPixels; i++) visited.push(false);
   const visited = new Array(numPixels).fill(false);
-  console.log('start color:', startColor);
   bfs(scene, { x, y }, visited, selectedColor, startColor, pixel_size, ctx, draw, display_size);
 
   const imageData = new ImageData(scene.pixels, display_size, display_size);

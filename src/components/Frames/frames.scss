@@ -29,6 +29,14 @@
   }
 }
 
+.frames-title {
+  margin: 0 auto;
+  width: 95%;
+  color: variables.$secondary-font-color;
+  font-weight: bold;
+  font-size: 12px;
+}
+
 .frames {
   width: 95%;
   /* height: 100%; */
@@ -54,20 +62,13 @@
     height: 45px;
 
     .frame-canvas-wrapper {
-      width: 100%;
+      width: 45px;
       height: 45px;
       display: flex;
       justify-content: flex-start;
       align-items: start;
       /* cursor: pointer; */
       position: relative;
-
-      &:hover {
-        .move-frame-down,
-        .move-frame-up {
-          display: block;
-        }
-      }
 
       .frame-canvas {
         width: 45px;
@@ -83,43 +84,22 @@
         -ms-interpolation-mode: nearest-neighbor; /* IE8+ */
         image-rendering: pixelated; /* CSS4 (Chrome 41+) and FireFox 49+ */
       }
-
-      .move-frame-down,
-      .move-frame-up {
-        width: 10px;
-        height: 10px;
-        background-color: rgb(100, 100, 100);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        display: none;
-        position: absolute;
-        z-index: 3;
-
-        &.move-frame-down {
-          top: 30px;
-          left: 0;
-        }
-
-        &.move-frame-up {
-          top: 0;
-          left: 0;
-        }
-      }
     }
 
     .frame-options {
-      width: 169px;
+      width: calc(100% - 45px);
       height: 100%;
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-end;
 
       button {
         border-style: none;
         background-color: transparent;
         cursor: pointer;
+
+        &:hover {
+          transform: translateY(-3px);
+        }
       }
     }
   }
