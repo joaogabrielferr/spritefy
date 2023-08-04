@@ -150,7 +150,8 @@ function App() {
                     justifyContent: 'flex-start',
                     fontSize: '15px',
                     fontWeight: 'bold',
-                    zIndex: 10000000
+                    zIndex: 10000000,
+                    userSelect: 'none'
                   }}>
                   <span
                     id="coordinates"

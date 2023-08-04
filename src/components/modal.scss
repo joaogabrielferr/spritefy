@@ -14,7 +14,7 @@ $mobile: 768px;
 }
 
 .modal-container {
-  background: #020202;
+  background: variables.$body-background-color;
   border-radius: 5px;
   max-width: 100%;
   margin: 50px auto;
@@ -22,12 +22,12 @@ $mobile: 768px;
   padding-right: 15px;
   padding-bottom: 0px;
   width: 700px;
-  color: rgb(219, 219, 219);
+  color: rgb(207, 207, 207);
   //   height: 700px;
 
   .modal-header {
     width: 100%;
-    border-bottom: 2px solid rgb(219, 219, 219);
+    border-bottom: 2px solid rgb(207, 207, 207);
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -59,12 +59,12 @@ $mobile: 768px;
           width: 100px;
           height: 50px;
           flex: 2;
-          background-color: rgb(38, 55, 80);
+          background-color: rgb(47, 93, 161);
           display: flex;
           justify-content: center;
           align-items: center;
           border-style: none;
-          color: variables.$secondary-font-color;
+          color: rgb(207, 207, 207);
         }
       }
     }
@@ -87,7 +87,8 @@ $mobile: 768px;
           border-style: none;
           border-radius: 2px;
           height: 30px;
-          border: 1px solid rgb(192, 190, 190);
+          border: 1px solid rgb(207, 207, 207);
+          background-color: rgb(207, 207, 207);
         }
       }
     }
@@ -103,10 +104,10 @@ $mobile: 768px;
   }
 
   button {
-    background: rgb(38, 55, 80);
+    background: rgb(47, 93, 161);
     border: 0;
     border-radius: 5px;
-    color: rgb(219, 219, 219);
+    color: rgb(207, 207, 207);
     cursor: pointer;
     font-size: 16px;
     font-weight: 600;
@@ -114,8 +115,7 @@ $mobile: 768px;
     transition: transform 100ms ease-out;
 
     &:hover {
-      background: rgb(25, 36, 53);
-      transform: scale(1.05);
+      transform: translateY(-5px);
     }
 
     &:disabled {

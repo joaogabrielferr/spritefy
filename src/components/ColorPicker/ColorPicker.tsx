@@ -11,17 +11,15 @@ function CustomColorPicker(props: any) {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center'
-      }}
-    >
+      }}>
       <div
         style={{
           position: 'relative',
           width: '97%',
-          height: '10px',
+          height: '15px',
           marginBottom: '10px',
           border: '0.1px solid black'
-        }}
-      >
+        }}>
         <Hue {...props} onChange={props.onChange} />
       </div>
       <div
@@ -31,8 +29,7 @@ function CustomColorPicker(props: any) {
           height: '150px',
           marginBottom: '10px',
           border: '0.1px solid black'
-        }}
-      >
+        }}>
         <Saturation {...props} onChange={props.onChange} />
       </div>
     </div>
