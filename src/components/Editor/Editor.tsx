@@ -1,4 +1,4 @@
-import { useEffect, useRef, WheelEvent, MouseEvent, TouchEvent, Touch, useCallback } from 'react';
+import { useEffect, useRef, WheelEvent, MouseEvent, TouchEvent, Touch, useCallback, useState } from 'react';
 import './editor.scss';
 import {
   MAX_ZOOM_AMOUNT,
@@ -119,9 +119,9 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvases
 
-  const latestFrameCreated = useRef('');
-
   const shouldUpdateSideBarCanvas = useRef(false);
+
+  const [shouldUpdateSidebarFrame, setShouldUpdateSidebarFrame] = useState(false);
 
   const draw = useCallback(
     (drawBackground?: boolean) => {
@@ -168,9 +168,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     frames.current[currentFrameIndex].scene.initializePixelMatrix(displaySize);
 
-    //update frames ref on frames component in sidebar
-    //EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_FRAMES_LIST_BAR, frames.current);
-
+    //add reference to frames array in preview component
+    //UPDATE_FRAMES_REF_ON_PREVIEW -> subscribed by Preview.tsx
     EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
 
     draw(true);
@@ -222,8 +221,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     currentFrameIndex = frames.current.length - 1;
     frames.current[currentFrameIndex].scene.initializePixelMatrix(displaySize);
 
-    //update frames ref on preview component
-    //EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
     setCurrentFrame(newFrame.name);
     setFramesList([...framesList, newFrame.name]);
     resetCanvasPosition();
@@ -238,8 +235,11 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       currentFrameIndex = frames.current.findIndex((frame) => frame.name === _frame);
       resetCanvasPosition();
       setCurrentFrame(_frame);
+
+      ctx.clearRect(0, 0, displaySize, displaySize);
+      ctx.putImageData(new ImageData(frames.current[currentFrameIndex].scene.pixels, displaySize, displaySize), 0, 0);
     },
-    [setCurrentFrame]
+    [displaySize, setCurrentFrame]
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -269,49 +269,49 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   const copyFrame = useCallback(
     (_frame: string) => {
       const newFrame = createNewFrame();
-      latestFrameCreated.current = newFrame.name;
 
-      //true only when copiyng a frame
       shouldUpdateSideBarCanvas.current = true;
+
       const frameCopiedIndex = frames.current.findIndex((frame) => frame.name === _frame);
+
+      if (frames.current[frameCopiedIndex].undoStack.top()) {
+        newFrame.undoStack.push(frames.current[frameCopiedIndex].undoStack.top()!);
+      }
+
       if (frameCopiedIndex < 0) return;
-      frames.current.splice(frameCopiedIndex + 1, 0, newFrame);
-      const newFrameIndex = frames.current.findIndex((frame) => frame.name === newFrame.name);
-      frames.current[newFrameIndex].scene.copyPixelMatrix(frames.current[frameCopiedIndex].scene.pixels);
-      if (newFrameIndex === frames.current.length - 1) {
+
+      currentFrameIndex = frameCopiedIndex + 1;
+
+      if (frameCopiedIndex === frames.current.length - 1) {
+        frames.current.push(newFrame);
         setFramesList([...framesList, newFrame.name]);
       } else {
+        //adds newFrame in position frameCopiedIndex + 1 and shift next elements
+        frames.current.splice(frameCopiedIndex + 1, 0, newFrame);
         const newFramesList = [...framesList];
         newFramesList.splice(frameCopiedIndex + 1, 0, newFrame.name);
         setFramesList(newFramesList);
       }
-      setCurrentFrame(newFrame.name);
-      currentFrameIndex = newFrameIndex;
-      resetCanvasPosition();
-      draw();
 
-      //update frames ref on preview component
-      EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
+      setCurrentFrame(newFrame.name);
+      frames.current[currentFrameIndex].scene.copyPixelMatrix(frames.current[frameCopiedIndex].scene.pixels);
+      resetCanvasPosition();
+
+      ctx.clearRect(0, 0, displaySize, displaySize);
+
+      ctx.putImageData(new ImageData(frames.current[currentFrameIndex].scene.pixels, displaySize, displaySize), 0, 0);
     },
-    [draw, framesList, setCurrentFrame, setFramesList]
+    [displaySize, framesList, setCurrentFrame, setFramesList]
   );
 
-  ///////////////////////////////////////////////////////////////////////////////////////////////
-
-  function updateSideBarCanvasAfterChangingFramesList(frameName: string) {
-    if (!shouldUpdateSideBarCanvas.current || frameName === '' || frameName.length <= 1) return;
-
-    const frameIndex = frames.current.findIndex((frame) => frame.name === frameName);
-
-    // EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
-    //   frame: frameName,
-    //   pixelMatrix: frames.current[frameIndex].scene.pixels,
-    //   frames: frames.current
-    // });
-
-    //true only when copiyng a frame
-    shouldUpdateSideBarCanvas.current = false;
-  }
+  //content of copied frame needs to be sent to its corresponding sidebar frame to keep sidebar canvases updated with frames state
+  //this has to be done after frameList state updates
+  useEffect(() => {
+    EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+      frame: currentFrame,
+      pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
+    });
+  }, [currentFrame, displaySize]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -562,12 +562,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     pasteSelectedDraw,
     deleteSelectedDraw
   ]);
-
-  useEffect(() => {
-    //updating sidebar canvas when a new frame is copied, putting it here so that i can garantee that it only updates after framesList changes
-    //in other situations where sidebar canvas is updated (frame created, deleted, or draw finished) this is not necessary
-    updateSideBarCanvasAfterChangingFramesList(latestFrameCreated.current);
-  }, [framesList]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 

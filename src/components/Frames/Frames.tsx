@@ -112,6 +112,7 @@ export function Frames() {
   }
 
   function copyFrame(frame: string) {
+    console.log(frame);
     EventBus.getInstance().publish(COPY_FRAME, frame);
   }
 
