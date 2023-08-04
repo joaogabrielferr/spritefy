@@ -1,6 +1,6 @@
 import Mouse from '../scene/Mouse';
 import Scene from '../scene/Scene';
-import { completeClosedRectangle } from '../scene/buildPath';
+import { completeClosedRectangle } from '../algorithms/completeClosedRectangle';
 
 export function Selection(
   scene: Scene,

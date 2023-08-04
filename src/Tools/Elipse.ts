@@ -1,5 +1,5 @@
 import Scene from '../scene/Scene';
-import { drawElipse } from '../scene/buildPath';
+import { completeElipse } from '../algorithms/completeElipse';
 import { toRGB } from '../utils/colorConverters';
 
 //ctx is the context of top canvas, drawing is made first on top canvas and after mouse up event the draw is translated to main canvas, since the draw change dinamically
@@ -22,7 +22,7 @@ export function Elipse(
 
   const data = ctx.getImageData(0, 0, display_size, display_size).data;
 
-  const path: { x: number; y: number }[] = drawElipse(midPoint, major, minor, scene, pixel_size, display_size);
+  const path: { x: number; y: number }[] = completeElipse(midPoint, major, minor, scene, pixel_size, display_size);
   for (let pixel of path) {
     const index = (pixel.x + display_size * pixel.y) * 4;
     data[index] = rgb[0];

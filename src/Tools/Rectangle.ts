@@ -1,7 +1,6 @@
-import { completeSquare } from '../scene/buildPath';
+import { completeRectangle } from '../algorithms/completeRectangle';
 import Mouse from '../scene/Mouse';
 import Scene from '../scene/Scene';
-import { Pixel } from '../types';
 import { toRGB } from '../utils/colorConverters';
 
 //ctx is the context of top canvas, drawing is made first on top canvas and after mouse up event the draw is translated to main canvas, since the draw change dinamically
@@ -26,17 +25,9 @@ export function Rectangle(
 
   const data = ctx.getImageData(0, 0, display_size, display_size).data;
 
-  const path: { x: number; y: number }[] = completeSquare(start, { x, y }, pixel_size, display_size);
-
-  //const map = new Map<number, boolean>();
+  const path: { x: number; y: number }[] = completeRectangle(start, { x, y }, pixel_size, display_size);
 
   for (let pixel of path) {
-    // if(!map.get(pixel.id))
-    // {
-    //map.set(pixel.id, true);
-    // ctx.fillStyle = selectedColor;
-    // ctx.fillRect(pixel.x1, pixel.y1, penSize, penSize);
-
     const index = (pixel.x + display_size * pixel.y) * 4;
     data[index] = rgb[0];
     data[index + 1] = rgb[1];
@@ -44,11 +35,7 @@ export function Rectangle(
     data[index + 3] = 255;
 
     paintNeighbors(index, scene, ctx, penSize, selectedColor, pixel_size, display_size, data);
-
-    // }
   }
-
-  // return draw;
 
   const imageData = new ImageData(data, display_size, display_size);
 

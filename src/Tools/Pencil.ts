@@ -1,7 +1,6 @@
 import Mouse from '../scene/Mouse';
 import Scene from '../scene/Scene';
-import { bresenhamsAlgorithm } from '../scene/buildPath';
-import { Pixel } from '../types';
+import { bresenhamsAlgorithm } from '../algorithms/bresenhamsAlgorithm';
 import { toRGB } from '../utils/colorConverters';
 
 export function Pencil(
@@ -70,10 +69,6 @@ export function Pencil(
   const imageData = new ImageData(scene.pixels, display_size, display_size);
 
   ctx.putImageData(imageData, 0, 0);
-}
-
-function isPixelAlreadyPaintedInCurrentDraw(pixel: Pixel, scene: Scene) {
-  return scene.currentPixelsMousePressed.get(pixel.id);
 }
 
 function paintNeighbors(

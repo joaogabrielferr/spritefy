@@ -1,8 +1,6 @@
 import Mouse from '../scene/Mouse';
 import Scene from '../scene/Scene';
-import { bresenhamsAlgorithm } from '../scene/buildPath';
-import { Pixel } from '../types/index';
-import { ERASING } from '../utils/constants';
+import { bresenhamsAlgorithm } from '../algorithms/bresenhamsAlgorithm';
 
 export function Eraser(
   eventName: string,
@@ -13,10 +11,6 @@ export function Eraser(
   ctx: CanvasRenderingContext2D,
   penSize: number
 ) {
-  // if(!mouse.isPressed)return [];
-
-  const draw: Pixel[] = []; //pixels changed in this function are stored here
-
   const x = Math.floor(mouse.x);
   const y = Math.floor(mouse.y);
 

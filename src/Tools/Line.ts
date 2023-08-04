@@ -1,7 +1,6 @@
 import Mouse from '../scene/Mouse';
 import Scene from '../scene/Scene';
-import { bresenhamsAlgorithm } from '../scene/buildPath';
-import { Pixel } from '../types';
+import { bresenhamsAlgorithm } from '../algorithms/bresenhamsAlgorithm';
 import { toRGB } from '../utils/colorConverters';
 
 //ctx is the context of top canvas, drawing is made first on top canvas and after mouse up event the draw is translated to main canvas, since the draw change dinamically
@@ -49,10 +48,6 @@ export function Line(
   ctx.putImageData(imageData, 0, 0);
 }
 
-function isPixelAlreadyPaintedInCurrentDraw(pixel: Pixel, scene: Scene) {
-  return scene.currentPixelsMousePressed.get(pixel.id);
-}
-
 function paintNeighbors(
   index: number,
   scene: Scene,
@@ -73,20 +68,3 @@ function paintNeighbors(
     data[n + 3] = 255;
   }
 }
-
-// function paintNeighbors(
-//   pixel: Pixel,
-//   scene: Scene,
-//   ctx: CanvasRenderingContext2D,
-//   draw: Pixel[],
-//   penSize: number,
-//   pixel_size: number
-// ) {
-//   let neighbors: Pixel[] = scene.findNeighbors(pixel, penSize);
-
-//   for (let n of neighbors) {
-//     scene.currentPixelsMousePressed.set(n.id, true);
-//     ctx.fillRect(n.x1, n.y1, pixel_size, pixel_size);
-//     draw.push(n);
-//   }
-// }
