@@ -1,5 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
 import './sideBar.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 interface SidebarProps {
   children: React.ReactNode;
@@ -14,7 +16,9 @@ export function Sidebar({ children, isMobile, isOpen, toogleSidebarOnMobile }: S
     <div className={`sidebar${isMobile ? (isOpen ? '-mobile open' : '-mobile') : ''}`}>
       {isMobile ? (
         <div className="sidebar-close-button-mobile">
-          <button onClick={() => toogleSidebarOnMobile(!isOpen)}>X</button>
+          <button onClick={() => toogleSidebarOnMobile(!isOpen)}>
+            <FontAwesomeIcon size="lg" color="white" icon={faXmark} />
+          </button>
         </div>
       ) : (
         ''
