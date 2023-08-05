@@ -660,6 +660,35 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         mouse.y = (mouse.y - offsetY) * (displaySize / canvasHeight); // Transform the mouse Y-coordinate to canvas
 
         mouse.isPressed = true;
+        if (selectedTool === 'selection') {
+          if (selection) {
+            const { x, y } = mouse.getPosition();
+            if (
+              x >= selection.topLeft.x &&
+              x <= selection.bottomRight.x &&
+              y >= selection.topLeft.y &&
+              y <= selection.bottomRight.y
+            ) {
+              //mouse inside selection
+              movingSelectedArea = true;
+              mouseSelectionOffsetTopLeftX = mouse.x - selection.topLeft.x;
+              mouseSelectionOffsetTopLeftY = mouse.y - selection.topLeft.y;
+              mouseSelectionOffsetBottomRightX = selection.bottomRight.x - mouse.x;
+              mouseSelectionOffsetBottomRightY = selection.bottomRight.y - mouse.y;
+            } else {
+              //a new selection will be created
+              selection = undefined;
+              movingSelectedArea = false;
+              selectedDraw = [];
+              selectedDrawOriginalPosition = [];
+              topCtx.clearRect(0, 0, displaySize, displaySize);
+            }
+          } else {
+            //a new selection will be created
+            movingSelectedArea = false;
+            topCtx.clearRect(0, 0, displaySize, displaySize);
+          }
+        }
 
         if (selectedTool === 'pencil') {
           Pencil(
@@ -696,9 +725,16 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           );
           if (color) setSelectedColor(color);
         } else if (selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse') {
+          console.log('line first pixel');
           frames.current[currentFrameIndex].scene.lineFirstPixel = { x: Math.floor(mouse.x), y: Math.floor(mouse.y) };
         } else if (selectedTool === 'selection') {
-          frames.current[currentFrameIndex].scene.selectionFirstPixel = { x: Math.floor(mouse.x), y: Math.floor(mouse.y) };
+          console.log('selection touch start');
+          if (!movingSelectedArea) {
+            frames.current[currentFrameIndex].scene.selectionFirstPixel = { x: Math.floor(mouse.x), y: Math.floor(mouse.y) };
+            console.log(frames.current[currentFrameIndex].scene.selectionFirstPixel);
+          }
+        } else if (selectedTool === 'dithering') {
+          Dithering(frames.current[currentFrameIndex].scene, mouse, pixel_size, displaySize, ctx, penSize, selectedColor);
         }
       }
     }, 100);
@@ -914,6 +950,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       return;
     }
 
+    console.log('aqui 2');
+
     const bounding = canvas.getBoundingClientRect();
     mouse.x = event.touches[0].clientX - bounding.left;
     mouse.y = event.touches[0].clientY - bounding.top;
@@ -937,16 +975,22 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       frames.current[currentFrameIndex].scene.lastPixelXMirror = null;
       frames.current[currentFrameIndex].scene.lastPixelYMirror = null;
       frames.current[currentFrameIndex].scene.lastPixelXYMirror = null;
-      if (frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse) {
-        // removeDraw(
-        //   topCtx,
-        //   [
-        //     frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!,
-        //     ...frames.current[currentFrameIndex].scene.previousNeighborsWhileMovingMouse
-        //   ],
-        //   pixel_size
-        // );
-      }
+      frames.current[currentFrameIndex].scene.selectionLastPixel = null;
+
+      // if (selectedTool !== 'selection') {
+      //   if (frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse) {
+      //     topCtx.clearRect(
+      //       frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!.x,
+      //       frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!.y,
+      //       pixel_size,
+      //       pixel_size
+      //     );
+
+      //     for (let n of frames.current[currentFrameIndex].scene.previousNeighborsWhileMovingMouse) {
+      //       topCtx.clearRect(n.x, n.y, pixel_size, pixel_size);
+      //     }
+      //   }
+      // }
       return;
     }
 
@@ -1026,6 +1070,53 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           );
         }
       }
+    } else if (selectedTool === 'selection' && mouse.isPressed) {
+      console.log('AQUI');
+      if (!movingSelectedArea) {
+        //creating new selection
+        topCtx.clearRect(0, 0, displaySize, displaySize);
+        Selection(
+          frames.current[currentFrameIndex].scene,
+          frames.current[currentFrameIndex].scene.selectionFirstPixel!,
+          { x: Math.floor(mouse.x), y: Math.floor(mouse.y) },
+          mouse,
+          topCtx,
+          displaySize,
+          pixel_size
+        );
+      } else {
+        //currently moving selected area
+        //check if mouse is inside selection
+
+        const { x, y } = mouse.getPosition();
+
+        const topLeft = {
+          x: x - mouseSelectionOffsetTopLeftX,
+          y: y - mouseSelectionOffsetTopLeftY
+        };
+
+        const bottomRight = {
+          x: mouse.x + mouseSelectionOffsetBottomRightX,
+          y: mouse.y + mouseSelectionOffsetBottomRightY
+        };
+
+        selection = { topLeft, bottomRight };
+
+        topCtx.clearRect(0, 0, displaySize, displaySize);
+        Selection(
+          frames.current[currentFrameIndex].scene,
+          selection.topLeft,
+          selection.bottomRight,
+          mouse,
+          topCtx,
+          displaySize,
+          pixel_size,
+          true,
+          selectedDraw
+        );
+      }
+    } else if (selectedTool === 'dithering' && mouse.isPressed) {
+      Dithering(frames.current[currentFrameIndex].scene, mouse, pixel_size, displaySize, ctx, penSize, selectedColor);
     }
 
     mouse.mouseMoveLastPos = { x: mouse.x, y: mouse.y };

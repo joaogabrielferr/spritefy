@@ -9,13 +9,15 @@ interface SidebarProps {
 }
 
 export function Sidebar({ children, isMobile, isOpen, toogleSidebarOnMobile }: SidebarProps) {
+  console.log(isMobile);
   return (
     <div className={`sidebar${isMobile ? (isOpen ? '-mobile open' : '-mobile') : ''}`}>
-      <span> &nbsp;</span>
-      {isMobile ?? (
-        <div>
+      {isMobile ? (
+        <div className="sidebar-close-button-mobile">
           <button onClick={() => toogleSidebarOnMobile(!isOpen)}>X</button>
         </div>
+      ) : (
+        ''
       )}
       {children}
     </div>
