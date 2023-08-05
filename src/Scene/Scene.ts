@@ -26,6 +26,9 @@ export default class Scene {
   selectionFirstPixel: { x: number; y: number } | null; //start pixel selection
 
   selectionLastPixel: { x: number; y: number } | null; //last pixel when drawing a selection rectangle
+
+  changed = false;
+
   circleRadius: number;
 
   zoomAmount: number;

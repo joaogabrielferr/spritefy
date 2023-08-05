@@ -7,3 +7,5 @@ export { Pencil } from './Pencil';
 export { Rectangle } from './Rectangle';
 export { undoLastDraw } from './UndoRedo';
 export { redoLastDraw } from './UndoRedo';
+export { Selection } from './Selection';
+export { Dithering } from './Dithrering';

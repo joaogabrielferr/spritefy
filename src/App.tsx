@@ -110,7 +110,7 @@ function App() {
     <>
       <main>
         <Header isMobile={isMobile} />
-        {/* <div style={{ width: '100%', height: '20px', backgroundColor: 'rgb(77, 77, 77)' }}>teste</div> */}
+        <div style={{ width: '100%', height: '30px', backgroundColor: 'rgb(77, 77, 77)' }}>teste</div>
         <section className="main-section">
           <div className="main-inner-wrapper">
             {/* left sidebar */}

@@ -1,35 +1,25 @@
-import { useEffect, useRef, WheelEvent, MouseEvent, TouchEvent, Touch, useCallback, useState } from 'react';
+import { useEffect, useRef, WheelEvent, MouseEvent, TouchEvent, Touch, useCallback } from 'react';
 import './editor.scss';
-import {
-  MAX_ZOOM_AMOUNT,
-  BG_COLORS,
-  SCALE_FACTOR,
-  RESET_CANVAS_POSITION,
-  CREATE_NEW_FRAME,
-  SELECT_FRAME,
-  DELETE_FRAME,
-  UPDATE_FRAMES_REF_ON_PREVIEW,
-  COPY_FRAME,
-  UNDO_LAST_DRAW,
-  REDO_LAST_DRAW,
-  EDITOR_SIZE_OFFSET,
-  EDITOR_SIZE_OFFSET_MOBILE,
-  BG_TILE_SIZE,
-  CLEAR_TOP_CANVAS,
-  COPY_SELECTED_DRAW,
-  PASTE_SELECTED_DRAW,
-  DELETE_SELECTED_DRAW,
-  DRAW_ON_SIDEBAR_CANVAS
-} from '../../utils/constants';
+import * as constants from '../../utils/constants';
 import Mouse from '../../scene/Mouse';
 import Scene from '../../scene/Scene';
-import { Pencil, Eraser, Dropper, PaintBucket, Elipse, Line, Rectangle, undoLastDraw, redoLastDraw } from '../../Tools';
+import {
+  Pencil,
+  Eraser,
+  Dropper,
+  PaintBucket,
+  Elipse,
+  Line,
+  Rectangle,
+  undoLastDraw,
+  redoLastDraw,
+  Selection,
+  Dithering
+} from '../../Tools';
 import { Frame, drawOnSideBarCanvasType } from '../../types';
 import { EventBus } from '../../EventBus';
 import { store, StoreType } from '../../store';
 import { Stack } from '../../utils/Stack';
-import { Selection } from '../../Tools/Selection';
-import { Dithering } from '../../Tools/Dithrering';
 
 interface IEditor {
   cssCanvasSize: number;
@@ -38,7 +28,7 @@ interface IEditor {
 
 type point = { x: number; y: number };
 
-//this ones dont have to be states
+//these variables dont have to be states
 let canvas: HTMLCanvasElement, topCanvas: HTMLCanvasElement, backgroundCanvas: HTMLCanvasElement;
 
 let ctx: CanvasRenderingContext2D, topCtx: CanvasRenderingContext2D, bgCtx: CanvasRenderingContext2D;
@@ -91,7 +81,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   //persisting frames between re renders
   //updating frames doesnt generate re renders
   const frames = useRef<Frame[]>([
-    //state framesList is initialized with ['frame1']
+    //framesList state is initialized with ['frame1']
     {
       name: 'frame1',
       scene: new Scene(),
@@ -119,30 +109,20 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvases
 
-  const shouldUpdateSideBarCanvas = useRef(false);
-
-  const [shouldUpdateSidebarFrame, setShouldUpdateSidebarFrame] = useState(false);
-
-  const draw = useCallback(
-    (drawBackground?: boolean) => {
-      let firstInRow = 1;
-      let a = firstInRow;
-      //draw background
-      if (drawBackground) {
-        for (let i = 0; i <= displaySize; i += pixel_size * BG_TILE_SIZE) {
-          if (firstInRow) a = 0;
-          else a = 1;
-          firstInRow = firstInRow ? 0 : 1;
-          for (let j = 0; j <= displaySize; j += pixel_size * BG_TILE_SIZE) {
-            bgCtx.fillStyle = a ? BG_COLORS[0] : BG_COLORS[1];
-            bgCtx.fillRect(i, j, pixel_size * BG_TILE_SIZE, pixel_size * BG_TILE_SIZE);
-            a = a ? 0 : 1;
-          }
-        }
+  const drawBackground = useCallback(() => {
+    let firstInRow = 1;
+    let a = firstInRow;
+    for (let i = 0; i <= displaySize; i += pixel_size * constants.BG_TILE_SIZE) {
+      if (firstInRow) a = 0;
+      else a = 1;
+      firstInRow = firstInRow ? 0 : 1;
+      for (let j = 0; j <= displaySize; j += pixel_size * constants.BG_TILE_SIZE) {
+        bgCtx.fillStyle = a ? constants.BG_COLORS[0] : constants.BG_COLORS[1];
+        bgCtx.fillRect(i, j, pixel_size * constants.BG_TILE_SIZE, pixel_size * constants.BG_TILE_SIZE);
+        a = a ? 0 : 1;
       }
-    },
-    [displaySize]
-  );
+    }
+  }, [displaySize]);
 
   useEffect(() => {
     pixel_size = 1;
@@ -169,48 +149,40 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     frames.current[currentFrameIndex].scene.initializePixelMatrix(displaySize);
 
     //add reference to frames array in preview component
-    //UPDATE_FRAMES_REF_ON_PREVIEW -> subscribed by Preview.tsx
-    EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
+    //constants.UPDATE_FRAMES_REF_ON_PREVIEW -> subscribed by Preview.tsx
+    EventBus.getInstance().publish<Frame[]>(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
 
-    draw(true);
-  }, [displaySize, draw]);
+    drawBackground();
+
+    coordinatesElement = document.getElementById('coordinates') as HTMLSpanElement;
+  }, [displaySize, drawBackground]);
 
   useEffect(() => {
     if (isMobile) {
-      canvas.style.width = `${cssCanvasSize - EDITOR_SIZE_OFFSET_MOBILE}px`;
-      canvas.style.height = `${cssCanvasSize - EDITOR_SIZE_OFFSET_MOBILE}px`;
+      canvas.style.width = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET_MOBILE}px`;
+      canvas.style.height = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET_MOBILE}px`;
 
-      topCanvas.style.width = `${cssCanvasSize - EDITOR_SIZE_OFFSET_MOBILE}px`;
-      topCanvas.style.height = `${cssCanvasSize - EDITOR_SIZE_OFFSET_MOBILE}px`;
+      topCanvas.style.width = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET_MOBILE}px`;
+      topCanvas.style.height = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET_MOBILE}px`;
 
-      backgroundCanvas.style.width = `${cssCanvasSize - EDITOR_SIZE_OFFSET_MOBILE}px`;
-      backgroundCanvas.style.height = `${cssCanvasSize - EDITOR_SIZE_OFFSET_MOBILE}px`;
+      backgroundCanvas.style.width = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET_MOBILE}px`;
+      backgroundCanvas.style.height = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET_MOBILE}px`;
 
-      originalCanvasWidth = cssCanvasSize - EDITOR_SIZE_OFFSET_MOBILE;
+      originalCanvasWidth = cssCanvasSize - constants.EDITOR_SIZE_OFFSET_MOBILE;
     } else {
-      canvas.style.width = `${cssCanvasSize - EDITOR_SIZE_OFFSET}px`;
-      canvas.style.height = `${cssCanvasSize - EDITOR_SIZE_OFFSET}px`;
+      canvas.style.width = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET}px`;
+      canvas.style.height = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET}px`;
 
-      topCanvas.style.width = `${cssCanvasSize - EDITOR_SIZE_OFFSET}px`;
-      topCanvas.style.height = `${cssCanvasSize - EDITOR_SIZE_OFFSET}px`;
+      topCanvas.style.width = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET}px`;
+      topCanvas.style.height = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET}px`;
 
-      backgroundCanvas.style.width = `${cssCanvasSize - EDITOR_SIZE_OFFSET}px`;
-      backgroundCanvas.style.height = `${cssCanvasSize - EDITOR_SIZE_OFFSET}px`;
+      backgroundCanvas.style.width = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET}px`;
+      backgroundCanvas.style.height = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET}px`;
 
-      originalCanvasWidth = cssCanvasSize - EDITOR_SIZE_OFFSET;
+      originalCanvasWidth = cssCanvasSize - constants.EDITOR_SIZE_OFFSET;
     }
-
-    coordinatesElement = document.getElementById('coordinates') as HTMLSpanElement;
     resetCanvasPosition();
   }, [cssCanvasSize, isMobile]);
-
-  // function handleLayersRef(layerName : string)
-  // {
-  //     return function(element : HTMLCanvasElement)
-  //     {
-  //         layersRef.current![layerName] = element;
-  //     }
-  // }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -231,6 +203,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   const selectFrame = useCallback(
     (_frame: string) => {
+      if (_frame === currentFrame) return;
       currentFrameIndex = frames.current.findIndex((frame) => frame.name === _frame);
       resetCanvasPosition();
       setCurrentFrame(_frame);
@@ -238,7 +211,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       ctx.clearRect(0, 0, displaySize, displaySize);
       ctx.putImageData(new ImageData(frames.current[currentFrameIndex].scene.pixels, displaySize, displaySize), 0, 0);
     },
-    [displaySize, setCurrentFrame]
+    [currentFrame, displaySize, setCurrentFrame]
   );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,7 +230,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       setFramesList(newFramesList);
 
       //update frames ref on preview component
-      //EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
+      //EventBus.getInstance().publish<Frame[]>(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
     },
     [currentFrame, framesList, selectFrame, setFramesList]
   );
@@ -267,8 +240,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   const copyFrame = useCallback(
     (_frame: string) => {
       const newFrame = createNewFrame();
-
-      shouldUpdateSideBarCanvas.current = true;
 
       const frameCopiedIndex = frames.current.findIndex((frame) => frame.name === _frame);
 
@@ -302,10 +273,10 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     [displaySize, framesList, setCurrentFrame, setFramesList]
   );
 
-  //content of copied frame needs to be sent to its corresponding sidebar frame to keep sidebar canvases updated with frames state
-  //this has to be done after frameList state updates
+  //after a copy of a frame is created, its correspondent sidebar canvas needs to be updated only after currentFrame changes
   useEffect(() => {
-    EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+    //constants.DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
+    EventBus.getInstance().publish<drawOnSideBarCanvasType>(constants.DRAW_ON_SIDEBAR_CANVAS, {
       frame: currentFrame,
       pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
     });
@@ -317,13 +288,13 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     undoLastDraw(pixel_size, ctx, frames.current[currentFrameIndex], displaySize);
 
     //this updates the frame in the sidebar
-    //DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
-    EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+    //constants.DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
+    EventBus.getInstance().publish<drawOnSideBarCanvasType>(constants.DRAW_ON_SIDEBAR_CANVAS, {
       frame: currentFrame,
       pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
     });
 
-    EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
+    //EventBus.getInstance().publish<Frame[]>(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
   }, [currentFrame, displaySize]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -332,13 +303,13 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     redoLastDraw(ctx, pixel_size, frames.current[currentFrameIndex], displaySize);
 
     //this updates the frame in the sidebar
-    //DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
-    EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+    //constants.DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
+    EventBus.getInstance().publish<drawOnSideBarCanvasType>(constants.DRAW_ON_SIDEBAR_CANVAS, {
       frame: currentFrame,
       pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
     });
 
-    EventBus.getInstance().publish<Frame[]>(UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
+    //EventBus.getInstance().publish<Frame[]>(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
   }, [currentFrame, displaySize]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -395,15 +366,15 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     frames.current[currentFrameIndex].scene.pixels = data;
 
-    const imageData = new ImageData(data, displaySize, displaySize);
+    const imageData = new ImageData(new Uint8ClampedArray(data), displaySize, displaySize);
 
     ctx.putImageData(imageData, 0, 0);
 
-    frames.current[currentFrameIndex].undoStack.push(data);
+    frames.current[currentFrameIndex].undoStack.push(new Uint8ClampedArray(data));
 
     //this updates the frame in the sidebar
-    //DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
-    EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+    //constants.DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
+    EventBus.getInstance().publish<drawOnSideBarCanvasType>(constants.DRAW_ON_SIDEBAR_CANVAS, {
       frame: currentFrame,
       pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
     });
@@ -416,6 +387,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     const data = ctx.getImageData(0, 0, displaySize, displaySize).data;
 
+    let changed = false;
+
     for (let i = 0; i < data.length; i += 4) {
       const x = Math.floor((i / 4) % displaySize);
       const y = Math.floor(i / 4 / displaySize);
@@ -426,6 +399,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         y <= selection.bottomRight.y &&
         data[i + 3] > 0
       ) {
+        changed = true;
         data[i] = 0;
         data[i + 1] = 0;
         data[i + 2] = 0;
@@ -435,15 +409,17 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     frames.current[currentFrameIndex].scene.pixels = data;
 
-    const imageData = new ImageData(data, displaySize, displaySize);
+    const imageData = new ImageData(new Uint8ClampedArray(data), displaySize, displaySize);
 
     ctx.putImageData(imageData, 0, 0);
 
-    frames.current[currentFrameIndex].undoStack.push(data);
+    if (changed) {
+      frames.current[currentFrameIndex].undoStack.push(new Uint8ClampedArray(data));
+    }
 
     //this updates the frame in the sidebar
-    //DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
-    EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+    //constants.DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
+    EventBus.getInstance().publish<drawOnSideBarCanvasType>(constants.DRAW_ON_SIDEBAR_CANVAS, {
       frame: currentFrame,
       pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
     });
@@ -452,23 +428,32 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   useEffect(() => {
-    const resetCanvasSubscription = EventBus.getInstance().subscribe(RESET_CANVAS_POSITION, resetCanvasPosition);
-    const selectFrameSubscription = EventBus.getInstance().subscribe(SELECT_FRAME, selectFrame);
-    const createNewFrameSubscription = EventBus.getInstance().subscribe(CREATE_NEW_FRAME, addNewFrame);
-    const deleteFrameSubscription = EventBus.getInstance().subscribe(DELETE_FRAME, deleteFrame);
-    const copyFrameSubscription = EventBus.getInstance().subscribe(COPY_FRAME, copyFrame);
-    const handleUndoLastDrawSubscription = EventBus.getInstance().subscribe(UNDO_LAST_DRAW, handleUndoLastDraw);
-    const handleRedoLastDrawSubscription = EventBus.getInstance().subscribe(REDO_LAST_DRAW, handleRedoLastDraw);
-    const handleCopySelectedDrawSubscription = EventBus.getInstance().subscribe(COPY_SELECTED_DRAW, copyDrawToSelectedArea);
-    const handlePasteSelectedDrawSubscription = EventBus.getInstance().subscribe(PASTE_SELECTED_DRAW, pasteSelectedDraw);
-    const handleDeleteSelectedDrawSubscription = EventBus.getInstance().subscribe(DELETE_SELECTED_DRAW, deleteSelectedDraw);
+    const resetCanvasSubscription = EventBus.getInstance().subscribe(constants.RESET_CANVAS_POSITION, resetCanvasPosition);
+    const selectFrameSubscription = EventBus.getInstance().subscribe(constants.SELECT_FRAME, selectFrame);
+    const createNewFrameSubscription = EventBus.getInstance().subscribe(constants.CREATE_NEW_FRAME, addNewFrame);
+    const deleteFrameSubscription = EventBus.getInstance().subscribe(constants.DELETE_FRAME, deleteFrame);
+    const copyFrameSubscription = EventBus.getInstance().subscribe(constants.COPY_FRAME, copyFrame);
+    const handleUndoLastDrawSubscription = EventBus.getInstance().subscribe(constants.UNDO_LAST_DRAW, handleUndoLastDraw);
+    const handleRedoLastDrawSubscription = EventBus.getInstance().subscribe(constants.REDO_LAST_DRAW, handleRedoLastDraw);
+    const handleCopySelectedDrawSubscription = EventBus.getInstance().subscribe(
+      constants.COPY_SELECTED_DRAW,
+      copyDrawToSelectedArea
+    );
+    const handlePasteSelectedDrawSubscription = EventBus.getInstance().subscribe(
+      constants.PASTE_SELECTED_DRAW,
+      pasteSelectedDraw
+    );
+    const handleDeleteSelectedDrawSubscription = EventBus.getInstance().subscribe(
+      constants.DELETE_SELECTED_DRAW,
+      deleteSelectedDraw
+    );
 
     function clearTopCanvas() {
       topCtx.clearRect(0, 0, displaySize, displaySize);
       selection = undefined;
     }
 
-    const handleClearTopCanvas = EventBus.getInstance().subscribe(CLEAR_TOP_CANVAS, clearTopCanvas);
+    const handleClearTopCanvas = EventBus.getInstance().subscribe(constants.CLEAR_TOP_CANVAS, clearTopCanvas);
 
     function checkKeyCombinations(event: KeyboardEvent) {
       if (event.ctrlKey) {
@@ -521,7 +506,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     handleRedoLastDraw,
     handleUndoLastDraw,
     selectFrame,
-    draw,
     displaySize,
     copyDrawToSelectedArea,
     pasteSelectedDraw,
@@ -725,13 +709,10 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           );
           if (color) setSelectedColor(color);
         } else if (selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse') {
-          console.log('line first pixel');
           frames.current[currentFrameIndex].scene.lineFirstPixel = { x: Math.floor(mouse.x), y: Math.floor(mouse.y) };
         } else if (selectedTool === 'selection') {
-          console.log('selection touch start');
           if (!movingSelectedArea) {
             frames.current[currentFrameIndex].scene.selectionFirstPixel = { x: Math.floor(mouse.x), y: Math.floor(mouse.y) };
-            console.log(frames.current[currentFrameIndex].scene.selectionFirstPixel);
           }
         } else if (selectedTool === 'dithering') {
           Dithering(frames.current[currentFrameIndex].scene, mouse, pixel_size, displaySize, ctx, penSize, selectedColor);
@@ -1069,7 +1050,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         }
       }
     } else if (selectedTool === 'selection' && mouse.isPressed) {
-      console.log('AQUI');
       if (!movingSelectedArea) {
         //creating new selection
         topCtx.clearRect(0, 0, displaySize, displaySize);
@@ -1225,21 +1205,21 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       // Calculate the pinch scale based on the initial touch distance and current touch distance
       const pinchScale = touchDistance / touchStartDistance;
 
-      if (pinchScale > 1 && frames.current[currentFrameIndex].scene.zoomAmount < MAX_ZOOM_AMOUNT) {
-        if (frames.current[currentFrameIndex].scene.zoomAmount < MAX_ZOOM_AMOUNT) {
+      if (pinchScale > 1 && frames.current[currentFrameIndex].scene.zoomAmount < constants.MAX_ZOOM_AMOUNT) {
+        if (frames.current[currentFrameIndex].scene.zoomAmount < constants.MAX_ZOOM_AMOUNT) {
           frames.current[currentFrameIndex].scene.zoomAmount++;
 
           //dx and dy determines the translation of the canvas based on the mouse position during zooming
           //subtracting outerDiv.offsetWidth / 2 from mouse.x determines the offset of the mouse position from the center of the outer div.
-          //the resulting value is then multiplied by the SCALE_FACTOR to ensure the correct translation based on the current scale factor.
+          //the resulting value is then multiplied by the constants.SCALE_FACTOR to ensure the correct translation based on the current scale factor.
 
-          const dx = (mouseX - outerDiv.offsetWidth / 2) * SCALE_FACTOR;
-          const dy = (mouseY - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
+          const dx = (mouseX - outerDiv.offsetWidth / 2) * constants.SCALE_FACTOR;
+          const dy = (mouseY - outerDiv.offsetHeight / 2) * constants.SCALE_FACTOR;
 
-          currentScale += SCALE_FACTOR;
+          currentScale += constants.SCALE_FACTOR;
           currentScale = Math.max(currentScale, 0.1); // Set a minimum scale value
 
-          const scaleChangeFactor = currentScale / (currentScale - SCALE_FACTOR); //calculate current scale factor
+          const scaleChangeFactor = currentScale / (currentScale - constants.SCALE_FACTOR); //calculate current scale factor
 
           canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
           canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
@@ -1267,13 +1247,13 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           if (mouse.history.length > 0) {
             const lastMousePos = mouse.history.pop()!;
 
-            const dx = (lastMousePos.x - outerDiv.offsetWidth / 2) * SCALE_FACTOR;
-            const dy = (lastMousePos.y - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
+            const dx = (lastMousePos.x - outerDiv.offsetWidth / 2) * constants.SCALE_FACTOR;
+            const dy = (lastMousePos.y - outerDiv.offsetHeight / 2) * constants.SCALE_FACTOR;
 
-            currentScale -= SCALE_FACTOR;
+            currentScale -= constants.SCALE_FACTOR;
             currentScale = Math.max(currentScale, 0.1); // Set a minimum scale value
 
-            const scaleChangeFactor = currentScale / (currentScale + SCALE_FACTOR);
+            const scaleChangeFactor = currentScale / (currentScale + constants.SCALE_FACTOR);
 
             canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
             canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
@@ -1311,10 +1291,10 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     const delta = Math.sign(e.deltaY);
 
-    if (delta < 0 && frames.current[currentFrameIndex].scene.zoomAmount < MAX_ZOOM_AMOUNT) {
+    if (delta < 0 && frames.current[currentFrameIndex].scene.zoomAmount < constants.MAX_ZOOM_AMOUNT) {
       // Zoom in
       if (parseFloat(canvas.style.width) < originalCanvasWidth) {
-        currentScale += SCALE_FACTOR;
+        currentScale += constants.SCALE_FACTOR;
         const newSize = Math.min(parseFloat(canvas.style.width) + 100, originalCanvasWidth);
 
         canvas.style.width = `${newSize}px`;
@@ -1327,20 +1307,20 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         //paint pixel in top canvas relative to mouse position
         mouseToWorldCoordinates(e.clientX, e.clientY);
         paintMousePosition();
-      } else if (frames.current[currentFrameIndex].scene.zoomAmount < MAX_ZOOM_AMOUNT) {
+      } else if (frames.current[currentFrameIndex].scene.zoomAmount < constants.MAX_ZOOM_AMOUNT) {
         frames.current[currentFrameIndex].scene.zoomAmount++;
 
         //dx and dy determines the translation of the canvas based on the mouse position during zooming
         //subtracting outerDiv.offsetWidth / 2 from mouse.x determines the offset of the mouse position from the center of the outer div.
-        //the resulting value is then multiplied by the SCALE_FACTOR to ensure the correct translation based on the current scale factor.
+        //the resulting value is then multiplied by the constants.SCALE_FACTOR to ensure the correct translation based on the current scale factor.
 
-        const dx = (mouseX - outerDiv.offsetWidth / 2) * SCALE_FACTOR;
-        const dy = (mouseY - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
+        const dx = (mouseX - outerDiv.offsetWidth / 2) * constants.SCALE_FACTOR;
+        const dy = (mouseY - outerDiv.offsetHeight / 2) * constants.SCALE_FACTOR;
 
-        currentScale += SCALE_FACTOR;
+        currentScale += constants.SCALE_FACTOR;
         currentScale = Math.max(currentScale, 0.15); // Set a minimum scale value
 
-        const scaleChangeFactor = currentScale / (currentScale - SCALE_FACTOR); //calculate current scale factor
+        const scaleChangeFactor = currentScale / (currentScale - constants.SCALE_FACTOR); //calculate current scale factor
 
         canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
         canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
@@ -1371,13 +1351,13 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         if (mouse.history.length > 0) {
           const lastMousePos = mouse.history.pop()!;
 
-          const dx = (lastMousePos.x - outerDiv.offsetWidth / 2) * SCALE_FACTOR;
-          const dy = (lastMousePos.y - outerDiv.offsetHeight / 2) * SCALE_FACTOR;
+          const dx = (lastMousePos.x - outerDiv.offsetWidth / 2) * constants.SCALE_FACTOR;
+          const dy = (lastMousePos.y - outerDiv.offsetHeight / 2) * constants.SCALE_FACTOR;
 
-          currentScale -= SCALE_FACTOR;
+          currentScale -= constants.SCALE_FACTOR;
           currentScale = Math.max(currentScale, 0.1); // Set a minimum scale value
 
-          const scaleChangeFactor = currentScale / (currentScale + SCALE_FACTOR);
+          const scaleChangeFactor = currentScale / (currentScale + constants.SCALE_FACTOR);
 
           canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
           canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
@@ -1408,7 +1388,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         backgroundCanvas.style.width = `${newSize}px`;
         backgroundCanvas.style.height = `${newSize}px`;
 
-        currentScale -= SCALE_FACTOR;
+        currentScale -= constants.SCALE_FACTOR;
 
         //paint pixel in top canvas relative to mouse position
         mouseToWorldCoordinates(e.clientX, e.clientY);
@@ -1464,10 +1444,12 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     }
 
     if (selectedTool !== 'dropper' && selectedTool != 'selection') {
-      frames.current[currentFrameIndex].undoStack.push(ctx.getImageData(0, 0, displaySize, displaySize).data);
+      if (frames.current[currentFrameIndex].scene.changed) {
+        frames.current[currentFrameIndex].undoStack.push(ctx.getImageData(0, 0, displaySize, displaySize).data);
+      }
       //this updates the frame in the sidebar
-      //DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
-      EventBus.getInstance().publish<drawOnSideBarCanvasType>(DRAW_ON_SIDEBAR_CANVAS, {
+      //constants.DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
+      EventBus.getInstance().publish<drawOnSideBarCanvasType>(constants.DRAW_ON_SIDEBAR_CANVAS, {
         frame: currentFrame,
         pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
       });
@@ -1510,6 +1492,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         //selection = undefined;
       }
     }
+
+    frames.current[currentFrameIndex].scene.changed = false;
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////

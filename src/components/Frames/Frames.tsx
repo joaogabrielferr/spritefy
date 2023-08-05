@@ -61,11 +61,9 @@ export function Frames() {
 
   useEffect(() => {
     const DrawOnSideBarCanvassubscription = EventBus.getInstance().subscribe(DRAW_ON_SIDEBAR_CANVAS, drawFrame);
-    //const updateFramesOnFramesList = EventBus.getInstance().subscribe(UPDATE_FRAMES_REF_ON_FRAMES_LIST_BAR, updateFrames);
 
     return () => {
       DrawOnSideBarCanvassubscription.unsubscribe();
-      //updateFramesOnFramesList.unsubscribe();
     };
   }, [drawFrame]);
 
@@ -74,7 +72,6 @@ export function Frames() {
   }, [drawFrameBackground, framesList]);
 
   function changeCurrentFrame(frame: string) {
-    console.log('aqui frames changing');
     EventBus.getInstance().publish<string>(SELECT_FRAME, frame);
   }
 
@@ -105,6 +102,7 @@ export function Frames() {
           <FontAwesomeIcon size="sm" color="white" icon={faAdd} />
         </button>
       </div>
+
       <div className="frames" ref={framesDivRef}>
         <div className="frames-title">FRAMES</div>
         {framesList.map((frame, index) => (
@@ -115,19 +113,21 @@ export function Frames() {
               width: '95%',
               border: frame === currentFrame ? `2px solid #000000` : undefined
             }}>
-            <div className="frame-canvas-wrapper" onClick={() => changeCurrentFrame(frame)}>
-              <canvas
-                className="frame-canvas"
-                width={displaySize}
-                height={displaySize}
-                id={`${frame}@sidebar`}
-                style={{ zIndex: 1 }}></canvas>
-              <canvas
-                className="frame-canvas"
-                width={displaySize}
-                height={displaySize}
-                id={`${frame}background@sidebar`}
-                style={{ zIndex: 0 }}></canvas>
+            <div className="frame-clickable-area" onClick={() => changeCurrentFrame(frame)}>
+              <div className="frame-canvas-wrapper">
+                <canvas
+                  className="frame-canvas"
+                  width={displaySize}
+                  height={displaySize}
+                  id={`${frame}@sidebar`}
+                  style={{ zIndex: 1 }}></canvas>
+                <canvas
+                  className="frame-canvas"
+                  width={displaySize}
+                  height={displaySize}
+                  id={`${frame}background@sidebar`}
+                  style={{ zIndex: 0 }}></canvas>
+              </div>
             </div>
             <div className="frame-options">
               <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>

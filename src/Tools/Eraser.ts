@@ -54,6 +54,8 @@ export function Eraser(
   const imageData = new ImageData(scene.pixels, display_size, display_size);
 
   ctx.putImageData(imageData, 0, 0);
+
+  scene.changed = true;
 }
 
 function paintNeighbors(

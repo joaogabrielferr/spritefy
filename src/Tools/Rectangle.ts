@@ -40,6 +40,8 @@ export function Rectangle(
   const imageData = new ImageData(data, display_size, display_size);
 
   ctx.putImageData(imageData, 0, 0);
+
+  scene.changed = true;
 }
 
 function paintNeighbors(
