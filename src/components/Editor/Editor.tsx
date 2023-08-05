@@ -950,8 +950,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       return;
     }
 
-    console.log('aqui 2');
-
     const bounding = canvas.getBoundingClientRect();
     mouse.x = event.touches[0].clientX - bounding.left;
     mouse.y = event.touches[0].clientY - bounding.top;

@@ -80,17 +80,14 @@ function App() {
     setIsWelcomeModalOpen(false);
   }
 
-  // useEffect(() => {
-  //   if (!isMobile) {
-  //     setCssCanvasSize(window.innerHeight - 200);
-  //   }
-  // }, [displaySize, isMobile]);
-
   useEffect(() => {
     if (isMobile) setCssCanvasSize(window.innerWidth);
 
     function handleWindowResize() {
       EventBus.getInstance().publish(RESET_CANVAS_POSITION);
+      if (!isMobile) {
+        setCssCanvasSize(window.innerHeight - 200);
+      }
 
       setIsMobile(window.innerWidth <= 768);
     }
@@ -117,17 +114,20 @@ function App() {
         <section className="main-section">
           <div className="main-inner-wrapper">
             {/* left sidebar */}
-            {
-              <Sidebar isMobile={isMobile} isOpen={isLeftSidebarMobileOpen} toogleSidebarOnMobile={setIsLeftSidebarMobileOpen}>
-                <Toolbar toolButtons={ToolButtons} isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
-                <div className="sidebar-item">
-                  <ColorPicker color={selectedColor} onChange={handleChangeSelectedColor} />
-                </div>
-                <div className="sidebar-item">
-                  <Palettes></Palettes>
-                </div>
-              </Sidebar>
-            }
+
+            <Sidebar
+              isMobile={isMobile}
+              isOpen={isLeftSidebarMobileOpen}
+              toogleSidebarOnMobile={setIsLeftSidebarMobileOpen}
+              side="left">
+              <Toolbar toolButtons={ToolButtons} isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
+              <div className="sidebar-item">
+                <ColorPicker color={selectedColor} onChange={handleChangeSelectedColor} />
+              </div>
+              <div className="sidebar-item">
+                <Palettes></Palettes>
+              </div>
+            </Sidebar>
 
             <div
               style={
@@ -137,45 +137,20 @@ function App() {
               }>
               {/* main editor */}
               <Editor cssCanvasSize={cssCanvasSize} isMobile={isMobile}></Editor>
-              {!isMobile && (
-                <div
-                  style={{
-                    backgroundColor: 'transparent',
-                    position: 'absolute',
-                    top: 0,
-                    left: 10,
-                    height: '40px',
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'flex-start',
-                    fontSize: '15px',
-                    fontWeight: 'bold',
-                    zIndex: 10000000,
-                    userSelect: 'none'
-                  }}>
-                  <span
-                    id="coordinates"
-                    style={{
-                      height: '100%',
-                      color: 'white',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center'
-                    }}>
-                    {'[X:0,Y:0]'}
-                  </span>
-                </div>
-              )}
+              {!isMobile && <Coordinates />}
             </div>
 
             {/* right sidebar */}
-            {!isMobile && (
-              <Sidebar isMobile={isMobile} isOpen={isRightSidebarMobileOpen} toogleSidebarOnMobile={setIsRightSidebarMobileOpen}>
+            {
+              <Sidebar
+                isMobile={isMobile}
+                isOpen={isRightSidebarMobileOpen}
+                toogleSidebarOnMobile={setIsRightSidebarMobileOpen}
+                side="right">
                 <Preview />
                 <Frames />
               </Sidebar>
-            )}
+            }
           </div>
 
           {isMobile && (
@@ -187,7 +162,9 @@ function App() {
                 <button style={{ width: '80px', height: '50px' }}>
                   <span style={{ backgroundColor: selectedColor, padding: '10px', width: '100%', height: '100%' }}>teste</span>
                 </button>
-                <button style={{ width: '80px', height: '50px' }}>FRAMES</button>
+                <button style={{ width: '80px', height: '50px' }} onClick={() => setIsRightSidebarMobileOpen((prev) => !prev)}>
+                  FRAMES
+                </button>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-evenly', width: '100%' }}>
                 <button>UNDO</button>
@@ -208,3 +185,36 @@ function App() {
 }
 
 export default App;
+
+function Coordinates() {
+  return (
+    <div
+      style={{
+        backgroundColor: 'transparent',
+        position: 'absolute',
+        top: 0,
+        left: 10,
+        height: '40px',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        fontSize: '15px',
+        fontWeight: 'bold',
+        zIndex: 10000000,
+        userSelect: 'none'
+      }}>
+      <span
+        id="coordinates"
+        style={{
+          height: '100%',
+          color: 'white',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+        {'[X:0,Y:0]'}
+      </span>
+    </div>
+  );
+}

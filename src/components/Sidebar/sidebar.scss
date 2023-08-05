@@ -25,13 +25,23 @@
   background-color: variables.$body-background-color;
   margin-top: 5px;
   user-select: none;
-  transform: translateX(-100%);
   transition: transform 0.3s ease-in-out;
 
   width: 100%;
 
-  &.open {
-    transform: translateX(0);
+  &.left {
+    transform: translateX(-100%);
+
+    &.open {
+      transform: translateX(0);
+    }
+  }
+
+  &.right {
+    transform: translateX(100%);
+    &.open {
+      transform: translateX(0);
+    }
   }
 }
 
