@@ -29,6 +29,7 @@ import { EventBus } from '../../EventBus';
 import { store, StoreType } from '../../store';
 import { Stack } from '../../utils/Stack';
 import { Selection } from '../../Tools/Selection';
+import { Dithering } from '../../Tools/Dithrering';
 
 interface IEditor {
   cssCanvasSize: number;
@@ -614,6 +615,11 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       if (!movingSelectedArea) {
         frames.current[currentFrameIndex].scene.selectionFirstPixel = { x: Math.floor(mouse.x), y: Math.floor(mouse.y) };
       }
+    } else if (
+      selectedTool === 'dithering' &&
+      (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
+    ) {
+      Dithering(frames.current[currentFrameIndex].scene, mouse, pixel_size, displaySize, ctx, penSize, selectedColor);
     }
   }
 
@@ -884,6 +890,11 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             selectedDraw
           );
         }
+      } else if (
+        selectedTool === 'dithering' &&
+        (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
+      ) {
+        Dithering(frames.current[currentFrameIndex].scene, mouse, pixel_size, displaySize, ctx, penSize, selectedColor);
       }
 
       //paint pixel in top canvas relative to mouse position

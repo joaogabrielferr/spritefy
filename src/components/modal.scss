@@ -3,7 +3,7 @@
 $mobile: 768px;
 
 .modal-backdrop {
-  background: rgba(134, 134, 134, 0.65);
+  background: rgba(0, 0, 0, 0.562);
   bottom: 0;
   left: 0;
   overflow: auto;
@@ -14,7 +14,7 @@ $mobile: 768px;
 }
 
 .modal-container {
-  background: variables.$body-background-color;
+  background: #1d1c1c;
   border-radius: 5px;
   max-width: 100%;
   margin: 50px auto;
@@ -87,8 +87,12 @@ $mobile: 768px;
           border-style: none;
           border-radius: 2px;
           height: 30px;
-          border: 1px solid rgb(207, 207, 207);
-          background-color: rgb(207, 207, 207);
+          // border: 1px solid rgb(207, 207, 207);
+          background-color: rgb(83, 83, 83);
+
+          &:focus {
+            border: 1px solid rgb(54, 110, 214);
+          }
         }
       }
     }

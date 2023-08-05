@@ -21,7 +21,8 @@ export type toolsType =
   | 'elipse'
   | 'undo'
   | 'redo'
-  | 'selection';
+  | 'selection'
+  | 'dithering';
 
 export type ToolButtonType = {
   tool: toolsType;

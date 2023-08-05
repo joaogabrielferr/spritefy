@@ -24,7 +24,8 @@ const ToolButtons = [
   { tool: 'line', tooltip: 'Pencil stroke line(L or 5)' },
   { tool: 'rectangle', tooltip: 'Rectangle tool(R or 6)' },
   { tool: 'elipse', tooltip: 'Circle tool(G or 7)' },
-  { tool: 'selection', tooltip: 'Selection tool(S or 8)' }
+  { tool: 'selection', tooltip: 'Selection tool(S or 8)' },
+  { tool: 'dithering', tooltip: 'Dithering tool(T or 9)' }
 ] as ToolButtonType[];
 
 //TODO: add option to flip drawing in X and Y axis
