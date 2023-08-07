@@ -130,12 +130,11 @@ function App() {
             <div className="teste">
               {ToolButtons.map((button: ToolButtonType) => {
                 return (
-                  <div>
+                  <div key={button.tool}>
                     <button
                       className="tool-button"
                       style={{ backgroundColor: selectedTool === button.tool ? '#634cb8' : '' }}
                       onClick={() => handleSetSelectedTool(button.tool)}
-                      key={button.tool}
                       data-tooltip-id="my-tooltip"
                       data-tooltip-content={button.tooltip}>
                       {button.svg ? (

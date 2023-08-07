@@ -64,6 +64,8 @@ export function ToolOptions({ toolButtons, isMobile, isWelcomeModalOpen }: ToolO
           handleSetSelectedTool('elipse');
         } else if (['s', 'S', '8'].indexOf(event.key) > -1) {
           handleSetSelectedTool('selection');
+        } else if (['t', 'T', '9'].indexOf(event.key) > -1) {
+          handleSetSelectedTool('dithering');
         }
       }
     }
