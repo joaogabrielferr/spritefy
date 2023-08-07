@@ -3,18 +3,19 @@ import Editor from './components/Editor/Editor';
 import './styles/index.scss';
 import { ColorResult, CustomPicker } from 'react-color';
 import { Sidebar } from './components/Sidebar/Sidebar';
-import { ToolButtonType, toolsType } from './types';
+import { ToolButtonType } from './types';
 import { ToolOptions } from './components/ToolOptions/ToolOptions';
 import { Palettes } from './components/Palettes/Palettes';
 import { Header } from './components/Header/Header';
 import { Tooltip } from 'react-tooltip';
 import CustomColorPicker from './components/ColorPicker/ColorPicker';
 import { EventBus } from './EventBus';
-import { CLEAR_TOP_CANVAS, RESET_CANVAS_POSITION } from './utils/constants';
+import { RESET_CANVAS_POSITION } from './utils/constants';
 import { store, StoreType } from './store';
 import { Frames } from './components/Frames/Frames';
 import { Preview } from './components/Preview/Preview';
 import { WelcomeModal } from './components/WelcomeModal/WelcomeModal';
+import { Toolbar } from './components/Toolbar/Toolbar';
 
 const ToolButtons = [
   { tool: 'pencil', tooltip: 'Pen tool(P or 1)' },
@@ -60,8 +61,6 @@ const ToolButtons = [
 
 function App() {
   const selectedTool = store((state: StoreType) => state.selectedTool);
-
-  const setSelectedTool = store((state: StoreType) => state.setSelectedTool);
 
   const selectedColor = store((state: StoreType) => state.selectedColor);
 
@@ -111,11 +110,6 @@ function App() {
     setSelectedColor(color.hex);
   }
 
-  function handleSetSelectedTool(tool: toolsType) {
-    EventBus.getInstance().publish(CLEAR_TOP_CANVAS);
-    setSelectedTool(tool);
-  }
-
   const ColorPicker = CustomPicker(CustomColorPicker);
 
   return (
@@ -127,38 +121,14 @@ function App() {
           <div className="main-inner-wrapper">
             {/* left sidebar */}
 
-            <div className="teste">
-              {ToolButtons.map((button: ToolButtonType) => {
-                return (
-                  <div key={button.tool}>
-                    <button
-                      className="tool-button"
-                      style={{ backgroundColor: selectedTool === button.tool ? '#634cb8' : '' }}
-                      onClick={() => handleSetSelectedTool(button.tool)}
-                      data-tooltip-id="my-tooltip"
-                      data-tooltip-content={button.tooltip}>
-                      {button.svg ? (
-                        button.svg
-                      ) : (
-                        <img
-                          height={'24px'}
-                          style={{ imageRendering: 'pixelated' }}
-                          src={`./public/${button.tool}.png`}
-                          alt={button.tool}
-                        />
-                      )}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
+            <Toolbar toolButtons={ToolButtons} isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
 
             <Sidebar
               isMobile={isMobile}
               isOpen={isLeftSidebarMobileOpen}
               toogleSidebarOnMobile={setIsLeftSidebarMobileOpen}
               side="left">
-              <ToolOptions toolButtons={ToolButtons} isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
+              <ToolOptions isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
               <div className="sidebar-item">
                 <ColorPicker color={selectedColor} onChange={handleChangeSelectedColor} />
               </div>

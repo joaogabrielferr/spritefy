@@ -1,10 +1,8 @@
-import React, { ChangeEvent, useCallback, useEffect } from 'react';
-import { ToolButtonType, toolsType } from '../../types';
+import { ChangeEvent } from 'react';
 import './toolOptions.scss';
 import { store, StoreType } from '../../store';
 import { EventBus } from '../../EventBus';
 import {
-  CLEAR_TOP_CANVAS,
   COPY_SELECTED_DRAW,
   DELETE_SELECTED_DRAW,
   PASTE_SELECTED_DRAW,
@@ -16,16 +14,12 @@ import { faArrowRotateLeft, faRotateRight } from '@fortawesome/free-solid-svg-ic
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface ToolOptionsProps {
-  toolButtons: ToolButtonType[];
   isMobile?: boolean;
   isWelcomeModalOpen: boolean;
 }
 
-//TODO: refactor this component
-
-export function ToolOptions({ toolButtons, isMobile, isWelcomeModalOpen }: ToolOptionsProps) {
+export function ToolOptions({ isMobile }: ToolOptionsProps) {
   const selectedTool = store((state: StoreType) => state.selectedTool);
-  const setSelectedTool = store((state: StoreType) => state.setSelectedTool);
   const oneToOneRatioElipse = store((state: StoreType) => state.oneToOneRatioElipse);
   const toogleOneToOneRatioElipse = store((state: StoreType) => state.toogleOneToOneRatioElipse);
   const toogleXMirror = store((state: StoreType) => state.toogleXMirror);
@@ -36,46 +30,6 @@ export function ToolOptions({ toolButtons, isMobile, isWelcomeModalOpen }: ToolO
   const penSize = store((state: StoreType) => state.penSize);
 
   const toogleErasingRightButton = store((state: StoreType) => state.toogleErasingRightButton);
-
-  const handleSetSelectedTool = useCallback(
-    (tool: toolsType) => {
-      EventBus.getInstance().publish(CLEAR_TOP_CANVAS);
-      setSelectedTool(tool);
-    },
-    [setSelectedTool]
-  );
-
-  useEffect(() => {
-    function checkKeys(event: KeyboardEvent) {
-      if (!isWelcomeModalOpen) {
-        if (['p', 'P', '1'].indexOf(event.key) > -1) {
-          handleSetSelectedTool('pencil');
-        } else if (['e', 'E', '2'].indexOf(event.key) > -1) {
-          handleSetSelectedTool('eraser');
-        } else if (['b', 'B', '3'].indexOf(event.key) > -1) {
-          handleSetSelectedTool('paintBucket');
-        } else if (['d', 'D', '4'].indexOf(event.key) > -1) {
-          handleSetSelectedTool('dropper');
-        } else if (['l', 'L', '5'].indexOf(event.key) > -1) {
-          handleSetSelectedTool('line');
-        } else if (['r', 'R', '6'].indexOf(event.key) > -1) {
-          handleSetSelectedTool('rectangle');
-        } else if (['g', 'G', '7'].indexOf(event.key) > -1) {
-          handleSetSelectedTool('elipse');
-        } else if (['s', 'S', '8'].indexOf(event.key) > -1) {
-          handleSetSelectedTool('selection');
-        } else if (['t', 'T', '9'].indexOf(event.key) > -1) {
-          handleSetSelectedTool('dithering');
-        }
-      }
-    }
-
-    document.addEventListener('keydown', checkKeys);
-
-    return function () {
-      document.removeEventListener('keydown', checkKeys);
-    };
-  }, [handleSetSelectedTool, isWelcomeModalOpen, setSelectedTool]);
 
   return (
     <div className="toolOptions-wrapper">
