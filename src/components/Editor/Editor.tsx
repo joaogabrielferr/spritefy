@@ -333,11 +333,11 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         y <= selection.bottomRight.y &&
         data[i + 3] > 0
       ) {
-        selectedDrawOriginalPosition.push({ point: { x, y }, color: [data[i], data[i + 2], data[i + 3]] });
+        selectedDrawOriginalPosition.push({ point: { x, y }, color: [data[i], data[i + 1], data[i + 2]] });
         //store offset of pixel coordinate to selection top Left coordinate
         selectedDraw.push({
           offset: { x: Math.floor(x - selection.topLeft.x), y: Math.floor(y - selection.topLeft.y) },
-          color: [data[i], data[i + 2], data[i + 3]]
+          color: [data[i], data[i + 1], data[i + 2]]
         });
       }
     }
@@ -360,7 +360,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
       data[index] = pixel.color[0];
       data[index + 1] = pixel.color[1];
-      data[index + 2] = pixel.color[1];
+      data[index + 2] = pixel.color[2];
       data[index + 3] = 255;
     }
 
