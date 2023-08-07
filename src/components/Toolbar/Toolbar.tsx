@@ -3,13 +3,25 @@ import { StoreType, store } from '../../store';
 import { ToolButtonType, toolsType } from '../../types';
 import { EventBus } from '../../EventBus';
 import { CLEAR_TOP_CANVAS } from '../../utils/constants';
+import './toolbar.scss';
+
+const toolButtons = [
+  { tool: 'pencil', tooltip: 'Pen tool(P or 1)' },
+  { tool: 'eraser', tooltip: 'Eraser tool(E or 2)' },
+  { tool: 'paintBucket', tooltip: 'Paint bucket(B or 3)' },
+  { tool: 'dropper', tooltip: 'Color picker(D or 4)' },
+  { tool: 'line', tooltip: 'Pencil stroke line(L or 5)' },
+  { tool: 'rectangle', tooltip: 'Rectangle tool(R or 6)' },
+  { tool: 'elipse', tooltip: 'Circle tool(G or 7)' },
+  { tool: 'selection', tooltip: 'Selection tool(S or 8)' },
+  { tool: 'dithering', tooltip: 'Dithering tool(T or 9)' }
+] as ToolButtonType[];
 
 interface ToolbarProps {
-  toolButtons: ToolButtonType[];
   isMobile?: boolean;
   isWelcomeModalOpen: boolean;
 }
-export function Toolbar({ toolButtons, isWelcomeModalOpen }: ToolbarProps) {
+export function Toolbar({ isWelcomeModalOpen }: ToolbarProps) {
   const selectedTool = store((state: StoreType) => state.selectedTool);
   const setSelectedTool = store((state: StoreType) => state.setSelectedTool);
 
@@ -54,7 +66,7 @@ export function Toolbar({ toolButtons, isWelcomeModalOpen }: ToolbarProps) {
   }, [handleSetSelectedTool, isWelcomeModalOpen, setSelectedTool]);
 
   return (
-    <div className="teste">
+    <div className="toolbar">
       {toolButtons.map((button: ToolButtonType) => {
         return (
           <div key={button.tool}>

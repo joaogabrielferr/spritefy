@@ -1,0 +1,35 @@
+.toolbar {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  width: 60px;
+  height: calc(100vh - 60px); //60px = header + menu below header
+  user-select: none;
+  border-right: 1px solid rgb(78, 78, 78);
+
+  div {
+    font-size: 12px;
+    width: 100%;
+    height: 50px;
+    border-bottom: 1px solid rgb(41, 41, 41);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .tool-button {
+      border-style: none;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      color: rgb(226, 226, 226);
+      background-color: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      &:hover {
+        background-color: rgb(41, 41, 41);
+      }
+    }
+  }
+}

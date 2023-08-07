@@ -3,7 +3,6 @@ import Editor from './components/Editor/Editor';
 import './styles/index.scss';
 import { ColorResult, CustomPicker } from 'react-color';
 import { Sidebar } from './components/Sidebar/Sidebar';
-import { ToolButtonType } from './types';
 import { ToolOptions } from './components/ToolOptions/ToolOptions';
 import { Palettes } from './components/Palettes/Palettes';
 import { Header } from './components/Header/Header';
@@ -16,18 +15,6 @@ import { Frames } from './components/Frames/Frames';
 import { Preview } from './components/Preview/Preview';
 import { WelcomeModal } from './components/WelcomeModal/WelcomeModal';
 import { Toolbar } from './components/Toolbar/Toolbar';
-
-const ToolButtons = [
-  { tool: 'pencil', tooltip: 'Pen tool(P or 1)' },
-  { tool: 'eraser', tooltip: 'Eraser tool(E or 2)' },
-  { tool: 'paintBucket', tooltip: 'Paint bucket(B or 3)' },
-  { tool: 'dropper', tooltip: 'Color picker(D or 4)' },
-  { tool: 'line', tooltip: 'Pencil stroke line(L or 5)' },
-  { tool: 'rectangle', tooltip: 'Rectangle tool(R or 6)' },
-  { tool: 'elipse', tooltip: 'Circle tool(G or 7)' },
-  { tool: 'selection', tooltip: 'Selection tool(S or 8)' },
-  { tool: 'dithering', tooltip: 'Dithering tool(T or 9)' }
-] as ToolButtonType[];
 
 //TODO: use memo on Editor
 //TODO: add a debounce function to tools
@@ -75,6 +62,7 @@ function App() {
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(true);
 
   const [isLeftSidebarMobileOpen, setIsLeftSidebarMobileOpen] = useState(false);
+
   const [isRightSidebarMobileOpen, setIsRightSidebarMobileOpen] = useState(false);
 
   function handleOnCloseWelcomeModal(displaySize: number) {
@@ -121,7 +109,7 @@ function App() {
           <div className="main-inner-wrapper">
             {/* left sidebar */}
 
-            <Toolbar toolButtons={ToolButtons} isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
+            <Toolbar isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
 
             <Sidebar
               isMobile={isMobile}
@@ -182,9 +170,9 @@ function App() {
             </div>
           )}
         </section>
-        {!isMobile && <Tooltip id="my-tooltip" place="right" style={{ zIndex: 9999, backgroundColor: '#634cb8' }} />}
+        {!isMobile && <Tooltip id="my-tooltip" place="right" style={{ zIndex: 9999, backgroundColor: '#2e148b' }} />}
         {!isMobile && (
-          <Tooltip id="my-tooltip-extra-options" place="right" style={{ zIndex: 9999, backgroundColor: '#634cb8' }} />
+          <Tooltip id="my-tooltip-extra-options" place="right" style={{ zIndex: 9999, backgroundColor: '#2e148b' }} />
         )}
       </main>
       {isWelcomeModalOpen && <WelcomeModal onCloseModal={handleOnCloseWelcomeModal}></WelcomeModal>}
@@ -207,7 +195,7 @@ function Coordinates() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        fontSize: '15px',
+        fontSize: '12px',
         fontWeight: 'bold',
         zIndex: 10000000,
         userSelect: 'none'
@@ -216,7 +204,7 @@ function Coordinates() {
         id="coordinates"
         style={{
           height: '100%',
-          color: 'white',
+          color: '#111',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center'
