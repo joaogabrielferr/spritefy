@@ -8,8 +8,13 @@
   overflow-y: auto;
   background-color: variables.$body-background-color;
   user-select: none;
-  width: 380px;
-  height: calc(100vh - 30px);
+  width: 300px;
+  height: calc(100vh - 60px);
+
+  &.left {
+    flex-direction: row;
+    background-color: red;
+  }
 }
 
 .sidebar-mobile {

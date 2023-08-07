@@ -334,7 +334,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         data[i + 3] > 0
       ) {
         selectedDrawOriginalPosition.push({ point: { x, y }, color: [data[i], data[i + 2], data[i + 3]] });
-        //store offset of pixel to selection top Left point
+        //store offset of pixel coordinate to selection top Left coordinate
         selectedDraw.push({
           offset: { x: Math.floor(x - selection.topLeft.x), y: Math.floor(y - selection.topLeft.y) },
           color: [data[i], data[i + 2], data[i + 3]]
@@ -514,7 +514,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  function handleFirstClick(event: MouseEvent) {
+  function handleMouseDown(event: MouseEvent) {
     if (event.button === 0) {
       mouse.isLeftButtonClicked = true;
       mouse.isRightButtonClicked = false;
@@ -525,6 +525,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     mouse.isPressed = true;
 
+    //checking if user clicked inside selection (the current one will be moved instead of creating a new one)
     if (selectedTool === 'selection') {
       if (selection) {
         const { x, y } = mouse.getPosition();
@@ -541,7 +542,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           mouseSelectionOffsetBottomRightX = selection.bottomRight.x - mouse.x;
           mouseSelectionOffsetBottomRightY = selection.bottomRight.y - mouse.y;
         } else {
-          //a new selection will be created
+          //outside selection, a new selection will be created
           selection = undefined;
           movingSelectedArea = false;
           selectedDraw = [];
@@ -549,7 +550,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           topCtx.clearRect(0, 0, displaySize, displaySize);
         }
       } else {
-        //a new selection will be created
+        //no selection, a new selection will be created
         movingSelectedArea = false;
         topCtx.clearRect(0, 0, displaySize, displaySize);
       }
@@ -619,6 +620,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   function handleTouchStart(e: TouchEvent) {
     //in some mobile devices, when pinching, the touchstart listener is called with e.touches.length === 1, and only then it is called again with e.touches.length === 2
+    //using a timeout to wait for the second call
     clearTimeout(pinchTouchStartTimeOut);
     pinchTouchStartTimeOut = setTimeout(() => {
       if (e.touches.length === 2) {
@@ -743,6 +745,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   function handleMouseMove(event: MouseEvent) {
     window.requestAnimationFrame(() => {
       if (!canvas) return;
+
       mouseToWorldCoordinates(event.clientX, event.clientY);
 
       if (coordinatesElement && mouse.x >= 0 && mouse.x <= displaySize && mouse.y >= 0 && mouse.y <= displaySize) {
@@ -796,7 +799,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         );
       } else if (selectedTool === 'line' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))) {
         topCtx.clearRect(0, 0, displaySize, displaySize);
-        frames.current[currentFrameIndex].scene.currentPixelsMousePressed = new Map();
         Line(
           frames.current[currentFrameIndex].scene,
           topCtx,
@@ -811,7 +813,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         selectedTool === 'rectangle' &&
         (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
       ) {
-        //remove draw from the top canvas
         topCtx.clearRect(0, 0, displaySize, displaySize);
         Rectangle(
           frames.current[currentFrameIndex].scene,
@@ -827,8 +828,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         selectedTool === 'elipse' &&
         (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
       ) {
-        //remove draw from the top canvas
-
         topCtx.clearRect(0, 0, displaySize, displaySize);
         if (frames.current[currentFrameIndex].scene.lineFirstPixel) {
           const majorRadius = Math.abs(frames.current[currentFrameIndex].scene.lineFirstPixel!.x - mouse.x);
@@ -878,10 +877,9 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           );
         } else {
           //currently moving selected area
-          //check if mouse is inside selection
-
           const { x, y } = mouse.getPosition();
 
+          //update topLeft and bottomRight coordinates of selection based on mouse position
           const topLeft = {
             x: x - mouseSelectionOffsetTopLeftX,
             y: y - mouseSelectionOffsetTopLeftY
@@ -955,21 +953,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       frames.current[currentFrameIndex].scene.lastPixelYMirror = null;
       frames.current[currentFrameIndex].scene.lastPixelXYMirror = null;
       frames.current[currentFrameIndex].scene.selectionLastPixel = null;
-
-      // if (selectedTool !== 'selection') {
-      //   if (frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse) {
-      //     topCtx.clearRect(
-      //       frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!.x,
-      //       frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!.y,
-      //       pixel_size,
-      //       pixel_size
-      //     );
-
-      //     for (let n of frames.current[currentFrameIndex].scene.previousNeighborsWhileMovingMouse) {
-      //       topCtx.clearRect(n.x, n.y, pixel_size, pixel_size);
-      //     }
-      //   }
-      // }
       return;
     }
 
@@ -1064,9 +1047,10 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         );
       } else {
         //currently moving selected area
-        //check if mouse is inside selection
 
         const { x, y } = mouse.getPosition();
+
+        //update topLeft and bottomRight coordinates of selection based on mouse position
 
         const topLeft = {
           x: x - mouseSelectionOffsetTopLeftX,
@@ -1151,15 +1135,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       }
     } else {
       if (frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse) {
-        // removeDraw(
-        //   topCtx,
-        //   [
-        //     frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!,
-        //     ...frames.current[currentFrameIndex].scene.previousNeighborsWhileMovingMouse
-        //   ],
-        //   pixel_size
-        // );
-
         topCtx.clearRect(
           frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!.x,
           frames.current[currentFrameIndex].scene.previousPixelWhileMovingMouse!.y,
@@ -1178,9 +1153,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   function handleZoomMobile(e: TouchEvent) {
     if (!outerDiv) return;
-
-    // Prevent the default behavior of the touch event
-    //e.preventDefault();
 
     const rect = outerDiv.getBoundingClientRect();
 
@@ -1280,8 +1252,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   function handleZoom(e: WheelEvent) {
     if (!outerDiv) return;
-
-    //e.preventDefault();
 
     const rect = outerDiv.getBoundingClientRect();
 
@@ -1461,7 +1431,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         frames.current[currentFrameIndex].scene.selectionFirstPixel &&
         frames.current[currentFrameIndex].scene.selectionLastPixel
       ) {
-        //calculate the selected area
+        //calculate selection (top Left and bottom Right coordinates) after creating a selection area (with selectionFirstPixel and selectionLastPixel)
         const topLeft = {
           x: Math.min(
             frames.current[currentFrameIndex].scene.selectionFirstPixel!.x,
@@ -1485,11 +1455,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         };
 
         selection = { topLeft, bottomRight };
-
-        //originalSelection = [Math.min(a.x, b.x), Math.min(a.y, b.y), Math.max(a.x, b.x), Math.max(a.y, b.y)];
-        //topCtx.clearRect(0, 0, displaySize, displaySize);
-      } else {
-        //selection = undefined;
       }
     }
 
@@ -1513,8 +1478,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     const imageData = new ImageData(frames.current[currentFrameIndex].scene.pixels, displaySize, displaySize);
 
     ctx.putImageData(imageData, 0, 0);
-
-    // frames.current[currentFrameIndex].undoStack.push(ctx.getImageData(0, 0, displaySize, displaySize).data);
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1535,7 +1498,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         style={!isMobile ? { height: '100%', width: '100%' } : { height: '50vh', width: '100%' }}
         ref={outerDivRef}
         onWheel={handleZoom}
-        onMouseDown={handleFirstClick}
+        onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleFinishDraw}
         onTouchStart={handleTouchStart}

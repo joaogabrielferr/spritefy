@@ -3,14 +3,14 @@ import Editor from './components/Editor/Editor';
 import './styles/index.scss';
 import { ColorResult, CustomPicker } from 'react-color';
 import { Sidebar } from './components/Sidebar/Sidebar';
-import { ToolButtonType } from './types';
-import { Toolbar } from './components/Toolbar/Toolbar';
+import { ToolButtonType, toolsType } from './types';
+import { ToolOptions } from './components/ToolOptions/ToolOptions';
 import { Palettes } from './components/Palettes/Palettes';
 import { Header } from './components/Header/Header';
 import { Tooltip } from 'react-tooltip';
 import CustomColorPicker from './components/ColorPicker/ColorPicker';
 import { EventBus } from './EventBus';
-import { RESET_CANVAS_POSITION } from './utils/constants';
+import { CLEAR_TOP_CANVAS, RESET_CANVAS_POSITION } from './utils/constants';
 import { store, StoreType } from './store';
 import { Frames } from './components/Frames/Frames';
 import { Preview } from './components/Preview/Preview';
@@ -28,6 +28,8 @@ const ToolButtons = [
   { tool: 'dithering', tooltip: 'Dithering tool(T or 9)' }
 ] as ToolButtonType[];
 
+//TODO: use memo on Editor
+//TODO: add a debounce function to tools
 //TODO: add option to flip drawing in X and Y axis
 //TODO: add option to rotate drawing in clockwise or counter clockwise
 //TODO: finish ui on mobile
@@ -35,7 +37,6 @@ const ToolButtons = [
 //TODO: Draw better tool icons
 //TODO: Add a 'file' option in header and add option to create new drawing
 //TODO: allow for different width and height when creating a new canvas
-//TODO: Fix frames and preview disappearing after changing to mobile
 //TODO: implement a more precise zoom for mobile
 //TODO: right now im saving the gifs with a white background because i couldnt figure out how to create transparent gifs with gif.js,
 //probably look for another library that supports transparent bg (or keep it white, pixilart also saves gifs with white bg so transparent bg may not be easy to achieve)
@@ -60,6 +61,8 @@ const ToolButtons = [
 function App() {
   const selectedTool = store((state: StoreType) => state.selectedTool);
 
+  const setSelectedTool = store((state: StoreType) => state.setSelectedTool);
+
   const selectedColor = store((state: StoreType) => state.selectedColor);
 
   const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
@@ -81,6 +84,10 @@ function App() {
   }
 
   useEffect(() => {
+    if (!isMobile) {
+      setCssCanvasSize(window.innerHeight - window.innerHeight * 0.15);
+    }
+
     if (isMobile) setCssCanvasSize(window.innerWidth);
 
     function handleWindowResize() {
@@ -104,6 +111,11 @@ function App() {
     setSelectedColor(color.hex);
   }
 
+  function handleSetSelectedTool(tool: toolsType) {
+    EventBus.getInstance().publish(CLEAR_TOP_CANVAS);
+    setSelectedTool(tool);
+  }
+
   const ColorPicker = CustomPicker(CustomColorPicker);
 
   return (
@@ -115,12 +127,39 @@ function App() {
           <div className="main-inner-wrapper">
             {/* left sidebar */}
 
+            <div className="teste">
+              {ToolButtons.map((button: ToolButtonType) => {
+                return (
+                  <div>
+                    <button
+                      className="tool-button"
+                      style={{ backgroundColor: selectedTool === button.tool ? '#634cb8' : '' }}
+                      onClick={() => handleSetSelectedTool(button.tool)}
+                      key={button.tool}
+                      data-tooltip-id="my-tooltip"
+                      data-tooltip-content={button.tooltip}>
+                      {button.svg ? (
+                        button.svg
+                      ) : (
+                        <img
+                          height={'24px'}
+                          style={{ imageRendering: 'pixelated' }}
+                          src={`./public/${button.tool}.png`}
+                          alt={button.tool}
+                        />
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
             <Sidebar
               isMobile={isMobile}
               isOpen={isLeftSidebarMobileOpen}
               toogleSidebarOnMobile={setIsLeftSidebarMobileOpen}
               side="left">
-              <Toolbar toolButtons={ToolButtons} isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
+              <ToolOptions toolButtons={ToolButtons} isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
               <div className="sidebar-item">
                 <ColorPicker color={selectedColor} onChange={handleChangeSelectedColor} />
               </div>
@@ -132,7 +171,7 @@ function App() {
             <div
               style={
                 !isMobile
-                  ? { height: 'calc(100vh - 30px)', width: '100%', position: 'relative' }
+                  ? { height: 'calc(100vh - 60px)', width: '100%', position: 'relative' }
                   : { height: '50vh', width: '100%' }
               }>
               {/* main editor */}
@@ -174,7 +213,7 @@ function App() {
             </div>
           )}
         </section>
-        {!isMobile && <Tooltip id="my-tooltip" place="bottom" style={{ zIndex: 9999, backgroundColor: '#634cb8' }} />}
+        {!isMobile && <Tooltip id="my-tooltip" place="right" style={{ zIndex: 9999, backgroundColor: '#634cb8' }} />}
         {!isMobile && (
           <Tooltip id="my-tooltip-extra-options" place="right" style={{ zIndex: 9999, backgroundColor: '#634cb8' }} />
         )}

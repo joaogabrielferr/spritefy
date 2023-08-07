@@ -12,6 +12,38 @@ body {
   }
 }
 
+.teste {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  width: 60px;
+  height: calc(100vh - 60px); //60px = header + menu below header
+  user-select: none;
+  border-right: 1px solid rgb(78, 78, 78);
+
+  div {
+    font-size: 12px;
+    width: 100%;
+    height: 50px;
+    border-bottom: 1px solid rgb(41, 41, 41);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    button {
+      border-style: none;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      color: rgb(226, 226, 226);
+      background-color: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+}
+
 @mixin centralize {
   display: flex;
   justify-content: center;
@@ -120,20 +152,20 @@ body {
     /* creating a custom design */
     height: 13px;
     width: 15px;
-    background-color: #634cb8;
-    border: 2px solid #634cb8;
+    background-color: rgb(126, 123, 123);
+    border: 2px solid rgb(126, 123, 123);
     /* slider progress trick */
-    box-shadow: -407px 0 0 400px #634cb8;
+    box-shadow: -407px 0 0 400px rgb(126, 123, 123);
   }
 
   /* Thumb: Firefox */
   &::-moz-range-thumb {
     height: 13px;
     width: 15px;
-    background-color: #634cb8;
-    border: 1px solid #634cb8;
+    background-color: rgb(126, 123, 123);
+    border: 1px solid rgb(126, 123, 123);
     /* slider progress trick */
-    box-shadow: -407px 0 0 400px #634cb8;
+    box-shadow: -407px 0 0 400px rgb(126, 123, 123);
   }
 }
 
