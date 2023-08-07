@@ -131,7 +131,7 @@ export function Frames() {
             </div>
             <div className="frame-options">
               <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div style={{ textAlign: 'right', fontSize: '12px' }}>FRAME {index + 1}</div>
+                <div style={{ textAlign: 'right', fontSize: '12px' }}>#{index + 1}</div>
                 <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
                   <div>
                     <button onClick={() => copyFrame(frame)}>
