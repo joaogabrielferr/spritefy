@@ -28,7 +28,6 @@ interface IEditor {
 
 type point = { x: number; y: number };
 
-//these variables dont have to be states
 let canvas: HTMLCanvasElement, topCanvas: HTMLCanvasElement, backgroundCanvas: HTMLCanvasElement;
 
 let ctx: CanvasRenderingContext2D, topCtx: CanvasRenderingContext2D, bgCtx: CanvasRenderingContext2D;
@@ -69,8 +68,6 @@ let mouseSelectionOffsetBottomRightY = 0;
 
 let selectedDraw: { offset: point; color: number[] }[] = [];
 
-let selectedDrawOriginalPosition: { point: point; color: number[] }[] = [];
-
 //////////////////////////////////////////////////////////
 
 export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Element {
@@ -91,7 +88,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   ]);
 
   const displaySize = store((state: StoreType) => state.displaySize);
-
   const selectedColor = store((state: StoreType) => state.selectedColor);
   const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
   const selectedTool = store((state: StoreType) => state.selectedTool);
@@ -317,7 +313,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   const copyDrawToSelectedArea = useCallback(() => {
     if (!selection) return;
     selectedDraw = [];
-    selectedDrawOriginalPosition = [];
 
     //copy draw inside selected area to top Canvas and move it along side selected area
     const data = ctx.getImageData(0, 0, displaySize, displaySize).data;
@@ -333,7 +328,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         y <= selection.bottomRight.y &&
         data[i + 3] > 0
       ) {
-        selectedDrawOriginalPosition.push({ point: { x, y }, color: [data[i], data[i + 1], data[i + 2]] });
         //store offset of pixel coordinate to selection top Left coordinate
         selectedDraw.push({
           offset: { x: Math.floor(x - selection.topLeft.x), y: Math.floor(y - selection.topLeft.y) },
@@ -546,7 +540,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           selection = undefined;
           movingSelectedArea = false;
           selectedDraw = [];
-          selectedDrawOriginalPosition = [];
           topCtx.clearRect(0, 0, displaySize, displaySize);
         }
       } else {
@@ -575,16 +568,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       selectedTool === 'paintBucket' &&
       (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
     ) {
-      PaintBucket(
-        frames.current[currentFrameIndex].scene,
-        mouse,
-        pixel_size,
-        displaySize,
-        ctx,
-        penSize,
-        displaySize,
-        selectedColor
-      );
+      PaintBucket(frames.current[currentFrameIndex].scene, mouse, pixel_size, displaySize, ctx, selectedColor);
     } else if (selectedTool === 'dropper' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))) {
       const color: string | undefined | null = Dropper(frames.current[currentFrameIndex].scene, mouse, pixel_size, displaySize);
       if (color) setSelectedColor(color);
@@ -666,7 +650,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
               selection = undefined;
               movingSelectedArea = false;
               selectedDraw = [];
-              selectedDrawOriginalPosition = [];
               topCtx.clearRect(0, 0, displaySize, displaySize);
             }
           } else {
@@ -692,16 +675,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         } else if (selectedTool === 'eraser') {
           Eraser('mousedown', mouse, frames.current[currentFrameIndex].scene, pixel_size, displaySize, ctx, penSize);
         } else if (selectedTool === 'paintBucket') {
-          PaintBucket(
-            frames.current[currentFrameIndex].scene,
-            mouse,
-            pixel_size,
-            displaySize,
-            ctx,
-            penSize,
-            displaySize,
-            selectedColor
-          );
+          PaintBucket(frames.current[currentFrameIndex].scene, mouse, pixel_size, displaySize, ctx, selectedColor);
         } else if (selectedTool === 'dropper') {
           const color: string | undefined | null = Dropper(
             frames.current[currentFrameIndex].scene,

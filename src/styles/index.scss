@@ -42,7 +42,6 @@ body {
   margin-top: 50px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  background-color: red;
 }
 
 // Slider //
@@ -52,6 +51,7 @@ body {
   justify-content: space-between;
   position: relative;
   align-items: center;
+  background-color: red;
 }
 
 .slider-range {
@@ -102,13 +102,13 @@ body {
 
   /* Track: webkit browsers */
   &::-webkit-slider-runnable-track {
-    height: 13px;
+    height: 12px;
     background: #252525;
   }
 
   /* Track: Mozilla Firefox */
   &::-moz-range-track {
-    height: 13px;
+    height: 12px;
     background: #111;
   }
 
@@ -118,7 +118,7 @@ body {
     -webkit-appearance: none;
     appearance: none;
     /* creating a custom design */
-    height: 13px;
+    height: 12px;
     width: 15px;
     background-color: rgb(126, 123, 123);
     border: 2px solid rgb(126, 123, 123);
@@ -128,7 +128,7 @@ body {
 
   /* Thumb: Firefox */
   &::-moz-range-thumb {
-    height: 13px;
+    height: 12px;
     width: 15px;
     background-color: rgb(126, 123, 123);
     border: 1px solid rgb(126, 123, 123);
