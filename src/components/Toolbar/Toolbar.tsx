@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect } from 'react';
 import { StoreType, store } from '../../store';
 import { ToolButtonType, toolsType } from '../../types';
 import { EventBus } from '../../EventBus';
@@ -18,10 +18,12 @@ const toolButtons = [
 ] as ToolButtonType[];
 
 interface ToolbarProps {
-  isMobile?: boolean;
+  isMobile: boolean;
   isWelcomeModalOpen: boolean;
+  isToolbarMobileOpen: boolean;
+  toogleToolbarMobile: Dispatch<SetStateAction<boolean>>;
 }
-export function Toolbar({ isWelcomeModalOpen }: ToolbarProps) {
+export function Toolbar({ isWelcomeModalOpen, isToolbarMobileOpen, isMobile, toogleToolbarMobile }: ToolbarProps) {
   const selectedTool = store((state: StoreType) => state.selectedTool);
   const setSelectedTool = store((state: StoreType) => state.setSelectedTool);
 
@@ -29,8 +31,9 @@ export function Toolbar({ isWelcomeModalOpen }: ToolbarProps) {
     (tool: toolsType) => {
       EventBus.getInstance().publish(CLEAR_TOP_CANVAS);
       setSelectedTool(tool);
+      toogleToolbarMobile(false);
     },
-    [setSelectedTool]
+    [setSelectedTool, toogleToolbarMobile]
   );
 
   useEffect(() => {
@@ -66,7 +69,7 @@ export function Toolbar({ isWelcomeModalOpen }: ToolbarProps) {
   }, [handleSetSelectedTool, isWelcomeModalOpen, setSelectedTool]);
 
   return (
-    <div className="toolbar">
+    <div className={`toolbar${isMobile ? (isToolbarMobileOpen ? `-mobile open` : `-mobile`) : ''}`}>
       {toolButtons.map((button: ToolButtonType) => {
         return (
           <div key={button.tool}>

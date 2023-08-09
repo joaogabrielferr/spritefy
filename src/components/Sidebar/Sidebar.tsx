@@ -16,8 +16,8 @@ export function Sidebar({ children, isMobile, isOpen, toogleSidebarOnMobile, sid
     <div className={`sidebar${isMobile ? (isOpen ? `-mobile open ${side}` : `-mobile ${side}`) : ''}`}>
       {isMobile ? (
         <div className="sidebar-close-button-mobile">
-          <button onClick={() => toogleSidebarOnMobile(!isOpen)}>
-            <FontAwesomeIcon size="lg" color="white" icon={faXmark} />
+          <button onClick={() => toogleSidebarOnMobile(false)}>
+            CLOSE <FontAwesomeIcon size="lg" color="white" icon={faXmark} />
           </button>
         </div>
       ) : (

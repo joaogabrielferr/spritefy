@@ -34,14 +34,34 @@ body {
 
 .mobile-options {
   width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  margin-top: 50px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  height: 25%;
+
+  background-color: variables.$body-background-color;
+
+  button {
+    border-style: none;
+    border-radius: 3px;
+  }
+
+  .mobile-row {
+    height: 25%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3px;
+  }
+  .row-1 {
+    button {
+      height: 100%;
+      width: 30%;
+    }
+  }
+
+  .row-2 {
+    button {
+      height: 100%;
+      width: 30%;
+    }
+  }
 }
 
 // Slider //
@@ -51,7 +71,6 @@ body {
   justify-content: space-between;
   position: relative;
   align-items: center;
-  background-color: red;
 }
 
 .slider-range {
@@ -162,6 +181,15 @@ body {
 
 @media screen and (max-width: 768px) {
   .main-section {
-    margin-top: 30px;
+    height: calc(100vh - 70px);
+    // height: 100%;
+    justify-content: space-between;
+    background-color: red;
+
+    .main-inner-wrapper {
+      flex-direction: column;
+      height: 100%;
+      background-color: aliceblue;
+    }
   }
 }

@@ -1466,23 +1466,19 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   }
 
   return (
-    <>
-      <div
-        className="editor-wrapper"
-        style={!isMobile ? { height: '100%', width: '100%' } : { height: '50vh', width: '100%' }}
-        ref={outerDivRef}
-        onWheel={handleZoom}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleFinishDraw}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleFinishDraw}>
-        <canvas className="canvas" id="topCanvas" style={{ zIndex: 2 }} ref={topCanvasRef}></canvas>
-        <canvas className="canvas" id="canvas" style={{ zIndex: 1 }} ref={canvasRef}></canvas>
-        <canvas className="canvas" id="backgroundCanvas" style={{ zIndex: 0 }} ref={backgroundCanvasRef}></canvas>
-      </div>
-      {isMobile ?? <div>TESTE 1234567</div>}
-    </>
+    <div
+      className="editor-wrapper"
+      ref={outerDivRef}
+      onWheel={handleZoom}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleFinishDraw}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleFinishDraw}>
+      <canvas className="canvas" id="topCanvas" style={{ zIndex: 2 }} ref={topCanvasRef}></canvas>
+      <canvas className="canvas" id="canvas" style={{ zIndex: 1 }} ref={canvasRef}></canvas>
+      <canvas className="canvas" id="backgroundCanvas" style={{ zIndex: 0 }} ref={backgroundCanvasRef}></canvas>
+    </div>
   );
 }

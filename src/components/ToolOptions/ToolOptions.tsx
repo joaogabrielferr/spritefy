@@ -137,37 +137,39 @@ export function ToolOptions({ isMobile }: ToolOptionsProps) {
         </div>
       </div>
 
-      <div className="sidebar-item">
-        <button
-          data-tooltip-id="my-tooltip-extra-options"
-          data-tooltip-content="Ctrl + Z"
-          onClick={() => {
-            EventBus.getInstance().publish(UNDO_LAST_DRAW);
-          }}
-          className="extra-options-button">
-          <FontAwesomeIcon size="lg" color="#abbbc7" icon={faArrowRotateLeft} />
-          UNDO
-        </button>
-        <button
-          data-tooltip-id="my-tooltip-extra-options"
-          data-tooltip-content="Ctrl + Y"
-          onClick={() => {
-            EventBus.getInstance().publish(REDO_LAST_DRAW);
-          }}
-          className="extra-options-button">
-          <FontAwesomeIcon size="lg" color="#abbbc7" icon={faRotateRight} />
-          REDO
-        </button>
-        <button
-          data-tooltip-id="my-tooltip-extra-options"
-          data-tooltip-content="Ctrl + Space"
-          onClick={() => {
-            EventBus.getInstance().publish(RESET_CANVAS_POSITION);
-          }}
-          className="extra-options-button">
-          RESET CANVAS POSITION
-        </button>
-      </div>
+      {!isMobile && (
+        <div className="sidebar-item">
+          <button
+            data-tooltip-id="my-tooltip-extra-options"
+            data-tooltip-content="Ctrl + Z"
+            onClick={() => {
+              EventBus.getInstance().publish(UNDO_LAST_DRAW);
+            }}
+            className="extra-options-button">
+            <FontAwesomeIcon size="lg" color="#abbbc7" icon={faArrowRotateLeft} />
+            UNDO
+          </button>
+          <button
+            data-tooltip-id="my-tooltip-extra-options"
+            data-tooltip-content="Ctrl + Y"
+            onClick={() => {
+              EventBus.getInstance().publish(REDO_LAST_DRAW);
+            }}
+            className="extra-options-button">
+            <FontAwesomeIcon size="lg" color="#abbbc7" icon={faRotateRight} />
+            REDO
+          </button>
+          <button
+            data-tooltip-id="my-tooltip-extra-options"
+            data-tooltip-content="Ctrl + Space"
+            onClick={() => {
+              EventBus.getInstance().publish(RESET_CANVAS_POSITION);
+            }}
+            className="extra-options-button">
+            RESET CANVAS POSITION
+          </button>
+        </div>
+      )}
     </div>
   );
 }

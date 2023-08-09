@@ -9,12 +9,14 @@ import { Header } from './components/Header/Header';
 import { Tooltip } from 'react-tooltip';
 import CustomColorPicker from './components/ColorPicker/ColorPicker';
 import { EventBus } from './EventBus';
-import { RESET_CANVAS_POSITION } from './utils/constants';
+import { REDO_LAST_DRAW, RESET_CANVAS_POSITION, UNDO_LAST_DRAW } from './utils/constants';
 import { store, StoreType } from './store';
 import { Frames } from './components/Frames/Frames';
 import { Preview } from './components/Preview/Preview';
 import { WelcomeModal } from './components/WelcomeModal/WelcomeModal';
 import { Toolbar } from './components/Toolbar/Toolbar';
+import { faArrowRotateLeft, faArrowRotateRight, faGear } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 //TODO: use memo on Editor
 //TODO: add a debounce function to tools
@@ -60,6 +62,8 @@ function App() {
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768); //TODO:this may be two simple, search for a better way to detect a mobile device
 
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(true);
+
+  const [isToolbarMobileOpen, setIsToolbarMobileOpen] = useState(false);
 
   const [isLeftSidebarMobileOpen, setIsLeftSidebarMobileOpen] = useState(false);
 
@@ -107,9 +111,12 @@ function App() {
         <div style={{ width: '100%', height: '30px', backgroundColor: 'rgb(77, 77, 77)' }}>teste</div>
         <section className="main-section">
           <div className="main-inner-wrapper">
-            {/* left sidebar */}
-
-            <Toolbar isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
+            <Toolbar
+              isMobile={isMobile}
+              isWelcomeModalOpen={isWelcomeModalOpen}
+              isToolbarMobileOpen={isToolbarMobileOpen}
+              toogleToolbarMobile={setIsToolbarMobileOpen}
+            />
 
             <Sidebar
               isMobile={isMobile}
@@ -129,46 +136,57 @@ function App() {
               style={
                 !isMobile
                   ? { height: 'calc(100vh - 60px)', width: '100%', position: 'relative' }
-                  : { height: '50vh', width: '100%' }
+                  : { width: '100%', height: '100%' }
               }>
               {/* main editor */}
               <Editor cssCanvasSize={cssCanvasSize} isMobile={isMobile}></Editor>
               {!isMobile && <Coordinates />}
             </div>
 
-            {/* right sidebar */}
-            {
-              <Sidebar
-                isMobile={isMobile}
-                isOpen={isRightSidebarMobileOpen}
-                toogleSidebarOnMobile={setIsRightSidebarMobileOpen}
-                side="right">
-                <Preview />
-                <Frames />
-              </Sidebar>
-            }
-          </div>
+            <Sidebar
+              isMobile={isMobile}
+              isOpen={isRightSidebarMobileOpen}
+              toogleSidebarOnMobile={setIsRightSidebarMobileOpen}
+              side="right">
+              <Preview />
+              <Frames />
+            </Sidebar>
 
-          {isMobile && (
-            <div className="mobile-options">
-              <div style={{ display: 'flex', justifyContent: 'space-evenly', width: '100%' }}>
-                <button style={{ width: '80px', height: '50px' }} onClick={() => setIsLeftSidebarMobileOpen((prev) => !prev)}>
-                  {selectedTool}
-                </button>
-                <button style={{ width: '80px', height: '50px' }}>
-                  <span style={{ backgroundColor: selectedColor, padding: '10px', width: '100%', height: '100%' }}>teste</span>
-                </button>
-                <button style={{ width: '80px', height: '50px' }} onClick={() => setIsRightSidebarMobileOpen((prev) => !prev)}>
-                  FRAMES
-                </button>
+            {isMobile ? (
+              <div className="mobile-options">
+                <div className="mobile-row row-1">
+                  <button onClick={() => setIsToolbarMobileOpen(true)}>
+                    <img
+                      height={'24px'}
+                      style={{ imageRendering: 'pixelated' }}
+                      src={`./public/${selectedTool}.png`}
+                      alt={selectedTool}
+                    />
+                  </button>
+                  <button onClick={() => setIsLeftSidebarMobileOpen(true)}>
+                    <img
+                      height={'13px'}
+                      style={{ imageRendering: 'pixelated' }}
+                      src={`./public/${selectedTool}.png`}
+                      alt={selectedTool}
+                    />
+                    <FontAwesomeIcon size="lg" color="black" icon={faGear} />
+                  </button>
+                  {/* <button>COLOR</button> */}
+                  <button onClick={() => setIsRightSidebarMobileOpen(true)}>FRAMES</button>
+                </div>
+                <div className="mobile-row row-2">
+                  <button onClick={() => EventBus.getInstance().publish(UNDO_LAST_DRAW)}>
+                    <FontAwesomeIcon size="lg" color="black" icon={faArrowRotateLeft} />
+                  </button>
+                  <button onClick={() => EventBus.getInstance().publish(REDO_LAST_DRAW)}>
+                    <FontAwesomeIcon size="lg" color="black" icon={faArrowRotateRight} />
+                  </button>
+                  <button onClick={() => EventBus.getInstance().publish(RESET_CANVAS_POSITION)}>RESET POSITION</button>
+                </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-evenly', width: '100%' }}>
-                <button>UNDO</button>
-                <button>REDO</button>
-                <button>RESET POSITION</button>
-              </div>
-            </div>
-          )}
+            ) : null}
+          </div>
         </section>
         {!isMobile && <Tooltip id="my-tooltip" place="right" style={{ zIndex: 9999, backgroundColor: '#2e148b' }} />}
         {!isMobile && (
