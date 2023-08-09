@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import './header.scss';
-import { Github } from '../../svg/Github';
 import { StoreType, store } from '../../store';
 import GIF from 'gif.js';
 
@@ -146,18 +145,6 @@ export function Header({ isMobile }: { isMobile: boolean }) {
   return (
     <header className="header">
       <div className="inner-header">
-        <div
-          style={{
-            width: isMobile ? '20%' : '80px',
-            height: '90%',
-            display: 'flex',
-            justifyContent: isMobile ? 'flex-start' : 'space-between',
-            alignItems: 'center'
-          }}>
-          <a href="https://github.com/joaogabrielferr/pixel-art-editor" target="_blank">
-            <Github></Github>
-          </a>
-        </div>
         {!isMobile && <div style={{ fontWeight: 'bold' }}>SPRITEFY</div>}
         <button ref={downloadButton} className="download-button">
           SAVE DRAWING

@@ -15,7 +15,7 @@ export function Pencil(
   xMirror: boolean,
   yMirror: boolean
 ) {
-  if (!mouse.isPressed) return [];
+  if (!mouse.isPressed) return;
 
   const xs = Math.floor(mouse.x);
   const ys = Math.floor(mouse.y);

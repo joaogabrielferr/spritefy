@@ -17,6 +17,7 @@ import { WelcomeModal } from './components/WelcomeModal/WelcomeModal';
 import { Toolbar } from './components/Toolbar/Toolbar';
 import { faArrowRotateLeft, faArrowRotateRight, faGear } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Topbar } from './components/Topbar/Topbar';
 
 //TODO: use memo on Editor
 //TODO: add a debounce function to tools
@@ -108,7 +109,7 @@ function App() {
     <>
       <main>
         <Header isMobile={isMobile} />
-        <div style={{ width: '100%', height: '30px', backgroundColor: 'rgb(77, 77, 77)' }}>teste</div>
+        <Topbar isMobile={isMobile} />
         <section className="main-section">
           <div className="main-inner-wrapper">
             <Toolbar
