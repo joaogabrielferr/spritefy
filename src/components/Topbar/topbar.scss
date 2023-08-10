@@ -38,3 +38,51 @@
     }
   }
 }
+
+.topbar-mobile {
+  position: absolute;
+  top: 61px;
+  left: 0;
+  z-index: 10000000;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+  overflow-y: none;
+  background-color: variables.$body-background-color;
+  // margin-top: 5px;
+  user-select: none;
+  transition: transform 0.3s ease-in-out;
+
+  width: 60%;
+
+  height: 100%;
+
+  transform: translateX(-100%);
+
+  &.open {
+    transform: translateX(0);
+  }
+
+  .topbar-nav {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: flex-start;
+    font-size: 14px;
+    height: 100%;
+
+    button {
+      border-style: none;
+      background-color: transparent;
+      color: white;
+      cursor: pointer;
+      height: 50px;
+      border-bottom: 1px solid rgb(88, 87, 87);
+
+      &:hover {
+        background-color: variables.$hover-color;
+      }
+    }
+  }
+}
