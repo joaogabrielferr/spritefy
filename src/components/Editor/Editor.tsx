@@ -1,4 +1,4 @@
-import { useEffect, useRef, WheelEvent, MouseEvent, TouchEvent, Touch, useCallback } from 'react';
+import { useEffect, useRef, MouseEvent, TouchEvent, Touch, useCallback } from 'react';
 import './editor.scss';
 import * as constants from '../../utils/constants';
 import Mouse from '../../scene/Mouse';
@@ -749,20 +749,23 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  function mouseToWorldCoordinates(clientX: number, clientY: number) {
-    const bounding = canvas.getBoundingClientRect();
-    mouse.x = clientX - bounding.left;
-    mouse.y = clientY - bounding.top;
+  const mouseToWorldCoordinates = useCallback(
+    (clientX: number, clientY: number) => {
+      const bounding = canvas.getBoundingClientRect();
+      mouse.x = clientX - bounding.left;
+      mouse.y = clientY - bounding.top;
 
-    const canvasWidth = parseFloat(canvas.style.width);
-    const canvasHeight = parseFloat(canvas.style.height);
+      const canvasWidth = parseFloat(canvas.style.width);
+      const canvasHeight = parseFloat(canvas.style.height);
 
-    const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
-    const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
+      const offsetX = (canvasWidth - canvas.offsetWidth) / 2; // Calculate the X-axis offset due to scaling
+      const offsetY = (canvasHeight - canvas.offsetHeight) / 2; // Calculate the Y-axis offset due to scaling
 
-    mouse.x = (mouse.x - offsetX) * (displaySize / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
-    mouse.y = (mouse.y - offsetY) * (displaySize / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
-  }
+      mouse.x = (mouse.x - offsetX) * (displaySize / canvasWidth); // Transform the mouse X-coordinate to canvas coordinate system taking into consideration the zooming and panning
+      mouse.y = (mouse.y - offsetY) * (displaySize / canvasHeight); // Transform the mouse Y-coordinate to canvas coordinate system taking into consideration the zooming and panning
+    },
+    [displaySize]
+  );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1132,7 +1135,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  function paintMousePosition() {
+  const paintMousePosition = useCallback(() => {
     if (selectedTool === 'selection') return;
 
     const x = Math.floor(mouse.x);
@@ -1193,7 +1196,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         }
       }
     }
-  }
+  }, [displaySize, penSize, selectedColor, selectedTool]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1296,122 +1299,127 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  function handleZoom(e: WheelEvent) {
-    if (!outerDiv) return;
+  const handleZoom = useCallback(
+    (e: WheelEvent) => {
+      e.preventDefault();
 
-    const rect = outerDiv.getBoundingClientRect();
+      if (!outerDiv) return;
 
-    // Update the mouse position relative to the outer div
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+      const rect = outerDiv.getBoundingClientRect();
 
-    const delta = Math.sign(e.deltaY);
+      // Update the mouse position relative to the outer div
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
 
-    if (delta < 0 && frames.current[currentFrameIndex].scene.zoomAmount < constants.MAX_ZOOM_AMOUNT) {
-      // Zoom in
-      if (parseFloat(canvas.style.width) < originalCanvasWidth) {
-        currentScale += constants.SCALE_FACTOR;
-        const newSize = Math.min(parseFloat(canvas.style.width) + 100, originalCanvasWidth);
+      const delta = Math.sign(e.deltaY);
 
-        canvas.style.width = `${newSize}px`;
-        canvas.style.height = `${newSize}px`;
-        topCanvas.style.width = `${newSize}px`;
-        topCanvas.style.height = `${newSize}px`;
-        backgroundCanvas.style.width = `${newSize}px`;
-        backgroundCanvas.style.height = `${newSize}px`;
+      if (delta < 0 && frames.current[currentFrameIndex].scene.zoomAmount < constants.MAX_ZOOM_AMOUNT) {
+        // Zoom in
+        if (parseFloat(canvas.style.width) < originalCanvasWidth) {
+          currentScale += constants.SCALE_FACTOR;
+          const newSize = Math.min(parseFloat(canvas.style.width) + 100, originalCanvasWidth);
 
-        //paint pixel in top canvas relative to mouse position
-        mouseToWorldCoordinates(e.clientX, e.clientY);
-        paintMousePosition();
-      } else if (frames.current[currentFrameIndex].scene.zoomAmount < constants.MAX_ZOOM_AMOUNT) {
-        frames.current[currentFrameIndex].scene.zoomAmount++;
+          canvas.style.width = `${newSize}px`;
+          canvas.style.height = `${newSize}px`;
+          topCanvas.style.width = `${newSize}px`;
+          topCanvas.style.height = `${newSize}px`;
+          backgroundCanvas.style.width = `${newSize}px`;
+          backgroundCanvas.style.height = `${newSize}px`;
 
-        //dx and dy determines the translation of the canvas based on the mouse position during zooming
-        //subtracting outerDiv.offsetWidth / 2 from mouse.x determines the offset of the mouse position from the center of the outer div.
-        //the resulting value is then multiplied by the constants.SCALE_FACTOR to ensure the correct translation based on the current scale factor.
+          //paint pixel in top canvas relative to mouse position
+          mouseToWorldCoordinates(e.clientX, e.clientY);
+          paintMousePosition();
+        } else if (frames.current[currentFrameIndex].scene.zoomAmount < constants.MAX_ZOOM_AMOUNT) {
+          frames.current[currentFrameIndex].scene.zoomAmount++;
 
-        const dx = (mouseX - outerDiv.offsetWidth / 2) * constants.SCALE_FACTOR;
-        const dy = (mouseY - outerDiv.offsetHeight / 2) * constants.SCALE_FACTOR;
+          //dx and dy determines the translation of the canvas based on the mouse position during zooming
+          //subtracting outerDiv.offsetWidth / 2 from mouse.x determines the offset of the mouse position from the center of the outer div.
+          //the resulting value is then multiplied by the constants.SCALE_FACTOR to ensure the correct translation based on the current scale factor.
 
-        currentScale += constants.SCALE_FACTOR;
-        currentScale = Math.max(currentScale, 0.15); // Set a minimum scale value
+          const dx = (mouseX - outerDiv.offsetWidth / 2) * constants.SCALE_FACTOR;
+          const dy = (mouseY - outerDiv.offsetHeight / 2) * constants.SCALE_FACTOR;
 
-        const scaleChangeFactor = currentScale / (currentScale - constants.SCALE_FACTOR); //calculate current scale factor
+          currentScale += constants.SCALE_FACTOR;
+          currentScale = Math.max(currentScale, 0.15); // Set a minimum scale value
 
-        canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
-        canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
-        canvas.style.left = `${canvas.offsetLeft - dx}px`;
-        canvas.style.top = `${canvas.offsetTop - dy}px`;
-
-        topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
-        topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
-        topCanvas.style.left = `${topCanvas.offsetLeft - dx}px`;
-        topCanvas.style.top = `${topCanvas.offsetTop - dy}px`;
-
-        backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
-        backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
-        backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft - dx}px`;
-        backgroundCanvas.style.top = `${backgroundCanvas.offsetTop - dy}px`;
-
-        // Store the mouse position in the history
-        mouse.history.push({ x: mouseX, y: mouseY });
-        //paint pixel in top canvas relative to mouse position
-        mouseToWorldCoordinates(e.clientX, e.clientY);
-        paintMousePosition();
-      }
-    } else if (delta > 0) {
-      // Zoom out
-
-      if (frames.current[currentFrameIndex].scene.zoomAmount > 0) {
-        frames.current[currentFrameIndex].scene.zoomAmount--;
-        if (mouse.history.length > 0) {
-          const lastMousePos = mouse.history.pop()!;
-
-          const dx = (lastMousePos.x - outerDiv.offsetWidth / 2) * constants.SCALE_FACTOR;
-          const dy = (lastMousePos.y - outerDiv.offsetHeight / 2) * constants.SCALE_FACTOR;
-
-          currentScale -= constants.SCALE_FACTOR;
-          currentScale = Math.max(currentScale, 0.1); // Set a minimum scale value
-
-          const scaleChangeFactor = currentScale / (currentScale + constants.SCALE_FACTOR);
+          const scaleChangeFactor = currentScale / (currentScale - constants.SCALE_FACTOR); //calculate current scale factor
 
           canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
           canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
-          canvas.style.left = `${canvas.offsetLeft + dx}px`;
-          canvas.style.top = `${canvas.offsetTop + dy}px`;
+          canvas.style.left = `${canvas.offsetLeft - dx}px`;
+          canvas.style.top = `${canvas.offsetTop - dy}px`;
 
           topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
           topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
-          topCanvas.style.left = `${topCanvas.offsetLeft + dx}px`;
-          topCanvas.style.top = `${topCanvas.offsetTop + dy}px`;
+          topCanvas.style.left = `${topCanvas.offsetLeft - dx}px`;
+          topCanvas.style.top = `${topCanvas.offsetTop - dy}px`;
 
           backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
           backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
-          backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft + dx}px`;
-          backgroundCanvas.style.top = `${backgroundCanvas.offsetTop + dy}px`;
+          backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft - dx}px`;
+          backgroundCanvas.style.top = `${backgroundCanvas.offsetTop - dy}px`;
+
+          // Store the mouse position in the history
+          mouse.history.push({ x: mouseX, y: mouseY });
+          //paint pixel in top canvas relative to mouse position
+          mouseToWorldCoordinates(e.clientX, e.clientY);
+          paintMousePosition();
+        }
+      } else if (delta > 0) {
+        // Zoom out
+
+        if (frames.current[currentFrameIndex].scene.zoomAmount > 0) {
+          frames.current[currentFrameIndex].scene.zoomAmount--;
+          if (mouse.history.length > 0) {
+            const lastMousePos = mouse.history.pop()!;
+
+            const dx = (lastMousePos.x - outerDiv.offsetWidth / 2) * constants.SCALE_FACTOR;
+            const dy = (lastMousePos.y - outerDiv.offsetHeight / 2) * constants.SCALE_FACTOR;
+
+            currentScale -= constants.SCALE_FACTOR;
+            currentScale = Math.max(currentScale, 0.1); // Set a minimum scale value
+
+            const scaleChangeFactor = currentScale / (currentScale + constants.SCALE_FACTOR);
+
+            canvas.style.width = `${canvas.offsetWidth * scaleChangeFactor}px`;
+            canvas.style.height = `${canvas.offsetHeight * scaleChangeFactor}px`;
+            canvas.style.left = `${canvas.offsetLeft + dx}px`;
+            canvas.style.top = `${canvas.offsetTop + dy}px`;
+
+            topCanvas.style.width = `${topCanvas.offsetWidth * scaleChangeFactor}px`;
+            topCanvas.style.height = `${topCanvas.offsetHeight * scaleChangeFactor}px`;
+            topCanvas.style.left = `${topCanvas.offsetLeft + dx}px`;
+            topCanvas.style.top = `${topCanvas.offsetTop + dy}px`;
+
+            backgroundCanvas.style.width = `${backgroundCanvas.offsetWidth * scaleChangeFactor}px`;
+            backgroundCanvas.style.height = `${backgroundCanvas.offsetHeight * scaleChangeFactor}px`;
+            backgroundCanvas.style.left = `${backgroundCanvas.offsetLeft + dx}px`;
+            backgroundCanvas.style.top = `${backgroundCanvas.offsetTop + dy}px`;
+
+            //paint pixel in top canvas relative to mouse position
+            mouseToWorldCoordinates(e.clientX, e.clientY);
+            paintMousePosition();
+          }
+        } else if (parseFloat(canvas.style.width) > displaySize) {
+          const newSize = Math.max(parseFloat(canvas.style.width) - 100, displaySize);
+
+          canvas.style.width = `${newSize}px`;
+          canvas.style.height = `${newSize}px`;
+          topCanvas.style.width = `${newSize}px`;
+          topCanvas.style.height = `${newSize}px`;
+          backgroundCanvas.style.width = `${newSize}px`;
+          backgroundCanvas.style.height = `${newSize}px`;
+
+          currentScale -= constants.SCALE_FACTOR;
 
           //paint pixel in top canvas relative to mouse position
           mouseToWorldCoordinates(e.clientX, e.clientY);
           paintMousePosition();
         }
-      } else if (parseFloat(canvas.style.width) > displaySize) {
-        const newSize = Math.max(parseFloat(canvas.style.width) - 100, displaySize);
-
-        canvas.style.width = `${newSize}px`;
-        canvas.style.height = `${newSize}px`;
-        topCanvas.style.width = `${newSize}px`;
-        topCanvas.style.height = `${newSize}px`;
-        backgroundCanvas.style.width = `${newSize}px`;
-        backgroundCanvas.style.height = `${newSize}px`;
-
-        currentScale -= constants.SCALE_FACTOR;
-
-        //paint pixel in top canvas relative to mouse position
-        mouseToWorldCoordinates(e.clientX, e.clientY);
-        paintMousePosition();
       }
-    }
-  }
+    },
+    [displaySize, mouseToWorldCoordinates, paintMousePosition]
+  );
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1534,6 +1542,18 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
+  useEffect(() => {
+    if (outerDivRef.current) {
+      outerDivRef.current.addEventListener('wheel', handleZoom, { passive: false });
+    }
+
+    const r = outerDivRef.current;
+
+    return () => {
+      if (r) r.removeEventListener('wheel', handleZoom);
+    };
+  }, [handleZoom]);
+
   function createNewFrame() {
     return {
       name: `frame${Date.now()}`,
@@ -1547,7 +1567,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     <div
       className="editor-wrapper"
       ref={outerDivRef}
-      onWheel={handleZoom}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleFinishDraw}
