@@ -1,4 +1,4 @@
 # Spritefy
 very cool web-based pixel art editor,with a decent mobile support
 
-![lets gooooo](https://github.com/joaogabrielferr/pixel-art-editor/assets/59519370/33825194-cb8b-4e83-a5a9-b8417d1662ec)
+![lets gooooo](https://github.com/joaogabrielferr/spritefy/assets/59519370/93d970f2-52df-4b98-93d2-f25742b1cf85)
