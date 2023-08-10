@@ -68,8 +68,6 @@ let mouseSelectionOffsetBottomRightY = 0;
 
 let selectedDraw: { offset: point; color: number[] }[] = [];
 
-//////////////////////////////////////////////////////////
-
 export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const topCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -97,12 +95,11 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   const yMirror = store((state: StoreType) => state.yMirror);
   const erasingRightButton = store((state: StoreType) => state.erasingRightButton);
   const fillRectangle = store((state: StoreType) => state.fillRectangle);
-
   const framesList = store((state: StoreType) => state.framesList);
   const setFramesList = store((state: StoreType) => state.setFramesList);
-
   const currentFrame = store((state: StoreType) => state.currentFrame);
   const setCurrentFrame = store((state: StoreType) => state.setCurrentFrame);
+  const setIsWelcomeModalOpen = store((state: StoreType) => state.setIsWelcomeModalOpen);
 
   const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvases
 
@@ -448,6 +445,14 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   }, [displaySize, setCurrentFrame, setFramesList]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
+
+  const startNewDrawing = useCallback(() => {
+    clearDrawing();
+    setIsWelcomeModalOpen(true);
+  }, [clearDrawing, setIsWelcomeModalOpen]);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
   useEffect(() => {
     const resetCanvasSubscription = EventBus.getInstance().subscribe(constants.RESET_CANVAS_POSITION, resetCanvasPosition);
     const selectFrameSubscription = EventBus.getInstance().subscribe(constants.SELECT_FRAME, selectFrame);
@@ -469,6 +474,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       deleteSelectedDraw
     );
     const handleClearDrawing = EventBus.getInstance().subscribe(constants.CLEAR_DRAWING, clearDrawing);
+    const handleStartNewDrawing = EventBus.getInstance().subscribe(constants.START_NEW_DRAWING, startNewDrawing);
 
     function clearTopCanvas() {
       topCtx.clearRect(0, 0, displaySize, displaySize);
@@ -519,6 +525,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       handlePasteSelectedDrawSubscription.unsubscribe();
       handleDeleteSelectedDrawSubscription.unsubscribe();
       handleClearDrawing.unsubscribe();
+      handleStartNewDrawing.unsubscribe();
       document.removeEventListener('keydown', checkKeyCombinations);
     };
   }, [
@@ -533,7 +540,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     copyDrawToSelectedArea,
     pasteSelectedDraw,
     deleteSelectedDraw,
-    clearDrawing
+    clearDrawing,
+    startNewDrawing
   ]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1553,6 +1561,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       if (r) r.removeEventListener('wheel', handleZoom);
     };
   }, [handleZoom]);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
 
   function createNewFrame() {
     return {

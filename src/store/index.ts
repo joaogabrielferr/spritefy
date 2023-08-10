@@ -18,6 +18,8 @@ export type StoreType = {
 
   displaySize: number;
 
+  isWelcomeModalOpen: boolean;
+
   setSelectedColor: (color: string) => void;
   setSelectedTool: (tool: toolsType) => void;
   setPenSize: (size: number) => void;
@@ -32,6 +34,7 @@ export type StoreType = {
   toogleErasingRightButton: () => void;
   toogleFillRectangle: () => void;
   setDisplaySize: (newDisplaySize: number) => void;
+  setIsWelcomeModalOpen: (value: boolean) => void;
 };
 
 export const store = create<StoreType>()((set) => ({
@@ -49,6 +52,7 @@ export const store = create<StoreType>()((set) => ({
   erasingRightButton: false,
   fillRectangle: false,
   displaySize: 32,
+  isWelcomeModalOpen: true,
   setSelectedColor: (color: string) => set(() => ({ selectedColor: color })),
   setSelectedTool: (tool: toolsType) => set(() => ({ selectedTool: tool })),
   setPenSize: (size: number) => set(() => ({ penSize: size, previousPenSize: size })),
@@ -62,5 +66,6 @@ export const store = create<StoreType>()((set) => ({
   setFrameRate: (newFrameRate: number) => set(() => ({ frameRate: newFrameRate })),
   toogleErasingRightButton: () => set((state: StoreType) => ({ erasingRightButton: !state.erasingRightButton })),
   toogleFillRectangle: () => set((state: StoreType) => ({ fillRectangle: !state.fillRectangle })),
-  setDisplaySize: (newDisplaySize: number) => set(() => ({ displaySize: newDisplaySize }))
+  setDisplaySize: (newDisplaySize: number) => set(() => ({ displaySize: newDisplaySize })),
+  setIsWelcomeModalOpen: (value: boolean) => set(() => ({ isWelcomeModalOpen: value }))
 }));

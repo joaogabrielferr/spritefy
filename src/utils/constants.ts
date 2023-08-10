@@ -27,3 +27,4 @@ export const COPY_SELECTED_DRAW = 'copy-selected-draw';
 export const PASTE_SELECTED_DRAW = 'paste-selected-draw';
 export const DELETE_SELECTED_DRAW = 'delete-selected-draw';
 export const CLEAR_DRAWING = 'clear-drawing';
+export const START_NEW_DRAWING = 'start-new-drawing';

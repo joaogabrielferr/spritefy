@@ -2,14 +2,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './topbar.scss';
 import { faBroom, faFile } from '@fortawesome/free-solid-svg-icons';
 import { EventBus } from '../../EventBus';
-import { CLEAR_DRAWING } from '../../utils/constants';
+import { CLEAR_DRAWING, START_NEW_DRAWING } from '../../utils/constants';
 
 export function Topbar() {
   return (
     <div className="topbar">
       <div className="inner-topbar">
         <nav className="topbar-nav">
-          <button>
+          <button onClick={() => EventBus.getInstance().publish(START_NEW_DRAWING)}>
             <FontAwesomeIcon size="lg" color="white" icon={faFile} /> NEW DRAWING
           </button>
           <button onClick={() => EventBus.getInstance().publish(CLEAR_DRAWING)}>

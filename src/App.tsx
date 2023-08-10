@@ -50,11 +50,13 @@ function App() {
 
   const setDisplaySize = store((state: StoreType) => state.setDisplaySize);
 
+  const isWelcomeModalOpen = store((state: StoreType) => state.isWelcomeModalOpen);
+
+  const setIsWelcomeModalOpen = store((state: StoreType) => state.setIsWelcomeModalOpen);
+
   const [cssCanvasSize, setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize
 
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768); //TODO:this may be two simple, search for a better way to detect a mobile device
-
-  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(true);
 
   const [isToolbarMobileOpen, setIsToolbarMobileOpen] = useState(false);
 
