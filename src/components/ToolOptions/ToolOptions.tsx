@@ -28,8 +28,10 @@ export function ToolOptions({ isMobile }: ToolOptionsProps) {
   const YMirror = store((state: StoreType) => state.yMirror);
   const erasingRightButton = store((state: StoreType) => state.erasingRightButton);
   const penSize = store((state: StoreType) => state.penSize);
+  const fillRectangle = store((state: StoreType) => state.fillRectangle);
 
   const toogleErasingRightButton = store((state: StoreType) => state.toogleErasingRightButton);
+  const toogleFillRectangle = store((state: StoreType) => state.toogleFillRectangle);
 
   return (
     <div className="toolOptions-wrapper">
@@ -96,6 +98,15 @@ export function ToolOptions({ isMobile }: ToolOptionsProps) {
                     checked={erasingRightButton}
                     onChange={() => toogleErasingRightButton()}
                   />
+                  <span className="checkmark"></span>
+                </label>
+              </div>
+            )}
+            {['rectangle'].find((tool) => tool === selectedTool) && (
+              <div className="checkbox-wrapper">
+                <label className="checkbox">
+                  FILL
+                  <input type="checkbox" id="MirrorXAxis" checked={fillRectangle} onChange={() => toogleFillRectangle()} />
                   <span className="checkmark"></span>
                 </label>
               </div>

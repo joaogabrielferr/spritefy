@@ -15,7 +15,7 @@ import {
   redoLastDraw,
   Selection,
   Dithering
-} from '../../Tools';
+} from '../../tools';
 import { Frame, drawOnSideBarCanvasType } from '../../types';
 import { EventBus } from '../../EventBus';
 import { store, StoreType } from '../../store';
@@ -96,6 +96,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   const xMirror = store((state: StoreType) => state.xMirror);
   const yMirror = store((state: StoreType) => state.yMirror);
   const erasingRightButton = store((state: StoreType) => state.erasingRightButton);
+  const fillRectangle = store((state: StoreType) => state.fillRectangle);
 
   const framesList = store((state: StoreType) => state.framesList);
   const setFramesList = store((state: StoreType) => state.setFramesList);
@@ -796,7 +797,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           frames.current[currentFrameIndex].scene.lineFirstPixel!,
           selectedColor,
           penSize,
-          displaySize
+          displaySize,
+          fillRectangle
         );
       } else if (
         selectedTool === 'elipse' &&
@@ -970,7 +972,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         frames.current[currentFrameIndex].scene.lineFirstPixel!,
         selectedColor,
         penSize,
-        displaySize
+        displaySize,
+        fillRectangle
       );
     } else if (selectedTool === 'elipse' && mouse.isPressed) {
       //remove draw from the top canvas

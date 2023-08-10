@@ -1,3 +1,4 @@
+import { completeClosedRectangle } from '../algorithms/completeClosedRectangle';
 import { completeRectangle } from '../algorithms/completeRectangle';
 import Mouse from '../scene/Mouse';
 import Scene from '../scene/Scene';
@@ -12,7 +13,8 @@ export function Rectangle(
   start: { x: number; y: number },
   selectedColor: string,
   penSize: number,
-  display_size: number
+  display_size: number,
+  fill: boolean
 ) {
   const x = Math.floor(mouse.x);
   const y = Math.floor(mouse.y);
@@ -25,7 +27,13 @@ export function Rectangle(
 
   const data = ctx.getImageData(0, 0, display_size, display_size).data;
 
-  const path: { x: number; y: number }[] = completeRectangle(start, { x, y }, pixel_size, display_size);
+  let path: { x: number; y: number }[];
+
+  if (fill) {
+    path = completeClosedRectangle(start, { x, y }, pixel_size, display_size);
+  } else {
+    path = completeRectangle(start, { x, y }, pixel_size, display_size);
+  }
 
   for (let pixel of path) {
     const index = (pixel.x + display_size * pixel.y) * 4;
@@ -34,7 +42,7 @@ export function Rectangle(
     data[index + 2] = rgb[2];
     data[index + 3] = 255;
 
-    paintNeighbors(index, scene, ctx, penSize, selectedColor, pixel_size, display_size, data);
+    paintNeighbors(index, scene, penSize, selectedColor, display_size, data);
   }
 
   const imageData = new ImageData(data, display_size, display_size);
@@ -47,10 +55,8 @@ export function Rectangle(
 function paintNeighbors(
   index: number,
   scene: Scene,
-  ctx: CanvasRenderingContext2D,
   penSize: number,
   selectedColor: string,
-  pixel_size: number,
   display_size: number,
   data: Uint8ClampedArray
 ) {

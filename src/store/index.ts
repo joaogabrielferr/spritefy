@@ -14,6 +14,7 @@ export type StoreType = {
   backgroundTileSize: number;
   frameRate: number;
   erasingRightButton: boolean;
+  fillRectangle: boolean;
 
   displaySize: number;
 
@@ -29,6 +30,7 @@ export type StoreType = {
   setBackgroundTileSize: (newSize: number) => void;
   setFrameRate: (newFrameRate: number) => void;
   toogleErasingRightButton: () => void;
+  toogleFillRectangle: () => void;
   setDisplaySize: (newDisplaySize: number) => void;
 };
 
@@ -45,6 +47,7 @@ export const store = create<StoreType>()((set) => ({
   backgroundTileSize: 1,
   frameRate: 6,
   erasingRightButton: false,
+  fillRectangle: false,
   displaySize: 32,
   setSelectedColor: (color: string) => set(() => ({ selectedColor: color })),
   setSelectedTool: (tool: toolsType) => set(() => ({ selectedTool: tool })),
@@ -58,5 +61,6 @@ export const store = create<StoreType>()((set) => ({
   setBackgroundTileSize: (newSize: number) => set(() => ({ backgroundTileSize: newSize })),
   setFrameRate: (newFrameRate: number) => set(() => ({ frameRate: newFrameRate })),
   toogleErasingRightButton: () => set((state: StoreType) => ({ erasingRightButton: !state.erasingRightButton })),
+  toogleFillRectangle: () => set((state: StoreType) => ({ fillRectangle: !state.fillRectangle })),
   setDisplaySize: (newDisplaySize: number) => set(() => ({ displaySize: newDisplaySize }))
 }));
