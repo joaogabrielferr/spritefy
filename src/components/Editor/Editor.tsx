@@ -1443,8 +1443,14 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   function topCanvasToMainCanvas() {
     const topData = topCtx.getImageData(0, 0, displaySize, displaySize).data;
 
+    //index corresponding to coordinate the mouse is hovering over
+    const { x, y } = mouse.getPosition();
+    const index = (x + displaySize * y) * 4;
+
     for (let i = 0; i < topData.length; i += 4) {
       if (topData[i + 3] !== 0) {
+        if (selectedTool === 'elipse' && index === i) continue;
+
         frames.current[currentFrameIndex].scene.pixels[i] = topData[i];
         frames.current[currentFrameIndex].scene.pixels[i + 1] = topData[i + 1];
         frames.current[currentFrameIndex].scene.pixels[i + 2] = topData[i + 2];
