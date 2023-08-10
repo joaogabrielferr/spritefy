@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { EventBus } from '../../EventBus';
 import { UNDO_LAST_DRAW, REDO_LAST_DRAW, RESET_CANVAS_POSITION } from '../../utils/constants';
 import { StoreType, store } from '../../store';
+import './mobileMenu.scss';
 
 interface MobileMenuProps {
   setIsToolbarMobileOpen: Dispatch<SetStateAction<boolean>>;

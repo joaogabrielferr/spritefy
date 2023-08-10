@@ -1,0 +1,33 @@
+@use '../../styles/variables';
+
+.mobile-options {
+  width: 100%;
+  height: 25%;
+
+  background-color: variables.$body-background-color;
+
+  button {
+    border-style: none;
+    border-radius: 3px;
+  }
+
+  .mobile-row {
+    height: 25%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 3px;
+  }
+  .row-1 {
+    button {
+      height: 100%;
+      width: 30%;
+    }
+  }
+
+  .row-2 {
+    button {
+      height: 100%;
+      width: 30%;
+    }
+  }
+}

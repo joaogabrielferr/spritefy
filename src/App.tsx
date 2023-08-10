@@ -18,25 +18,15 @@ import { Toolbar } from './components/Toolbar/Toolbar';
 import { Topbar } from './components/Topbar/Topbar';
 import { MobileMenu } from './components/MobileMenu/MobileMenu';
 
-//TODO: use memo on Editor
-//TODO: add a debounce function to tools
 //TODO: add option to flip drawing in X and Y axis
 //TODO: add option to rotate drawing in clockwise or counter clockwise
-//TODO: finish ui on mobile
-//TODO: create save drawing modal where user can choose to download sprite as png or as gif
-//TODO: Draw better tool icons
 //TODO: Add a 'file' option in header and add option to create new drawing
 //TODO: allow for different width and height when creating a new canvas
 //TODO: implement a more precise zoom for mobile
 //TODO: right now im saving the gifs with a white background because i couldnt figure out how to create transparent gifs with gif.js,
 //probably look for another library that supports transparent bg (or keep it white, pixilart also saves gifs with white bg so transparent bg may not be easy to achieve)
 
-//TODO: add layers functionality (maybe have a list 'layers' in a scene and each layer has a pixel matrix)
-//TODO: save drawing locally (maybe by retrieving the image from canvases with getImageData? )
-//TODO: add option to save drawing on users computer (create a json file and store all necessary info to redraw elements, save it as .spritefy)
-//TODO: Add onion skin
-//TODO: Add tutorial if opened for the first time
-
+//TODO: add layers functionality
 //TODO:create option to select palettes and switch between them
 
 //TODO: add new options for paint bucket:
@@ -198,7 +188,7 @@ function Coordinates() {
         id="coordinates"
         style={{
           height: '100%',
-          color: '#111',
+          color: 'white',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center'

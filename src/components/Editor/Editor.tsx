@@ -422,6 +422,30 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
+  const clearDrawing = useCallback(() => {
+    frames.current = [
+      {
+        name: 'frame1',
+        scene: new Scene(),
+        undoStack: new Stack<Uint8ClampedArray>(),
+        redoStack: new Stack<Uint8ClampedArray>()
+      }
+    ];
+
+    currentFrameIndex = 0;
+    frames.current[0].scene.initializePixelMatrix(displaySize);
+
+    setFramesList(['frame1']);
+
+    setCurrentFrame('frame1');
+
+    topCtx.clearRect(0, 0, displaySize, displaySize);
+    ctx.clearRect(0, 0, displaySize, displaySize);
+
+    EventBus.getInstance().publish(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
+  }, [displaySize, setCurrentFrame, setFramesList]);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     const resetCanvasSubscription = EventBus.getInstance().subscribe(constants.RESET_CANVAS_POSITION, resetCanvasPosition);
     const selectFrameSubscription = EventBus.getInstance().subscribe(constants.SELECT_FRAME, selectFrame);
@@ -442,6 +466,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       constants.DELETE_SELECTED_DRAW,
       deleteSelectedDraw
     );
+    const handleClearDrawing = EventBus.getInstance().subscribe(constants.CLEAR_DRAWING, clearDrawing);
 
     function clearTopCanvas() {
       topCtx.clearRect(0, 0, displaySize, displaySize);
@@ -491,6 +516,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       handleCopySelectedDrawSubscription.unsubscribe();
       handlePasteSelectedDrawSubscription.unsubscribe();
       handleDeleteSelectedDrawSubscription.unsubscribe();
+      handleClearDrawing.unsubscribe();
       document.removeEventListener('keydown', checkKeyCombinations);
     };
   }, [
@@ -504,7 +530,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     displaySize,
     copyDrawToSelectedArea,
     pasteSelectedDraw,
-    deleteSelectedDraw
+    deleteSelectedDraw,
+    clearDrawing
   ]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////

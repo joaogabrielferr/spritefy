@@ -26,3 +26,4 @@ export const CLEAR_TOP_CANVAS = 'clear-top-canvas';
 export const COPY_SELECTED_DRAW = 'copy-selected-draw';
 export const PASTE_SELECTED_DRAW = 'paste-selected-draw';
 export const DELETE_SELECTED_DRAW = 'delete-selected-draw';
+export const CLEAR_DRAWING = 'clear-drawing';
