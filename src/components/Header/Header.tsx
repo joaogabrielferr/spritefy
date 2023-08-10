@@ -145,7 +145,7 @@ export function Header({ isMobile }: { isMobile: boolean }) {
   return (
     <header className="header">
       <div className="inner-header">
-        {!isMobile && <div style={{ fontWeight: 'bold' }}>SPRITEFY</div>}
+        <div style={{ fontWeight: 'bold' }}>SPRITEFY</div>
         <button ref={downloadButton} className="download-button">
           SAVE DRAWING
         </button>

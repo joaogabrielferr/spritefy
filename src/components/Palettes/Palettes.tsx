@@ -111,11 +111,6 @@ const palettes = [
     id: 1
   },
   {
-    name: 'skin colors',
-    colors: ['#22140e', '#3b2219', '#a16e4b', '#d4aa78', '#e6bc98', '#ffe7d1'],
-    id: 2
-  },
-  {
     name: 'water',
     colors: ['#0f5e9c', '#2389da', '#1ca3ec', '#5abcd8', '#74ccf4'],
     id: 3

@@ -9,15 +9,14 @@ import { Header } from './components/Header/Header';
 import { Tooltip } from 'react-tooltip';
 import CustomColorPicker from './components/ColorPicker/ColorPicker';
 import { EventBus } from './EventBus';
-import { REDO_LAST_DRAW, RESET_CANVAS_POSITION, UNDO_LAST_DRAW } from './utils/constants';
+import { RESET_CANVAS_POSITION } from './utils/constants';
 import { store, StoreType } from './store';
 import { Frames } from './components/Frames/Frames';
 import { Preview } from './components/Preview/Preview';
 import { WelcomeModal } from './components/WelcomeModal/WelcomeModal';
 import { Toolbar } from './components/Toolbar/Toolbar';
-import { faArrowRotateLeft, faArrowRotateRight, faGear } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Topbar } from './components/Topbar/Topbar';
+import { MobileMenu } from './components/MobileMenu/MobileMenu';
 
 //TODO: use memo on Editor
 //TODO: add a debounce function to tools
@@ -41,17 +40,20 @@ import { Topbar } from './components/Topbar/Topbar';
 //TODO:create option to select palettes and switch between them
 
 //TODO: add new options for paint bucket:
-// paint diagonal neighbors
 //erase pixels instead of painting
 //change color of all pixels with the start color
+
+//TODO: add new option to square
+//fill
+
+//TODO: add new options to eraser and line
+//mirror x and mirror y
 
 //TODO: add new options for color picker:
 // choose as current color (default)
 // add to palette
 
 function App() {
-  const selectedTool = store((state: StoreType) => state.selectedTool);
-
   const selectedColor = store((state: StoreType) => state.selectedColor);
 
   const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
@@ -109,7 +111,7 @@ function App() {
     <>
       <main>
         <Header isMobile={isMobile} />
-        <Topbar isMobile={isMobile} />
+        <Topbar />
         <section className="main-section">
           <div className="main-inner-wrapper">
             <Toolbar
@@ -154,38 +156,11 @@ function App() {
             </Sidebar>
 
             {isMobile ? (
-              <div className="mobile-options">
-                <div className="mobile-row row-1">
-                  <button onClick={() => setIsToolbarMobileOpen(true)}>
-                    <img
-                      height={'24px'}
-                      style={{ imageRendering: 'pixelated' }}
-                      src={`./public/${selectedTool}.png`}
-                      alt={selectedTool}
-                    />
-                  </button>
-                  <button onClick={() => setIsLeftSidebarMobileOpen(true)}>
-                    <img
-                      height={'13px'}
-                      style={{ imageRendering: 'pixelated' }}
-                      src={`./public/${selectedTool}.png`}
-                      alt={selectedTool}
-                    />
-                    <FontAwesomeIcon size="lg" color="black" icon={faGear} />
-                  </button>
-                  {/* <button>COLOR</button> */}
-                  <button onClick={() => setIsRightSidebarMobileOpen(true)}>FRAMES</button>
-                </div>
-                <div className="mobile-row row-2">
-                  <button onClick={() => EventBus.getInstance().publish(UNDO_LAST_DRAW)}>
-                    <FontAwesomeIcon size="lg" color="black" icon={faArrowRotateLeft} />
-                  </button>
-                  <button onClick={() => EventBus.getInstance().publish(REDO_LAST_DRAW)}>
-                    <FontAwesomeIcon size="lg" color="black" icon={faArrowRotateRight} />
-                  </button>
-                  <button onClick={() => EventBus.getInstance().publish(RESET_CANVAS_POSITION)}>RESET POSITION</button>
-                </div>
-              </div>
+              <MobileMenu
+                setIsToolbarMobileOpen={setIsToolbarMobileOpen}
+                setIsLeftSidebarMobileOpen={setIsLeftSidebarMobileOpen}
+                setIsRightSidebarMobileOpen={setIsRightSidebarMobileOpen}
+              />
             ) : null}
           </div>
         </section>
