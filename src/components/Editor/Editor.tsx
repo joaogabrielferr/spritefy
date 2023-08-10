@@ -564,7 +564,17 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         yMirror
       );
     } else if (selectedTool === 'eraser' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && erasingRightButton))) {
-      Eraser('mousedown', mouse, frames.current[currentFrameIndex].scene, pixel_size, displaySize, ctx, penSize);
+      Eraser(
+        'mousedown',
+        mouse,
+        frames.current[currentFrameIndex].scene,
+        pixel_size,
+        displaySize,
+        ctx,
+        penSize,
+        xMirror,
+        yMirror
+      );
     } else if (
       selectedTool === 'paintBucket' &&
       (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
@@ -674,7 +684,17 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             yMirror
           );
         } else if (selectedTool === 'eraser') {
-          Eraser('mousedown', mouse, frames.current[currentFrameIndex].scene, pixel_size, displaySize, ctx, penSize);
+          Eraser(
+            'mousedown',
+            mouse,
+            frames.current[currentFrameIndex].scene,
+            pixel_size,
+            displaySize,
+            ctx,
+            penSize,
+            xMirror,
+            yMirror
+          );
         } else if (selectedTool === 'paintBucket') {
           PaintBucket(frames.current[currentFrameIndex].scene, mouse, pixel_size, displaySize, ctx, selectedColor);
         } else if (selectedTool === 'dropper') {
@@ -755,7 +775,17 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         (selectedTool === 'eraser' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && erasingRightButton))) ||
         (selectedTool !== 'eraser' && mouse.isRightButtonClicked && erasingRightButton)
       ) {
-        Eraser('mousemove', mouse, frames.current[currentFrameIndex].scene, pixel_size, displaySize, ctx, penSize);
+        Eraser(
+          'mousemove',
+          mouse,
+          frames.current[currentFrameIndex].scene,
+          pixel_size,
+          displaySize,
+          ctx,
+          penSize,
+          xMirror,
+          yMirror
+        );
       } else if (
         selectedTool === 'pencil' &&
         (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
@@ -946,7 +976,17 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         yMirror
       );
     } else if (selectedTool === 'eraser' && mouse.isPressed) {
-      Eraser('mousemove', mouse, frames.current[currentFrameIndex].scene, pixel_size, displaySize, ctx, penSize);
+      Eraser(
+        'mousemove',
+        mouse,
+        frames.current[currentFrameIndex].scene,
+        pixel_size,
+        displaySize,
+        ctx,
+        penSize,
+        xMirror,
+        yMirror
+      );
     } else if (selectedTool === 'line' && mouse.isPressed) {
       //remove draw from the top canvas
       topCtx.clearRect(0, 0, displaySize, displaySize);

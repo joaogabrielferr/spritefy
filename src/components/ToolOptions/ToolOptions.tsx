@@ -70,7 +70,7 @@ export function ToolOptions({ isMobile }: ToolOptionsProps) {
                 </label>
               </div>
             )}
-            {['pencil'].find((tool) => tool === selectedTool) && (
+            {['pencil', 'eraser'].find((tool) => tool === selectedTool) && (
               <div className="checkbox-wrapper">
                 <label className="checkbox">
                   MIRROR X AXIS
@@ -79,7 +79,7 @@ export function ToolOptions({ isMobile }: ToolOptionsProps) {
                 </label>
               </div>
             )}
-            {['pencil'].find((tool) => tool === selectedTool) && (
+            {['pencil', 'eraser'].find((tool) => tool === selectedTool) && (
               <div className="checkbox-wrapper">
                 <label className="checkbox">
                   MIRROR Y AXIS
