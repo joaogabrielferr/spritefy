@@ -111,26 +111,6 @@ const palettes = [
     id: 1
   },
   {
-    name: 'water',
-    colors: ['#0f5e9c', '#2389da', '#1ca3ec', '#5abcd8', '#74ccf4'],
-    id: 3
-  },
-  {
-    name: 'fire',
-    colors: ['#ff0000', '#ff5a00', '#ff9a00', '#ffce00', '#ffe808'],
-    id: 4
-  },
-  {
-    name: 'grass',
-    colors: ['#234d20', '#36802d', '#77ab59', '#c9df8a', '#f0f7da'],
-    id: 5
-  },
-  {
-    name: 'sand',
-    colors: ['#b38b67', '#c89f73', '#d9b380', '#f1cc8f', '#fbe7a1'],
-    id: 6
-  },
-  {
     name: 'gray scale',
     colors: [
       '#000000',
@@ -168,6 +148,26 @@ const palettes = [
       '#FFFFFF'
     ],
     id: 7
+  },
+  {
+    name: 'water',
+    colors: ['#0f5e9c', '#2389da', '#1ca3ec', '#5abcd8', '#74ccf4'],
+    id: 3
+  },
+  {
+    name: 'fire',
+    colors: ['#ff0000', '#ff5a00', '#ff9a00', '#ffce00', '#ffe808'],
+    id: 4
+  },
+  {
+    name: 'grass',
+    colors: ['#234d20', '#36802d', '#77ab59', '#c9df8a', '#f0f7da'],
+    id: 5
+  },
+  {
+    name: 'sand',
+    colors: ['#b38b67', '#c89f73', '#d9b380', '#f1cc8f', '#fbe7a1'],
+    id: 6
   }
 ] as PaletteType[];
 

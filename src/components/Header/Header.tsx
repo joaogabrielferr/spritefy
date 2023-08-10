@@ -145,7 +145,10 @@ export function Header({ isMobile }: { isMobile: boolean }) {
   return (
     <header className="header">
       <div className="inner-header">
-        <div style={{ fontWeight: 'bold' }}>SPRITEFY</div>
+        <div style={{ fontWeight: 'bold' }}>
+          <img height={'16px'} style={{ imageRendering: 'pixelated' }} src={`./public/logo.png`} alt={'logo'} />
+          PRITEFY
+        </div>
         <button ref={downloadButton} className="download-button">
           SAVE DRAWING
         </button>

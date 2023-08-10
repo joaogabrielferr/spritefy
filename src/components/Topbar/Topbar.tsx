@@ -1,8 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './topbar.scss';
-import { faBroom, faFile } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRotateLeft, faBroom, faDownload, faFile, faRotateRight } from '@fortawesome/free-solid-svg-icons';
 import { EventBus } from '../../EventBus';
-import { CLEAR_DRAWING, START_NEW_DRAWING } from '../../utils/constants';
+import { CLEAR_DRAWING, REDO_LAST_DRAW, START_NEW_DRAWING, UNDO_LAST_DRAW } from '../../utils/constants';
 
 export function Topbar() {
   return (
@@ -15,6 +15,24 @@ export function Topbar() {
           <button onClick={() => EventBus.getInstance().publish(CLEAR_DRAWING)}>
             <FontAwesomeIcon size="lg" color="white" icon={faBroom} />
             CLEAR DRAWING
+          </button>
+          {/* <button
+            onClick={() => {
+              EventBus.getInstance().publish(UNDO_LAST_DRAW);
+            }}>
+            <FontAwesomeIcon size="lg" color="#abbbc7" icon={faArrowRotateLeft} />
+            UNDO
+          </button>
+          <button
+            onClick={() => {
+              EventBus.getInstance().publish(REDO_LAST_DRAW);
+            }}>
+            <FontAwesomeIcon size="lg" color="#abbbc7" icon={faRotateRight} />
+            REDO
+          </button> */}
+          <button className="topbar-download">
+            <FontAwesomeIcon size="lg" color="#abbbc7" icon={faDownload} />
+            SAVE DRAWING
           </button>
         </nav>
 

@@ -120,6 +120,18 @@ function App() {
               side="left">
               <ToolOptions isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
               <div className="sidebar-item">
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    fontSize: '12px',
+                    width: '100%',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    margin: '3px 0 5px 0'
+                  }}>
+                  COLOR PICKER
+                </div>
                 <ColorPicker color={selectedColor} onChange={handleChangeSelectedColor} />
               </div>
               <div className="sidebar-item">
