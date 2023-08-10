@@ -220,8 +220,10 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       frames.current.splice(frameToRemoveIndex, 1);
       if (currentFrameIndex === frameToRemoveIndex) {
         selectFrame(frames.current[0].name);
+        currentFrameIndex = 0;
       } else {
         selectFrame(currentFrame);
+        currentFrameIndex = newFramesList.findIndex((frame) => frame === currentFrame);
       }
 
       setFramesList(newFramesList);
