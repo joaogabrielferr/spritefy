@@ -102,8 +102,8 @@ function App() {
   return (
     <>
       <main>
-        <Header isMobile={isMobile} />
-        <Topbar />
+        <Header />
+        <Topbar isMobile={isMobile} />
         <section className="main-section">
           <div className="main-inner-wrapper">
             <Toolbar
