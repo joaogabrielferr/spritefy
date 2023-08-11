@@ -8,17 +8,18 @@
   overflow-y: auto;
   background-color: variables.$body-background-color;
   user-select: none;
-  width: 300px;
-  height: calc(100vh - 60px);
+  width: 350px;
+  height: calc(100vh - 30px);
 
   &.left {
-    flex-direction: row;
+    // flex-direction: row;
+    width: 250px;
   }
 }
 
 .sidebar-mobile {
   position: absolute;
-  top: 61px;
+  top: 31px;
   left: 0;
   z-index: 9999999;
   display: flex;
@@ -59,8 +60,7 @@
   align-items: center;
   width: 95%;
   border: 1px solid #555555;
-  // border-radius: 3px;
-  /* border-radius: 2px; */
+  border-radius: 2px;
   background-color: rgb(77, 77, 77);
 }
 

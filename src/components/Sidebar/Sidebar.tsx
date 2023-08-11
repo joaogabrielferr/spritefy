@@ -13,7 +13,7 @@ interface SidebarProps {
 
 export function Sidebar({ children, isMobile, isOpen, toogleSidebarOnMobile, side }: SidebarProps) {
   return (
-    <div className={`sidebar${isMobile ? (isOpen ? `-mobile open ${side}` : `-mobile ${side}`) : ''}`}>
+    <div className={`sidebar${isMobile ? (isOpen ? `-mobile open ${side}` : `-mobile ${side}`) : ` ${side}`}`}>
       {isMobile ? (
         <div className="sidebar-close-button-mobile">
           <button onClick={() => toogleSidebarOnMobile(false)}>

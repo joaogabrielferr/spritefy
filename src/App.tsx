@@ -102,8 +102,8 @@ function App() {
   return (
     <>
       <main>
-        <Header />
-        <Topbar isMobile={isMobile} />
+        <Header isMobile={isMobile} />
+        {/* <Topbar isMobile={isMobile} /> */}
         <section className="main-section">
           <div className="main-inner-wrapper">
             <Toolbar
@@ -142,7 +142,7 @@ function App() {
             <div
               style={
                 !isMobile
-                  ? { height: 'calc(100vh - 60px)', width: '100%', position: 'relative' }
+                  ? { height: 'calc(100vh - 30px)', width: '100%', position: 'relative' }
                   : { width: '100%', height: '100%' }
               }>
               {/* main editor */}

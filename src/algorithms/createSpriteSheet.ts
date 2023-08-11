@@ -32,4 +32,7 @@ export function createSpriteSheet(displaySize: number, framesList: string[]) {
       view: window
     })
   );
+
+  document.body.removeChild(canvas);
+  document.body.removeChild(link);
 }
