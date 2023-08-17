@@ -15,11 +15,13 @@
     "@fortawesome/free-regular-svg-icons": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
+    "@tabler/icons-react": "^2.30.0",
     "gif.js": "github:jnordberg/gif.js",
     "react": "^18.2.0",
     "react-color": "^2.19.3",
     "react-dom": "^18.2.0",
     "react-tooltip": "^5.13.1",
+    "vite-plugin-svgr": "^3.2.0",
     "zustand": "^4.3.8"
   },
   "devDependencies": {

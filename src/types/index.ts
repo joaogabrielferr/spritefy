@@ -1,17 +1,3 @@
-import Frame from '../scene/Frame';
-import Scene from '../scene/Frame';
-import { Stack } from '../utils/Stack';
-
-export type Pixel = {
-  x1: number;
-  y1: number;
-  id: number;
-  i: number;
-  j: number;
-  colorStack: Stack<string>;
-  bgColor: string;
-};
-
 export type toolsType =
   | 'pencil'
   | 'eraser'
@@ -59,16 +45,3 @@ export type drawOnSideBarCanvasType = {
   pixelArray: Uint8ClampedArray;
   op?: 'add' | 'update' | 'delete';
 };
-
-// export type IFrame = {
-//   name: string;
-//   scene: Frame;
-//   undoStack: Stack<Uint8ClampedArray>;
-//   redoStack: Stack<Uint8ClampedArray>;
-// };
-
-// export type Layer = {
-//   canvas: string;
-//   visible: boolean;
-//   blocked: boolean;
-// };

@@ -1,4 +1,3 @@
-import { Pixel } from '../types';
 import { Stack } from '../utils/Stack';
 
 export default class Frame {
@@ -9,10 +8,6 @@ export default class Frame {
   undoStack: Stack<Uint8ClampedArray>;
 
   redoStack: Stack<Uint8ClampedArray>;
-
-  currentDraw: Pixel[][]; //current draw in main canvas while mouse is pressed
-
-  currentDrawTopCanvas: Pixel[][]; //current draw in top canvas while mouse is pressed;
 
   lastPixel: { x: number; y: number } | null; //last pixel painted in the canvas
 
@@ -50,8 +45,6 @@ export default class Frame {
     this.name = name;
     this.undoStack = new Stack<Uint8ClampedArray>();
     this.redoStack = new Stack<Uint8ClampedArray>();
-    this.currentDraw = [];
-    this.currentDrawTopCanvas = [];
     this.lastPixel = null;
     this.lastPixelXMirror = null;
     this.lastPixelYMirror = null;

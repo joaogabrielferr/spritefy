@@ -13,15 +13,6 @@ export function Selection(
   moving?: boolean,
   selectedDraw?: { offset: { x: number; y: number }; color: number[] }[]
 ) {
-  // const x = Math.floor(mouse.x);
-  // const y = Math.floor(mouse.y);
-
-  // if (x > display_size || x < 0 || y > display_size || y < 0) {
-  //   return;
-  // }
-
-  // if (!frame.selectionFirstPixel) return;
-
   const data = ctx.getImageData(0, 0, display_size, display_size).data;
 
   const path: { x: number; y: number }[] = completeClosedRectangle(start, end, pixel_size, display_size);
@@ -57,8 +48,4 @@ export function Selection(
   if (!moving) {
     frame.selectionLastPixel = end;
   }
-}
-
-export function moveSelection() {
-  //
 }

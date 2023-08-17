@@ -9,14 +9,16 @@ import { Header } from './components/Header/Header';
 import { Tooltip } from 'react-tooltip';
 import CustomColorPicker from './components/ColorPicker/ColorPicker';
 import { EventBus } from './EventBus';
-import { RESET_CANVAS_POSITION } from './utils/constants';
+import { FLIP_X, FLIP_Y, RESET_CANVAS_POSITION } from './utils/constants';
 import { store, StoreType } from './store';
 import { Frames } from './components/Frames/Frames';
 import { Preview } from './components/Preview/Preview';
 import { WelcomeModal } from './components/WelcomeModal/WelcomeModal';
 import { Toolbar } from './components/Toolbar/Toolbar';
-import { Topbar } from './components/Topbar/Topbar';
 import { MobileMenu } from './components/MobileMenu/MobileMenu';
+import { IconFlipHorizontal, IconFlipVertical } from '@tabler/icons-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowsSpin } from '@fortawesome/free-solid-svg-icons';
 
 //TODO: save drawing on browser (maybe save png and then parse)
 //TODO: add option to flip drawing in X and Y axis
@@ -129,13 +131,7 @@ function App() {
             )}
             <ToolOptions isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
             <div className="sidebar-item">
-              <span>TRANSFORMATIONS</span>
-              <div style={{ display: 'flex' }}>
-                <button>FX</button>
-                <button>FY</button>
-                <button>CW</button>
-                <button>CCW</button>
-              </div>
+              <Transform />
             </div>
           </Sidebar>
 
@@ -170,6 +166,7 @@ function App() {
       )}
       {!isMobile && <Tooltip id="my-tooltip" place="right" style={{ zIndex: 9999, backgroundColor: '#2e148b' }} />}
       {!isMobile && <Tooltip id="my-tooltip-extra-options" place="right" style={{ zIndex: 9999, backgroundColor: '#2e148b' }} />}
+      {!isMobile && <Tooltip id="my-tooltip-transform" place="left" style={{ zIndex: 9999, backgroundColor: '#2e148b' }} />}
       {isWelcomeModalOpen && <WelcomeModal onCloseModal={handleOnCloseWelcomeModal}></WelcomeModal>}
     </main>
   );
@@ -206,6 +203,36 @@ function Coordinates() {
         }}>
         {'[X:0,Y:0]'}
       </span>
+    </div>
+  );
+}
+
+function Transform() {
+  return (
+    <div style={{ width: '95%', marginTop: '5px' }}>
+      <div style={{ marginTop: '5px', fontSize: '12px', fontWeight: 'bold', width: '100%' }}>TRANSFORM</div>
+      <div style={{ display: 'flex', width: '100%', justifyContent: 'space-evenly', margin: '10px 0 10px 0' }}>
+        <button
+          style={{ width: '50px', height: '50px', borderStyle: 'none', cursor: 'pointer', backgroundColor: '#333333' }}
+          data-tooltip-id="my-tooltip-transform"
+          data-tooltip-content={'Flip in X axis'}
+          onClick={() => EventBus.getInstance().publish(FLIP_X)}>
+          <IconFlipVertical size={'30'} color="#97a2aa" />
+        </button>
+        <button
+          style={{ width: '50px', height: '50px', borderStyle: 'none', cursor: 'pointer', backgroundColor: '#333333' }}
+          data-tooltip-id="my-tooltip-transform"
+          data-tooltip-content={'Flip in Y axis'}
+          onClick={() => EventBus.getInstance().publish(FLIP_Y)}>
+          <IconFlipHorizontal size={'30'} color="#97a2aa" />
+        </button>
+        <button
+          style={{ width: '50px', height: '50px', borderStyle: 'none', cursor: 'pointer', backgroundColor: '#333333' }}
+          data-tooltip-id="my-tooltip-transform"
+          data-tooltip-content={'Clockwise rotation'}>
+          <FontAwesomeIcon size={'2x'} color="#97a2aa" icon={faArrowsSpin} />
+        </button>
+      </div>
     </div>
   );
 }

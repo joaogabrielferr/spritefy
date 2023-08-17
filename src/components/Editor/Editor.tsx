@@ -19,8 +19,8 @@ import {
 import { drawOnSideBarCanvasType } from '../../types';
 import { EventBus } from '../../EventBus';
 import { store, StoreType } from '../../store';
-import { Stack } from '../../utils/Stack';
 import Frame from '../../scene/Frame';
+import { MirrorX, MirrorY } from '../../transformations/mirror';
 
 interface IEditor {
   cssCanvasSize: number;
@@ -452,6 +452,14 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     setIsWelcomeModalOpen(true);
   }, [clearDrawing, setIsWelcomeModalOpen]);
 
+  const flipX = useCallback(() => {
+    MirrorX(frames.current[currentFrameIndex], displaySize, ctx);
+  }, [displaySize]);
+
+  const flipY = useCallback(() => {
+    MirrorY(frames.current[currentFrameIndex], displaySize, ctx);
+  }, [displaySize]);
+
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   useEffect(() => {
@@ -476,6 +484,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     );
     const handleClearDrawing = EventBus.getInstance().subscribe(constants.CLEAR_DRAWING, clearDrawing);
     const handleStartNewDrawing = EventBus.getInstance().subscribe(constants.START_NEW_DRAWING, startNewDrawing);
+    const handleFlipX = EventBus.getInstance().subscribe(constants.FLIP_X, flipX);
+    const handleFlipY = EventBus.getInstance().subscribe(constants.FLIP_Y, flipY);
 
     function clearTopCanvas() {
       topCtx.clearRect(0, 0, displaySize, displaySize);
@@ -527,6 +537,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       handleDeleteSelectedDrawSubscription.unsubscribe();
       handleClearDrawing.unsubscribe();
       handleStartNewDrawing.unsubscribe();
+      handleFlipX.unsubscribe();
+      handleFlipY.unsubscribe();
       document.removeEventListener('keydown', checkKeyCombinations);
     };
   }, [
@@ -542,7 +554,9 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     pasteSelectedDraw,
     deleteSelectedDraw,
     clearDrawing,
-    startNewDrawing
+    startNewDrawing,
+    flipX,
+    flipY
   ]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////

@@ -28,3 +28,5 @@ export const PASTE_SELECTED_DRAW = 'paste-selected-draw';
 export const DELETE_SELECTED_DRAW = 'delete-selected-draw';
 export const CLEAR_DRAWING = 'clear-drawing';
 export const START_NEW_DRAWING = 'start-new-drawing';
+export const FLIP_X = 'flip-x';
+export const FLIP_Y = 'flip-y';
