@@ -1,4 +1,4 @@
-import Scene from '../scene/Scene';
+import Scene from '../scene/Frame';
 
 //function to find all necessary points to draw an elipse given its middle point and the major and minor radius
 export function completeElipse(

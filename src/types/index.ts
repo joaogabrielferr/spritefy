@@ -1,4 +1,5 @@
-import Scene from '../scene/Scene';
+import Frame from '../scene/Frame';
+import Scene from '../scene/Frame';
 import { Stack } from '../utils/Stack';
 
 export type Pixel = {
@@ -59,12 +60,12 @@ export type drawOnSideBarCanvasType = {
   op?: 'add' | 'update' | 'delete';
 };
 
-export type Frame = {
-  name: string;
-  scene: Scene;
-  undoStack: Stack<Uint8ClampedArray>;
-  redoStack: Stack<Uint8ClampedArray>;
-};
+// export type IFrame = {
+//   name: string;
+//   scene: Frame;
+//   undoStack: Stack<Uint8ClampedArray>;
+//   redoStack: Stack<Uint8ClampedArray>;
+// };
 
 // export type Layer = {
 //   canvas: string;

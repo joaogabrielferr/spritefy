@@ -4,7 +4,7 @@
 //if i press ctrz + y, select the pixels at the top of the redo stack, and add then to the canvas
 //after that, i put these pixels in the undo stack
 
-import { Frame } from '../types';
+import Frame from '../scene/Frame';
 
 export function undoLastDraw(pixel_size: number, ctx: CanvasRenderingContext2D, frame: Frame, display_size: number) {
   if (frame.undoStack.isEmpty()) return;
@@ -19,10 +19,10 @@ export function undoLastDraw(pixel_size: number, ctx: CanvasRenderingContext2D, 
   if (drawToUse) {
     const imageData = new ImageData(new Uint8ClampedArray(drawToUse), display_size, display_size);
     ctx.putImageData(imageData, 0, 0);
-    frame.scene.pixels = ctx.getImageData(0, 0, display_size, display_size).data;
+    frame.pixels = ctx.getImageData(0, 0, display_size, display_size).data;
   } else {
     ctx.clearRect(0, 0, display_size, display_size);
-    frame.scene.pixels = ctx.getImageData(0, 0, display_size, display_size).data;
+    frame.pixels = ctx.getImageData(0, 0, display_size, display_size).data;
   }
 }
 
@@ -39,6 +39,6 @@ export function redoLastDraw(ctx: CanvasRenderingContext2D, pixel_size: number, 
 
   const imageData = new ImageData(newArray, display_size, display_size);
   ctx.putImageData(imageData, 0, 0);
-  frame.scene.pixels = ctx.getImageData(0, 0, display_size, display_size).data;
+  frame.pixels = ctx.getImageData(0, 0, display_size, display_size).data;
   frame.undoStack.push(newArray);
 }

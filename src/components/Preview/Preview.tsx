@@ -1,9 +1,9 @@
 import { ChangeEvent, useCallback, useEffect, useRef } from 'react';
 import { BG_COLORS, BG_TILE_SIZE, UPDATE_FRAMES_REF_ON_PREVIEW } from '../../utils/constants';
 import './preview.scss';
-import { Frame } from '../../types';
 import { EventBus } from '../../EventBus';
 import { StoreType, store } from '../../store';
+import Frame from '../../scene/Frame';
 
 export function Preview() {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -29,7 +29,7 @@ export function Preview() {
 
     ctx.clearRect(0, 0, displaySize, displaySize);
 
-    const imageData = new ImageData(frames.current[currentIndex.current].scene.pixels, displaySize, displaySize);
+    const imageData = new ImageData(frames.current[currentIndex.current].pixels, displaySize, displaySize);
 
     ctx.putImageData(imageData, 0, 0);
   }, [displaySize]);

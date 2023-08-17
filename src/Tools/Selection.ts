@@ -1,9 +1,9 @@
-import Mouse from '../scene/Mouse';
-import Scene from '../scene/Scene';
 import { completeClosedRectangle } from '../algorithms/completeClosedRectangle';
+import Frame from '../scene/Frame';
+import Mouse from '../scene/Mouse';
 
 export function Selection(
-  scene: Scene,
+  frame: Frame,
   start: { x: number; y: number },
   end: { x: number; y: number },
   mouse: Mouse,
@@ -20,7 +20,7 @@ export function Selection(
   //   return;
   // }
 
-  // if (!scene.selectionFirstPixel) return;
+  // if (!frame.selectionFirstPixel) return;
 
   const data = ctx.getImageData(0, 0, display_size, display_size).data;
 
@@ -55,7 +55,7 @@ export function Selection(
   ctx.putImageData(imageData, 0, 0);
 
   if (!moving) {
-    scene.selectionLastPixel = end;
+    frame.selectionLastPixel = end;
   }
 }
 

@@ -1,7 +1,14 @@
 import { Pixel } from '../types';
+import { Stack } from '../utils/Stack';
 
-export default class Scene {
+export default class Frame {
   pixels: Uint8ClampedArray;
+
+  name: string;
+
+  undoStack: Stack<Uint8ClampedArray>;
+
+  redoStack: Stack<Uint8ClampedArray>;
 
   currentDraw: Pixel[][]; //current draw in main canvas while mouse is pressed
 
@@ -37,9 +44,12 @@ export default class Scene {
 
   initialized: boolean;
 
-  constructor() {
+  constructor(name: string) {
     //this.pixels = [];
     this.pixels = new Uint8ClampedArray();
+    this.name = name;
+    this.undoStack = new Stack<Uint8ClampedArray>();
+    this.redoStack = new Stack<Uint8ClampedArray>();
     this.currentDraw = [];
     this.currentDrawTopCanvas = [];
     this.lastPixel = null;

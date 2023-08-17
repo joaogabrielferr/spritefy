@@ -1,11 +1,10 @@
-import Mouse from '../scene/Mouse';
-import Scene from '../scene/Scene';
 import { bresenhamsAlgorithm } from '../algorithms/bresenhamsAlgorithm';
+import Frame from '../scene/Frame';
+import Mouse from '../scene/Mouse';
 import { toRGB } from '../utils/colorConverters';
 
 export function Pencil(
-  eventName: string,
-  scene: Scene,
+  frame: Frame,
   mouse: Mouse,
   pixel_size: number,
   display_size: number,
@@ -31,72 +30,72 @@ export function Pencil(
 
   const rgb = toRGB(selectedColor);
 
-  scene.pixels[index] = rgb[0];
-  scene.pixels[index + 1] = rgb[1];
-  scene.pixels[index + 2] = rgb[2];
-  scene.pixels[index + 3] = 255;
+  frame.pixels[index] = rgb[0];
+  frame.pixels[index + 1] = rgb[1];
+  frame.pixels[index + 2] = rgb[2];
+  frame.pixels[index + 3] = 255;
 
-  paintNeighbors(index, scene, ctx, penSize, selectedColor, pixel_size, display_size);
+  paintNeighbors(index, frame, ctx, penSize, selectedColor, pixel_size, display_size);
 
   //build path from last pixel to current pixel
-  if (scene.lastPixel != null) {
-    let path = bresenhamsAlgorithm(scene.lastPixel!, { x: xs, y: ys }, pixel_size, display_size);
+  if (frame.lastPixel != null) {
+    let path = bresenhamsAlgorithm(frame.lastPixel!, { x: xs, y: ys }, pixel_size, display_size);
     for (let p of path) {
       const index = (p.x + display_size * p.y) * 4;
-      scene.pixels[index] = rgb[0];
-      scene.pixels[index + 1] = rgb[1];
-      scene.pixels[index + 2] = rgb[2];
-      scene.pixels[index + 3] = 255;
+      frame.pixels[index] = rgb[0];
+      frame.pixels[index + 1] = rgb[1];
+      frame.pixels[index + 2] = rgb[2];
+      frame.pixels[index + 3] = 255;
 
-      paintNeighbors(index, scene, ctx, penSize, selectedColor, pixel_size, display_size);
+      paintNeighbors(index, frame, ctx, penSize, selectedColor, pixel_size, display_size);
     }
   }
 
   if (xMirror) {
-    paintXMirror(xs, ys, scene, pixel_size, display_size, selectedColor, ctx, penSize);
+    paintXMirror(xs, ys, frame, pixel_size, display_size, selectedColor, ctx, penSize);
   }
 
   if (yMirror) {
-    paintYMirror(xs, ys, scene, pixel_size, display_size, selectedColor, ctx, penSize);
+    paintYMirror(xs, ys, frame, pixel_size, display_size, selectedColor, ctx, penSize);
   }
 
   if (xMirror && yMirror) {
-    paintXYMirror(xs, ys, scene, pixel_size, display_size, selectedColor, ctx, penSize);
+    paintXYMirror(xs, ys, frame, pixel_size, display_size, selectedColor, ctx, penSize);
   }
 
-  scene.lastPixel = { x: xs, y: ys };
+  frame.lastPixel = { x: xs, y: ys };
 
-  const imageData = new ImageData(scene.pixels, display_size, display_size);
+  const imageData = new ImageData(frame.pixels, display_size, display_size);
 
   ctx.putImageData(imageData, 0, 0);
 
-  scene.changed = true;
+  frame.changed = true;
 }
 
 function paintNeighbors(
   index: number,
-  scene: Scene,
+  frame: Frame,
   ctx: CanvasRenderingContext2D,
   penSize: number,
   selectedColor: string,
   pixel_size: number,
   display_size: number
 ) {
-  let neighbors: number[] = scene.findNeighbors(index, penSize, display_size);
+  let neighbors: number[] = frame.findNeighbors(index, penSize, display_size);
   for (let n of neighbors) {
     const rgb = toRGB(selectedColor);
 
-    scene.pixels[n] = rgb[0];
-    scene.pixels[n + 1] = rgb[1];
-    scene.pixels[n + 2] = rgb[2];
-    scene.pixels[n + 3] = 255;
+    frame.pixels[n] = rgb[0];
+    frame.pixels[n + 1] = rgb[1];
+    frame.pixels[n + 2] = rgb[2];
+    frame.pixels[n + 3] = 255;
   }
 }
 
 function paintXMirror(
   x: number,
   y: number,
-  scene: Scene,
+  frame: Frame,
   pixel_size: number,
   display_size: number,
   selectedColor: string,
@@ -111,46 +110,46 @@ function paintXMirror(
 
   const rgb = toRGB(selectedColor);
 
-  scene.pixels[xMirrorIndex] = rgb[0];
-  scene.pixels[xMirrorIndex + 1] = rgb[1];
-  scene.pixels[xMirrorIndex + 2] = rgb[2];
-  scene.pixels[xMirrorIndex + 3] = 255;
+  frame.pixels[xMirrorIndex] = rgb[0];
+  frame.pixels[xMirrorIndex + 1] = rgb[1];
+  frame.pixels[xMirrorIndex + 2] = rgb[2];
+  frame.pixels[xMirrorIndex + 3] = 255;
 
-  paintNeighbors(xMirrorIndex, scene, ctx, penSize, selectedColor, pixel_size, display_size);
+  paintNeighbors(xMirrorIndex, frame, ctx, penSize, selectedColor, pixel_size, display_size);
 
   //build path from last pixel to current pixel
-  if (scene.lastPixelXMirror != null) {
+  if (frame.lastPixelXMirror != null) {
     let path = bresenhamsAlgorithm(
-      scene.lastPixelXMirror!,
+      frame.lastPixelXMirror!,
       { x: display_size / 2 + (display_size / 2 - x), y: y },
       pixel_size,
       display_size
     );
     for (let p of path) {
       const index = (p.x + display_size * p.y) * 4;
-      scene.pixels[index] = rgb[0];
-      scene.pixels[index + 1] = rgb[1];
-      scene.pixels[index + 2] = rgb[2];
-      scene.pixels[index + 3] = 255;
+      frame.pixels[index] = rgb[0];
+      frame.pixels[index + 1] = rgb[1];
+      frame.pixels[index + 2] = rgb[2];
+      frame.pixels[index + 3] = 255;
 
-      paintNeighbors(index, scene, ctx, penSize, selectedColor, pixel_size, display_size);
+      paintNeighbors(index, frame, ctx, penSize, selectedColor, pixel_size, display_size);
     }
   }
 
-  scene.lastPixelXMirror = { x: display_size / 2 + (display_size / 2 - x), y };
+  frame.lastPixelXMirror = { x: display_size / 2 + (display_size / 2 - x), y };
 }
 
 function paintYMirror(
   x: number,
   y: number,
-  scene: Scene,
+  frame: Frame,
   pixel_size: number,
   display_size: number,
   selectedColor: string,
   ctx: CanvasRenderingContext2D,
   penSize: number
 ) {
-  // const pixelYMirror: Pixel | null = scene.findPixel(xs, display_size / 2 + (display_size / 2 - ys), pixel_size);
+  // const pixelYMirror: Pixel | null = frame.findPixel(xs, display_size / 2 + (display_size / 2 - ys), pixel_size);
 
   const yy = display_size / 2 + (display_size / 2 - y);
 
@@ -162,34 +161,34 @@ function paintYMirror(
 
   const rgb = toRGB(selectedColor);
 
-  scene.pixels[yMirrorIndex] = rgb[0];
-  scene.pixels[yMirrorIndex + 1] = rgb[1];
-  scene.pixels[yMirrorIndex + 2] = rgb[2];
-  scene.pixels[yMirrorIndex + 3] = 255;
+  frame.pixels[yMirrorIndex] = rgb[0];
+  frame.pixels[yMirrorIndex + 1] = rgb[1];
+  frame.pixels[yMirrorIndex + 2] = rgb[2];
+  frame.pixels[yMirrorIndex + 3] = 255;
 
-  paintNeighbors(yMirrorIndex, scene, ctx, penSize, selectedColor, pixel_size, display_size);
+  paintNeighbors(yMirrorIndex, frame, ctx, penSize, selectedColor, pixel_size, display_size);
 
   //build path from last pixel to current pixel
-  if (scene.lastPixelYMirror != null) {
-    let path = bresenhamsAlgorithm(scene.lastPixelYMirror!, { x, y: yy }, pixel_size, display_size);
+  if (frame.lastPixelYMirror != null) {
+    let path = bresenhamsAlgorithm(frame.lastPixelYMirror!, { x, y: yy }, pixel_size, display_size);
     for (let p of path) {
       const index = (p.x + display_size * p.y) * 4;
-      scene.pixels[index] = rgb[0];
-      scene.pixels[index + 1] = rgb[1];
-      scene.pixels[index + 2] = rgb[2];
-      scene.pixels[index + 3] = 255;
+      frame.pixels[index] = rgb[0];
+      frame.pixels[index + 1] = rgb[1];
+      frame.pixels[index + 2] = rgb[2];
+      frame.pixels[index + 3] = 255;
 
-      paintNeighbors(index, scene, ctx, penSize, selectedColor, pixel_size, display_size);
+      paintNeighbors(index, frame, ctx, penSize, selectedColor, pixel_size, display_size);
     }
   }
 
-  scene.lastPixelYMirror = { x, y: yy };
+  frame.lastPixelYMirror = { x, y: yy };
 }
 
 function paintXYMirror(
   x: number,
   y: number,
-  scene: Scene,
+  frame: Frame,
   pixel_size: number,
   display_size: number,
   selectedColor: string,
@@ -207,26 +206,26 @@ function paintXYMirror(
 
   const rgb = toRGB(selectedColor);
 
-  scene.pixels[xyMirrorIndex] = rgb[0];
-  scene.pixels[xyMirrorIndex + 1] = rgb[1];
-  scene.pixels[xyMirrorIndex + 2] = rgb[2];
-  scene.pixels[xyMirrorIndex + 3] = 255;
+  frame.pixels[xyMirrorIndex] = rgb[0];
+  frame.pixels[xyMirrorIndex + 1] = rgb[1];
+  frame.pixels[xyMirrorIndex + 2] = rgb[2];
+  frame.pixels[xyMirrorIndex + 3] = 255;
 
-  paintNeighbors(xyMirrorIndex, scene, ctx, penSize, selectedColor, pixel_size, display_size);
+  paintNeighbors(xyMirrorIndex, frame, ctx, penSize, selectedColor, pixel_size, display_size);
 
   //build path from last pixel to current pixel
-  if (scene.lastPixelXYMirror != null) {
-    let path = bresenhamsAlgorithm(scene.lastPixelXYMirror!, { x: xx, y: yy }, pixel_size, display_size);
+  if (frame.lastPixelXYMirror != null) {
+    let path = bresenhamsAlgorithm(frame.lastPixelXYMirror!, { x: xx, y: yy }, pixel_size, display_size);
     for (let p of path) {
       const index = (p.x + display_size * p.y) * 4;
-      scene.pixels[index] = rgb[0];
-      scene.pixels[index + 1] = rgb[1];
-      scene.pixels[index + 2] = rgb[2];
-      scene.pixels[index + 3] = 255;
+      frame.pixels[index] = rgb[0];
+      frame.pixels[index + 1] = rgb[1];
+      frame.pixels[index + 2] = rgb[2];
+      frame.pixels[index + 3] = 255;
 
-      paintNeighbors(index, scene, ctx, penSize, selectedColor, pixel_size, display_size);
+      paintNeighbors(index, frame, ctx, penSize, selectedColor, pixel_size, display_size);
     }
   }
 
-  scene.lastPixelXYMirror = { x: xx, y: yy };
+  frame.lastPixelXYMirror = { x: xx, y: yy };
 }

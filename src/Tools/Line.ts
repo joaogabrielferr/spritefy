@@ -1,11 +1,11 @@
-import Mouse from '../scene/Mouse';
-import Scene from '../scene/Scene';
 import { bresenhamsAlgorithm } from '../algorithms/bresenhamsAlgorithm';
+import Frame from '../scene/Frame';
+import Mouse from '../scene/Mouse';
 import { toRGB } from '../utils/colorConverters';
 
 //ctx is the context of top canvas, drawing is made first on top canvas and after mouse up event the draw is translated to main canvas, since the draw change dinamically
 export function Line(
-  scene: Scene,
+  frame: Frame,
   ctx: CanvasRenderingContext2D,
   mouse: Mouse,
   pixel_size: number,
@@ -27,7 +27,6 @@ export function Line(
 
   const path = bresenhamsAlgorithm(start, { x, y }, pixel_size, display_size);
   for (let p of path) {
-    // if (!isPixelAlreadyPaintedInCurrentDraw(pixel, scene)) {
     const index = (p.x + display_size * p.y) * 4;
 
     data[index] = rgb[0];
@@ -35,24 +34,19 @@ export function Line(
     data[index + 2] = rgb[2];
     data[index + 3] = 255;
 
-    // ctx.fillStyle = selectedColor;
-    // ctx.fillRect(pixel.x, pixel.y, pixel_size, pixel_size);
-    // draw.push(pixel);
-
-    paintNeighbors(index, scene, ctx, penSize, selectedColor, pixel_size, display_size, data);
-    // }
+    paintNeighbors(index, frame, ctx, penSize, selectedColor, pixel_size, display_size, data);
   }
 
   const imageData = new ImageData(data, display_size, display_size);
 
   ctx.putImageData(imageData, 0, 0);
 
-  scene.changed = true;
+  frame.changed = true;
 }
 
 function paintNeighbors(
   index: number,
-  scene: Scene,
+  frame: Frame,
   ctx: CanvasRenderingContext2D,
   penSize: number,
   selectedColor: string,
@@ -60,7 +54,7 @@ function paintNeighbors(
   display_size: number,
   data: Uint8ClampedArray
 ) {
-  let neighbors: number[] = scene.findNeighbors(index, penSize, display_size);
+  let neighbors: number[] = frame.findNeighbors(index, penSize, display_size);
   for (let n of neighbors) {
     const rgb = toRGB(selectedColor);
 

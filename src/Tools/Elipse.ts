@@ -1,10 +1,10 @@
-import Scene from '../scene/Scene';
 import { completeElipse } from '../algorithms/completeElipse';
+import Frame from '../scene/Frame';
 import { toRGB } from '../utils/colorConverters';
 
 //ctx is the context of top canvas, drawing is made first on top canvas and after mouse up event the draw is translated to main canvas, since the draw change dinamically
 export function Elipse(
-  scene: Scene,
+  frame: Frame,
   ctx: CanvasRenderingContext2D,
   pixel_size: number,
   midPoint: { x: number; y: number },
@@ -22,7 +22,7 @@ export function Elipse(
 
   const data = ctx.getImageData(0, 0, display_size, display_size).data;
 
-  const path: { x: number; y: number }[] = completeElipse(midPoint, major, minor, scene, pixel_size, display_size);
+  const path: { x: number; y: number }[] = completeElipse(midPoint, major, minor, frame, pixel_size, display_size);
   for (let pixel of path) {
     const index = (pixel.x + display_size * pixel.y) * 4;
     data[index] = rgb[0];
@@ -30,25 +30,25 @@ export function Elipse(
     data[index + 2] = rgb[2];
     data[index + 3] = 255;
 
-    paintNeighbors(index, scene, penSize, selectedColor, display_size, data);
+    paintNeighbors(index, frame, penSize, selectedColor, display_size, data);
   }
 
   const imageData = new ImageData(data, display_size, display_size);
 
   ctx.putImageData(imageData, 0, 0);
 
-  scene.changed = true;
+  frame.changed = true;
 }
 
 function paintNeighbors(
   index: number,
-  scene: Scene,
+  frame: Frame,
   penSize: number,
   selectedColor: string,
   display_size: number,
   data: Uint8ClampedArray
 ) {
-  let neighbors: number[] = scene.findNeighbors(index, penSize, display_size);
+  let neighbors: number[] = frame.findNeighbors(index, penSize, display_size);
   for (let n of neighbors) {
     const rgb = toRGB(selectedColor);
 

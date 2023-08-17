@@ -1,10 +1,10 @@
-import Mouse from '../scene/Mouse';
-import Scene from '../scene/Scene';
 import { bresenhamsAlgorithm } from '../algorithms/bresenhamsAlgorithm';
+import Frame from '../scene/Frame';
+import Mouse from '../scene/Mouse';
 import { toRGB } from '../utils/colorConverters';
 
 export function Dithering(
-  scene: Scene,
+  frame: Frame,
   mouse: Mouse,
   pixel_size: number,
   display_size: number,
@@ -31,54 +31,54 @@ export function Dithering(
   const x = Math.floor((index / 4) % display_size);
   const y = Math.floor(index / 4 / display_size);
   if (x % 2 === y % 2) {
-    scene.pixels[index] = rgb[0];
-    scene.pixels[index + 1] = rgb[1];
-    scene.pixels[index + 2] = rgb[2];
-    scene.pixels[index + 3] = 255;
+    frame.pixels[index] = rgb[0];
+    frame.pixels[index + 1] = rgb[1];
+    frame.pixels[index + 2] = rgb[2];
+    frame.pixels[index + 3] = 255;
   }
 
-  paintNeighbors(index, scene, penSize, selectedColor, display_size);
+  paintNeighbors(index, frame, penSize, selectedColor, display_size);
 
   //build path from last pixel to current pixel
-  if (scene.lastPixel != null) {
-    let path = bresenhamsAlgorithm(scene.lastPixel!, { x: xs, y: ys }, pixel_size, display_size);
+  if (frame.lastPixel != null) {
+    let path = bresenhamsAlgorithm(frame.lastPixel!, { x: xs, y: ys }, pixel_size, display_size);
     for (let p of path) {
       const index = (p.x + display_size * p.y) * 4;
       //Uint8clampedArray index to canvas coordinate
       const x = Math.floor((index / 4) % display_size);
       const y = Math.floor(index / 4 / display_size);
       if (x % 2 === y % 2) {
-        scene.pixels[index] = rgb[0];
-        scene.pixels[index + 1] = rgb[1];
-        scene.pixels[index + 2] = rgb[2];
-        scene.pixels[index + 3] = 255;
+        frame.pixels[index] = rgb[0];
+        frame.pixels[index + 1] = rgb[1];
+        frame.pixels[index + 2] = rgb[2];
+        frame.pixels[index + 3] = 255;
       }
 
-      paintNeighbors(index, scene, penSize, selectedColor, display_size);
+      paintNeighbors(index, frame, penSize, selectedColor, display_size);
     }
   }
 
-  scene.lastPixel = { x: xs, y: ys };
+  frame.lastPixel = { x: xs, y: ys };
 
-  const imageData = new ImageData(scene.pixels, display_size, display_size);
+  const imageData = new ImageData(frame.pixels, display_size, display_size);
 
   ctx.putImageData(imageData, 0, 0);
 
-  scene.changed = true;
+  frame.changed = true;
 }
 
-function paintNeighbors(index: number, scene: Scene, penSize: number, selectedColor: string, display_size: number) {
-  let neighbors: number[] = scene.findNeighbors(index, penSize, display_size);
+function paintNeighbors(index: number, frame: Frame, penSize: number, selectedColor: string, display_size: number) {
+  let neighbors: number[] = frame.findNeighbors(index, penSize, display_size);
   for (let n of neighbors) {
     const rgb = toRGB(selectedColor);
     //Uint8clampedArray index to canvas coordinate
     const x = Math.floor((n / 4) % display_size);
     const y = Math.floor(n / 4 / display_size);
     if (x % 2 === y % 2) {
-      scene.pixels[n] = rgb[0];
-      scene.pixels[n + 1] = rgb[1];
-      scene.pixels[n + 2] = rgb[2];
-      scene.pixels[n + 3] = 255;
+      frame.pixels[n] = rgb[0];
+      frame.pixels[n + 1] = rgb[1];
+      frame.pixels[n + 2] = rgb[2];
+      frame.pixels[n + 3] = 255;
     }
   }
 }
