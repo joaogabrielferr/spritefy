@@ -30,3 +30,4 @@ export const CLEAR_DRAWING = 'clear-drawing';
 export const START_NEW_DRAWING = 'start-new-drawing';
 export const FLIP_X = 'flip-x';
 export const FLIP_Y = 'flip-y';
+export const CLOCKWISE_ROTATION = 'clockwise-rotation';

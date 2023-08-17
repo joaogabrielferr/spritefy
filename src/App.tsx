@@ -9,7 +9,7 @@ import { Header } from './components/Header/Header';
 import { Tooltip } from 'react-tooltip';
 import CustomColorPicker from './components/ColorPicker/ColorPicker';
 import { EventBus } from './EventBus';
-import { FLIP_X, FLIP_Y, RESET_CANVAS_POSITION } from './utils/constants';
+import { CLOCKWISE_ROTATION, FLIP_X, FLIP_Y, RESET_CANVAS_POSITION } from './utils/constants';
 import { store, StoreType } from './store';
 import { Frames } from './components/Frames/Frames';
 import { Preview } from './components/Preview/Preview';
@@ -229,7 +229,8 @@ function Transform() {
         <button
           style={{ width: '50px', height: '50px', borderStyle: 'none', cursor: 'pointer', backgroundColor: '#333333' }}
           data-tooltip-id="my-tooltip-transform"
-          data-tooltip-content={'Clockwise rotation'}>
+          data-tooltip-content={'Clockwise rotation'}
+          onClick={() => EventBus.getInstance().publish(CLOCKWISE_ROTATION)}>
           <FontAwesomeIcon size={'2x'} color="#97a2aa" icon={faArrowsSpin} />
         </button>
       </div>

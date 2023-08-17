@@ -21,6 +21,7 @@ import { EventBus } from '../../EventBus';
 import { store, StoreType } from '../../store';
 import Frame from '../../scene/Frame';
 import { MirrorX, MirrorY } from '../../transformations/mirror';
+import { ClockwiseRotation } from '../../transformations/rotate';
 
 interface IEditor {
   cssCanvasSize: number;
@@ -460,6 +461,10 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     MirrorY(frames.current[currentFrameIndex], displaySize, ctx);
   }, [displaySize]);
 
+  const CWRotation = useCallback(() => {
+    ClockwiseRotation(frames.current[currentFrameIndex], ctx, displaySize);
+  }, [displaySize]);
+
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   useEffect(() => {
@@ -486,6 +491,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     const handleStartNewDrawing = EventBus.getInstance().subscribe(constants.START_NEW_DRAWING, startNewDrawing);
     const handleFlipX = EventBus.getInstance().subscribe(constants.FLIP_X, flipX);
     const handleFlipY = EventBus.getInstance().subscribe(constants.FLIP_Y, flipY);
+    const handleClockwiseRotation = EventBus.getInstance().subscribe(constants.CLOCKWISE_ROTATION, CWRotation);
 
     function clearTopCanvas() {
       topCtx.clearRect(0, 0, displaySize, displaySize);
@@ -539,6 +545,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       handleStartNewDrawing.unsubscribe();
       handleFlipX.unsubscribe();
       handleFlipY.unsubscribe();
+      handleClockwiseRotation.unsubscribe();
       document.removeEventListener('keydown', checkKeyCombinations);
     };
   }, [
@@ -556,7 +563,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     clearDrawing,
     startNewDrawing,
     flipX,
-    flipY
+    flipY,
+    CWRotation
   ]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
