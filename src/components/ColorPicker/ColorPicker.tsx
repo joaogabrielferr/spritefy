@@ -5,12 +5,15 @@ function CustomColorPicker(props: any) {
   return (
     <div
       style={{
-        width: '100%',
+        width: '90%',
         height: '150px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: 'white',
+        padding: '5px',
+        borderRadius: '5px'
       }}>
       <div
         style={{
@@ -18,9 +21,9 @@ function CustomColorPicker(props: any) {
           width: '97%',
           height: '15px',
           marginBottom: '10px',
-          border: '0.1px solid black'
+          borderRadius: '5px'
         }}>
-        <Hue {...props} onChange={props.onChange} />
+        <Hue {...props} onChangeComplete={props.onChange} />
       </div>
       <div
         style={{
@@ -28,9 +31,9 @@ function CustomColorPicker(props: any) {
           width: '97%',
           height: '150px',
           marginBottom: '10px',
-          border: '0.1px solid black'
+          borderRadius: '5px'
         }}>
-        <Saturation {...props} onChange={props.onChange} />
+        <Saturation {...props} onChangeComplete={props.onChange} />
       </div>
     </div>
   );

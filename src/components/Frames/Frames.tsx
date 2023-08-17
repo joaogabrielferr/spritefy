@@ -15,7 +15,7 @@ import './frames.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAdd, faClone, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 
-export function Frames() {
+export function Frames({ isMobile }: { isMobile: boolean }) {
   // const layers = store((state : StoreType) => state.layers);
   const framesList = store((state: StoreType) => state.framesList);
 
@@ -24,6 +24,15 @@ export function Frames() {
   const currentFrame = store((state: StoreType) => state.currentFrame);
 
   const framesDivRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (framesDivRef.current) {
+      framesDivRef.current.addEventListener('wheel', (e) => {
+        if (e.deltaY > 0) framesDivRef.current!.scrollLeft += 15;
+        else framesDivRef.current!.scrollLeft -= 15;
+      });
+    }
+  }, []);
 
   const drawFrameBackground = useCallback(
     (frame: string) => {
@@ -80,8 +89,9 @@ export function Frames() {
 
     setTimeout(() => {
       //scroll frames list to the bottom when new fram is added
-      if (framesDivRef.current) {
+      if (isMobile && framesDivRef.current) {
         framesDivRef.current.scrollTop = framesDivRef.current.scrollHeight;
+        framesDivRef.current.scrollLeft = framesDivRef.current.scrollWidth;
       }
     }, 100);
   }
@@ -98,20 +108,19 @@ export function Frames() {
     <>
       <div className="create-new-frame-wrapper">
         <button className="create-new-frame-button" onClick={createNewFrameHandler}>
-          ADD NEW FRAME
+          NEW FRAME
           <FontAwesomeIcon size="sm" color="white" icon={faAdd} />
         </button>
       </div>
 
       <div className="frames" ref={framesDivRef}>
-        <div className="frames-title">FRAMES</div>
+        {/* <div className="frames-title">FRAMES</div> */}
         {framesList.map((frame, index) => (
           <div
             className="frame-wrapper"
             key={frame}
             style={{
-              width: '95%',
-              border: frame === currentFrame ? `2px solid #000000` : undefined
+              border: frame === currentFrame ? `5px solid #3a5cc9` : undefined
             }}>
             <div className="frame-clickable-area" onClick={() => changeCurrentFrame(frame)}>
               <div className="frame-canvas-wrapper">

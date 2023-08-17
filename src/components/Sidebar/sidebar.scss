@@ -6,20 +6,21 @@
   align-items: center;
   flex-direction: column;
   overflow-y: auto;
-  background-color: variables.$body-background-color;
+  // background-color: variables.$body-background-color;
+  background-color: #313131;
   user-select: none;
-  width: 350px;
-  height: calc(100vh - 30px);
+  width: 300px;
+  height: 100%;
 
   &.left {
     // flex-direction: row;
-    width: 250px;
+    width: 290px;
   }
 }
 
 .sidebar-mobile {
   position: absolute;
-  top: 31px;
+  top: 41px;
   left: 0;
   z-index: 9999999;
   display: flex;
@@ -59,9 +60,8 @@
   justify-content: center;
   align-items: center;
   width: 95%;
-  border: 1px solid #555555;
-  border-radius: 2px;
   background-color: rgb(77, 77, 77);
+  color: white;
 }
 
 .sidebar-close-button-mobile {

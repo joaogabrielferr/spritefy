@@ -1,6 +1,6 @@
 .palettes {
   width: 100%;
-  height: 500px;
+  height: 300px;
   margin-top: 10px;
   color: white;
   font-family: 'Roboto', sans-serif;
@@ -34,8 +34,9 @@
     .palette-button {
       border-style: none;
       height: 1.5rem;
-      border: solid black;
-      border-width: 0.1px;
+      // border: solid black;
+      // border-width: 0.1px;
+      box-shadow: rgba(0, 0, 0, 1) 0px 1px 3px 0px, rgb(0, 0, 0) 0px 0px 0px 1px;
 
       &:hover {
         border: 2px solid rgb(212, 212, 212);

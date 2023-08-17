@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './topbar.scss';
-import { faBars, faBroom, faDownload, faFile } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRotateLeft, faBars, faBroom, faDownload, faFile, faRotateRight } from '@fortawesome/free-solid-svg-icons';
 import { EventBus } from '../../EventBus';
 import { CLEAR_DRAWING, START_NEW_DRAWING } from '../../utils/constants';
 import { store, StoreType } from '../../store';
@@ -28,15 +28,13 @@ export function Topbar({ isMobile }: { isMobile: boolean }) {
           {!isMobile ? (
             <nav className="topbar-nav">
               <button onClick={() => EventBus.getInstance().publish(START_NEW_DRAWING)}>
-                <FontAwesomeIcon size="lg" color="white" icon={faFile} /> NEW DRAWING
+                <FontAwesomeIcon size="lg" color="#abbbc7" icon={faArrowRotateLeft} /> UNDO
               </button>
               <button onClick={() => EventBus.getInstance().publish(CLEAR_DRAWING)}>
-                <FontAwesomeIcon size="lg" color="white" icon={faBroom} />
-                CLEAR DRAWING
+                <FontAwesomeIcon size="lg" color="#abbbc7" icon={faRotateRight} /> REDO
               </button>
               <button className="topbar-download" onClick={() => downloadDrawing()}>
-                <FontAwesomeIcon size="lg" color="#abbbc7" icon={faDownload} />
-                SAVE DRAWING
+                RESET CANVAS POSITION
               </button>
             </nav>
           ) : (

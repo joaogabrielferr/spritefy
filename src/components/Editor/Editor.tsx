@@ -188,9 +188,12 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     setCurrentFrame(newFrame.name);
     setFramesList([...framesList, newFrame.name]);
-    resetCanvasPosition();
+    // resetCanvasPosition();
 
+    topCtx.clearRect(0, 0, displaySize, displaySize);
     ctx.clearRect(0, 0, displaySize, displaySize);
+
+    resetCanvasPosition();
   }, [displaySize, framesList, setCurrentFrame, setFramesList]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -199,10 +202,12 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     (_frame: string) => {
       if (_frame === currentFrame) return;
       currentFrameIndex = frames.current.findIndex((frame) => frame.name === _frame);
-      resetCanvasPosition();
+      // resetCanvasPosition();
       setCurrentFrame(_frame);
 
+      topCtx.clearRect(0, 0, displaySize, displaySize);
       ctx.clearRect(0, 0, displaySize, displaySize);
+      resetCanvasPosition();
       ctx.putImageData(new ImageData(frames.current[currentFrameIndex].scene.pixels, displaySize, displaySize), 0, 0);
     },
     [currentFrame, displaySize, setCurrentFrame]
@@ -224,6 +229,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       }
 
       setFramesList(newFramesList);
+
+      resetCanvasPosition();
 
       //update frames ref on preview component
       //EventBus.getInstance().publish<Frame[]>(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
@@ -260,9 +267,12 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
       setCurrentFrame(newFrame.name);
       frames.current[currentFrameIndex].scene.copyPixelMatrix(frames.current[frameCopiedIndex].scene.pixels);
-      resetCanvasPosition();
+      // resetCanvasPosition();
 
+      topCtx.clearRect(0, 0, displaySize, displaySize);
       ctx.clearRect(0, 0, displaySize, displaySize);
+
+      resetCanvasPosition();
 
       ctx.putImageData(new ImageData(frames.current[currentFrameIndex].scene.pixels, displaySize, displaySize), 0, 0);
     },
@@ -440,6 +450,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     topCtx.clearRect(0, 0, displaySize, displaySize);
     ctx.clearRect(0, 0, displaySize, displaySize);
+
+    resetCanvasPosition();
 
     EventBus.getInstance().publish(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
   }, [displaySize, setCurrentFrame, setFramesList]);
@@ -1434,15 +1446,15 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   function resetCanvasPosition() {
     canvas.style.width = `${originalCanvasWidth}px`;
     canvas.style.height = `${originalCanvasWidth}px`;
-    canvas.style.left = '45%';
+    canvas.style.left = '50%';
     canvas.style.top = '45%';
     topCanvas.style.width = `${originalCanvasWidth}px`;
     topCanvas.style.height = `${originalCanvasWidth}px`;
-    topCanvas.style.left = '45%';
+    topCanvas.style.left = '50%';
     topCanvas.style.top = '45%';
     backgroundCanvas.style.width = `${originalCanvasWidth}px`;
     backgroundCanvas.style.height = `${originalCanvasWidth}px`;
-    backgroundCanvas.style.left = '45%';
+    backgroundCanvas.style.left = '50%';
     backgroundCanvas.style.top = '45%';
 
     currentScale = 1;

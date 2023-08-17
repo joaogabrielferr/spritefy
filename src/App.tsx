@@ -18,9 +18,9 @@ import { Toolbar } from './components/Toolbar/Toolbar';
 import { Topbar } from './components/Topbar/Topbar';
 import { MobileMenu } from './components/MobileMenu/MobileMenu';
 
+//TODO: save drawing on browser (maybe save png and then parse)
 //TODO: add option to flip drawing in X and Y axis
 //TODO: add option to rotate drawing in clockwise or counter clockwise
-//TODO: Add a 'file' option in header and add option to create new drawing
 //TODO: allow for different width and height when creating a new canvas
 //TODO: implement a more precise zoom for mobile
 //TODO: right now im saving the gifs with a white background because i couldnt figure out how to create transparent gifs with gif.js,
@@ -71,7 +71,7 @@ function App() {
 
   useEffect(() => {
     if (!isMobile) {
-      setCssCanvasSize(window.innerHeight - window.innerHeight * 0.15);
+      setCssCanvasSize(window.innerHeight - window.innerHeight * 0.1);
     }
 
     if (isMobile) setCssCanvasSize(window.innerWidth);
@@ -100,81 +100,78 @@ function App() {
   const ColorPicker = CustomPicker(CustomColorPicker);
 
   return (
-    <>
-      <main>
-        <Header isMobile={isMobile} />
-        {/* <Topbar isMobile={isMobile} /> */}
-        <section className="main-section">
-          <div className="main-inner-wrapper">
-            <Toolbar
-              isMobile={isMobile}
-              isWelcomeModalOpen={isWelcomeModalOpen}
-              isToolbarMobileOpen={isToolbarMobileOpen}
-              toogleToolbarMobile={setIsToolbarMobileOpen}
-            />
+    <main style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <Header isMobile={isMobile} />
+      {/* <Topbar isMobile={isMobile} /> */}
+      <section className="main-section">
+        <div className="main-inner-wrapper">
+          <Toolbar
+            isMobile={isMobile}
+            isWelcomeModalOpen={isWelcomeModalOpen}
+            isToolbarMobileOpen={isToolbarMobileOpen}
+            toogleToolbarMobile={setIsToolbarMobileOpen}
+          />
 
-            <Sidebar
-              isMobile={isMobile}
-              isOpen={isLeftSidebarMobileOpen}
-              toogleSidebarOnMobile={setIsLeftSidebarMobileOpen}
-              side="left">
-              <ToolOptions isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
-              <div className="sidebar-item">
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'flex-start',
-                    fontSize: '12px',
-                    width: '100%',
-                    color: 'white',
-                    fontWeight: 'bold',
-                    margin: '3px 0 5px 0'
-                  }}>
-                  COLOR PICKER
-                </div>
-                <ColorPicker color={selectedColor} onChange={handleChangeSelectedColor} />
-              </div>
-              <div className="sidebar-item">
-                <Palettes></Palettes>
-              </div>
-            </Sidebar>
+          <div style={!isMobile ? { height: '100%', width: '100%', position: 'relative' } : { width: '100%', height: '100%' }}>
+            <Editor cssCanvasSize={cssCanvasSize} isMobile={isMobile}></Editor>
+            {!isMobile && <Coordinates />}
+          </div>
 
-            <div
-              style={
-                !isMobile
-                  ? { height: 'calc(100vh - 30px)', width: '100%', position: 'relative' }
-                  : { width: '100%', height: '100%' }
-              }>
-              {/* main editor */}
-              <Editor cssCanvasSize={cssCanvasSize} isMobile={isMobile}></Editor>
-              {!isMobile && <Coordinates />}
+          <Sidebar
+            isMobile={isMobile}
+            isOpen={isLeftSidebarMobileOpen}
+            toogleSidebarOnMobile={setIsLeftSidebarMobileOpen}
+            side="left">
+            {!isMobile && (
+              <div className="sidebar-item">
+                <Preview />
+              </div>
+            )}
+            <ToolOptions isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
+            <div className="sidebar-item">
+              <span>TRANSFORMATIONS</span>
+              <div style={{ display: 'flex' }}>
+                <button>FX</button>
+                <button>FY</button>
+                <button>CW</button>
+                <button>CCW</button>
+              </div>
             </div>
+          </Sidebar>
 
+          {!!isMobile && (
             <Sidebar
               isMobile={isMobile}
               isOpen={isRightSidebarMobileOpen}
               toogleSidebarOnMobile={setIsRightSidebarMobileOpen}
               side="right">
-              <Preview />
-              <Frames />
+              <div className="sidebar-item">
+                <Preview />
+              </div>
+              <div className="sidebar-item">
+                <Frames isMobile={isMobile}></Frames>
+              </div>
             </Sidebar>
+          )}
 
-            {isMobile ? (
-              <MobileMenu
-                setIsToolbarMobileOpen={setIsToolbarMobileOpen}
-                setIsLeftSidebarMobileOpen={setIsLeftSidebarMobileOpen}
-                setIsRightSidebarMobileOpen={setIsRightSidebarMobileOpen}
-              />
-            ) : null}
-          </div>
-        </section>
-        {!isMobile && <Tooltip id="my-tooltip" place="right" style={{ zIndex: 9999, backgroundColor: '#2e148b' }} />}
-        {!isMobile && (
-          <Tooltip id="my-tooltip-extra-options" place="right" style={{ zIndex: 9999, backgroundColor: '#2e148b' }} />
-        )}
-      </main>
+          {isMobile ? (
+            <MobileMenu
+              setIsToolbarMobileOpen={setIsToolbarMobileOpen}
+              setIsLeftSidebarMobileOpen={setIsLeftSidebarMobileOpen}
+              setIsRightSidebarMobileOpen={setIsRightSidebarMobileOpen}
+            />
+          ) : null}
+        </div>
+      </section>
+      {!isMobile && (
+        <div style={{ width: '100%', height: '100px', display: 'flex' }}>
+          <Frames isMobile={isMobile} />
+        </div>
+      )}
+      {!isMobile && <Tooltip id="my-tooltip" place="right" style={{ zIndex: 9999, backgroundColor: '#2e148b' }} />}
+      {!isMobile && <Tooltip id="my-tooltip-extra-options" place="right" style={{ zIndex: 9999, backgroundColor: '#2e148b' }} />}
       {isWelcomeModalOpen && <WelcomeModal onCloseModal={handleOnCloseWelcomeModal}></WelcomeModal>}
-    </>
+    </main>
   );
 }
 
@@ -195,7 +192,7 @@ function Coordinates() {
         justifyContent: 'flex-start',
         fontSize: '12px',
         fontWeight: 'bold',
-        zIndex: 10000000,
+        zIndex: 9998,
         userSelect: 'none'
       }}>
       <span
