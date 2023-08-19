@@ -7,7 +7,6 @@ import { ToolOptions } from './components/ToolOptions/ToolOptions';
 import { Palettes } from './components/Palettes/Palettes';
 import { Header } from './components/Header/Header';
 import { Tooltip } from 'react-tooltip';
-import CustomColorPicker from './components/ColorPicker/ColorPicker';
 import { EventBus } from './EventBus';
 import { CLOCKWISE_ROTATION, FLIP_X, FLIP_Y, RESET_CANVAS_POSITION } from './utils/constants';
 import { store, StoreType } from './store';
@@ -19,6 +18,7 @@ import { MobileMenu } from './components/MobileMenu/MobileMenu';
 import { IconFlipHorizontal, IconFlipVertical } from '@tabler/icons-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowsSpin } from '@fortawesome/free-solid-svg-icons';
+import { HexColorPicker } from 'react-colorful';
 
 //TODO: save drawing on browser (maybe save png and then parse)
 //TODO: add option to flip drawing in X and Y axis
@@ -99,8 +99,6 @@ function App() {
     setSelectedColor(color.hex);
   }
 
-  const ColorPicker = CustomPicker(CustomColorPicker);
-
   return (
     <main style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <Header isMobile={isMobile} />
@@ -132,6 +130,16 @@ function App() {
             <ToolOptions isMobile={isMobile} isWelcomeModalOpen={isWelcomeModalOpen} />
             <div className="sidebar-item">
               <Transform />
+            </div>
+            <div className="sidebar-item">
+              {/* <div
+                style={{
+                  width: '200px',
+                  height: '200px',
+                  zIndex: '100000'
+                }}>
+                <HexColorPicker color={selectedColor} onChange={setSelectedColor} />
+              </div> */}
             </div>
           </Sidebar>
 

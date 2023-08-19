@@ -153,6 +153,21 @@ body {
 
 //////////////////////////////////
 
+//overriding color picker style
+.react-colorful {
+  width: 100px;
+  height: 100px;
+  border-radius: 0;
+}
+
+.react-colorful__hue-pointer {
+  width: 12px;
+  height: inherit;
+  border-radius: 0;
+}
+
+/////
+
 @media screen and (max-width: 768px) {
   .main-section {
     height: calc(100vh - 70px);

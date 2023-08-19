@@ -134,7 +134,7 @@ export function Header({ isMobile }: { isMobile: boolean }) {
 
           <div
             style={{
-              width: '200px',
+              width: '2%',
               height: '90%',
               display: 'flex',
               justifyContent: 'space-around',
@@ -144,7 +144,6 @@ export function Header({ isMobile }: { isMobile: boolean }) {
               href="https://github.com/joaogabrielferr/pixel-art-editor"
               target="_blank"
               style={{ textDecoration: 'none', color: 'white' }}>
-              Check this project on &nbsp;
               <img height={'20px'} src={`./public/github-mark-white.png`} alt={'github icon'} />
             </a>
           </div>

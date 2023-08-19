@@ -120,7 +120,7 @@ export function Frames({ isMobile }: { isMobile: boolean }) {
             className="frame-wrapper"
             key={frame}
             style={{
-              border: frame === currentFrame ? `5px solid #3a5cc9` : undefined
+              border: frame === currentFrame ? `3px solid #3a5cc9` : undefined
             }}>
             <div className="frame-clickable-area" onClick={() => changeCurrentFrame(frame)}>
               <div className="frame-canvas-wrapper">

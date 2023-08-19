@@ -1,9 +1,10 @@
-import { Dispatch, SetStateAction, useCallback, useEffect } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 import { StoreType, store } from '../../store';
 import { ToolButtonType, toolsType } from '../../types';
 import { EventBus } from '../../EventBus';
 import { CLEAR_TOP_CANVAS } from '../../utils/constants';
 import './toolbar.scss';
+import { HexColorPicker } from 'react-colorful';
 
 const toolButtons = [
   { tool: 'pencil', tooltip: 'Pen tool(P or 1)' },
@@ -26,6 +27,22 @@ interface ToolbarProps {
 export function Toolbar({ isWelcomeModalOpen, isToolbarMobileOpen, isMobile, toogleToolbarMobile }: ToolbarProps) {
   const selectedTool = store((state: StoreType) => state.selectedTool);
   const setSelectedTool = store((state: StoreType) => state.setSelectedTool);
+  const selectedColor = store((state: StoreType) => state.selectedColor);
+
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+  const [colorPickerPosition, setColorPickerPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+
+  const colorButtonRef = useRef<HTMLButtonElement>(null);
+
+  function handleOpenColorPicker() {
+    const buttonPos = colorButtonRef.current?.getBoundingClientRect();
+    setColorPickerPosition({
+      top: buttonPos!.top,
+      left: buttonPos!.left + 50
+    });
+
+    setIsColorPickerOpen((prev) => !prev);
+  }
 
   const handleSetSelectedTool = useCallback(
     (tool: toolsType) => {
@@ -69,30 +86,78 @@ export function Toolbar({ isWelcomeModalOpen, isToolbarMobileOpen, isMobile, too
   }, [handleSetSelectedTool, isWelcomeModalOpen, setSelectedTool]);
 
   return (
-    <div className={`toolbar${isMobile ? (isToolbarMobileOpen ? `-mobile open` : `-mobile`) : ''}`}>
-      {toolButtons.map((button: ToolButtonType) => {
-        return (
-          <div key={button.tool}>
-            <button
-              className="tool-button"
-              style={{ backgroundColor: selectedTool === button.tool ? '#3e496b' : '' }}
-              onClick={() => handleSetSelectedTool(button.tool)}
-              data-tooltip-id="my-tooltip"
-              data-tooltip-content={button.tooltip}>
-              {button.svg ? (
-                button.svg
-              ) : (
-                <img
-                  height={'24px'}
-                  style={{ imageRendering: 'pixelated' }}
-                  src={`./public/${button.tool}.png`}
-                  alt={button.tool}
-                />
-              )}
-            </button>
-          </div>
-        );
-      })}
+    <>
+      <div className={`toolbar${isMobile ? (isToolbarMobileOpen ? `-mobile open` : `-mobile`) : ''}`}>
+        {toolButtons.map((button: ToolButtonType) => {
+          return (
+            <div key={button.tool}>
+              <button
+                className="tool-button"
+                style={{ backgroundColor: selectedTool === button.tool ? '#3e496b' : '' }}
+                onClick={() => handleSetSelectedTool(button.tool)}
+                data-tooltip-id="my-tooltip"
+                data-tooltip-content={button.tooltip}>
+                {button.svg ? (
+                  button.svg
+                ) : (
+                  <img
+                    height={'24px'}
+                    style={{ imageRendering: 'pixelated' }}
+                    src={`./public/${button.tool}.png`}
+                    alt={button.tool}
+                  />
+                )}
+              </button>
+            </div>
+          );
+        })}
+        <div style={{ position: 'relative' }}>
+          <button
+            className="color-button"
+            style={{ backgroundColor: selectedColor }}
+            data-tooltip-id="my-tooltip"
+            data-tooltip-content={'Current color'}
+            onClick={handleOpenColorPicker}
+            ref={colorButtonRef}
+          />
+        </div>
+      </div>
+      <ToolbarColorPicker
+        isColorPickerOpen={isColorPickerOpen}
+        setIsColorPickerOpen={setIsColorPickerOpen}
+        position={colorPickerPosition}
+        toogleToolbarMobile={toogleToolbarMobile}></ToolbarColorPicker>
+    </>
+  );
+}
+
+function ToolbarColorPicker({
+  isColorPickerOpen,
+  setIsColorPickerOpen,
+  position,
+  toogleToolbarMobile
+}: {
+  isColorPickerOpen: boolean;
+  setIsColorPickerOpen: Dispatch<SetStateAction<boolean>>;
+  position: { top: number; left: number };
+  toogleToolbarMobile: Dispatch<SetStateAction<boolean>>;
+}) {
+  const selectedColor = store((state: StoreType) => state.selectedColor);
+  const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
+
+  function handleCloseColorPicker() {
+    setIsColorPickerOpen(false);
+    toogleToolbarMobile(false);
+  }
+
+  return (
+    <div
+      style={{ display: isColorPickerOpen ? 'block' : 'none', left: position.left, top: position.top < 500 ? 300 : position.top }}
+      className="color-picker">
+      <div>
+        <HexColorPicker color={selectedColor} onChange={setSelectedColor} />
+        <button onClick={handleCloseColorPicker}>select color</button>
+      </div>
     </div>
   );
 }
