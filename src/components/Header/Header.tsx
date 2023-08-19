@@ -24,6 +24,12 @@ export function Header({ isMobile }: { isMobile: boolean }) {
     EventBus.getInstance().publish(action);
   }
 
+  function handleClearDrawing() {
+    if (confirm('This action will clear all frames! Do you want to proceed?')) {
+      EventBus.getInstance().publish(CLEAR_DRAWING);
+    }
+  }
+
   //this lib has a problem when using images with transparent bg, search fow a new one
   // function createGif(){
   //     //generate gif from frames
@@ -103,13 +109,18 @@ export function Header({ isMobile }: { isMobile: boolean }) {
     <>
       <header className="header">
         <div className="inner-header">
-          <div style={{ display: 'flex', justifyContent: 'space-between', width: '50%' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              width: isMobile ? '60%' : '50%'
+            }}>
             {!isMobile ? (
               <nav className="topbar-nav">
                 <button onClick={() => EventBus.getInstance().publish(START_NEW_DRAWING)}>
                   <FontAwesomeIcon size="lg" color="white" icon={faFile} /> NEW DRAWING
                 </button>
-                <button onClick={() => EventBus.getInstance().publish(CLEAR_DRAWING)}>
+                <button onClick={handleClearDrawing}>
                   <FontAwesomeIcon size="lg" color="white" icon={faBroom} />
                   CLEAR DRAWING
                 </button>
@@ -141,7 +152,7 @@ export function Header({ isMobile }: { isMobile: boolean }) {
               alignItems: 'center'
             }}>
             <a
-              href="https://github.com/joaogabrielferr/pixel-art-editor"
+              href="https://github.com/joaogabrielferr/spritefy"
               target="_blank"
               style={{ textDecoration: 'none', color: 'white' }}>
               <img height={'20px'} src={`./public/github-mark-white.png`} alt={'github icon'} />

@@ -53,13 +53,17 @@
     }
 
     .logo-container {
-      width: 30%;
+      width: 100px;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100%;
       font-family: 'Roboto', sans-serif;
       font-weight: bold;
+
+      @media screen and (max-width: variables.$mobile) {
+        width: 100%;
+      }
     }
   }
 }

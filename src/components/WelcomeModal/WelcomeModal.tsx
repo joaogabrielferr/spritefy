@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import '../modal.scss';
+import { StoreType, store } from '../../store';
 
 interface WelcomeModalProps {
   onCloseModal: (displaySize: number) => void;
@@ -10,16 +11,20 @@ const presets = [16, 32, 64, 128, 256, 512];
 //TODO: add option to import saved drawing
 
 export function WelcomeModal({ onCloseModal }: WelcomeModalProps) {
+  const setIsWelcomeModalOpen = store((state: StoreType) => state.setIsWelcomeModalOpen);
+
   const [size, setSize] = useState(32);
   const [inputError, setInputError] = useState(false);
-
+  const [validSize, setValidSize] = useState(32);
   function handleSetSize(value: string | number) {
     if (!isNaN(Number(value))) {
       if (+value < 10 || +value > 700) {
         setInputError(true);
       } else {
         setInputError(false);
+        setValidSize(+value);
       }
+
       setSize(+value);
     }
   }
@@ -69,7 +74,7 @@ export function WelcomeModal({ onCloseModal }: WelcomeModalProps) {
             <div className="modal-presets">
               {presets.map((preset) => {
                 return (
-                  <button key={preset} className="modal-presets-item" onClick={() => onCloseModal(preset)}>
+                  <button key={preset} className="modal-presets-item modal-button" onClick={() => onCloseModal(preset)}>
                     {preset}x{preset}
                   </button>
                 );
@@ -78,11 +83,12 @@ export function WelcomeModal({ onCloseModal }: WelcomeModalProps) {
           </div>
         </div>
         <div className="modal-footer">
-          <div>
-            <button type="button" onClick={() => onCloseModal(size)} disabled={inputError}>
-              Start drawing
-            </button>
-          </div>
+          <button type="button" className="modal-button" onClick={() => setIsWelcomeModalOpen(false)}>
+            Cancel
+          </button>
+          <button type="button" className="modal-button" onClick={() => onCloseModal(size)} disabled={inputError}>
+            Start drawing
+          </button>
         </div>
         <div style={{ width: '100%', height: '10px' }}></div>
       </div>

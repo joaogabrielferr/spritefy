@@ -115,6 +115,28 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     }
   }, [displaySize]);
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
+  const clearDrawing = useCallback(() => {
+    frames.current = [new Scene('frame1')];
+
+    currentFrameIndex = 0;
+    frames.current[0].initializePixelMatrix(displaySize);
+
+    setFramesList(['frame1']);
+
+    setCurrentFrame('frame1');
+
+    topCtx.clearRect(0, 0, displaySize, displaySize);
+    ctx.clearRect(0, 0, displaySize, displaySize);
+
+    resetCanvasPosition();
+
+    EventBus.getInstance().publish(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
+  }, [displaySize, setCurrentFrame, setFramesList]);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+
   useEffect(() => {
     pixel_size = 1;
 
@@ -145,8 +167,10 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     drawBackground();
 
+    clearDrawing();
+
     coordinatesElement = document.getElementById('coordinates') as HTMLSpanElement;
-  }, [displaySize, drawBackground]);
+  }, [clearDrawing, displaySize, drawBackground]);
 
   useEffect(() => {
     if (isMobile) {
@@ -428,30 +452,10 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  const clearDrawing = useCallback(() => {
-    frames.current = [new Scene('frame1')];
-
-    currentFrameIndex = 0;
-    frames.current[0].initializePixelMatrix(displaySize);
-
-    setFramesList(['frame1']);
-
-    setCurrentFrame('frame1');
-
-    topCtx.clearRect(0, 0, displaySize, displaySize);
-    ctx.clearRect(0, 0, displaySize, displaySize);
-
-    resetCanvasPosition();
-
-    EventBus.getInstance().publish(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
-  }, [displaySize, setCurrentFrame, setFramesList]);
-
-  ///////////////////////////////////////////////////////////////////////////////////////////////
-
   const startNewDrawing = useCallback(() => {
-    clearDrawing();
+    // clearDrawing();
     setIsWelcomeModalOpen(true);
-  }, [clearDrawing, setIsWelcomeModalOpen]);
+  }, [setIsWelcomeModalOpen]);
 
   const flipX = useCallback(() => {
     MirrorX(frames.current[currentFrameIndex], displaySize, ctx);
