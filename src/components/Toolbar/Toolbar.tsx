@@ -130,7 +130,7 @@ export function Toolbar({ isWelcomeModalOpen, isToolbarMobileOpen, isMobile, too
             onClick={() => handleOpenColorPicker('primary')}
             ref={colorButtonRef}
           />
-          {/* {!isMobile ?? (
+          {!isMobile ? (
             <button
               className="color-button secondary"
               style={{ backgroundColor: selectedColorSecondary }}
@@ -139,7 +139,7 @@ export function Toolbar({ isWelcomeModalOpen, isToolbarMobileOpen, isMobile, too
               onClick={() => handleOpenColorPicker('secondary')}
               ref={colorButtonRef}
             />
-          )} */}
+          ) : null}
         </div>
       </div>
       <ToolbarColorPicker
