@@ -28,19 +28,23 @@ export function Toolbar({ isWelcomeModalOpen, isToolbarMobileOpen, isMobile, too
   const selectedTool = store((state: StoreType) => state.selectedTool);
   const setSelectedTool = store((state: StoreType) => state.setSelectedTool);
   const selectedColor = store((state: StoreType) => state.selectedColor);
+  const selectedColorSecondary = store((state: StoreType) => state.selectedColorSecondary);
 
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
   const [colorPickerPosition, setColorPickerPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
+  const [colorBeingUpdated, setColorBeingUpdated] = useState<'primary' | 'secondary'>('primary');
+
   const colorButtonRef = useRef<HTMLButtonElement>(null);
 
-  function handleOpenColorPicker() {
+  function handleOpenColorPicker(type: 'primary' | 'secondary') {
     const buttonPos = colorButtonRef.current?.getBoundingClientRect();
     setColorPickerPosition({
       top: buttonPos!.top,
       left: buttonPos!.left + 50
     });
 
+    setColorBeingUpdated(type);
     setIsColorPickerOpen((prev) => !prev);
   }
 
@@ -111,22 +115,39 @@ export function Toolbar({ isWelcomeModalOpen, isToolbarMobileOpen, isMobile, too
             </div>
           );
         })}
-        <div style={{ position: 'relative' }}>
+        <div
+          style={{
+            position: 'relative',
+            height: '70px',
+            display: 'flex',
+            justifyContent: !isMobile ? 'flex-start' : 'center'
+          }}>
           <button
-            className="color-button"
+            className="color-button primary"
             style={{ backgroundColor: selectedColor }}
             data-tooltip-id="my-tooltip"
-            data-tooltip-content={'Current color'}
-            onClick={handleOpenColorPicker}
+            data-tooltip-content={'Current primary color(left mouse button)'}
+            onClick={() => handleOpenColorPicker('primary')}
             ref={colorButtonRef}
           />
+          {/* {!isMobile ?? (
+            <button
+              className="color-button secondary"
+              style={{ backgroundColor: selectedColorSecondary }}
+              data-tooltip-id="my-tooltip"
+              data-tooltip-content={'Current secondary color(right mouse button)'}
+              onClick={() => handleOpenColorPicker('secondary')}
+              ref={colorButtonRef}
+            />
+          )} */}
         </div>
       </div>
       <ToolbarColorPicker
         isColorPickerOpen={isColorPickerOpen}
         setIsColorPickerOpen={setIsColorPickerOpen}
         position={colorPickerPosition}
-        toogleToolbarMobile={toogleToolbarMobile}></ToolbarColorPicker>
+        toogleToolbarMobile={toogleToolbarMobile}
+        type={colorBeingUpdated}></ToolbarColorPicker>
     </>
   );
 }
@@ -135,15 +156,20 @@ function ToolbarColorPicker({
   isColorPickerOpen,
   setIsColorPickerOpen,
   position,
-  toogleToolbarMobile
+  toogleToolbarMobile,
+  type
 }: {
   isColorPickerOpen: boolean;
   setIsColorPickerOpen: Dispatch<SetStateAction<boolean>>;
   position: { top: number; left: number };
   toogleToolbarMobile: Dispatch<SetStateAction<boolean>>;
+  type: 'primary' | 'secondary';
 }) {
   const selectedColor = store((state: StoreType) => state.selectedColor);
   const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
+
+  const selectedColorSecondary = store((state: StoreType) => state.selectedColorSecondary);
+  const setSelectedColorSecondary = store((state: StoreType) => state.setSelectedColorSecondary);
 
   function handleCloseColorPicker() {
     setIsColorPickerOpen(false);
@@ -155,7 +181,10 @@ function ToolbarColorPicker({
       style={{ display: isColorPickerOpen ? 'block' : 'none', left: position.left, top: position.top < 500 ? 300 : position.top }}
       className="color-picker">
       <div>
-        <HexColorPicker color={selectedColor} onChange={setSelectedColor} />
+        <HexColorPicker
+          color={type === 'primary' ? selectedColor : selectedColorSecondary}
+          onChange={type === 'primary' ? setSelectedColor : setSelectedColorSecondary}
+        />
         <button onClick={handleCloseColorPicker}>select color</button>
       </div>
     </div>

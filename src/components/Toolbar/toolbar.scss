@@ -39,13 +39,26 @@
     }
     .color-button {
       border-style: none;
-      width: 60%;
-      height: 60%;
+      width: 55%;
+      height: 40%;
       cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
       border: 1px solid gray;
+      position: absolute;
+
+      &.primary {
+        left: 5%;
+        top: 20%;
+        z-index: 1;
+      }
+
+      &.secondary {
+        top: 40%;
+        left: 40%;
+        z-index: 0;
+      }
     }
   }
 }
@@ -97,13 +110,17 @@
 
     .color-button {
       border-style: none;
-      width: 60%;
-      height: 60%;
+      width: 30px;
+      height: 30px;
       cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
       border: 1px solid gray;
+
+      // &.primary {
+      //   border: 5px solid black;
+      // }
     }
   }
 }

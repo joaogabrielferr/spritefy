@@ -4,6 +4,7 @@ import { toolsType } from '../types';
 export type StoreType = {
   selectedTool: toolsType;
   selectedColor: string;
+  selectedColorSecondary: string;
   penSize: number;
   oneToOneRatioElipse: boolean;
   oneToOneRatioRectangle: boolean;
@@ -21,6 +22,7 @@ export type StoreType = {
   isWelcomeModalOpen: boolean;
 
   setSelectedColor: (color: string) => void;
+  setSelectedColorSecondary: (color: string) => void;
   setSelectedTool: (tool: toolsType) => void;
   setPenSize: (size: number) => void;
   toogleOneToOneRatioElipse: () => void;
@@ -40,6 +42,7 @@ export type StoreType = {
 export const store = create<StoreType>()((set) => ({
   selectedTool: 'pencil',
   selectedColor: '#1117bd',
+  selectedColorSecondary: '#000',
   penSize: 1,
   oneToOneRatioElipse: false,
   oneToOneRatioRectangle: false,
@@ -54,6 +57,7 @@ export const store = create<StoreType>()((set) => ({
   displaySize: 32,
   isWelcomeModalOpen: true,
   setSelectedColor: (color: string) => set(() => ({ selectedColor: color })),
+  setSelectedColorSecondary: (color: string) => set(() => ({ selectedColorSecondary: color })),
   setSelectedTool: (tool: toolsType) => set(() => ({ selectedTool: tool })),
   setPenSize: (size: number) => set(() => ({ penSize: size, previousPenSize: size })),
   toogleOneToOneRatioElipse: () => set((state: StoreType) => ({ oneToOneRatioElipse: !state.oneToOneRatioElipse })),

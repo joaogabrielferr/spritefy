@@ -84,6 +84,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   const displaySize = store((state: StoreType) => state.displaySize);
   const selectedColor = store((state: StoreType) => state.selectedColor);
+  const selectedColorSecondary = store((state: StoreType) => state.selectedColorSecondary);
   const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
   const selectedTool = store((state: StoreType) => state.selectedTool);
   const penSize = store((state: StoreType) => state.penSize);
@@ -607,7 +608,21 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     }
 
     if (selectedTool === 'pencil' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))) {
-      Pencil(frames.current[currentFrameIndex], mouse, pixel_size, displaySize, ctx, penSize, selectedColor, xMirror, yMirror);
+      if (mouse.isRightButtonClicked) {
+        Pencil(
+          frames.current[currentFrameIndex],
+          mouse,
+          pixel_size,
+          displaySize,
+          ctx,
+          penSize,
+          selectedColorSecondary,
+          xMirror,
+          yMirror
+        );
+      } else {
+        Pencil(frames.current[currentFrameIndex], mouse, pixel_size, displaySize, ctx, penSize, selectedColor, xMirror, yMirror);
+      }
     } else if (selectedTool === 'eraser' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && erasingRightButton))) {
       Eraser(mouse, frames.current[currentFrameIndex], pixel_size, displaySize, ctx, penSize, xMirror, yMirror);
     } else if (
@@ -802,7 +817,31 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         selectedTool === 'pencil' &&
         (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
       ) {
-        Pencil(frames.current[currentFrameIndex], mouse, pixel_size, displaySize, ctx, penSize, selectedColor, xMirror, yMirror);
+        if (mouse.isRightButtonClicked) {
+          Pencil(
+            frames.current[currentFrameIndex],
+            mouse,
+            pixel_size,
+            displaySize,
+            ctx,
+            penSize,
+            selectedColorSecondary,
+            xMirror,
+            yMirror
+          );
+        } else {
+          Pencil(
+            frames.current[currentFrameIndex],
+            mouse,
+            pixel_size,
+            displaySize,
+            ctx,
+            penSize,
+            selectedColor,
+            xMirror,
+            yMirror
+          );
+        }
       } else if (selectedTool === 'line' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))) {
         topCtx.clearRect(0, 0, displaySize, displaySize);
         Line(
