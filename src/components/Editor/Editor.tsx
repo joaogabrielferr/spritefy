@@ -167,35 +167,26 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     drawBackground();
 
+    //TODO: when adding option to resize canvas after creating the drawing, remove this and change the way the canvas is cleared after a NEW drawing is created
     clearDrawing();
 
     coordinatesElement = document.getElementById('coordinates') as HTMLSpanElement;
   }, [clearDrawing, displaySize, drawBackground]);
 
   useEffect(() => {
-    if (isMobile) {
-      canvas.style.width = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET_MOBILE}px`;
-      canvas.style.height = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET_MOBILE}px`;
+    const offset = isMobile ? constants.EDITOR_SIZE_OFFSET_MOBILE : constants.EDITOR_SIZE_OFFSET;
 
-      topCanvas.style.width = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET_MOBILE}px`;
-      topCanvas.style.height = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET_MOBILE}px`;
+    canvas.style.width = `${cssCanvasSize - offset}px`;
+    canvas.style.height = `${cssCanvasSize - offset}px`;
 
-      backgroundCanvas.style.width = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET_MOBILE}px`;
-      backgroundCanvas.style.height = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET_MOBILE}px`;
+    topCanvas.style.width = `${cssCanvasSize - offset}px`;
+    topCanvas.style.height = `${cssCanvasSize - offset}px`;
 
-      originalCanvasWidth = cssCanvasSize - constants.EDITOR_SIZE_OFFSET_MOBILE;
-    } else {
-      canvas.style.width = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET}px`;
-      canvas.style.height = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET}px`;
+    backgroundCanvas.style.width = `${cssCanvasSize - offset}px`;
+    backgroundCanvas.style.height = `${cssCanvasSize - offset}px`;
 
-      topCanvas.style.width = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET}px`;
-      topCanvas.style.height = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET}px`;
+    originalCanvasWidth = cssCanvasSize - offset;
 
-      backgroundCanvas.style.width = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET}px`;
-      backgroundCanvas.style.height = `${cssCanvasSize - constants.EDITOR_SIZE_OFFSET}px`;
-
-      originalCanvasWidth = cssCanvasSize - constants.EDITOR_SIZE_OFFSET;
-    }
     resetCanvasPosition();
   }, [cssCanvasSize, isMobile]);
 
@@ -301,6 +292,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   );
 
   //after a copy of a frame is created, its correspondent sidebar canvas needs to be updated only after currentFrame changes
+  //TODO: maybe put a reference to the canvas in the Frames component just like its done in Preview
   useEffect(() => {
     //constants.DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
     EventBus.getInstance().publish<drawOnSideBarCanvasType>(constants.DRAW_ON_SIDEBAR_CANVAS, {
@@ -624,7 +616,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     ) {
       PaintBucket(frames.current[currentFrameIndex], mouse, pixel_size, displaySize, ctx, selectedColor);
     } else if (selectedTool === 'dropper' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))) {
-      const color: string | undefined | null = Dropper(frames.current[currentFrameIndex], mouse, pixel_size, displaySize);
+      const color: string | undefined | null = Dropper(frames.current[currentFrameIndex], mouse, displaySize);
       if (color) setSelectedColor(color);
     } else if (
       (selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse') &&
@@ -730,7 +722,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         } else if (selectedTool === 'paintBucket') {
           PaintBucket(frames.current[currentFrameIndex], mouse, pixel_size, displaySize, ctx, selectedColor);
         } else if (selectedTool === 'dropper') {
-          const color: string | undefined | null = Dropper(frames.current[currentFrameIndex], mouse, pixel_size, displaySize);
+          const color: string | undefined | null = Dropper(frames.current[currentFrameIndex], mouse, displaySize);
           if (color) setSelectedColor(color);
         } else if (selectedTool === 'line' || selectedTool === 'rectangle' || selectedTool === 'elipse') {
           frames.current[currentFrameIndex].lineFirstPixel = { x: Math.floor(mouse.x), y: Math.floor(mouse.y) };

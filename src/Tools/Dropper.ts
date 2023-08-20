@@ -1,10 +1,9 @@
 import Mouse from '../scene/Mouse';
-import Scene from '../scene/Frame';
 import { toHex } from '../utils/colorConverters';
 import Frame from '../scene/Frame';
 
 //return the color of a pixel
-export function Dropper(frame: Frame, mouse: Mouse, pixel_size: number, display_size: number) {
+export function Dropper(frame: Frame, mouse: Mouse, display_size: number) {
   const x = Math.floor(mouse.x);
   const y = Math.floor(mouse.y);
 

@@ -35,9 +35,9 @@ export function Pencil(
   frame.pixels[index + 2] = rgb[2];
   frame.pixels[index + 3] = 255;
 
-  paintNeighbors(index, frame, ctx, penSize, selectedColor, pixel_size, display_size);
+  paintNeighbors(index, frame, penSize, selectedColor, display_size);
 
-  //build path from last pixel to current pixel
+  //if there are gaps between the points, fill them with bresenham's algorithm
   if (frame.lastPixel != null) {
     let path = bresenhamsAlgorithm(frame.lastPixel!, { x: xs, y: ys }, pixel_size, display_size);
     for (let p of path) {
@@ -47,20 +47,20 @@ export function Pencil(
       frame.pixels[index + 2] = rgb[2];
       frame.pixels[index + 3] = 255;
 
-      paintNeighbors(index, frame, ctx, penSize, selectedColor, pixel_size, display_size);
+      paintNeighbors(index, frame, penSize, selectedColor, display_size);
     }
   }
 
   if (xMirror) {
-    paintXMirror(xs, ys, frame, pixel_size, display_size, selectedColor, ctx, penSize);
+    paintXMirror(xs, ys, frame, pixel_size, display_size, selectedColor, penSize);
   }
 
   if (yMirror) {
-    paintYMirror(xs, ys, frame, pixel_size, display_size, selectedColor, ctx, penSize);
+    paintYMirror(xs, ys, frame, pixel_size, display_size, selectedColor, penSize);
   }
 
   if (xMirror && yMirror) {
-    paintXYMirror(xs, ys, frame, pixel_size, display_size, selectedColor, ctx, penSize);
+    paintXYMirror(xs, ys, frame, pixel_size, display_size, selectedColor, penSize);
   }
 
   frame.lastPixel = { x: xs, y: ys };
@@ -72,15 +72,7 @@ export function Pencil(
   frame.changed = true;
 }
 
-function paintNeighbors(
-  index: number,
-  frame: Frame,
-  ctx: CanvasRenderingContext2D,
-  penSize: number,
-  selectedColor: string,
-  pixel_size: number,
-  display_size: number
-) {
+function paintNeighbors(index: number, frame: Frame, penSize: number, selectedColor: string, display_size: number) {
   let neighbors: number[] = frame.findNeighbors(index, penSize, display_size);
   for (let n of neighbors) {
     const rgb = toRGB(selectedColor);
@@ -99,7 +91,6 @@ function paintXMirror(
   pixel_size: number,
   display_size: number,
   selectedColor: string,
-  ctx: CanvasRenderingContext2D,
   penSize: number
 ) {
   const xMirrorIndex = (display_size / 2 + (display_size / 2 - x) + display_size * y) * 4;
@@ -115,7 +106,7 @@ function paintXMirror(
   frame.pixels[xMirrorIndex + 2] = rgb[2];
   frame.pixels[xMirrorIndex + 3] = 255;
 
-  paintNeighbors(xMirrorIndex, frame, ctx, penSize, selectedColor, pixel_size, display_size);
+  paintNeighbors(xMirrorIndex, frame, penSize, selectedColor, display_size);
 
   //build path from last pixel to current pixel
   if (frame.lastPixelXMirror != null) {
@@ -132,7 +123,7 @@ function paintXMirror(
       frame.pixels[index + 2] = rgb[2];
       frame.pixels[index + 3] = 255;
 
-      paintNeighbors(index, frame, ctx, penSize, selectedColor, pixel_size, display_size);
+      paintNeighbors(index, frame, penSize, selectedColor, display_size);
     }
   }
 
@@ -146,7 +137,6 @@ function paintYMirror(
   pixel_size: number,
   display_size: number,
   selectedColor: string,
-  ctx: CanvasRenderingContext2D,
   penSize: number
 ) {
   // const pixelYMirror: Pixel | null = frame.findPixel(xs, display_size / 2 + (display_size / 2 - ys), pixel_size);
@@ -166,7 +156,7 @@ function paintYMirror(
   frame.pixels[yMirrorIndex + 2] = rgb[2];
   frame.pixels[yMirrorIndex + 3] = 255;
 
-  paintNeighbors(yMirrorIndex, frame, ctx, penSize, selectedColor, pixel_size, display_size);
+  paintNeighbors(yMirrorIndex, frame, penSize, selectedColor, display_size);
 
   //build path from last pixel to current pixel
   if (frame.lastPixelYMirror != null) {
@@ -178,7 +168,7 @@ function paintYMirror(
       frame.pixels[index + 2] = rgb[2];
       frame.pixels[index + 3] = 255;
 
-      paintNeighbors(index, frame, ctx, penSize, selectedColor, pixel_size, display_size);
+      paintNeighbors(index, frame, penSize, selectedColor, display_size);
     }
   }
 
@@ -192,7 +182,6 @@ function paintXYMirror(
   pixel_size: number,
   display_size: number,
   selectedColor: string,
-  ctx: CanvasRenderingContext2D,
   penSize: number
 ) {
   const xx = display_size / 2 + (display_size / 2 - x);
@@ -211,7 +200,7 @@ function paintXYMirror(
   frame.pixels[xyMirrorIndex + 2] = rgb[2];
   frame.pixels[xyMirrorIndex + 3] = 255;
 
-  paintNeighbors(xyMirrorIndex, frame, ctx, penSize, selectedColor, pixel_size, display_size);
+  paintNeighbors(xyMirrorIndex, frame, penSize, selectedColor, display_size);
 
   //build path from last pixel to current pixel
   if (frame.lastPixelXYMirror != null) {
@@ -223,7 +212,7 @@ function paintXYMirror(
       frame.pixels[index + 2] = rgb[2];
       frame.pixels[index + 3] = 255;
 
-      paintNeighbors(index, frame, ctx, penSize, selectedColor, pixel_size, display_size);
+      paintNeighbors(index, frame, penSize, selectedColor, display_size);
     }
   }
 

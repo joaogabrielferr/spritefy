@@ -32,7 +32,7 @@ export function Eraser(
 
   paintNeighbors(index, frame, penSize, display_size);
 
-  //if there are gaps between the points, fill them with bresenham's algorithm (see frame/buildPath.ts)
+  //if there are gaps between the points, fill them with bresenham's algorithm
 
   if (frame.lastPixel !== null) {
     //build path from last pixel to current pixel

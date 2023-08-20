@@ -2,7 +2,8 @@ import { completeElipse } from '../algorithms/completeElipse';
 import Frame from '../scene/Frame';
 import { toRGB } from '../utils/colorConverters';
 
-//ctx is the context of top canvas, drawing is made first on top canvas and after mouse up event the draw is translated to main canvas, since the draw change dinamically
+//ctx is the context of top canvas, drawing is made first on top canvas and after mouse up event the draw is translated to main canvas,
+//since the elipse can be changed dinamically
 export function Elipse(
   frame: Frame,
   ctx: CanvasRenderingContext2D,

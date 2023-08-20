@@ -3,7 +3,8 @@ import Frame from '../scene/Frame';
 import Mouse from '../scene/Mouse';
 import { toRGB } from '../utils/colorConverters';
 
-//ctx is the context of top canvas, drawing is made first on top canvas and after mouse up event the draw is translated to main canvas, since the draw change dinamically
+//ctx is the context of top canvas, drawing is made first on top canvas and after mouse up event the draw is translated to main canvas,
+// since the line can be changed dinamically
 export function Line(
   frame: Frame,
   ctx: CanvasRenderingContext2D,
@@ -34,7 +35,7 @@ export function Line(
     data[index + 2] = rgb[2];
     data[index + 3] = 255;
 
-    paintNeighbors(index, frame, ctx, penSize, selectedColor, pixel_size, display_size, data);
+    paintNeighbors(index, frame, penSize, selectedColor, display_size, data);
   }
 
   const imageData = new ImageData(data, display_size, display_size);
@@ -47,10 +48,8 @@ export function Line(
 function paintNeighbors(
   index: number,
   frame: Frame,
-  ctx: CanvasRenderingContext2D,
   penSize: number,
   selectedColor: string,
-  pixel_size: number,
   display_size: number,
   data: Uint8ClampedArray
 ) {

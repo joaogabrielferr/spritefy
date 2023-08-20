@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import Editor from './components/Editor/Editor';
 import './styles/index.scss';
-import { ColorResult, CustomPicker } from 'react-color';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { ToolOptions } from './components/ToolOptions/ToolOptions';
-import { Palettes } from './components/Palettes/Palettes';
 import { Header } from './components/Header/Header';
 import { Tooltip } from 'react-tooltip';
 import { EventBus } from './EventBus';
@@ -15,16 +13,10 @@ import { Preview } from './components/Preview/Preview';
 import { WelcomeModal } from './components/WelcomeModal/WelcomeModal';
 import { Toolbar } from './components/Toolbar/Toolbar';
 import { MobileMenu } from './components/MobileMenu/MobileMenu';
-import { IconFlipHorizontal, IconFlipVertical } from '@tabler/icons-react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowsSpin } from '@fortawesome/free-solid-svg-icons';
-import { HexColorPicker } from 'react-colorful';
+import { Palettes } from './components/Palettes/Palettes';
 
 //TODO: save drawing on browser (maybe save png and then parse)
-//TODO: add option to flip drawing in X and Y axis
-//TODO: add option to rotate drawing in clockwise or counter clockwise
 //TODO: allow for different width and height when creating a new canvas
-//TODO: implement a more precise zoom for mobile
 //TODO: right now im saving the gifs with a white background because i couldnt figure out how to create transparent gifs with gif.js,
 //probably look for another library that supports transparent bg (or keep it white, pixilart also saves gifs with white bg so transparent bg may not be easy to achieve)
 
@@ -46,9 +38,9 @@ import { HexColorPicker } from 'react-colorful';
 // add to palette
 
 function App() {
-  const selectedColor = store((state: StoreType) => state.selectedColor);
+  // const selectedColor = store((state: StoreType) => state.selectedColor);
 
-  const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
+  // const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
 
   const setDisplaySize = store((state: StoreType) => state.setDisplaySize);
 
@@ -74,9 +66,7 @@ function App() {
   useEffect(() => {
     if (!isMobile) {
       setCssCanvasSize(window.innerHeight - window.innerHeight * 0.1);
-    }
-
-    if (isMobile) setCssCanvasSize(window.innerWidth);
+    } else setCssCanvasSize(window.innerWidth);
 
     function handleWindowResize() {
       EventBus.getInstance().publish(RESET_CANVAS_POSITION);
@@ -95,10 +85,6 @@ function App() {
     };
   }, [isMobile]);
 
-  function handleChangeSelectedColor(color: ColorResult) {
-    setSelectedColor(color.hex);
-  }
-
   return (
     <main style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <Header isMobile={isMobile} />
@@ -112,7 +98,7 @@ function App() {
             toogleToolbarMobile={setIsToolbarMobileOpen}
           />
 
-          <div style={!isMobile ? { height: '100%', width: '100%', position: 'relative' } : { width: '100%', height: '100%' }}>
+          <div style={{ height: '100%', width: '100%', position: 'relative' }}>
             <Editor cssCanvasSize={cssCanvasSize} isMobile={isMobile}></Editor>
             {!isMobile && <Coordinates />}
           </div>
@@ -140,6 +126,7 @@ function App() {
                 }}>
                 <HexColorPicker color={selectedColor} onChange={setSelectedColor} />
               </div> */}
+              <Palettes></Palettes>
             </div>
           </Sidebar>
 
@@ -221,14 +208,14 @@ function Transform() {
       <div style={{ marginTop: '5px', fontSize: '12px', fontWeight: 'bold', width: '100%' }}>TRANSFORM</div>
       <div style={{ display: 'flex', width: '100%', justifyContent: 'space-evenly', margin: '10px 0 10px 0' }}>
         <button
-          style={{ width: '50px', height: '50px', borderStyle: 'none', cursor: 'pointer', backgroundColor: '#333333' }}
+          style={{ width: '50px', height: '40px', borderStyle: 'none', cursor: 'pointer', backgroundColor: '#333333' }}
           data-tooltip-id="my-tooltip-transform"
           data-tooltip-content={'Flip in X axis'}
           onClick={() => EventBus.getInstance().publish(FLIP_X)}>
           <img height={'32px'} style={{ imageRendering: 'pixelated' }} src={`./public/flipX.png`} alt={'Flip in X axis'} />
         </button>
         <button
-          style={{ width: '50px', height: '50px', borderStyle: 'none', cursor: 'pointer', backgroundColor: '#333333' }}
+          style={{ width: '50px', height: '40px', borderStyle: 'none', cursor: 'pointer', backgroundColor: '#333333' }}
           data-tooltip-id="my-tooltip-transform"
           data-tooltip-content={'Flip in Y axis'}
           onClick={() => EventBus.getInstance().publish(FLIP_Y)}>
@@ -240,7 +227,7 @@ function Transform() {
           />
         </button>
         <button
-          style={{ width: '50px', height: '50px', borderStyle: 'none', cursor: 'pointer', backgroundColor: '#333333' }}
+          style={{ width: '50px', height: '40px', borderStyle: 'none', cursor: 'pointer', backgroundColor: '#333333' }}
           data-tooltip-id="my-tooltip-transform"
           data-tooltip-content={'Clockwise rotation'}
           onClick={() => EventBus.getInstance().publish(CLOCKWISE_ROTATION)}>

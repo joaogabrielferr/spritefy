@@ -15,14 +15,13 @@ export function WelcomeModal({ onCloseModal }: WelcomeModalProps) {
 
   const [size, setSize] = useState(32);
   const [inputError, setInputError] = useState(false);
-  const [validSize, setValidSize] = useState(32);
   function handleSetSize(value: string | number) {
     if (!isNaN(Number(value))) {
       if (+value < 10 || +value > 700) {
         setInputError(true);
       } else {
         setInputError(false);
-        setValidSize(+value);
+        // setValidSize(+value);
       }
 
       setSize(+value);
