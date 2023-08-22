@@ -107,7 +107,7 @@ export function Toolbar({ isWelcomeModalOpen, isToolbarMobileOpen, isMobile, too
             <div key={button.tool}>
               <button
                 className="tool-button"
-                style={{ backgroundColor: selectedTool === button.tool ? '#3e496b' : '' }}
+                style={{ backgroundColor: selectedTool === button.tool ? '#5e78c7' : '' }}
                 onClick={() => handleSetSelectedTool(button.tool)}
                 data-tooltip-id="my-tooltip"
                 data-tooltip-content={button.tooltip}>

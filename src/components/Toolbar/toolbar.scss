@@ -5,13 +5,9 @@
   justify-content: flex-start;
   flex-direction: column;
   width: 60px;
-  // height: calc(100vh - 40px - 80px); //40px = header 80px frames container
   height: 100%;
   user-select: none;
-  // border-right: 1px solid rgb(69, 73, 78);
-  // background-color: variables.$body-background-color;
-  // background-color: #353c46;
-  background-color: #313131;
+  background-color: variables.$sidebar-background-color;
 
   div {
     font-size: 12px;

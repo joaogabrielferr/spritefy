@@ -7,8 +7,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  // background-color: rgb(68, 68, 68);
-  background-color: #313131;
+  background-color: variables.$sidebar-background-color;
+
   color: white;
   user-select: none;
   // border-bottom: 1px solid gray;

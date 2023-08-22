@@ -796,6 +796,13 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         frames.current[currentFrameIndex].lastPixelYMirror = null;
         frames.current[currentFrameIndex].lastPixelXYMirror = null;
         frames.current[currentFrameIndex].selectionLastPixel = null;
+        if (selectedTool === 'selection') {
+          const { x, y } = mouse.getPosition();
+          //if mouse is outside canvas, set lastPixel at the edge
+          frames.current[currentFrameIndex].selectionLastPixel = { x: 0, y: 0 };
+          frames.current[currentFrameIndex].selectionLastPixel!.x = x > displaySize ? displaySize : x < 0 ? 0 : x;
+          frames.current[currentFrameIndex].selectionLastPixel!.y = y > displaySize ? displaySize : y < 0 ? 0 : y;
+        }
 
         if (selectedTool !== 'selection') {
           if (frames.current[currentFrameIndex].previousPixelWhileMovingMouse) {
@@ -811,7 +818,9 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             }
           }
         }
-        return;
+        if (selectedTool !== 'selection') {
+          return;
+        }
       }
       if (
         (selectedTool === 'eraser' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && erasingRightButton))) ||
@@ -917,10 +926,15 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         if (!movingSelectedArea) {
           //creating new selection
           topCtx.clearRect(0, 0, displaySize, displaySize);
+          let { x, y } = mouse.getPosition();
+          //if mouse position is out of canvas, keep the selection at the edge
+          x = x >= displaySize ? displaySize : x < 0 ? 0 : x;
+          y = y >= displaySize ? displaySize : y < 0 ? 0 : y;
+          console.log(x, y);
           Selection(
             frames.current[currentFrameIndex],
             frames.current[currentFrameIndex].selectionFirstPixel!,
-            { x: Math.floor(mouse.x), y: Math.floor(mouse.y) },
+            { x, y },
             mouse,
             topCtx,
             displaySize,
@@ -1004,7 +1018,18 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       frames.current[currentFrameIndex].lastPixelYMirror = null;
       frames.current[currentFrameIndex].lastPixelXYMirror = null;
       frames.current[currentFrameIndex].selectionLastPixel = null;
-      return;
+
+      if (selectedTool === 'selection') {
+        const { x, y } = mouse.getPosition();
+        //if mouse is outside canvas, set lastPixel at the edge
+        frames.current[currentFrameIndex].selectionLastPixel = { x: 0, y: 0 };
+        frames.current[currentFrameIndex].selectionLastPixel!.x = x > displaySize ? displaySize : x < 0 ? 0 : x;
+        frames.current[currentFrameIndex].selectionLastPixel!.y = y > displaySize ? displaySize : y < 0 ? 0 : y;
+      }
+
+      if (selectedTool != 'selection') {
+        return;
+      }
     }
 
     if (selectedTool === 'pencil' && mouse.isPressed) {
@@ -1077,6 +1102,10 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       if (!movingSelectedArea) {
         //creating new selection
         topCtx.clearRect(0, 0, displaySize, displaySize);
+        let { x, y } = mouse.getPosition();
+        //if mouse position is out of canvas, keep the selection at the edge
+        x = x >= displaySize ? displaySize : x < 0 ? 0 : x;
+        y = y >= displaySize ? displaySize : y < 0 ? 0 : y;
         Selection(
           frames.current[currentFrameIndex],
           frames.current[currentFrameIndex].selectionFirstPixel!,
@@ -1472,11 +1501,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     }
 
     if (selectedTool === 'selection') {
-      if (
-        !movingSelectedArea &&
-        frames.current[currentFrameIndex].selectionFirstPixel &&
-        frames.current[currentFrameIndex].selectionLastPixel
-      ) {
+      if (!movingSelectedArea && frames.current[currentFrameIndex].selectionFirstPixel) {
         //calculate selection (top Left and bottom Right coordinates) after creating a selection area (with selectionFirstPixel and selectionLastPixel)
         const topLeft = {
           x: Math.min(
