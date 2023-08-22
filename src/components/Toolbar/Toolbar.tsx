@@ -5,6 +5,8 @@ import { EventBus } from '../../EventBus';
 import { CLEAR_TOP_CANVAS } from '../../utils/constants';
 import './toolbar.scss';
 import { HexColorPicker } from 'react-colorful';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faShuffle } from '@fortawesome/free-solid-svg-icons';
 
 const toolButtons = [
   { tool: 'pencil', tooltip: 'Pen tool(P or 1)' },
@@ -28,7 +30,9 @@ export function Toolbar({ isWelcomeModalOpen, isToolbarMobileOpen, isMobile, too
   const selectedTool = store((state: StoreType) => state.selectedTool);
   const setSelectedTool = store((state: StoreType) => state.setSelectedTool);
   const selectedColor = store((state: StoreType) => state.selectedColor);
+  const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
   const selectedColorSecondary = store((state: StoreType) => state.selectedColorSecondary);
+  const setSelectedColorSecondary = store((state: StoreType) => state.setSelectedColorSecondary);
 
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
   const [colorPickerPosition, setColorPickerPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
@@ -56,6 +60,12 @@ export function Toolbar({ isWelcomeModalOpen, isToolbarMobileOpen, isMobile, too
     },
     [setSelectedTool, toogleToolbarMobile]
   );
+
+  function swapSelectedColors() {
+    const aux = selectedColor;
+    setSelectedColor(selectedColorSecondary);
+    setSelectedColorSecondary(aux);
+  }
 
   useEffect(() => {
     function checkKeys(event: KeyboardEvent) {
@@ -122,6 +132,11 @@ export function Toolbar({ isWelcomeModalOpen, isToolbarMobileOpen, isMobile, too
             display: 'flex',
             justifyContent: !isMobile ? 'flex-start' : 'center'
           }}>
+          {!isMobile ? (
+            <button className="color-button option" onClick={swapSelectedColors}>
+              <FontAwesomeIcon size="lg" color="#bababa" icon={faShuffle} />
+            </button>
+          ) : null}
           <button
             className="color-button primary"
             style={{ backgroundColor: selectedColor }}

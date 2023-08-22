@@ -15,23 +15,16 @@ import { Toolbar } from './components/Toolbar/Toolbar';
 import { MobileMenu } from './components/MobileMenu/MobileMenu';
 import { Palettes } from './components/Palettes/Palettes';
 
-//TODO: save drawing on browser (maybe save png and then parse)
+//TODO: save drawing on browser (maybe save png and then parse) or on users computer
 //TODO: allow for different width and height when creating a new canvas
 //TODO: right now im saving the gifs with a white background because i couldnt figure out how to create transparent gifs with gif.js,
 //probably look for another library that supports transparent bg (or keep it white, pixilart also saves gifs with white bg so transparent bg may not be easy to achieve)
 
 //TODO: add layers functionality
-//TODO:create option to select palettes and switch between them
 
 //TODO: add new options for paint bucket:
 //erase pixels instead of painting
 //change color of all pixels with the start color
-
-//TODO: add new option to square
-//fill
-
-//TODO: add new options to eraser and line
-//mirror x and mirror y
 
 //TODO: add new options for color picker:
 // choose as current color (default)
@@ -118,14 +111,6 @@ function App() {
               <Transform />
             </div>
             <div className="sidebar-item">
-              {/* <div
-                style={{
-                  width: '200px',
-                  height: '200px',
-                  zIndex: '100000'
-                }}>
-                <HexColorPicker color={selectedColor} onChange={setSelectedColor} />
-              </div> */}
               <Palettes></Palettes>
             </div>
           </Sidebar>

@@ -41,8 +41,8 @@ export type StoreType = {
 
 export const store = create<StoreType>()((set) => ({
   selectedTool: 'pencil',
-  selectedColor: '#1117bd',
-  selectedColorSecondary: '#000',
+  selectedColor: '#000',
+  selectedColorSecondary: '#ffffff',
   penSize: 1,
   oneToOneRatioElipse: false,
   oneToOneRatioRectangle: false,

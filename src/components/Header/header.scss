@@ -14,12 +14,16 @@
   // border-bottom: 1px solid gray;
 
   .inner-header {
-    width: 99%;
+    width: 98%;
     height: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     /* color: #111; */
+
+    @media screen and (max-width: variables.$mobile) {
+      width: 95%;
+    }
 
     .drawing-name-input {
       width: 30%;

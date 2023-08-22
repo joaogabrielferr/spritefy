@@ -59,6 +59,15 @@
         left: 40%;
         z-index: 0;
       }
+
+      &.option {
+        width: 10px;
+        height: 10px;
+        left: 70%;
+        top: 10%;
+        border-style: none;
+        background-color: transparent;
+      }
     }
   }
 }

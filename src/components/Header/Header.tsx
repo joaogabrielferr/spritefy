@@ -128,7 +128,7 @@ export function Header({ isMobile }: { isMobile: boolean }) {
                   <FontAwesomeIcon size="lg" color="#abbbc7" icon={faDownload} />
                   SAVE DRAWING
                 </button>
-                <button>ABOUT</button>
+                {/* <button>ABOUT</button> */}
               </nav>
             ) : (
               <div onClick={() => setIsTopBarMobileOpen((prev) => !prev)}>
