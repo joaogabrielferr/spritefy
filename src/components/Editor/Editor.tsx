@@ -133,6 +133,11 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     resetCanvasPosition();
 
+    EventBus.getInstance().publish<drawOnSideBarCanvasType>(constants.DRAW_ON_SIDEBAR_CANVAS, {
+      frame: 'frame1',
+      pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
+    });
+
     EventBus.getInstance().publish(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
   }, [displaySize, setCurrentFrame, setFramesList]);
 
