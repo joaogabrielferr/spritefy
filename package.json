@@ -15,7 +15,6 @@
     "@fortawesome/free-regular-svg-icons": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "gif.js": "github:jnordberg/gif.js",
     "react": "^18.2.0",
     "react-colorful": "^5.6.1",
     "react-dom": "^18.2.0",
@@ -24,7 +23,6 @@
     "zustand": "^4.3.8"
   },
   "devDependencies": {
-    "@types/gif.js": "^0.2.2",
     "@types/react": "^18.0.28",
     "@types/react-color": "^3.0.6",
     "@types/react-dom": "^18.0.11",

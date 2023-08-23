@@ -1,8 +1,8 @@
-//creates a sprite with 5 frames per row
 export function createSpriteSheet(displaySize: number, framesList: string[]) {
   const canvas = document.createElement('canvas');
-  const width = displaySize * 5; //TODO: allow user to specify how many frames will be in a row
-  const heigth = Math.ceil(framesList.length / 5) * displaySize;
+  const rows = framesList.length < 5 ? framesList.length : 5;
+  const width = displaySize * rows; //TODO: allow user to specify how many frames will be in a row
+  const heigth = Math.ceil(framesList.length / rows) * displaySize;
   canvas.width = width;
   canvas.height = heigth;
   const ctx = canvas.getContext('2d');
