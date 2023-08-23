@@ -50,7 +50,7 @@ let touchStartDistance: number;
 
 let isPinching = false;
 
-let pinchTouchStartTimeOut: number | undefined = undefined;
+let pinchTouchStartTimeOut:  undefined | ReturnType<typeof setTimeout> = undefined;
 
 let currentFrameIndex = 0;
 
@@ -930,7 +930,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           //if mouse position is out of canvas, keep the selection at the edge
           x = x >= displaySize ? displaySize : x < 0 ? 0 : x;
           y = y >= displaySize ? displaySize : y < 0 ? 0 : y;
-          console.log(x, y);
           Selection(
             frames.current[currentFrameIndex],
             frames.current[currentFrameIndex].selectionFirstPixel!,

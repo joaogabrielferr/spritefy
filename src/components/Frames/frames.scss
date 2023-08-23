@@ -31,6 +31,10 @@
     font-weight: bold;
     margin: 0 auto;
     border-radius: 3px;
+
+    &:hover {
+      background-color: rgb(53, 53, 53);
+    }
   }
 }
 

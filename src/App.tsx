@@ -15,20 +15,15 @@ import { Toolbar } from './components/Toolbar/Toolbar';
 import { MobileMenu } from './components/MobileMenu/MobileMenu';
 import { Palettes } from './components/Palettes/Palettes';
 
+//TODO: add a way to swap frames
 //TODO: save drawing on browser (maybe save png and then parse) or on users computer
 //TODO: allow for different width and height when creating a new canvas
-//TODO: right now im saving the gifs with a white background because i couldnt figure out how to create transparent gifs with gif.js,
-//probably look for another library that supports transparent bg (or keep it white, pixilart also saves gifs with white bg so transparent bg may not be easy to achieve)
-
-//TODO: add layers functionality
+//TODO: allow user to choose how many rows and columns the sprite sheet will have
+//TODO: add layers
 
 //TODO: add new options for paint bucket:
 //erase pixels instead of painting
 //change color of all pixels with the start color
-
-//TODO: add new options for color picker:
-// choose as current color (default)
-// add to palette
 
 function App() {
   // const selectedColor = store((state: StoreType) => state.selectedColor);
