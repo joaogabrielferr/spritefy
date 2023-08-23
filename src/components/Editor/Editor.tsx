@@ -50,7 +50,7 @@ let touchStartDistance: number;
 
 let isPinching = false;
 
-let pinchTouchStartTimeOut:  undefined | ReturnType<typeof setTimeout> = undefined;
+let pinchTouchStartTimeOut: undefined | ReturnType<typeof setTimeout> = undefined;
 
 let currentFrameIndex = 0;
 
@@ -249,9 +249,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       setFramesList(newFramesList);
 
       resetCanvasPosition();
-
-      //update frames ref on preview component
-      //EventBus.getInstance().publish<Frame[]>(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
     },
     [currentFrame, framesList, selectFrame, setFramesList]
   );
@@ -285,7 +282,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
       setCurrentFrame(newFrame.name);
       frames.current[currentFrameIndex].copyPixelMatrix(frames.current[frameCopiedIndex].pixels);
-      // resetCanvasPosition();
 
       topCtx.clearRect(0, 0, displaySize, displaySize);
       ctx.clearRect(0, 0, displaySize, displaySize);
@@ -318,8 +314,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       frame: currentFrame,
       pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
     });
-
-    //EventBus.getInstance().publish<Frame[]>(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
   }, [currentFrame, displaySize]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -333,8 +327,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       frame: currentFrame,
       pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
     });
-
-    //EventBus.getInstance().publish<Frame[]>(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
   }, [currentFrame, displaySize]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -451,7 +443,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   const startNewDrawing = useCallback(() => {
-    // clearDrawing();
     setIsWelcomeModalOpen(true);
   }, [setIsWelcomeModalOpen]);
 
