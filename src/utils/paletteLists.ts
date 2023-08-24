@@ -1,6 +1,6 @@
 import { PaletteType } from '../types';
 
-export const palettes = [
+export const UtilPalettes = [
   {
     name: 'solid colors',
     colors: [

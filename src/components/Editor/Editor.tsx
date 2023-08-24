@@ -22,6 +22,7 @@ import { store, StoreType } from '../../store';
 import Frame from '../../scene/Frame';
 import { MirrorX, MirrorY } from '../../transformations/mirror';
 import { ClockwiseRotation } from '../../transformations/rotate';
+import { toHex } from '../../utils/colorConverters';
 
 interface IEditor {
   cssCanvasSize: number;
@@ -98,6 +99,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   const currentFrame = store((state: StoreType) => state.currentFrame);
   const setCurrentFrame = store((state: StoreType) => state.setCurrentFrame);
   const setIsWelcomeModalOpen = store((state: StoreType) => state.setIsWelcomeModalOpen);
+  const setCurrentColorsPalette = store((state: StoreType) => state.setCurrentColorsPalette);
 
   const outerDivRef = useRef<HTMLDivElement>(null); //div that wraps all canvases
 
@@ -116,6 +118,26 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     }
   }, [displaySize]);
 
+  const updateSelectedColorsPalette = useCallback(() => {
+    const dict: { [key: string]: boolean } = {};
+    const colors: string[] = [];
+    const data = ctx.getImageData(0, 0, displaySize, displaySize).data;
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i + 3] === 255) {
+        const hex = toHex([data[i], data[i + 1], data[i + 2]]);
+        if (!dict[hex]) {
+          colors.push(hex);
+          dict[hex] = true;
+        }
+      }
+    }
+    setCurrentColorsPalette({
+      name: 'current colors',
+      colors: colors.sort(),
+      id: 0
+    });
+  }, [displaySize, setCurrentColorsPalette]);
+
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   const clearDrawing = useCallback(() => {
@@ -133,13 +155,16 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
     resetCanvasPosition();
 
+    //put the colors present in the canvas in the current colors palette
+    updateSelectedColorsPalette();
+
     EventBus.getInstance().publish<drawOnSideBarCanvasType>(constants.DRAW_ON_SIDEBAR_CANVAS, {
       frame: 'frame1',
       pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
     });
 
     EventBus.getInstance().publish(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
-  }, [displaySize, setCurrentFrame, setFramesList]);
+  }, [displaySize, setCurrentFrame, setFramesList, updateSelectedColorsPalette]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -307,6 +332,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   const handleUndoLastDraw = useCallback(() => {
     undoLastDraw(ctx, frames.current[currentFrameIndex], displaySize);
+    //put the colors present in the canvas in the current colors palette
+    updateSelectedColorsPalette();
 
     //this updates the frame in the sidebar
     //constants.DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
@@ -314,20 +341,21 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       frame: currentFrame,
       pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
     });
-  }, [currentFrame, displaySize]);
+  }, [currentFrame, displaySize, updateSelectedColorsPalette]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   const handleRedoLastDraw = useCallback(() => {
     redoLastDraw(ctx, frames.current[currentFrameIndex], displaySize);
-
+    //put the colors present in the canvas in the current colors palette
+    updateSelectedColorsPalette();
     //this updates the frame in the sidebar
     //constants.DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
     EventBus.getInstance().publish<drawOnSideBarCanvasType>(constants.DRAW_ON_SIDEBAR_CANVAS, {
       frame: currentFrame,
       pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
     });
-  }, [currentFrame, displaySize]);
+  }, [currentFrame, displaySize, updateSelectedColorsPalette]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -432,13 +460,16 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       frames.current[currentFrameIndex].undoStack.push(new Uint8ClampedArray(data));
     }
 
+    //put the colors present in the canvas in the current colors palette
+    updateSelectedColorsPalette();
+
     //this updates the frame in the sidebar
     //constants.DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
     EventBus.getInstance().publish<drawOnSideBarCanvasType>(constants.DRAW_ON_SIDEBAR_CANVAS, {
       frame: currentFrame,
       pixelArray: ctx.getImageData(0, 0, displaySize, displaySize).data
     });
-  }, [currentFrame, displaySize]);
+  }, [currentFrame, displaySize, updateSelectedColorsPalette]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1510,6 +1541,9 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     }
 
     frames.current[currentFrameIndex].changed = false;
+
+    //put the colors present in the canvas in the current colors palette
+    updateSelectedColorsPalette();
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////

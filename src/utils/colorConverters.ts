@@ -12,5 +12,5 @@ export function toHex(rgb: number[]) {
     return hex.length == 1 ? '0' + hex : hex;
   }
 
-  return valueToHex(rgb[0]) + valueToHex(rgb[1]) + valueToHex(rgb[2]);
+  return '#' + valueToHex(rgb[0]) + valueToHex(rgb[1]) + valueToHex(rgb[2]);
 }

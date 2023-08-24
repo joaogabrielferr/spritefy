@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { toolsType } from '../types';
+import { PaletteType, toolsType } from '../types';
 
 export type StoreType = {
   selectedTool: toolsType;
@@ -21,6 +21,8 @@ export type StoreType = {
 
   isWelcomeModalOpen: boolean;
 
+  currentColorsPalette: PaletteType;
+
   setSelectedColor: (color: string) => void;
   setSelectedColorSecondary: (color: string) => void;
   setSelectedTool: (tool: toolsType) => void;
@@ -37,6 +39,7 @@ export type StoreType = {
   toogleFillRectangle: () => void;
   setDisplaySize: (newDisplaySize: number) => void;
   setIsWelcomeModalOpen: (value: boolean) => void;
+  setCurrentColorsPalette: (value: PaletteType) => void;
 };
 
 export const store = create<StoreType>()((set) => ({
@@ -56,6 +59,11 @@ export const store = create<StoreType>()((set) => ({
   fillRectangle: false,
   displaySize: 32,
   isWelcomeModalOpen: true,
+  currentColorsPalette: {
+    name: 'current colors',
+    colors: [],
+    id: 0
+  },
   setSelectedColor: (color: string) => set(() => ({ selectedColor: color })),
   setSelectedColorSecondary: (color: string) => set(() => ({ selectedColorSecondary: color })),
   setSelectedTool: (tool: toolsType) => set(() => ({ selectedTool: tool })),
@@ -71,5 +79,6 @@ export const store = create<StoreType>()((set) => ({
   toogleErasingRightButton: () => set((state: StoreType) => ({ erasingRightButton: !state.erasingRightButton })),
   toogleFillRectangle: () => set((state: StoreType) => ({ fillRectangle: !state.fillRectangle })),
   setDisplaySize: (newDisplaySize: number) => set(() => ({ displaySize: newDisplaySize })),
-  setIsWelcomeModalOpen: (value: boolean) => set(() => ({ isWelcomeModalOpen: value }))
+  setIsWelcomeModalOpen: (value: boolean) => set(() => ({ isWelcomeModalOpen: value })),
+  setCurrentColorsPalette: (value: PaletteType) => set(() => ({ currentColorsPalette: value }))
 }));
