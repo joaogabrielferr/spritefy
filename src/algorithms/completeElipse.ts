@@ -1,12 +1,8 @@
-import Scene from '../scene/Frame';
-
 //function to find all necessary points to draw an elipse given its middle point and the major and minor radius
 export function completeElipse(
   midPoint: { x: number; y: number },
   majorRadius: number,
   minorRadius: number,
-  scene: Scene,
-  pixel_size: number,
   display_size: number
 ) {
   const path: { x: number; y: number }[] = [];
@@ -27,10 +23,10 @@ export function completeElipse(
 
   while (dx < dy) {
     // Print points based on 4-way symmetry
-    findAndPush(x + xc, y + yc, pixel_size, path, display_size);
-    findAndPush(-x + xc, y + yc, pixel_size, path, display_size);
-    findAndPush(x + xc, -y + yc, pixel_size, path, display_size);
-    findAndPush(-x + xc, -y + yc, pixel_size, path, display_size);
+    findAndPush(x + xc, y + yc, path, display_size);
+    findAndPush(-x + xc, y + yc, path, display_size);
+    findAndPush(x + xc, -y + yc, path, display_size);
+    findAndPush(-x + xc, -y + yc, path, display_size);
 
     if (d1 < 0) {
       x++;
@@ -49,10 +45,10 @@ export function completeElipse(
 
   while (y >= 0) {
     // Print points based on 4-way symmetry
-    findAndPush(x + xc, y + yc, pixel_size, path, display_size);
-    findAndPush(-x + xc, y + yc, pixel_size, path, display_size);
-    findAndPush(x + xc, -y + yc, pixel_size, path, display_size);
-    findAndPush(-x + xc, -y + yc, pixel_size, path, display_size);
+    findAndPush(x + xc, y + yc, path, display_size);
+    findAndPush(-x + xc, y + yc, path, display_size);
+    findAndPush(x + xc, -y + yc, path, display_size);
+    findAndPush(-x + xc, -y + yc, path, display_size);
 
     if (d2 > 0) {
       y--;
@@ -70,7 +66,7 @@ export function completeElipse(
   return path;
 }
 
-function findAndPush(a: number, b: number, pixel_size: number, path: { x: number; y: number }[], display_size: number) {
+function findAndPush(a: number, b: number, path: { x: number; y: number }[], display_size: number) {
   if (a >= 0 && a < display_size && b >= 0 && b < display_size) {
     path.push({ x: Math.floor(a), y: Math.floor(b) });
   }

@@ -6,7 +6,7 @@
 
 import Frame from '../scene/Frame';
 
-export function undoLastDraw(pixel_size: number, ctx: CanvasRenderingContext2D, frame: Frame, display_size: number) {
+export function undoLastDraw(ctx: CanvasRenderingContext2D, frame: Frame, display_size: number) {
   if (frame.undoStack.isEmpty()) return;
   const mostRecentDraw = frame.undoStack.top();
   if (!mostRecentDraw) return;
@@ -26,7 +26,7 @@ export function undoLastDraw(pixel_size: number, ctx: CanvasRenderingContext2D, 
   }
 }
 
-export function redoLastDraw(ctx: CanvasRenderingContext2D, pixel_size: number, frame: Frame, display_size: number) {
+export function redoLastDraw(ctx: CanvasRenderingContext2D, frame: Frame, display_size: number) {
   const mostRecentDraw = frame.redoStack.top();
   if (!mostRecentDraw) return;
   frame.redoStack.pop();

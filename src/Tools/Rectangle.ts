@@ -10,7 +10,6 @@ export function Rectangle(
   frame: Frame,
   ctx: CanvasRenderingContext2D,
   mouse: Mouse,
-  pixel_size: number,
   start: { x: number; y: number },
   selectedColor: string,
   penSize: number,
@@ -31,9 +30,9 @@ export function Rectangle(
   let path: { x: number; y: number }[];
 
   if (fill) {
-    path = completeClosedRectangle(start, { x, y }, pixel_size, display_size);
+    path = completeClosedRectangle(start, { x, y }, penSize, display_size);
   } else {
-    path = completeRectangle(start, { x, y }, pixel_size, display_size);
+    path = completeRectangle(start, { x, y }, penSize, display_size);
   }
 
   for (let pixel of path) {

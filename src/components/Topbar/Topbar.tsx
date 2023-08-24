@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './topbar.scss';
-import { faArrowRotateLeft, faBars, faBroom, faDownload, faFile, faRotateRight } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRotateLeft, faBars, faRotateRight } from '@fortawesome/free-solid-svg-icons';
 import { EventBus } from '../../EventBus';
 import { CLEAR_DRAWING, START_NEW_DRAWING } from '../../utils/constants';
 import { store, StoreType } from '../../store';
@@ -12,9 +12,9 @@ export function Topbar({ isMobile }: { isMobile: boolean }) {
 
   const framesList = store((store: StoreType) => store.framesList);
 
-  const frameRate = store((store: StoreType) => store.frameRate);
+  // const frameRate = store((store: StoreType) => store.frameRate);
 
-  const [isTopBarMobileOpen, setIsTopBarMobileOpen] = useState(false);
+  const [, setIsTopBarMobileOpen] = useState(false);
 
   function downloadDrawing(close?: boolean) {
     if (close) setIsTopBarMobileOpen(false);

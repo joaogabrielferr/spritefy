@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction } from 'react';
-import { toolsType } from '../../types';
 import { faGear, faArrowRotateLeft, faArrowRotateRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { EventBus } from '../../EventBus';

@@ -1,12 +1,10 @@
 import { completeClosedRectangle } from '../algorithms/completeClosedRectangle';
 import Frame from '../scene/Frame';
-import Mouse from '../scene/Mouse';
 
 export function Selection(
   frame: Frame,
   start: { x: number; y: number },
   end: { x: number; y: number },
-  mouse: Mouse,
   ctx: CanvasRenderingContext2D,
   display_size: number,
   pixel_size: number,
