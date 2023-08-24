@@ -1596,7 +1596,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       onMouseUp={handleFinishDraw}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
-      onTouchEnd={handleFinishDraw}>
+      onTouchEnd={handleFinishDraw}
+      style={{ cursor: 'url(./crosshair.png) 16 16, auto' }}>
       <canvas className="canvas" id="topCanvas" style={{ zIndex: 2 }} ref={topCanvasRef}></canvas>
       <canvas className="canvas" id="canvas" style={{ zIndex: 1 }} ref={canvasRef}></canvas>
       <canvas className="canvas" id="backgroundCanvas" style={{ zIndex: 0 }} ref={backgroundCanvasRef}></canvas>
