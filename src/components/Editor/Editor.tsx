@@ -306,7 +306,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   const handleUndoLastDraw = useCallback(() => {
-    undoLastDraw(pixel_size, ctx, frames.current[currentFrameIndex], displaySize);
+    undoLastDraw(ctx, frames.current[currentFrameIndex], displaySize);
 
     //this updates the frame in the sidebar
     //constants.DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
@@ -319,7 +319,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   const handleRedoLastDraw = useCallback(() => {
-    redoLastDraw(ctx, pixel_size, frames.current[currentFrameIndex], displaySize);
+    redoLastDraw(ctx, frames.current[currentFrameIndex], displaySize);
 
     //this updates the frame in the sidebar
     //constants.DRAW_ON_SIDEBAR_CANVAS is subscribed to in Frames.tsx component
@@ -868,7 +868,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           frames.current[currentFrameIndex],
           topCtx,
           mouse,
-          pixel_size,
           frames.current[currentFrameIndex].lineFirstPixel!,
           selectedColor,
           penSize,
@@ -888,7 +887,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             Elipse(
               frames.current[currentFrameIndex],
               topCtx,
-              pixel_size,
               frames.current[currentFrameIndex].lineFirstPixel!,
               selectedColor,
               penSize,
@@ -900,7 +898,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             Elipse(
               frames.current[currentFrameIndex],
               topCtx,
-              pixel_size,
               frames.current[currentFrameIndex].lineFirstPixel!,
               selectedColor,
               penSize,
@@ -925,7 +922,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             frames.current[currentFrameIndex],
             frames.current[currentFrameIndex].selectionFirstPixel!,
             { x, y },
-            mouse,
             topCtx,
             displaySize,
             pixel_size
@@ -952,7 +948,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
             frames.current[currentFrameIndex],
             selection.topLeft,
             selection.bottomRight,
-            mouse,
             topCtx,
             displaySize,
             pixel_size,
@@ -1047,7 +1042,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         frames.current[currentFrameIndex],
         topCtx,
         mouse,
-        pixel_size,
         frames.current[currentFrameIndex].lineFirstPixel!,
         selectedColor,
         penSize,
@@ -1066,7 +1060,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           Elipse(
             frames.current[currentFrameIndex],
             topCtx,
-            pixel_size,
             frames.current[currentFrameIndex].lineFirstPixel!,
             selectedColor,
             penSize,
@@ -1078,7 +1071,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           Elipse(
             frames.current[currentFrameIndex],
             topCtx,
-            pixel_size,
             frames.current[currentFrameIndex].lineFirstPixel!,
             selectedColor,
             penSize,
@@ -1100,7 +1092,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           frames.current[currentFrameIndex],
           frames.current[currentFrameIndex].selectionFirstPixel!,
           { x: Math.floor(mouse.x), y: Math.floor(mouse.y) },
-          mouse,
           topCtx,
           displaySize,
           pixel_size
@@ -1129,7 +1120,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
           frames.current[currentFrameIndex],
           selection.topLeft,
           selection.bottomRight,
-          mouse,
           topCtx,
           displaySize,
           pixel_size,

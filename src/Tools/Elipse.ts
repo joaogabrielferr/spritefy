@@ -7,7 +7,6 @@ import { toRGB } from '../utils/colorConverters';
 export function Elipse(
   frame: Frame,
   ctx: CanvasRenderingContext2D,
-  pixel_size: number,
   midPoint: { x: number; y: number },
   selectedColor: string,
   penSize: number,
@@ -23,7 +22,7 @@ export function Elipse(
 
   const data = ctx.getImageData(0, 0, display_size, display_size).data;
 
-  const path: { x: number; y: number }[] = completeElipse(midPoint, major, minor, frame, pixel_size, display_size);
+  const path: { x: number; y: number }[] = completeElipse(midPoint, major, minor, display_size);
   for (let pixel of path) {
     const index = (pixel.x + display_size * pixel.y) * 4;
     data[index] = rgb[0];
