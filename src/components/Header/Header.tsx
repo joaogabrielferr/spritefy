@@ -62,7 +62,7 @@ export function Header({ isMobile }: { isMobile: boolean }) {
             )}
             <div>
               <div className="logo-container">
-                <img height={'16px'} style={{ imageRendering: 'pixelated' }} src={`./public/logo.png`} alt={'logo'} />
+                <img height={'16px'} style={{ imageRendering: 'pixelated' }} src={`./logo.png`} alt={'logo'} />
                 PRITEFY
               </div>
             </div>
@@ -80,7 +80,7 @@ export function Header({ isMobile }: { isMobile: boolean }) {
               href="https://github.com/joaogabrielferr/spritefy"
               target="_blank"
               style={{ textDecoration: 'none', color: 'white' }}>
-              <img height={'20px'} src={`./public/github-mark-white.png`} alt={'github icon'} />
+              <img height={'20px'} src={`./github-mark-white.png`} alt={'github icon'} />
             </a>
           </div>
         </div>

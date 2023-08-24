@@ -192,7 +192,7 @@ function Transform() {
           data-tooltip-id="my-tooltip-transform"
           data-tooltip-content={'Flip in X axis'}
           onClick={() => EventBus.getInstance().publish(FLIP_X)}>
-          <img height={'32px'} style={{ imageRendering: 'pixelated' }} src={`./public/flipX.png`} alt={'Flip in X axis'} />
+          <img height={'32px'} style={{ imageRendering: 'pixelated' }} src={`./flipX.png`} alt={'Flip in X axis'} />
         </button>
         <button
           style={{ width: '50px', height: '40px', borderStyle: 'none', cursor: 'pointer', backgroundColor: '#333333' }}
@@ -202,7 +202,7 @@ function Transform() {
           <img
             height={'32px'}
             style={{ imageRendering: 'pixelated', transform: 'rotate(90deg)' }}
-            src={`./public/flipX.png`}
+            src={`./flipX.png`}
             alt={'Flip in X axis'}
           />
         </button>
@@ -211,12 +211,7 @@ function Transform() {
           data-tooltip-id="my-tooltip-transform"
           data-tooltip-content={'Clockwise rotation'}
           onClick={() => EventBus.getInstance().publish(CLOCKWISE_ROTATION)}>
-          <img
-            height={'32px'}
-            style={{ imageRendering: 'pixelated' }}
-            src={`./public/clockwiseRotation.png`}
-            alt={'Flip in X axis'}
-          />
+          <img height={'32px'} style={{ imageRendering: 'pixelated' }} src={`./clockwiseRotation.png`} alt={'Flip in X axis'} />
         </button>
       </div>
     </div>

@@ -114,12 +114,7 @@ export function Toolbar({ isWelcomeModalOpen, isToolbarMobileOpen, isMobile, too
                 {button.svg ? (
                   button.svg
                 ) : (
-                  <img
-                    height={'24px'}
-                    style={{ imageRendering: 'pixelated' }}
-                    src={`./public/${button.tool}.png`}
-                    alt={button.tool}
-                  />
+                  <img height={'24px'} style={{ imageRendering: 'pixelated' }} src={`./${button.tool}.png`} alt={button.tool} />
                 )}
               </button>
             </div>

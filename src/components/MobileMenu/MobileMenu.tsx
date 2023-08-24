@@ -19,10 +19,10 @@ export function MobileMenu(props: MobileMenuProps) {
     <div className="mobile-options">
       <div className="mobile-row row-1">
         <button onClick={() => props.setIsToolbarMobileOpen(true)}>
-          <img height={'24px'} style={{ imageRendering: 'pixelated' }} src={`./public/${selectedTool}.png`} alt={selectedTool} />
+          <img height={'24px'} style={{ imageRendering: 'pixelated' }} src={`./${selectedTool}.png`} alt={selectedTool} />
         </button>
         <button onClick={() => props.setIsLeftSidebarMobileOpen(true)}>
-          <img height={'13px'} style={{ imageRendering: 'pixelated' }} src={`./public/${selectedTool}.png`} alt={selectedTool} />
+          <img height={'13px'} style={{ imageRendering: 'pixelated' }} src={`./${selectedTool}.png`} alt={selectedTool} />
           <FontAwesomeIcon size="lg" color="black" icon={faGear} />
         </button>
         {/* <button>COLOR</button> */}
