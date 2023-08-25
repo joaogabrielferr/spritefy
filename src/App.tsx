@@ -6,7 +6,7 @@ import { ToolOptions } from './components/ToolOptions/ToolOptions';
 import { Header } from './components/Header/Header';
 import { Tooltip } from 'react-tooltip';
 import { EventBus } from './EventBus';
-import { CLOCKWISE_ROTATION, FLIP_X, FLIP_Y, RESET_CANVAS_POSITION } from './utils/constants';
+import { CLEAR_DRAWING, CLOCKWISE_ROTATION, FLIP_X, FLIP_Y, RESET_CANVAS_POSITION } from './utils/constants';
 import { store, StoreType } from './store';
 import { Frames } from './components/Frames/Frames';
 import { Preview } from './components/Preview/Preview';
@@ -26,9 +26,7 @@ import { Palettes } from './components/Palettes/Palettes';
 //change color of all pixels with the start color
 
 function App() {
-  // const selectedColor = store((state: StoreType) => state.selectedColor);
-
-  // const setSelectedColor = store((state: StoreType) => state.setSelectedColor);
+  const displaySize = store((state: StoreType) => state.displaySize);
 
   const setDisplaySize = store((state: StoreType) => state.setDisplaySize);
 
@@ -38,7 +36,7 @@ function App() {
 
   const [cssCanvasSize, setCssCanvasSize] = useState<number>(700); //TODO: change the name of this state to something like canvasWrapperSize
 
-  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768); //TODO:this may be two simple, search for a better way to detect a mobile device
+  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
 
   const [isToolbarMobileOpen, setIsToolbarMobileOpen] = useState(false);
 
@@ -46,8 +44,12 @@ function App() {
 
   const [isRightSidebarMobileOpen, setIsRightSidebarMobileOpen] = useState(false);
 
-  function handleOnCloseWelcomeModal(displaySize: number) {
-    setDisplaySize(displaySize);
+  function handleOnCloseWelcomeModal(_displaySize: number) {
+    if (displaySize === _displaySize) {
+      EventBus.getInstance().publish(CLEAR_DRAWING);
+    } else {
+      setDisplaySize(_displaySize);
+    }
     setIsWelcomeModalOpen(false);
   }
 

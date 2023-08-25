@@ -5,7 +5,7 @@ import Mouse from '../scene/Mouse';
 
 import { toRGB } from '../utils/colorConverters';
 
-//ctx is the context of top canvas, drawing is made first on top canvas and after mouse up event the draw is translated to main canvas, since the draw change dinamically
+//ctx is the context of top canvas, drawing is made first on top canvas and after mouse up event then draw is translated to main canvas, since the draw change dinamically
 export function Rectangle(
   frame: Frame,
   ctx: CanvasRenderingContext2D,

@@ -25,8 +25,6 @@ export function Palettes() {
     setSelectedPalette(palettes.find((palette) => +palette.id === +e.target.value)!);
   }
 
-  console.log(selectedPalette);
-
   return (
     <div className="palettes">
       <div className="palettes-title">COLOR PALETTES</div>
@@ -52,6 +50,20 @@ export function Palettes() {
                 onClick={() => setSelectedColor(color)}></button>
             ))}
           </div>
+          {selectedPalette.id == 0 && selectedPalette.colors.length == 0 ? (
+            <div
+              style={{
+                width: '100%',
+                height: '25px',
+                fontSize: '12px',
+                color: '#adabab',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+              draw on canvas to add colors
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
