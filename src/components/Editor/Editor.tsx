@@ -217,9 +217,16 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     backgroundCanvas.style.height = `${cssCanvasSize - offset}px`;
 
     originalCanvasWidth = cssCanvasSize - offset;
+    EventBus.getInstance().publish(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
+    frames.current.forEach((frame) => {
+      EventBus.getInstance().publish<drawOnSideBarCanvasType>(constants.DRAW_ON_SIDEBAR_CANVAS, {
+        frame: frame.name,
+        pixelArray: frame.pixels
+      });
+    });
 
     resetCanvasPosition();
-  }, [cssCanvasSize, isMobile]);
+  }, [cssCanvasSize, displaySize, isMobile]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 

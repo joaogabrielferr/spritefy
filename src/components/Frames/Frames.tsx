@@ -58,6 +58,7 @@ export function Frames({ isMobile }: { isMobile: boolean }) {
 
   const drawFrame = useCallback(
     (args: drawOnSideBarCanvasType) => {
+      // console.log('updating ', args.frame, ' with ', args.pixelArray);
       const canvas = document.getElementById(`${args.frame}@sidebar`) as HTMLCanvasElement;
       if (!canvas) return;
       const ctx = canvas.getContext('2d')!;
