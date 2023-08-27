@@ -13,7 +13,5 @@
 You can access the app here: [spritefy.com](https://spritefy.com)
 
 
+![lets gooooo](https://github.com/joaogabrielferr/spritefy/assets/59519370/5a058ce8-460c-491d-b0e3-fbfa5bb48346)
 
-
-
-![lets gooooo](https://github.com/joaogabrielferr/spritefy/assets/59519370/f55fbe48-2b99-40f1-b105-f0b468aef35f)
