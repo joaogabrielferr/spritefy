@@ -1354,7 +1354,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
       if (delta < 0 && frames.current[currentFrameIndex].zoomAmount < constants.MAX_ZOOM_AMOUNT) {
         // Zoom in
-        if (parseFloat(canvas.style.width) < originalCanvasWidth) {
+        if (parseFloat(canvas.style.width) + 1 < originalCanvasWidth) {
           currentScale += constants.SCALE_FACTOR;
           const newSize = Math.min(parseFloat(canvas.style.width) + 100, originalCanvasWidth);
 
@@ -1406,7 +1406,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         }
       } else if (delta > 0) {
         // Zoom out
-
+        // console.log(frames.current[currentFrameIndex].zoomAmount, constants.MAX_ZOOM_AMOUNT);
         if (frames.current[currentFrameIndex].zoomAmount > 0) {
           frames.current[currentFrameIndex].zoomAmount--;
           if (mouse.history.length > 0) {

@@ -137,13 +137,13 @@ function App() {
         </div>
       </section>
       {!isMobile && (
-        <div style={{ width: '100%', height: '100px', display: 'flex' }}>
+        <div style={{ width: '100%', height: '130px', display: 'flex' }}>
           <Frames isMobile={isMobile} />
         </div>
       )}
-      {!isMobile && <Tooltip id="my-tooltip" place="right" style={{ zIndex: 9999, backgroundColor: '#2e148b' }} />}
-      {!isMobile && <Tooltip id="my-tooltip-extra-options" place="right" style={{ zIndex: 9999, backgroundColor: '#2e148b' }} />}
-      {!isMobile && <Tooltip id="my-tooltip-transform" place="left" style={{ zIndex: 9999, backgroundColor: '#2e148b' }} />}
+      {!isMobile && <Tooltip id="my-tooltip" place="right" style={{ zIndex: 9999, backgroundColor: '#184a96' }} />}
+      {!isMobile && <Tooltip id="my-tooltip-extra-options" place="right" style={{ zIndex: 9999, backgroundColor: '#184a96' }} />}
+      {!isMobile && <Tooltip id="my-tooltip-transform" place="left" style={{ zIndex: 9999, backgroundColor: '#184a96' }} />}
       {isWelcomeModalOpen && <WelcomeModal onCloseModal={handleOnCloseWelcomeModal}></WelcomeModal>}
     </main>
   );
