@@ -520,6 +520,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       setFramesList(newFramesList);
 
       currentFrameIndex = frames.current.findIndex((f) => f.name === frame1);
+
+      EventBus.getInstance().publish(constants.UPDATE_FRAMES_REF_ON_PREVIEW, frames.current);
     },
     [framesList, setFramesList]
   );
