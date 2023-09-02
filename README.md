@@ -5,10 +5,9 @@
 ✅real time animation preview<br/>
 ✅animation is saved as a sprite sheet<br/>
 
-🚧 Cool things still not implemented:<br/>
-🔨 option to swap frames <br/>
-🔨 layers <br/>
-🔨 save animation as .gif <br/>
+🚧 Cool things still being implemented:<br/>
+  layers <br/>
+  save animation as .gif <br/>
 
 You can access the app here: [spritefy.com](https://spritefy.com)
 
