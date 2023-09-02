@@ -498,6 +498,32 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
+  const swapFrames = useCallback(
+    (args: { frame1: string; frame2: string }) => {
+      const frame1 = args.frame1;
+      const frame2 = args.frame2;
+
+      const newFramesList = framesList.filter((frame) => frame != frame1);
+
+      const currentFrameRef = frames.current[frames.current.findIndex((f) => f.name === frame1)];
+
+      const newFramesRef = frames.current.filter((frame) => frame.name != frame1);
+
+      const frame2Index = newFramesList.findIndex((f) => f === frame2);
+
+      newFramesList.splice(frame2Index + 1, 0, frame1);
+
+      newFramesRef.splice(frame2Index + 1, 0, currentFrameRef);
+
+      frames.current = newFramesRef;
+
+      setFramesList(newFramesList);
+
+      currentFrameIndex = frames.current.findIndex((f) => f.name === frame1);
+    },
+    [framesList, setFramesList]
+  );
+
   useEffect(() => {
     const resetCanvasSubscription = EventBus.getInstance().subscribe(constants.RESET_CANVAS_POSITION, resetCanvasPosition);
     const selectFrameSubscription = EventBus.getInstance().subscribe(constants.SELECT_FRAME, selectFrame);
@@ -530,6 +556,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     }
 
     const handleClearTopCanvas = EventBus.getInstance().subscribe(constants.CLEAR_TOP_CANVAS, clearTopCanvas);
+    const handleSwapFramesSubscription = EventBus.getInstance().subscribe(constants.SWAP_FRAMES, swapFrames);
 
     function checkKeyCombinations(event: KeyboardEvent) {
       if (event.ctrlKey) {
@@ -577,6 +604,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
       handleFlipX.unsubscribe();
       handleFlipY.unsubscribe();
       handleClockwiseRotation.unsubscribe();
+      handleSwapFramesSubscription.unsubscribe();
       document.removeEventListener('keydown', checkKeyCombinations);
     };
   }, [
@@ -595,7 +623,8 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
     startNewDrawing,
     flipX,
     flipY,
-    CWRotation
+    CWRotation,
+    swapFrames
   ]);
 
   ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1406,7 +1435,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         }
       } else if (delta > 0) {
         // Zoom out
-        // console.log(frames.current[currentFrameIndex].zoomAmount, constants.MAX_ZOOM_AMOUNT);
         if (frames.current[currentFrameIndex].zoomAmount > 0) {
           frames.current[currentFrameIndex].zoomAmount--;
           if (mouse.history.length > 0) {

@@ -9,7 +9,8 @@ import {
   CREATE_NEW_FRAME,
   DELETE_FRAME,
   DRAW_ON_SIDEBAR_CANVAS,
-  SELECT_FRAME
+  SELECT_FRAME,
+  SWAP_FRAMES
 } from '../../utils/constants';
 import './frames.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -98,7 +99,7 @@ export function Frames({ isMobile }: { isMobile: boolean }) {
 
     setTimeout(() => {
       //scroll frames list to the bottom when new fram is added
-      if (isMobile && framesDivRef.current) {
+      if (framesDivRef.current) {
         framesDivRef.current.scrollTop = framesDivRef.current.scrollHeight;
         framesDivRef.current.scrollLeft = framesDivRef.current.scrollWidth;
       }
@@ -113,9 +114,31 @@ export function Frames({ isMobile }: { isMobile: boolean }) {
     EventBus.getInstance().publish(COPY_FRAME, frame);
   }
 
+  function swapLeft(frame: string) {
+    const index = framesList.findIndex((f) => f === frame);
+    if (index <= 0) return;
+
+    EventBus.getInstance().publish<{ frame1: string; frame2: string }>(SWAP_FRAMES, {
+      frame1: framesList[index - 1],
+      frame2: frame
+    });
+  }
+
+  function swapRight(frame: string) {
+    const index = framesList.findIndex((f) => f === frame);
+    if (index == framesList.length - 1) return;
+
+    EventBus.getInstance().publish<{ frame1: string; frame2: string }>(SWAP_FRAMES, {
+      frame1: frame,
+      frame2: framesList[index + 1]
+    });
+  }
+
+  const currentFrameIndex = framesList.findIndex((f) => f === currentFrame);
+
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ width: '100%', backgroundColor: '#494949' }}>
+      <div style={{ width: '100%', backgroundColor: '#494949', position: 'sticky', top: '0', zIndex: '9999999999999' }}>
         <button className="frame-button" onClick={createNewFrameHandler}>
           <FontAwesomeIcon size="lg" color="white" icon={faPlus} />
           &nbsp; ADD FRAME
@@ -127,18 +150,32 @@ export function Frames({ isMobile }: { isMobile: boolean }) {
         <button className="frame-button" onClick={() => deleteFrame(currentFrame)}>
           <FontAwesomeIcon size="lg" color="white" icon={faTrashCan} />
         </button>
-        <button className="frame-button" onClick={createNewFrameHandler}>
+        <button className="frame-button" onClick={() => swapLeft(currentFrame)}>
           {isMobile ? (
-            <FontAwesomeIcon size="lg" color="white" icon={faCircleArrowUp} />
+            <FontAwesomeIcon size="lg" color={currentFrameIndex === 0 ? 'gray' : 'white'} icon={faCircleArrowUp} />
           ) : (
-            <FontAwesomeIcon size="lg" color="white" icon={faCircleArrowLeft} />
+            <>
+              <FontAwesomeIcon size="lg" color={currentFrameIndex === 0 ? 'gray' : 'white'} icon={faCircleArrowLeft} />
+              <span style={{ color: currentFrameIndex === 0 ? 'gray' : 'white' }}>SWAP LEFT</span>
+            </>
           )}
         </button>
-        <button className="frame-button" onClick={createNewFrameHandler}>
+        <button className="frame-button" onClick={() => swapRight(currentFrame)}>
           {isMobile ? (
-            <FontAwesomeIcon size="lg" color="white" icon={faCircleArrowDown} />
+            <FontAwesomeIcon
+              size="lg"
+              color={currentFrameIndex === framesList.length - 1 ? 'gray' : 'white'}
+              icon={faCircleArrowDown}
+            />
           ) : (
-            <FontAwesomeIcon size="lg" color="white" icon={faCircleArrowRight} />
+            <>
+              <span style={{ color: currentFrameIndex === framesList.length - 1 ? 'gray' : 'white' }}>SWAP RIGHT</span>
+              <FontAwesomeIcon
+                size="lg"
+                color={currentFrameIndex === framesList.length - 1 ? 'gray' : 'white'}
+                icon={faCircleArrowRight}
+              />
+            </>
           )}
         </button>
       </div>
@@ -150,8 +187,9 @@ export function Frames({ isMobile }: { isMobile: boolean }) {
               key={frame}
               style={{
                 border: frame === currentFrame ? `5px solid #1e6ee7` : undefined
-              }}>
-              <div className="frame-canvas-wrapper" onClick={() => changeCurrentFrame(frame)}>
+              }}
+              onClick={() => changeCurrentFrame(frame)}>
+              <div className="frame-canvas-wrapper">
                 <canvas
                   className="frame-canvas"
                   width={displaySize}
