@@ -1,11 +1,12 @@
 
 # [Spritefy](https://spritefy.com)
-🚀***very cool***🚀 web-based pixel art editor. <br/><br/>
+This is a web-based pixel art editor built with React.<br/>
 ✅decent mobile support<br/>
+✅support for creating animations<br/>
 ✅real time animation preview<br/>
 ✅animation is saved as a sprite sheet<br/>
 
-🚧 Still being implemented:<br/>
+TODO:<br/>
   layers <br/>
   save animation as .gif <br/>
 
