@@ -4,7 +4,7 @@
 //if i press ctrz + y, select the pixels at the top of the redo stack, and add then to the canvas
 //after that, i put these pixels in the undo stack
 
-import Frame from '../scene/Frame';
+import Frame from '../Scene/Frame';
 
 export function undoLastDraw(ctx: CanvasRenderingContext2D, frame: Frame, display_size: number) {
   if (frame.undoStack.isEmpty()) return;

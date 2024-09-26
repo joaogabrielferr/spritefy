@@ -1,5 +1,5 @@
 import { completeClosedRectangle } from '../algorithms/completeClosedRectangle';
-import Frame from '../scene/Frame';
+import Frame from '../Scene/Frame';
 
 export function Selection(
   frame: Frame,

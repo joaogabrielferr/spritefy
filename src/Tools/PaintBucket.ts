@@ -1,5 +1,5 @@
-import Frame from '../scene/Frame';
-import Mouse from '../scene/Mouse';
+import Frame from '../Scene/Frame';
+import Mouse from '../Scene/Mouse';
 import { toHex, toRGB } from '../utils/colorConverters';
 
 export function PaintBucket(

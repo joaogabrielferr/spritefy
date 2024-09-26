@@ -1,4 +1,4 @@
-import Frame from '../scene/Frame';
+import Frame from '../Scene/Frame';
 import { ArrayIndexToCanvasCoordinates } from '../utils/indexConverters';
 
 export function ClockwiseRotation(frame: Frame, ctx: CanvasRenderingContext2D, displaySize: number) {

@@ -1,6 +1,6 @@
 import { bresenhamsAlgorithm } from '../algorithms/bresenhamsAlgorithm';
-import Frame from '../scene/Frame';
-import Mouse from '../scene/Mouse';
+import Frame from '../Scene/Frame';
+import Mouse from '../Scene/Mouse';
 import { toRGB } from '../utils/colorConverters';
 
 //ctx is the context of top canvas, drawing is made first on top canvas and after mouse up event then draw is translated to main canvas,

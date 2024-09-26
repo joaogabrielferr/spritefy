@@ -1,4 +1,4 @@
-import Frame from '../scene/Frame';
+import Frame from '../Scene/Frame';
 import { ArrayIndexToCanvasCoordinates } from '../utils/indexConverters';
 
 //flip the canvas in the x axis

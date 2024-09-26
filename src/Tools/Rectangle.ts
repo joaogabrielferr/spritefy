@@ -1,7 +1,7 @@
 import { completeClosedRectangle } from '../algorithms/completeClosedRectangle';
 import { completeRectangle } from '../algorithms/completeRectangle';
-import Frame from '../scene/Frame';
-import Mouse from '../scene/Mouse';
+import Frame from '../Scene/Frame';
+import Mouse from '../Scene/Mouse';
 
 import { toRGB } from '../utils/colorConverters';
 

@@ -1,8 +1,7 @@
 import { useEffect, useRef, MouseEvent, TouchEvent, Touch, useCallback } from 'react';
 import './editor.scss';
 import * as constants from '../../utils/constants';
-import Mouse from '../../scene/Mouse';
-import Scene from '../../scene/Frame';
+import Mouse from '../../Scene/Mouse';
 import {
   Pencil,
   Eraser,
@@ -15,11 +14,11 @@ import {
   redoLastDraw,
   Selection,
   Dithering
-} from '../../tools';
+} from '../../Tools';
 import { drawOnSideBarCanvasType } from '../../types';
 import { EventBus } from '../../EventBus';
 import { store, StoreType } from '../../store';
-import Frame from '../../scene/Frame';
+import Frame from '../../Scene/Frame';
 import { MirrorX, MirrorY } from '../../transformations/mirror';
 import { ClockwiseRotation } from '../../transformations/rotate';
 import { toHex } from '../../utils/colorConverters';
@@ -141,7 +140,7 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
   ///////////////////////////////////////////////////////////////////////////////////////////////
 
   const clearDrawing = useCallback(() => {
-    frames.current = [new Scene('frame1')];
+    frames.current = [new Frame('frame1')];
 
     currentFrameIndex = 0;
     frames.current[0].initializePixelMatrix(displaySize);

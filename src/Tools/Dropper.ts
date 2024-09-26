@@ -1,6 +1,6 @@
-import Mouse from '../scene/Mouse';
+import Mouse from '../Scene/Mouse';
 import { toHex } from '../utils/colorConverters';
-import Frame from '../scene/Frame';
+import Frame from '../Scene/Frame';
 
 //return the color of a pixel
 export function Dropper(frame: Frame, mouse: Mouse, display_size: number) {

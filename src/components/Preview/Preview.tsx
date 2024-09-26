@@ -3,7 +3,7 @@ import { BG_COLORS, BG_TILE_SIZE, UPDATE_FRAMES_REF_ON_PREVIEW } from '../../uti
 import './preview.scss';
 import { EventBus } from '../../EventBus';
 import { StoreType, store } from '../../store';
-import Frame from '../../scene/Frame';
+import Frame from '../../Scene/Frame';
 
 export function Preview() {
   const canvas = useRef<HTMLCanvasElement>(null);

@@ -5,6 +5,7 @@ export { Line } from './Line';
 export { PaintBucket } from './PaintBucket';
 export { Pencil } from './Pencil';
 export { Rectangle } from './Rectangle';
+// export { undoLastDraw } from './UndoRedo';
 export { undoLastDraw } from './UndoRedo';
 export { redoLastDraw } from './UndoRedo';
 export { Selection } from './Selection';
