@@ -12,7 +12,7 @@ TODO:<br/>
   layers <br/>
   save animation as .gif <br/>
 
-The project is deployed on Netlify. You can try it at https://main--merry-begonia-1ae7e7.netlify.app/
+You can try it on https://joaogabrielferr.github.io/spritefy/
 
 Spritefy in action:<br/>
 ![lets gooooo](https://github.com/joaogabrielferr/spritefy/assets/59519370/8c5a6785-f19e-4ecf-85a0-1b2b264b5619)
