@@ -1,6 +1,5 @@
 //algorithm for finding the necessary points to create a close approximation of a straight line between two points
 //used in Line tool, also used to close gaps in Pencil tool and eraser tool(mousemove event handler doenst fire fast enough when moving the mouse to fast, leaving some gaps)
-
 export function bresenhamsAlgorithm(
   start: { x: number; y: number },
   end: { x: number; y: number },

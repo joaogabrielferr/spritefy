@@ -102,22 +102,5 @@ export default class Frame {
 
   copyPixelMatrix(pixels: Uint8ClampedArray) {
     this.pixels = new Uint8ClampedArray(pixels);
-
-    // for (let i = 0; i < pixelMatrix.length; i++) {
-    //   const row: Pixel[] = [];
-    //   for (let j = 0; j < pixelMatrix[i].length; j++) {
-    //     const pixel: Pixel = {
-    //       i: pixelMatrix[i][j].i,
-    //       j: pixelMatrix[i][j].j,
-    //       x1: pixelMatrix[i][j].x1,
-    //       y1: pixelMatrix[i][j].y1,
-    //       id: pixelMatrix[i][j].id,
-    //       bgColor: pixelMatrix[i][j].bgColor,
-    //       colorStack: new Stack<string>(pixelMatrix[i][j].colorStack)
-    //     };
-    //     row.push(pixel);
-    //   }
-    //   this.pixels.push(row);
-    // }
   }
 }

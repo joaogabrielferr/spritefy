@@ -876,8 +876,6 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
               topCtx.clearRect(n.x, n.y, pixel_size, pixel_size);
             }
           }
-        }
-        if (selectedTool !== 'selection') {
           return;
         }
       }
@@ -890,31 +888,17 @@ export default function Editor({ cssCanvasSize, isMobile }: IEditor): JSX.Elemen
         selectedTool === 'pencil' &&
         (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))
       ) {
-        if (mouse.isRightButtonClicked) {
-          Pencil(
-            frames.current[currentFrameIndex],
-            mouse,
-            pixel_size,
-            displaySize,
-            ctx,
-            penSize,
-            selectedColorSecondary,
-            xMirror,
-            yMirror
-          );
-        } else {
-          Pencil(
-            frames.current[currentFrameIndex],
-            mouse,
-            pixel_size,
-            displaySize,
-            ctx,
-            penSize,
-            selectedColor,
-            xMirror,
-            yMirror
-          );
-        }
+        Pencil(
+          frames.current[currentFrameIndex],
+          mouse,
+          pixel_size,
+          displaySize,
+          ctx,
+          penSize,
+          mouse.isRightButtonClicked ? selectedColorSecondary : selectedColor,
+          xMirror,
+          yMirror
+        );
       } else if (selectedTool === 'line' && (mouse.isLeftButtonClicked || (mouse.isRightButtonClicked && !erasingRightButton))) {
         topCtx.clearRect(0, 0, displaySize, displaySize);
         Line(
