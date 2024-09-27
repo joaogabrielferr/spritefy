@@ -1,10 +1,13 @@
 {
+  "homepage": "https://joaogabrielferr.github.io/spritefy",
   "name": "pixel-art-editor",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\" --config ./.prettierrc",
